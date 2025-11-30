@@ -83,6 +83,7 @@ export default function App() {
   }, [theme]);
 
   // 로그인 & 데이터 불러오기
+// 로그인 & 데이터 불러오기
   useEffect(() => {
     onUserStateChange(async (currentUser) => {
       setUser(currentUser);
@@ -93,31 +94,41 @@ export default function App() {
           if (userSnap.exists()) {
             const data = userSnap.data();
             
-            if (data.birthDate) { setInputDate(data.birthDate); setIsSaved(true); }
+            // 1. 기본 정보 불러오기
+            if (data.birthDate) { 
+                setInputDate(data.birthDate); 
+                setIsSaved(true); 
+            }
             if (data.gender) setGender(data.gender);
             if (data.isTimeUnknown !== undefined) setIsTimeUnknown(data.isTimeUnknown);
             
-            // 1. 수정 횟수 로직
+            // 2. 수정 횟수 동기화
             const todayStr = new Date().toLocaleDateString('en-CA');
             if (data.lastEditDate !== todayStr) setEditCount(0);
             else setEditCount(data.editCount || 0);
 
-            // 💥 [수정] 언어(lastLanguage)와 성별(lastGender)도 같이 로드
+            // 💥 [핵심] 저장된 AI 결과가 있다면, '모든 조건'을 캐시에 완벽하게 복구
             if (data.lastAiResult && data.lastSaju) {
+                console.log("📥 DB에서 지난 분석 결과 불러옴");
                 setCachedData({
                     saju: data.lastSaju,      
-                    result: data.lastAiResult,
-                    prompt: data.lastPrompt || DEFAULT_INSTRUCTION,
-                    // 저장된 값이 없으면 현재 값이나 기본값으로 대체
-                    language: data.lastLanguage || "en", 
-                    gender: data.lastGender || data.gender || "female"
+                    result: data.lastAiResult, // 👈 결과값(AI Result) 복구
+                    prompt: data.lastPrompt || DEFAULT_INSTRUCTION, // 👈 질문 복구
+                    language: data.lastLanguage || "en", // 👈 언어 복구 (없으면 기본값 en)
+                    gender: data.lastGender || data.gender // 👈 성별 복구
                 });
             }
-          } 
-          // ... (else 로직 생략)
+          } else { 
+            setIsSaved(false); 
+            setEditCount(0); 
+            setCachedData(null);
+          }
         } catch (error) { console.error("정보 불러오기 실패:", error); }
-      } 
-      // ... (else 로직 생략)
+      } else { 
+          setIsSaved(false); 
+          setEditCount(0);
+          setCachedData(null);
+      }
     });
   }, []);
 
@@ -347,50 +358,57 @@ export default function App() {
     return true; 
   })();
   // 💥 [핵심] 캐싱 적용된 AI 분석 함수
-// 💥 [수정] 성별/언어까지 비교하는 분석 함수
+
   const handleAiAnalysis = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
     
+    // 1. 현재 화면의 사주 글자(Key)들을 배열로 준비
+    const keys = ["sky0", "grd0", "sky1", "grd1", "sky2", "grd2", "sky3", "grd3"];
+    
+    // 2. 캐시 일치 여부 검사 (버튼의 isCached 로직과 100% 동일하게 맞춤)
+    let isMatch = false;
+    if (cachedData && cachedData.saju) {
+        const savedPrompt = cachedData.prompt || DEFAULT_INSTRUCTION;
+        // 질문, 언어, 성별, 그리고 사주 8글자가 모두 같은지 확인
+        if (savedPrompt === userPrompt && 
+            cachedData.language === language && 
+            cachedData.gender === gender) {
+            
+            // 사주 글자 비교 (순서 상관없이 값만 비교)
+            const isSajuMatch = keys.every(key => cachedData.saju[key] === saju[key]);
+            if (isSajuMatch) isMatch = true;
+        }
+    }
+
+    // ✅ 일치하면 로딩 없이 바로 결과 보여줌
+    if (isMatch) {
+        console.log("✅ 저장된 결과 즉시 로드 (API 호출 X)");
+        setAiResult(cachedData.result);
+        setIsSuccess(true);
+        setIsModalOpen(true);
+        return; 
+    }
+
+    // ---------------------------------------------
+    // 3. 불일치 시 API 호출 (기존 로직)
     setLoading(true); setAiResult(""); setIsSuccess(false); setIsCachedLoading(false);
 
     try {
-      const currentSajuKey = JSON.stringify(saju);
-      
-      // 3. 캐시 확인 (사주 + 프롬프트 + 성별 + 언어 모두 일치해야 함)
-      if (cachedData && 
-          JSON.stringify(cachedData.saju) === currentSajuKey && 
-          cachedData.prompt === userPrompt &&
-          cachedData.gender === gender &&       // 👈 성별 확인 추가
-          cachedData.language === language      // 👈 언어 확인 추가
-         ) {
-          
-          console.log("✅ 모든 조건(사주/질문/성별/언어) 일치 -> 캐시 사용");
-          setIsCachedLoading(true); 
-          
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          setAiResult(cachedData.result);
-          setIsSuccess(true);
-          setIsModalOpen(true);
-          return; 
-      }
-
-      console.log("🚀 조건 변경됨! API 호출 시작");
-      // 프롬프트 구성
+      console.log("🚀 새로운 분석 요청! API 호출 시작");
+      const currentSajuKey = JSON.stringify(saju); // 저장용 문자열
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const langPrompt = language === "ko" ? "답변은 한국어로." : "Answer in English.";
       const fullPrompt = `${userPrompt}\n${sajuInfo}\n${langPrompt}`;
       
       const result = await fetchGeminiAnalysis(fullPrompt);
       
-      // 5. 결과 저장 (성별, 언어도 같이 저장)
       await setDoc(doc(db, "users", user.uid), {
          lastAiResult: result,
          lastSaju: saju,
          lastPrompt: userPrompt,
-         lastLanguage: language, // 👈 저장
-         lastGender: gender      // 👈 저장
+         lastLanguage: language, 
+         lastGender: gender      
       }, { merge: true });
 
       setCachedData({ 
@@ -409,7 +427,6 @@ export default function App() {
         alert(`Error: ${e.message}`); 
     } finally { 
         setLoading(false); 
-        setIsCachedLoading(false); 
     }
   };
 
@@ -805,13 +822,95 @@ export default function App() {
          </button>
       </div>
       {/* 5. 모달 */}
+{/* 5. 모달 (레이아웃 변경: PC에선 좌측 고정, 모바일에선 상단 표시) */}
       {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={()=>setIsModalOpen(false)} />
-              <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-                  <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700"><h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">{UI_TEXT.modalTitle[language]}</h3><div className="flex gap-2"><button onClick={handleCopyResult} className="px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs">{isCopied ? UI_TEXT.copiedBtn[language] : UI_TEXT.copyBtn[language]}</button><button onClick={() => setIsModalOpen(false)} className="p-2 bg-gray-100 dark:bg-slate-700 rounded-full">✕</button></div></div>
-                  <div className="p-6 overflow-y-auto custom-scrollbar"><div className="prose prose-indigo dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-200">{aiResult}</div></div>
-                  <div className="p-4 border-t dark:border-gray-700 flex justify-end"><button onClick={handleShare} className="px-5 py-2 bg-indigo-600 text-white rounded-lg shadow-lg flex gap-2 text-sm">{UI_TEXT.shareBtn[language]}</button></div>
+              {/* max-w-5xl로 넓혀서 좌우 배치 공간 확보 */}
+              <div className="relative w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+                  
+                  {/* 모달 헤더 */}
+                  <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+                      <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">{UI_TEXT.modalTitle[language]}</h3>
+                      <div className="flex gap-2">
+                          <button onClick={handleCopyResult} className="px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs">{isCopied ? UI_TEXT.copiedBtn[language] : UI_TEXT.copyBtn[language]}</button>
+                          <button onClick={() => setIsModalOpen(false)} className="p-2 bg-gray-100 dark:bg-slate-700 rounded-full">✕</button>
+                      </div>
+                  </div>
+
+                  {/* 모달 바디: Flex로 좌우 나눔 */}
+                  <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+                      
+                      {/* 1. 왼쪽 패널: 만세력 시각화 (PC: 고정 / 모바일: 상단) */}
+                      <div className="w-full md:w-[160px] flex-shrink-0 bg-gray-50 dark:bg-slate-900/50 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-700 overflow-y-auto custom-scrollbar p-4 flex md:flex-col flex-row items-center justify-center gap-2">
+                          
+                           {/* 시주 */}
+                           {!isTimeUnknown && !!saju.grd0 && (
+                            <div className="flex flex-col gap-1 items-center">
+                                <span className="text-[10px] uppercase font-bold text-gray-400">{UI_TEXT.hour[language]}</span>
+                                <div className={classNames(iconsViewStyle, saju.sky0 ? bgToBorder(sigan.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.sky0, 'sky')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.sky0, 'sky')}</div>
+                                </div>
+                                <div className={classNames(iconsViewStyle, saju.grd0 ? bgToBorder(sijidata.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.grd0, 'grd')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.grd0, 'grd')}</div>
+                                </div>
+                            </div>
+                           )}
+
+                           {/* 일주 (강조) */}
+                           <div className="flex flex-col gap-1 items-center p-1 bg-yellow-100/30 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700/30">
+                                <span className="text-[10px] uppercase font-bold text-indigo-500">{UI_TEXT.day[language]}</span>
+                                <div className={classNames(iconsViewStyle, saju.sky1 ? bgToBorder(ilgan.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.sky1, 'sky')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.sky1, 'sky')}</div>
+                                </div>
+                                <div className={classNames(iconsViewStyle, saju.grd1 ? bgToBorder(iljidata.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.grd1, 'grd')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.grd1, 'grd')}</div>
+                                </div>
+                           </div>
+
+                           {/* 월주 */}
+                           <div className="flex flex-col gap-1 items-center">
+                                <span className="text-[10px] uppercase font-bold text-gray-400">{UI_TEXT.month[language]}</span>
+                                <div className={classNames(iconsViewStyle, saju.sky2 ? bgToBorder(wolgan.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.sky2, 'sky')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.sky2, 'sky')}</div>
+                                </div>
+                                <div className={classNames(iconsViewStyle, saju.grd2 ? bgToBorder(woljidata.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.grd2, 'grd')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.grd2, 'grd')}</div>
+                                </div>
+                           </div>
+
+                           {/* 연주 */}
+                           <div className="flex flex-col gap-1 items-center">
+                                <span className="text-[10px] uppercase font-bold text-gray-400">{UI_TEXT.year[language]}</span>
+                                <div className={classNames(iconsViewStyle, saju.sky3 ? bgToBorder(yeongan.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.sky3, 'sky')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.sky3, 'sky')}</div>
+                                </div>
+                                <div className={classNames(iconsViewStyle, saju.grd3 ? bgToBorder(yeonjidata.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
+                                    <div className="text-2xl">{getIcon(saju.grd3, 'grd')}</div>
+                                    <div className="text-[8px] font-bold">{getHanja(saju.grd3, 'grd')}</div>
+                                </div>
+                           </div>
+                      </div>
+
+                      {/* 2. 오른쪽 패널: 텍스트 결과 (스크롤 가능) */}
+                      <div className="flex-1 p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
+                          <div className="prose prose-indigo dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-200">
+                              {aiResult}
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* 모달 푸터 */}
+                  <div className="p-4 border-t dark:border-gray-700 flex justify-end flex-shrink-0 bg-white dark:bg-slate-800">
+                      <button onClick={handleShare} className="px-5 py-2 bg-indigo-600 text-white rounded-lg shadow-lg flex gap-2 text-sm">{UI_TEXT.shareBtn[language]}</button>
+                  </div>
               </div>
           </div>
       )}
