@@ -10,7 +10,7 @@ import { fetchGeminiAnalysis } from "./api/gemini";
 import { 
   SAJU_DATA, UI_TEXT, HANJA_MAP, DEFAULT_INSTRUCTION, GONGMANG_DATA, CHUNEUL,
   SKY_CH_TEXT, GRD_CH_TEXT, BANGHAP_TEXT, HAP3_TEXT, HAP6_TEXT, GRD_BANHAP_TEXT, SKY_HAP_TEXT,
-  BANGHAP_EXP, HAP3_EXP, HAP6_EXP, GRD_BANHAP_EXP, SKY_HAP_EXP,ENG_MAP
+  BANGHAP_EXP, HAP3_EXP, HAP6_EXP, GRD_BANHAP_EXP, SKY_HAP_EXP,ENG_MAP,HANJA_ENG_MAP
 } from "./data/constants";
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from "./utils/helpers";
 
@@ -410,12 +410,9 @@ const handleSaveMyInfo = async () => {
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const langPrompt = language === "ko" ? "답변은 한국어로. " : "Answer in English.";
       const hantoeng = `[Terminology Reference]
-When translating Saju terms (Heavenly Stems & Earthly Branches) into English or using Hanja, strictly refer to the following mappings:
-    
+When translating Saju terms (Heavenly Stems & Earthly Branches) into English when using Hanja, strictly refer to the following mappings:
 REFER
-    ${ENG_MAP},
-    
-    ${HANJA_MAP}
+    ${HANJA_ENG_MAP}
 `;
       const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hantoeng}\n${langPrompt}`;
       
@@ -466,13 +463,10 @@ REFER
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const langPrompt = language === "ko" ? "답변은 한국어로. 100단어 이내로 " : "Answer in English.IN 100 WORDS.";
       // 이전 대화 맥락 없이 단발성 질문으로 처리 (토큰 절약 및 속도)
-            const hantoeng = `[Terminology Reference]
-When translating Saju terms (Heavenly Stems & Earthly Branches) into English or using Hanja, strictly refer to the following mappings:
-    
+      const hantoeng = `[Terminology Reference]
+When translating Saju terms (Heavenly Stems & Earthly Branches) into English when using Hanja, strictly refer to the following mappings:
 REFER
-    ${ENG_MAP},
-    
-    ${HANJA_MAP}
+    ${HANJA_ENG_MAP}
 `;
       const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}\n${hantoeng}`;
 
