@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toPng } from "html-to-image";
 import { BoltIcon, PlusCircleIcon, AdjustmentsHorizontalIcon, ChevronLeftIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { Solar } from "lunar-javascript";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, arrayUnion } from "firebase/firestore";
 
 // Local Imports
 import { login, logout, onUserStateChange, db } from "./lib/firebase"; 
@@ -20,6 +20,7 @@ const LOCAL_UI = {
   complete: { en: "Complete Edit", ko: "수정 완료" }
 };
 
+
 export default function App() {
   // --- States ---
   const [user, setUser] = useState(null);
@@ -28,11 +29,11 @@ export default function App() {
   
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
   const [gender, setGender] = useState("female");
-  
+  const [qLoading, setQLoading] = useState(false);
   // 🔒 저장 및 수정 횟수 관리
   const [isSaved, setIsSaved] = useState(false);
   const [editCount, setEditCount] = useState(0); 
-  const MAX_EDIT_COUNT = 3;
+  const MAX_EDIT_COUNT = 10;
   
   // 💥 [핵심 변경] 저장되었거나(isSaved) 횟수 제한(MAX)에 걸리면 잠금
   const isLocked = editCount >= MAX_EDIT_COUNT;
@@ -69,7 +70,7 @@ export default function App() {
   const [userPrompt, setUserPrompt] = useState(DEFAULT_INSTRUCTION);
   const [showPromptInput, setShowPromptInput] = useState(false);
   const [isControlPanelOpen, setIsControlPanelOpen] = useState(false);
-  
+  const [customQuestion, setCustomQuestion] = useState("");
   const [showIcons, setShowIcons] = useState(true);
   const [charShow, setCharShow] = useState(true);
   const [bgShow, setBgShow] = useState(true);
@@ -319,7 +320,7 @@ export default function App() {
       }
     }
   };
-  const handleSaveMyInfo = async () => {
+const handleSaveMyInfo = async () => {
     if (!user) { alert(UI_TEXT.loginReq[language]); login(); return; }
     if (editCount >= MAX_EDIT_COUNT) { alert(UI_TEXT.limitReached[language]); return; }
 
@@ -329,8 +330,13 @@ export default function App() {
             const newCount = editCount + 1;
 
             await setDoc(doc(db, "users", user.uid), { 
-                birthDate: inputDate, gender, isTimeUnknown, updatedAt: new Date(),
-                lastEditDate: todayStr, editCount: newCount     
+                birthDate: inputDate, 
+                gender, 
+                isTimeUnknown, 
+                updatedAt: new Date(),
+                lastEditDate: todayStr, 
+                editCount: newCount,
+                email: user.email // 💥 [추가] 이메일 주소도 함께 저장
             }, { merge: true });
             
             setEditCount(newCount);
@@ -430,6 +436,52 @@ export default function App() {
     }
   };
 
+// 💥 [수정] 답변은 제외하고 '질문'만 배열에 계속 쌓기
+  const handleAdditionalQuestion = async () => {
+    // 1. 제한 확인
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+    if (editCount >= MAX_EDIT_COUNT) return alert(UI_TEXT.limitReached[language]);
+    if (!customQuestion.trim()) return alert("질문을 입력해주세요.");
+
+    setQLoading(true); 
+
+    try {
+      const currentSajuKey = JSON.stringify(saju);
+      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
+      const langPrompt = language === "ko" ? "답변은 한국어로." : "Answer in English.";
+      const fullPrompt = `${customQuestion}\n${sajuInfo}\n${langPrompt}`;
+
+      // 2. API 호출
+      const result = await fetchGeminiAnalysis(fullPrompt);
+      
+      const newCount = editCount + 1;
+
+      // 3. 쌓을 데이터 객체 생성 (💥 답변 제거, 질문만 저장)
+      const newHistoryItem = {
+          question: customQuestion, // 내가 한 질문
+          timestamp: new Date().toISOString() // 언제 했는지
+      };
+
+      // 4. DB 업데이트 (질문만 history 배열에 추가)
+      await setDoc(doc(db, "users", user.uid), {
+         editCount: newCount,       
+         lastEditDate: new Date().toLocaleDateString('en-CA'),
+         history: arrayUnion(newHistoryItem) 
+      }, { merge: true });
+
+      // 5. 상태 업데이트
+      setEditCount(newCount);
+      setAiResult(result); // 화면에는 방금 받은 답변 보여주기 (저장은 안 함)
+      setIsSuccess(true); 
+      setIsModalOpen(true);
+      setCustomQuestion(""); 
+
+    } catch (e) { 
+        alert(`Error: ${e.message}`); 
+    } finally { 
+        setQLoading(false); 
+    }
+  };
   const handleCopyResult = async () => { if (aiResult) { await navigator.clipboard.writeText(aiResult); setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); }};
   const handleShare = async () => { const shareData = { title: "Sajucha", text: "AI 사주 분석", url: window.location.href }; if (navigator.share) await navigator.share(shareData); else { await navigator.clipboard.writeText(shareData.url); alert("주소 복사됨!"); }};
 
@@ -549,19 +601,33 @@ export default function App() {
 
 {/* 텍스트 결과 (만세력 값 + 생년월일시 표시 추가) */}
           {user && (
-            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 text-center flex flex-col gap-1">
+            <div className="p-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 text-center flex flex-col gap-1">
               {/* 1. 생년월일시 표시 (추가됨) */}
               <div className="text-sm font-bold text-gray-600 dark:text-gray-300">
                 {inputDate.replace("T", " ")}
                 {isTimeUnknown && <span className="ml-1 text-xs font-normal text-gray-400">({UI_TEXT.unknownTime[language]})</span>}
               </div>
 
-              {/* 2. 만세력 글자 (기존) */}
-              <div className="text-lg font-extrabold text-indigo-900 dark:text-indigo-200 tracking-wider break-keep">
-                {t(saju.sky3)}{t(saju.grd3)}<span className="text-xs font-normal text-indigo-400 mx-1">{UI_TEXT.year[language]}</span>
-                {t(saju.sky2)}{t(saju.grd2)}<span className="text-xs font-normal text-indigo-400 mx-1">{UI_TEXT.month[language]}</span>
-                {t(saju.sky1)}{t(saju.grd1)}<span className="text-xs font-normal text-indigo-400 mx-1">{UI_TEXT.day[language]}</span>
-                {!isTimeUnknown && <>{t(saju.sky0)}{t(saju.grd0)}<span className="text-xs font-normal text-indigo-400 mx-1">{UI_TEXT.hour[language]}</span></>}
+              {/* 2. 만세력 글자 (Flex Wrap 적용: 길어지면 줄바꿈) */}
+              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-lg font-extrabold text-indigo-900 dark:text-indigo-200 tracking-wider">
+                <span className="whitespace-nowrap">
+                  {t(saju.sky3)}{t(saju.grd3)}
+                  <span className="text-xs font-normal text-indigo-400 ml-1">{UI_TEXT.year[language]}</span>
+                </span>
+                <span className="whitespace-nowrap">
+                  {t(saju.sky2)}{t(saju.grd2)}
+                  <span className="text-xs font-normal text-indigo-400 ml-1">{UI_TEXT.month[language]}</span>
+                </span>
+                <span className="whitespace-nowrap">
+                  {t(saju.sky1)}{t(saju.grd1)}
+                  <span className="text-xs font-normal text-indigo-400 ml-1">{UI_TEXT.day[language]}</span>
+                </span>
+                {!isTimeUnknown && (
+                  <span className="whitespace-nowrap">
+                    {t(saju.sky0)}{t(saju.grd0)}
+                    <span className="text-xs font-normal text-indigo-400 ml-1">{UI_TEXT.hour[language]}</span>
+                  </span>
+                )}
               </div>
             </div>
           )}        </div>
@@ -570,18 +636,19 @@ export default function App() {
       {/* 2. 만세력 시각화 (복구: 시주 및 지장간 완벽 표시) */}
       {!!showIcons && user && (
         <div id="saju-capture" style={{ width: `${containerWidth}px`, maxWidth: '100%' }} className="mt-2 relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]">
- {bgShow && (
+ {/* 1. 배경 레이어 (Background Layer) */}
+          {bgShow && (
             <div className="absolute inset-0 z-0 flex flex-col pointer-events-none transition-all duration-500">
               {/* 1. 하늘 (Sky) 영역 */}
               <div
                 className={`h-1/2 w-full relative bg-gradient-to-b overflow-hidden transition-colors duration-700 ease-in-out
                 ${
-                  localStorage.theme === "dark"
+                  theme === "dark"
                     ? "from-indigo-950/80 via-slate-900/70 to-blue-900/60" // 🌙 밤 배경
                     : "from-sky-400/40 via-sky-200/40 to-white/5" // ☀️ 낮 배경
                 }`}
               >
-                {localStorage.theme === "dark" ? (
+                {theme === "dark" ? (
                   // ================= [ 🌙 밤 디자인 ] =================
                   <>
                     <div className="absolute top-4 right-[3%] w-20 h-20 bg-blue-100 rounded-full blur-3xl opacity-20" />
@@ -682,7 +749,7 @@ export default function App() {
               <div
                 className={`h-1/2 w-full relative bg-gradient-to-b transition-colors duration-700 ease-in-out border-t
                 ${
-                  localStorage.theme === "dark"
+                theme === "dark"
                     ? "from-slate-800/50 to-gray-900/70 border-slate-700/30" // 🌙 밤 땅
                     : "from-stone-300/40 to-amber-100/60 border-stone-400/20" // ☀️ 낮 땅
                 }`}
@@ -691,7 +758,7 @@ export default function App() {
                 <div
                   className={`absolute top-0 left-0 w-full h-8 bg-gradient-to-b transition-colors duration-700
                   ${
-                    localStorage.theme === "dark"
+                    theme === "dark"
                       ? "from-slate-900/20 to-transparent"
                       : "from-stone-500/5 to-transparent"
                   }`}
@@ -701,6 +768,7 @@ export default function App() {
               </div>
             </div>
           )}
+
            <div className="relative z-10 flex justify-center bg-white/10 backdrop-blur-sm">
   {charShow && (
               <div className="flex flex-col items-end  pt-[10px] animate-[fadeIn_0.5s_ease-out]">
@@ -796,9 +864,9 @@ export default function App() {
 
 {/* 4. AI 버튼 */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
+         {/* 메인 분석 버튼 (기존 유지) */}
          <button 
            onClick={handleAiAnalysis} 
-           // 🚫 로그인 안 했거나, 저장 안 했으면 비활성화
            disabled={loading || !user || !isSaved} 
            className={`w-full h-12 rounded-xl font-bold shadow-lg transition-all overflow-hidden relative group ${loading || !user || !isSaved ? "bg-gray-200 text-gray-400 cursor-not-allowed" : isCached ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-[1.02]" : "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]"}`}
          >
@@ -814,12 +882,54 @@ export default function App() {
                ) : !isSaved ? (
                    UI_TEXT.saveFirst[language]
                ) : isCached ? (
-                   "Analyze Complete!" // 💥 기존과 동일하면 완료 텍스트
+                   "Analyze Complete! (Click to View)"
                ) : (
-                   UI_TEXT.analyzeBtn[language] // 💥 다르면 분석 버튼 텍스트
+                   UI_TEXT.analyzeBtn[language]
                )}
             </span>
          </button>
+
+         {/* 💥 [수정] 추가 질문 영역 (별도 로딩 표시) */}
+         {isCached && isSaved && !loading && (
+            <div className="mt-4 animate-[fadeIn_0.5s_ease-out]">
+                <div className="relative flex items-center">
+                    <input 
+                        type="text" 
+                        value={customQuestion}
+                        onChange={(e) => setCustomQuestion(e.target.value)}
+                        placeholder={language === "ko" ? "이 사주에 대해 궁금한 점을 물어보세요." : "Ask a specific question about this Saju."}
+                        onKeyDown={(e) => e.key === 'Enter' && !qLoading && handleAdditionalQuestion()}
+                        disabled={isLocked || qLoading} // 로딩 중이거나 잠기면 입력 불가
+                        className="w-full pl-4 pr-14 py-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:bg-gray-100 dark:disabled:bg-slate-900"
+                    />
+                    <button 
+                        onClick={handleAdditionalQuestion}
+                        disabled={isLocked || !customQuestion.trim() || qLoading}
+                        className={`absolute right-2 p-1.5 rounded-lg transition-all ${isLocked || !customQuestion.trim() || qLoading ? "bg-gray-100 text-gray-400" : "bg-indigo-600 text-white hover:bg-indigo-700"}`}
+                    >
+                        {qLoading ? (
+                            // 추가 질문 전용 로딩 스피너
+                            <svg className="animate-spin h-5 w-5 text-indigo-500" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        ) : (
+                            // 종이비행기 아이콘
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                        )}
+                    </button>
+                </div>
+                {/* 진행 상황 및 잔여 횟수 표시 */}
+                <div className="flex justify-between items-center mt-1 px-1">
+                    <span className="text-[10px] text-indigo-500 font-bold h-4">
+                        {qLoading && (language === "ko" ? "추가 질문 분석 중..." : "Analyzing question...")}
+                    </span>
+                    <span className={`text-[10px] font-bold ${isLocked ? "text-red-500" : "text-gray-400"}`}>
+                        {isLocked ? (language === "ko" ? "일일 횟수 초과" : "Daily Limit Reached") : 
+                        `${language === "ko" ? "남은 질문 횟수" : "Remaining Queries"}: ${MAX_EDIT_COUNT - editCount}`}
+                    </span>
+                </div>
+            </div>
+         )}
       </div>
       {/* 5. 모달 */}
 {/* 5. 모달 (레이아웃 변경: PC에선 좌측 고정, 모바일에선 상단 표시) */}
@@ -842,11 +952,11 @@ export default function App() {
                   <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
                       
                       {/* 1. 왼쪽 패널: 만세력 시각화 (PC: 고정 / 모바일: 상단) */}
-                      <div className="w-full md:w-[160px] flex-shrink-0 bg-gray-50 dark:bg-slate-900/50 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-700 overflow-y-auto custom-scrollbar p-4 flex md:flex-col flex-row items-center justify-center gap-2">
+                      <div className="w-full dark:text-gray-300 md:w-[160px] flex-shrink-0 bg-gray-50 dark:bg-slate-900/50 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-700 overflow-y-auto custom-scrollbar p-4 flex md:flex-col flex-row items-center justify-center gap-2">
                           
                            {/* 시주 */}
                            {!isTimeUnknown && !!saju.grd0 && (
-                            <div className="flex flex-col gap-1 items-center">
+                            <div className="flex flex-col gap-1 items-center ">
                                 <span className="text-[10px] uppercase font-bold text-gray-400">{UI_TEXT.hour[language]}</span>
                                 <div className={classNames(iconsViewStyle, saju.sky0 ? bgToBorder(sigan.color) : "border-gray-200", "w-14 h-14 rounded-md flex flex-col items-center justify-center shadow-sm bg-white dark:bg-slate-800")}>
                                     <div className="text-2xl">{getIcon(saju.sky0, 'sky')}</div>

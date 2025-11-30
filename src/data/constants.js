@@ -101,10 +101,10 @@ export const UI_TEXT = {
   copyBtn: { ko: "📋 복사하기", en: "📋 Copy" },
   copiedBtn: { ko: "✔️ 복사완료", en: "✔️ Copied" },
   confirmBtn: { ko: "확인했습니다", en: "Confirm" },
-  year: { ko: "년", en: "Y" },
-  month: { ko: "월", en: "M" },
-  day: { ko: "일", en: "D" },
-  hour: { ko: "시", en: "H" },
+  year: { ko: "년", en: "Year" },
+  month: { ko: "월", en: "Month" },
+  day: { ko: "일", en: "Day" },
+  hour: { ko: "시", en: "Hour" },
   
   // ✨ [추가] 캐시 로딩 멘트
   loadingCached: { ko: "기존 분석 결과 불러오는 중...", en: "Loading saved result..." },
