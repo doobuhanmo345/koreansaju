@@ -10,7 +10,7 @@ import { fetchGeminiAnalysis } from "./api/gemini";
 import { 
   SAJU_DATA, UI_TEXT, HANJA_MAP, DEFAULT_INSTRUCTION, GONGMANG_DATA, CHUNEUL,
   SKY_CH_TEXT, GRD_CH_TEXT, BANGHAP_TEXT, HAP3_TEXT, HAP6_TEXT, GRD_BANHAP_TEXT, SKY_HAP_TEXT,
-  BANGHAP_EXP, HAP3_EXP, HAP6_EXP, GRD_BANHAP_EXP, SKY_HAP_EXP
+  BANGHAP_EXP, HAP3_EXP, HAP6_EXP, GRD_BANHAP_EXP, SKY_HAP_EXP,ENG_MAP
 } from "./data/constants";
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from "./utils/helpers";
 
@@ -408,8 +408,16 @@ const handleSaveMyInfo = async () => {
       console.log("🚀 새로운 분석 요청! API 호출 시작");
       const currentSajuKey = JSON.stringify(saju); // 저장용 문자열
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      const langPrompt = language === "ko" ? "답변은 한국어로. 100단어 이내로" : "Answer in English.in 100 WORDS";
-      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${langPrompt}`;
+      const langPrompt = language === "ko" ? "답변은 한국어로. " : "Answer in English.";
+      const hantoeng = `[Terminology Reference]
+When translating Saju terms (Heavenly Stems & Earthly Branches) into English or using Hanja, strictly refer to the following mappings:
+    
+REFER
+    ${ENG_MAP},
+    
+    ${HANJA_MAP}
+`;
+      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hantoeng}\n${langPrompt}`;
       
       const result = await fetchGeminiAnalysis(fullPrompt);
       
@@ -456,9 +464,17 @@ const handleSaveMyInfo = async () => {
     try {
       const currentSajuKey = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      const langPrompt = language === "ko" ? "답변은 한국어로." : "Answer in English.";
+      const langPrompt = language === "ko" ? "답변은 한국어로. 100단어 이내로 " : "Answer in English.IN 100 WORDS.";
       // 이전 대화 맥락 없이 단발성 질문으로 처리 (토큰 절약 및 속도)
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}`;
+            const hantoeng = `[Terminology Reference]
+When translating Saju terms (Heavenly Stems & Earthly Branches) into English or using Hanja, strictly refer to the following mappings:
+    
+REFER
+    ${ENG_MAP},
+    
+    ${HANJA_MAP}
+`;
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}\n${hantoeng}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       
@@ -921,7 +937,7 @@ const handleSaveMyInfo = async () => {
                               </button>
                           )}
                           <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
-                              {viewMode === 'chat' ? (language === "ko" ? "AI 도사와 대화" : "Chat with AI") : UI_TEXT.modalTitle[language]}
+                              {viewMode === 'chat' ? (language === "ko" ? "도사와 대화" : "Chat with the master") : UI_TEXT.modalTitle[language]}
                           </h3>
                       </div>
                       <div className="flex gap-2">
