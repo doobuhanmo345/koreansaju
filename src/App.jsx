@@ -93,40 +93,31 @@ export default function App() {
           if (userSnap.exists()) {
             const data = userSnap.data();
             
-            // 1. 수정 횟수 관리
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            if (data.lastEditDate !== todayStr) {
-               setEditCount(0);
-            } else {
-               setEditCount(data.editCount || 0);
-            }
-
-            // 2. 기본 정보 불러오기
-            if (data.birthDate) { 
-                setInputDate(data.birthDate); 
-                setIsSaved(true); // 불러오면 저장된 상태로 시작
-            }
+            if (data.birthDate) { setInputDate(data.birthDate); setIsSaved(true); }
             if (data.gender) setGender(data.gender);
             if (data.isTimeUnknown !== undefined) setIsTimeUnknown(data.isTimeUnknown);
             
-            // 3. [핵심] 이전에 분석했던 결과(캐시) 불러오기
+            // 1. 수정 횟수 로직
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            if (data.lastEditDate !== todayStr) setEditCount(0);
+            else setEditCount(data.editCount || 0);
+
+            // 💥 [수정] 언어(lastLanguage)와 성별(lastGender)도 같이 로드
             if (data.lastAiResult && data.lastSaju) {
                 setCachedData({
-                    saju: data.lastSaju,      // 그때 그 사주 글자들
-                    result: data.lastAiResult // 그때 그 AI 해석 결과
+                    saju: data.lastSaju,      
+                    result: data.lastAiResult,
+                    prompt: data.lastPrompt || DEFAULT_INSTRUCTION,
+                    // 저장된 값이 없으면 현재 값이나 기본값으로 대체
+                    language: data.lastLanguage || "en", 
+                    gender: data.lastGender || data.gender || "female"
                 });
             }
-          } else { 
-            setIsSaved(false); 
-            setEditCount(0); 
-            setCachedData(null);
-          }
+          } 
+          // ... (else 로직 생략)
         } catch (error) { console.error("정보 불러오기 실패:", error); }
-      } else { 
-          setIsSaved(false); 
-          setEditCount(0);
-          setCachedData(null);
-      }
+      } 
+      // ... (else 로직 생략)
     });
   }, []);
 
@@ -337,48 +328,79 @@ export default function App() {
         } catch (error) { alert(UI_TEXT.saveFail[language]); }
     }
   };
+// 💥 [수정] 성별, 언어까지 꼼꼼하게 비교
+  const isCached = (() => {
+    if (!cachedData || !cachedData.saju) return false;
+    
+    // 1. 프롬프트, 언어, 성별 비교
+    const savedPrompt = cachedData.prompt || DEFAULT_INSTRUCTION;
+    if (savedPrompt !== userPrompt) return false;
+    if (cachedData.language !== language) return false; // 언어 다르면 재분석
+    if (cachedData.gender !== gender) return false;     // 성별 다르면 재분석
 
+    // 2. 사주 팔자 글자 비교
+    const keys = ["sky0", "grd0", "sky1", "grd1", "sky2", "grd2", "sky3", "grd3"];
+    for (const key of keys) {
+       if (cachedData.saju[key] !== saju[key]) return false;
+    }
+    
+    return true; 
+  })();
   // 💥 [핵심] 캐싱 적용된 AI 분석 함수
+// 💥 [수정] 성별/언어까지 비교하는 분석 함수
   const handleAiAnalysis = async () => {
-    // 1. 저장 확인
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
     
     setLoading(true); setAiResult(""); setIsSuccess(false); setIsCachedLoading(false);
 
     try {
-      // 2. 현재 화면의 사주 글자(key) 생성
       const currentSajuKey = JSON.stringify(saju);
       
-      // 3. 캐시 확인 (메모리에 있는 cachedData와 비교)
-      if (cachedData && JSON.stringify(cachedData.saju) === currentSajuKey) {
-          console.log("✅ 캐시된 결과 사용!");
-          setIsCachedLoading(true); // 빠른 로딩 모드
+      // 3. 캐시 확인 (사주 + 프롬프트 + 성별 + 언어 모두 일치해야 함)
+      if (cachedData && 
+          JSON.stringify(cachedData.saju) === currentSajuKey && 
+          cachedData.prompt === userPrompt &&
+          cachedData.gender === gender &&       // 👈 성별 확인 추가
+          cachedData.language === language      // 👈 언어 확인 추가
+         ) {
           
-          // 0.5초 대기 (사용자에게 로딩감을 주기 위해)
+          console.log("✅ 모든 조건(사주/질문/성별/언어) 일치 -> 캐시 사용");
+          setIsCachedLoading(true); 
+          
           await new Promise(resolve => setTimeout(resolve, 500));
           
           setAiResult(cachedData.result);
           setIsSuccess(true);
           setIsModalOpen(true);
-          return; // API 호출 없이 종료
+          return; 
       }
 
-      // 4. 캐시 없으면 API 호출
-      console.log("🚀 새로운 사주! API 호출 시작");
+      console.log("🚀 조건 변경됨! API 호출 시작");
+      // 프롬프트 구성
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const langPrompt = language === "ko" ? "답변은 한국어로." : "Answer in English.";
       const fullPrompt = `${userPrompt}\n${sajuInfo}\n${langPrompt}`;
       
       const result = await fetchGeminiAnalysis(fullPrompt);
       
-      // 5. 결과 저장 (DB + 로컬 스테이트 업데이트)
+      // 5. 결과 저장 (성별, 언어도 같이 저장)
       await setDoc(doc(db, "users", user.uid), {
          lastAiResult: result,
-         lastSaju: saju 
+         lastSaju: saju,
+         lastPrompt: userPrompt,
+         lastLanguage: language, // 👈 저장
+         lastGender: gender      // 👈 저장
       }, { merge: true });
 
-      setCachedData({ saju: saju, result: result }); // 다음 번 클릭을 위해 업데이트
+      setCachedData({ 
+          saju: saju, 
+          result: result, 
+          prompt: userPrompt,
+          language: language, 
+          gender: gender 
+      }); 
+      
       setAiResult(result); 
       setIsSuccess(true); 
       setIsModalOpen(true);
@@ -755,13 +777,13 @@ export default function App() {
         </div>
       )}
 
-      {/* 4. AI 버튼 */}
+{/* 4. AI 버튼 */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
          <button 
            onClick={handleAiAnalysis} 
            // 🚫 로그인 안 했거나, 저장 안 했으면 비활성화
            disabled={loading || !user || !isSaved} 
-           className={`w-full h-12 rounded-xl font-bold shadow-lg transition-all overflow-hidden relative group ${loading || !user || !isSaved ? "bg-gray-200 text-gray-400 cursor-not-allowed" : isSuccess ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-[1.02]" : "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]"}`}
+           className={`w-full h-12 rounded-xl font-bold shadow-lg transition-all overflow-hidden relative group ${loading || !user || !isSaved ? "bg-gray-200 text-gray-400 cursor-not-allowed" : isCached ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-[1.02]" : "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]"}`}
          >
             {loading && <div className="absolute top-0 left-0 h-full bg-indigo-200/50" style={{width:`${progress}%`}} />}
             <span className="relative z-10 flex justify-center items-center gap-2">
@@ -770,11 +792,18 @@ export default function App() {
                     <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     <span className="text-xs">{isCachedLoading ? UI_TEXT.loadingCached[language] : getLoadingText(progress, language)} ({Math.round(progress)}%)</span>
                  </>
-               ) : !user ? UI_TEXT.loginReq[language] : !isSaved ? UI_TEXT.saveFirst[language] : isSuccess ? "Analyze Complete!" : UI_TEXT.analyzeBtn[language]}
+               ) : !user ? (
+                   UI_TEXT.loginReq[language]
+               ) : !isSaved ? (
+                   UI_TEXT.saveFirst[language]
+               ) : isCached ? (
+                   "Analyze Complete!" // 💥 기존과 동일하면 완료 텍스트
+               ) : (
+                   UI_TEXT.analyzeBtn[language] // 💥 다르면 분석 버튼 텍스트
+               )}
             </span>
          </button>
       </div>
-      
       {/* 5. 모달 */}
       {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
