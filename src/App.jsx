@@ -515,30 +515,32 @@ export default function App() {
   })();
 
   const handleShareResult = async () => {
-    const shareData = {
-      title: '내 사주 분석 결과',
-      text: `${aiResult}\n\n👇 나도 분석하러 가기 👇`,
-      url: window.location.href, // 현재 사이트 주소
-    };
+    // 1. 공유할 전체 텍스트를 미리 만듭니다. (결과 + 링크)
+    const shareTitle = '내 사주 분석 결과';
+    const shareText = `${aiResult}\n\n👇 나도 분석하러 가기 👇\n${window.location.href}`;
 
-    // 모바일 네이티브 공유하기 (카톡, 문자 등 앱 선택 뜸)
+    // 2. 모바일 네이티브 공유하기
     if (navigator.share) {
       try {
-        await navigator.share(shareData);
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          // 💥 중요: url 필드를 넣지 마세요!
+          // url: window.location.href  <-- 이걸 넣으면 텍스트가 씹히는 경우가 많음
+        });
       } catch (err) {
         console.log('공유 취소됨');
       }
     } else {
-      // PC 등 지원 안 하는 경우 -> 클립보드 복사
+      // 3. PC 등 지원 안 하는 경우 -> 클립보드 복사
       try {
-        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
-        alert('결과와 링크가 복사되었습니다! 친구에게 붙여넣기 해보세요.');
+        await navigator.clipboard.writeText(shareText);
+        alert('결과와 링크가 복사되었습니다! 친구에게 붙여넣기(Ctrl+V) 해보세요.');
       } catch (err) {
         alert('복사에 실패했습니다.');
       }
     }
   };
-
   // 💡 [추가] 초기 인사말 생성 함수
   const getInitialGreeting = (lang, birthDate, saju, tFunc) => {
     const formattedDate = birthDate.replace('T', ' ');
