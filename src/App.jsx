@@ -39,6 +39,7 @@ import {
   DAILY_FORTUNE_PROMPT,
   NEW_YEAR_FORTUNE_PROMPT,
   BD_EDIT_UI,
+  IljuExp,
 } from './data/constants';
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from './utils/helpers';
 import logoKorDark from './assets/Logo_Kor_DarkMode.png';
@@ -518,7 +519,7 @@ export default function App() {
     const sajuText = `${tFunc(saju.sky3)}${tFunc(saju.grd3)}년 ${tFunc(saju.sky2)}${tFunc(saju.grd2)}월 ${tFunc(saju.sky1)}${tFunc(saju.grd1)}일 ${tFunc(saju.sky0)}${tFunc(saju.grd0)}시`;
     const sajuTextEng = `Year:${tFunc(saju.sky3)}${tFunc(saju.grd3)} Month:${tFunc(saju.sky2)}${tFunc(saju.grd2)} Day:${tFunc(saju.sky1)}${tFunc(saju.grd1)} Time:${tFunc(saju.sky0)}${tFunc(saju.grd0)}`;
     if (lang === 'ko') {
-      return `안녕하세요. 사주 도사입니다.\n\n당신이 입력한 생년월일·시 [${formattedDate}]와\n만세력 데이터 [${sajuText}]를 기반으로 운세를 분석합니다.\n\n질문을 하시면 하루에 사용 가능한 토큰이 1개씩 차감됩니다.\n오늘 남은 토큰을 소중하게 사용해 주세요.\n\n준비되셨다면, 알고 싶은 것을 질문해 주세요.`;
+      return `안녕하세요. 사자입니다.\n\n당신이 입력한 생년월일·시 [${formattedDate}]와\n만세력 데이터 [${sajuText}]를 기반으로 운세를 분석합니다.\n\n질문을 하시면 하루에 사용 가능한 토큰이 1개씩 차감됩니다.\n오늘 남은 토큰을 소중하게 사용해 주세요.\n\n준비되셨다면, 알고 싶은 것을 질문해 주세요.`;
     } else {
       return `Hello, I am your Saju Master.\n\nI analyze your fortune based on your birth data [${formattedDate}]\nand Four Pillars [${sajuTextEng}].\n\nEach time you ask a question, one token from your daily limit will be deducted.\nPlease use your remaining tokens wisely.\n\nWhen you’re ready, ask your first question.`;
     }
@@ -1497,53 +1498,56 @@ ${HANJA_MAP}
         </div>
       )}
 
-      {/* 4. AI 버튼 영역 (3분할) */}
-      <div className="my-2 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
-        <div className="flex justify-between gap-3">
+      {/* 4. AI 버튼 영역 (3분할) 및 로딩 상태창 */}
+      <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
+        {/* A. 버튼 그룹 */}
+        <div className="flex justify-between gap-3 h-24">
           {/* 1. 메인 분석 버튼 */}
           <button
             onClick={handleAiAnalysis}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 h-24 rounded-xl font-bold shadow-lg transition-all overflow-hidden relative group ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : isCached ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-[1.02]' : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]'}`}
+            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
+              ${
+                loading || !user || !isSaved
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                  : isCached
+                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white hover:scale-[1.02] shadow-emerald-200/50'
+                    : 'bg-gradient-to-br from-violet-600 to-indigo-600 text-white hover:scale-[1.02] shadow-indigo-200/50'
+              }`}
           >
-            {loading && loadingType === 'main' && (
-              <div
-                className="absolute top-0 left-0 h-full bg-indigo-200/50"
-                style={{ width: `${progress}%` }}
-              />
-            )}
-            <span className="relative z-10 flex justify-center items-center gap-2 text-sm">
+            {/* 아이콘 및 텍스트 */}
+            <span className="text-2xl drop-shadow-md">
+              {/* 로딩 중이면 스피너, 캐시 있으면 체크, 아니면 수정구슬 */}
               {loading && loadingType === 'main' ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {isCachedLoading
-                    ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language, 'main')}
-                  ({Math.round(progress)}%)
-                </>
-              ) : !user ? (
-                UI_TEXT.loginReq[language]
-              ) : !isSaved ? (
-                'Save Info'
+                <svg className="animate-spin h-7 w-7 text-indigo-500" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
               ) : isCached ? (
-                'Result'
+                '✅'
               ) : (
-                UI_TEXT.analyzeBtn[language]
+                '🔮'
               )}
+            </span>
+            <span className="text-sm sm:text-sm font-medium">
+              {!user
+                ? UI_TEXT.loginReq[language]
+                : !isSaved
+                  ? 'Save Info'
+                  : isCached
+                    ? 'Decoding Completed'
+                    : UI_TEXT.analyzeBtn[language]}
             </span>
           </button>
 
@@ -1551,42 +1555,36 @@ ${HANJA_MAP}
           <button
             onClick={handleNewYearFortune}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 h-24 rounded-xl font-bold shadow-lg text-sm transition-all relative overflow-hidden ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 hover:scale-[1.02]'}`}
+            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative overflow-hidden flex flex-col items-center justify-center gap-1.5
+              ${
+                loading || !user || !isSaved
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                  : 'bg-gradient-to-br from-green-500 to-emerald-700 text-white hover:scale-[1.02] shadow-green-200/50'
+              }`}
           >
-            {loading && loadingType === 'year' && (
-              <div
-                className="absolute top-0 left-0 h-full bg-green-200/50"
-                style={{ width: `${progress}%` }}
-              />
-            )}
-            <span className="relative z-10 flex justify-center items-center gap-2">
+            <span className="text-2xl drop-shadow-md">
               {loading && loadingType === 'year' ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {isCachedLoading
-                    ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language, 'year')}
-                  ({Math.round(progress)}%)
-                </>
-              ) : language === 'ko' ? (
-                '신년 운세'
+                <svg className="animate-spin h-7 w-7 text-green-600" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
               ) : (
-                'New Year'
+                '🐲'
               )}
+            </span>
+            <span className="text-sm sm:text-sm font-medium">
+              {language === 'ko' ? '신년 운세' : '2026 Path Guide'}
             </span>
           </button>
 
@@ -1594,47 +1592,74 @@ ${HANJA_MAP}
           <button
             onClick={handleDailyFortune}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 h-24 rounded-xl font-bold shadow-lg text-sm transition-all relative overflow-hidden ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-yellow-500 text-white hover:bg-yellow-600 hover:scale-[1.02]'}`}
+            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative overflow-hidden flex flex-col items-center justify-center gap-1.5
+              ${
+                loading || !user || !isSaved
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                  : 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:scale-[1.02] shadow-orange-200/50'
+              }`}
           >
-            {loading && loadingType === 'daily' && (
-              <div
-                className="absolute top-0 left-0 h-full bg-yellow-200/50"
-                style={{ width: `${progress}%` }}
-              />
-            )}
-            <span className="relative z-10 flex justify-center items-center gap-2">
+            <span className="text-2xl drop-shadow-md">
               {loading && loadingType === 'daily' ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  {isCachedLoading
-                    ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language, 'daily')}
-                  ({Math.round(progress)}%)
-                </>
-              ) : language === 'ko' ? (
-                '오늘의 운세'
+                <svg className="animate-spin h-7 w-7 text-orange-500" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
               ) : (
-                'Today'
+                '🌞'
               )}
+            </span>
+            <span className="text-sm sm:text-sm font-medium">
+              {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
             </span>
           </button>
         </div>
-      </div>
 
+        {/* B. ✨ [새로 추가] 독립된 로딩 상태 표시창 (버튼 아래 위치) */}
+        {loading && (
+          <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-gray-700 shadow-xl animate-[fadeIn_0.3s_ease-out]">
+            <div className="flex flex-col gap-2">
+              {/* 로딩 멘트 */}
+              <div className="flex justify-between items-end">
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
+                  {isCachedLoading
+                    ? UI_TEXT.loadingCached[language]
+                    : getLoadingText(progress, language, loadingType)}
+                </span>
+                <span className="text-sm font-black text-gray-700 dark:text-gray-200">
+                  {Math.round(progress)}%
+                </span>
+              </div>
+
+              {/* 프로그레스 바 (독립형) */}
+              <div className="w-full h-2.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ease-out 
+                    ${
+                      loadingType === 'main'
+                        ? 'bg-gradient-to-r from-violet-500 to-indigo-600'
+                        : loadingType === 'year'
+                          ? 'bg-gradient-to-r from-green-400 to-emerald-600'
+                          : 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                    }`}
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       {/* 5. 모달 */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 dark:text-gray-300">
@@ -1656,7 +1681,7 @@ ${HANJA_MAP}
                 <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
                   {viewMode === 'chat'
                     ? language === 'ko'
-                      ? '도사와 대화'
+                      ? '사자와 대화'
                       : 'Chat with the master'
                     : UI_TEXT.modalTitle[language]}
                 </h3>
@@ -1809,6 +1834,41 @@ ${HANJA_MAP}
                 {viewMode === 'result' && (
                   <>
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                      <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
+                        {/* [추가된 부분] WHO AM I 헤더 영역 */}
+                        <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
+                          {/* 왼쪽 장식 선 (그라데이션으로 자연스럽게 사라짐) */}
+                          <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
+
+                          {/* 텍스트: 기존 디자인과 어울리는 인디고 컬러 + 넓은 자간 */}
+                          <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
+                            Who Am I?
+                          </span>
+
+                          {/* 오른쪽 장식 선 */}
+                          <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                        </div>
+                        {/* 상단 장식 아이콘 (선택사항) */}
+                        <div className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                          <div className="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                            <div className="flex items-center jusify-center">
+                              <SparklesIcon className="w-24 h-24 m-auto" />
+                            </div>
+
+                            <div>Signature</div>
+                          </div>
+                        </div>
+
+                        {/* 제목 */}
+                        <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
+                          {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.title}
+                        </div>
+
+                        {/* 설명 */}
+                        <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
+                          {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.desc}
+                        </div>
+                      </div>
                       <div className="prose prose-indigo dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-200 pb-10">
                         {aiResult}
                       </div>
@@ -1838,7 +1898,7 @@ ${HANJA_MAP}
                       {chatList.map((msg, idx) => {
                         const isUser = msg.role === 'user';
                         // AI 이름 설정 (언어별)
-                        const aiName = language === 'ko' ? '사주 도사' : 'Saju Master';
+                        const aiName = language === 'ko' ? '사자' : 'Master saza';
                         // 사용자 이름 설정 (없으면 기본값)
                         const userName = user?.displayName || (language === 'ko' ? '나' : 'Me');
 
@@ -1857,7 +1917,7 @@ ${HANJA_MAP}
                                   className="w-10 h-10 rounded-full shadow-sm border border-gray-200 dark:border-gray-600 object-cover"
                                 />
                               ) : (
-                                // AI 도사 프로필 (아이콘)
+                                // 사자 프로필 (아이콘)
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br dark:from-indigo-500 dark:to-purple-600 flex items-center justify-center dark:shadow-sm border dark:border-indigo-400/30 shadow-md">
                                   <img
                                     src={sajaProfile}
@@ -1896,11 +1956,11 @@ ${HANJA_MAP}
                       {/* 로딩 중 스켈레톤 (AI 프로필 + 로딩 말풍선) */}
                       {qLoading && (
                         <div className="flex items-start gap-3 animate-pulse">
-                          {/* 도사 프로필 스켈레톤 */}
+                          {/* 사자 프로필 스켈레톤 */}
                           <div className="flex-shrink-0 mt-1 w-9 h-9 rounded-full bg-gray-200 dark:bg-slate-700"></div>
                           <div className="flex flex-col items-start max-w-[85%]">
                             <span className="text-[11px] font-bold text-gray-400 mb-1 ml-1">
-                              {language === 'ko' ? '사주 도사' : 'Saju Master'}...
+                              {language === 'ko' ? '사자' : 'Master Saza'}...
                             </span>
                             {/* 로딩 점 3개 말풍선 */}
                             <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 px-5 py-4 rounded-2xl rounded-tl-none shadow-md flex gap-1.5">
@@ -1923,7 +1983,7 @@ ${HANJA_MAP}
                           onChange={(e) => setCustomQuestion(e.target.value)}
                           placeholder={
                             language === 'ko'
-                              ? '도사님께 궁금한 점을 물어보세요...'
+                              ? '사자에게 궁금한 점을 물어보세요...'
                               : 'Ask the Master anything...'
                           }
                           onKeyDown={(e) =>
