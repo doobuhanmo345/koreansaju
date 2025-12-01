@@ -16,8 +16,9 @@ import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } fro
 
 // 💡 추가된 텍스트 상수 (파일을 직접 수정하지 않고 컴포넌트 내부에서 사용)
 const LOCAL_UI = {
-  cancel: { en: "Cancel Edit", ko: "수정 취소" },
-  complete: { en: "Complete Edit", ko: "수정 완료" }
+  cancel: { en: "Cancel Edit Birthday", ko: "생일 수정 취소" },
+  complete: { en: "Complete Edit Birthday", ko: "생일 수정 완료" },
+edit :{ en: "Edit Birthday", ko: "생일 수정하기" }
 };
 
 
@@ -568,7 +569,7 @@ const handleSetViewMode = async (mode) => {
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
       const langPrompt = language === "ko" ? "답변은 한국어로. 100단어 이내로 " : "Answer in English.IN 100 WORDS.";
-      // 이전 대화 맥락 없이 단발성 질문으로 처리 (토큰 절약 및 속도)
+      // 이전 대화 맥락 없이 단발성 질문으로 처리 (S토큰 절약 및 속도)
       const hantoeng = `[Terminology Reference]
 When translating Saju terms (Heavenly Stems & Earthly Branches) into English when using Hanja, strictly refer to the following mappings:
 REFER
@@ -655,7 +656,7 @@ REFER
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2">
                    <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-indigo-200" />
-                   <div className="flex flex-col"><span className="text-xs font-bold text-gray-700 dark:text-gray-200">{user.displayName}님</span><span className="text-[10px] text-gray-400">{UI_TEXT.welcome[language]}</span></div>
+                   <div className="flex flex-col"><span className="text-xs font-bold text-gray-700 dark:text-gray-200">{user.displayName}{language=="ko" &&<>님</>}</span><span className="text-[10px] text-gray-400">{UI_TEXT.welcome[language]}</span></div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
                     <button onClick={logout} className="text-xs px-3 py-1.5 bg-gray-200 rounded-lg font-bold">{UI_TEXT.logout[language]}</button>
@@ -664,9 +665,14 @@ REFER
                         <span className="text-[10px] text-red-500 font-bold">{UI_TEXT.lockedMsg[language]}</span>
                     ) : isSaved ? (
                         // 저장됨(isSaved=true) -> 수정 버튼 보이기
-                        <button onClick={handleEditMode} className="text-[10px] text-gray-500 underline font-semibold hover:text-indigo-600">
-                             수정하기 (Edit) <span className="ml-1 text-gray-400">({MAX_EDIT_COUNT - editCount}/{MAX_EDIT_COUNT})</span>
-                        </button>
+                        <button onClick={handleEditMode} className="text-[10px] text-gray-500 underline font-semibold hover:text-indigo-600">
+                          {LOCAL_UI.edit[language]}
+                      <span className="ml-1 font-extrabold text-indigo-600 dark:text-indigo-400">
+                      {MAX_EDIT_COUNT - editCount}
+                      </span>
+                        <span className="text-gray-400">/{MAX_EDIT_COUNT}</span>
+                      </button>
+                       
                     ) : (
                         // 저장 안됨(수정모드 isSaved=false) -> 취소 버튼 보이기
                         <button onClick={handleCancelEdit} className="text-[10px] text-red-500 underline font-extrabold hover:text-red-700">
@@ -728,7 +734,12 @@ REFER
                 onClick={handleSaveMyInfo} 
                 className="w-full mt-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
               >
-                 {LOCAL_UI.complete[language]} <span className="ml-1 text-indigo-200 text-xs">({MAX_EDIT_COUNT - editCount}/{MAX_EDIT_COUNT})</span>
+                 {LOCAL_UI.complete[language]}
+                  {/* ✨ 디자인 개선: 남은 횟수 강조 */}
+                  <span className="ml-2 text-sm font-extrabold text-white bg-indigo-500 px-2 py-0.5 rounded-lg shadow-sm">
+                      {MAX_EDIT_COUNT - editCount}
+                  </span>
+                  <span className="text-indigo-200 text-xs">/{MAX_EDIT_COUNT}</span>
               </button>
              </div>
           </div>
@@ -1046,6 +1057,10 @@ REFER
                           <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
                               {viewMode === 'chat' ? (language === "ko" ? "도사와 대화" : "Chat with the master") : UI_TEXT.modalTitle[language]}
                           </h3>
+                                  <span className={`text-[13px] font-bold ${isLocked ? "text-red-500" : "text-gray-400"}`}>
+                                              {isLocked ? (language === "ko" ? "일일 횟수 초과" : "Limit Reached") : 
+                                              `${language === "ko" ? "남은 질문" : "Remaining"}: ${MAX_EDIT_COUNT - editCount}`}
+                                          </span>
                       </div>
                       <div className="flex gap-2">
                           {viewMode === 'result' && (
@@ -1186,12 +1201,12 @@ REFER
                                               </svg>
                                           </button>
                                       </div>
-                                      <div className="flex justify-end items-center px-1">
+{/*                                       <div className="flex justify-end items-center px-1">
                                           <span className={`text-[10px] font-bold ${isLocked ? "text-red-500" : "text-gray-400"}`}>
                                               {isLocked ? (language === "ko" ? "일일 횟수 초과" : "Limit Reached") : 
                                               `${language === "ko" ? "남은 질문" : "Remaining"}: ${MAX_EDIT_COUNT - editCount}`}
                                           </span>
-                                      </div>
+                                      </div> */}
                                   </div>
                               </>
                           )}
