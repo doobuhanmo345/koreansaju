@@ -6,7 +6,9 @@ import {
   AdjustmentsHorizontalIcon,
   ChevronLeftIcon,
   LockClosedIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
+
 import { Solar } from 'lunar-javascript';
 import { doc, getDoc, setDoc, arrayUnion, increment } from 'firebase/firestore'; // increment 추가 확인
 
@@ -32,53 +34,17 @@ import {
   HAP6_EXP,
   GRD_BANHAP_EXP,
   SKY_HAP_EXP,
-  ENG_MAP,
   HANJA_ENG_MAP,
   DAILY_FORTUNE_PROMPT,
+  NEW_YEAR_FORTUNE_PROMPT,
+  BD_EDIT_UI,
 } from './data/constants';
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from './utils/helpers';
-
+import logoKorDark from './assets/Logo_Kor_DarkMode.png';
+import logoEngDark from './assets/Logo_Eng_DarkMode.png';
+import logoKor from './assets/Logo_Kor.png';
+import logoEng from './assets/Logo_Eng.png';
 // 💡 추가된 텍스트 상수
-const LOCAL_UI = {
-  cancel: { en: 'Cancel Edit Birthday', ko: '생일 수정 취소' },
-  complete: { en: 'Complete Edit Birthday', ko: '생일 수정 완료' },
-  edit: { en: 'Edit Birthday', ko: '생일 수정하기' },
-};
-
-// 💡 [추가] 신년 운세 프롬프트
-const NEW_YEAR_FORTUNE_PROMPT = {
-  ko: `다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요. 
-  그 후, 
-  1. 1월 운세 : 을사년 기축월의 운세 100자 이내
-  2. 2월 운세 : 을사년 경인월의 운세 100자 이내
-  3. 3월 운세 : 을사년 신묘월의 운세 100자 이내
-  4. 4월 운세 : 을사년 임진월의 운세 100자 이내
-  5. 5월 운세 : 을사년 계사월의 운세 100자 이내
-  6. 6월 운세 : 을사년 갑오월의 운세 100자 이내
-  7. 7월 운세 : 을사년 을미월의 운세 100자 이내
-  8. 8월 운세 : 을사년 병신월의 운세 100자 이내
-  9. 9월 운세 : 을사년 정유월의 운세 100자 이내
-  10. 10월 운세 : 을사년 무술월의 운세 100자 이내
-  11. 11월 운세 : 을사년 기해월의 운세 100자 이내
-  12. 12월 운세 : 을사년 경자월의 운세 100자 이내
-`,
-  en: `Based on the provided Saju information, please provide a comprehensive analysis of the fortune for the year 2026 (Byeong-o Year). Summarize the key points within 500 characters.
-
-Then, please provide the fortune for each month as follows (keep each under 100 characters):
-1. January Fortune: Fortune for Gichuk Month of Eulsa Year
-2. February Fortune: Fortune for Gyeongin Month of Eulsa Year
-3. March Fortune: Fortune for Sinmyo Month of Eulsa Year
-4. April Fortune: Fortune for Imjin Month of Eulsa Year
-5. May Fortune: Fortune for Gyesa Month of Eulsa Year
-6. June Fortune: Fortune for Gabo Month of Eulsa Year
-7. July Fortune: Fortune for Eulmi Month of Eulsa Year
-8. August Fortune: Fortune for Byeongshin Month of Eulsa Year
-9. September Fortune: Fortune for Jeongyu Month of Eulsa Year
-10. October Fortune: Fortune for Musul Month of Eulsa Year
-11. November Fortune: Fortune for Gihae Month of Eulsa Year
-12. December Fortune: Fortune for Gyeongja Month of Eulsa Year
-`,
-};
 
 export default function App() {
   // --- States ---
@@ -625,14 +591,21 @@ export default function App() {
     try {
       const currentSajuKey = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      const langPrompt = language === 'ko' ? '답변은 한국어로. ' : 'Answer in English.';
+      const langPrompt = language === 'ko' ? '답변은 한국어로.  ' : 'Answer in English.';
+
       const hantoeng = `[Terminology Reference]
 When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
 DO NOT use Simplified Chinese characters.
 Refer to the following mapping for exact terms:
 ${HANJA_ENG_MAP}
 `;
-      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hantoeng}\n${langPrompt}`;
+      const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}
+`;
+      const hanja = language === 'ko' ? hantokor : hantoeng;
+      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
       const result = await fetchGeminiAnalysis(fullPrompt);
       await setDoc(
         doc(db, 'users', user.uid),
@@ -783,9 +756,15 @@ DO NOT use Simplified Chinese characters.
 Refer to the following mapping for exact terms:
 ${HANJA_ENG_MAP}
 `;
+      const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}
+`;
+      const hanja = language === 'ko' ? hantokor : hantoeng;
 
       // 최종 프롬프트
-      const fullPrompt = `${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hantoeng}`;
+      const fullPrompt = `${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1; // 4. DB 저장 (캐시 & 카운트)
@@ -866,7 +845,13 @@ DO NOT use Simplified Chinese characters.
 Refer to the following mapping for exact terms:
 ${HANJA_ENG_MAP}
 `;
-      const fullPrompt = `${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hantoeng}`;
+      const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}
+`;
+      const hanja = language === 'ko' ? hantokor : hantoeng;
+      const fullPrompt = `${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;
@@ -922,7 +907,14 @@ DO NOT use Simplified Chinese characters.
 Refer to the following mapping for exact terms:
 ${HANJA_ENG_MAP}
 `;
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}\n${hantoeng}`;
+      const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}
+`;
+      const hanja = language === 'ko' ? hantokor : hantoeng;
+
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;
@@ -1013,19 +1005,53 @@ ${HANJA_ENG_MAP}
 
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      <div className="w-full max-w-lg mb-8 p-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto">
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
-            <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
-              {UI_TEXT.title[language]}
-            </h3>
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-700"
-            >
-              {theme === 'dark' ? '🌙' : '☀️'}
-            </button>
+      {/* ▼▼▼▼▼▼ 헤더 영역 수정 시작 ▼▼▼▼▼▼ */}
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 max-w-xl m-auto">
+        {/* ✅ 왼쪽: 로고 + 타이틀 그룹 */}
+        {theme === 'dark' ? (
+          <div className="flex items-center gap-3">
+            {/* ✨ 언어에 따라 다른 로고 이미지 표시 */}
+            <img
+              src={language === 'ko' ? logoKorDark : logoEngDark}
+              alt="Sajucha Logo"
+              className="w-[300px] rounded-xl shadow-sm object-cover"
+            />
           </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            {/* ✨ 언어에 따라 다른 로고 이미지 표시 */}
+            <img
+              src={language === 'ko' ? logoKor : logoEng}
+              alt="Sajucha Logo"
+              className="w-[300px] rounded-xl shadow-sm object-cover"
+            />
+          </div>
+        )}
+
+        {/* ✅ 오른쪽: 버튼 그룹 (공유하기 + 테마 변경) */}
+        <div className="flex items-center gap-2">
+          {/* 🔗 공유하기 버튼 (기존 handleShare 함수 재사용) */}
+          <button
+            onClick={handleShare}
+            className="p-2.5 rounded-xl bg-indigo-50 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-slate-600 transition-colors text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-gray-600/50"
+            aria-label="Share"
+          >
+            <ShareIcon className="w-5 h-5" />
+          </button>
+
+          {/* 🌙 테마 토글 버튼 */}
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors border border-gray-200 dark:border-gray-600/50"
+            aria-label="Toggle Theme"
+          >
+            <span className="text-lg leading-none">{theme === 'dark' ? '🌙' : '☀️'}</span>
+          </button>
+        </div>
+      </div>
+      {/* ▲▲▲▲▲▲ 헤더 영역 수정 끝 ▲▲▲▲▲▲ */}
+      <div className="w-full max-w-lg  p-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
+        <div className="flex flex-col gap-2">
           <div className="flex bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
             <button
               onClick={() => setLanguage('en')}
@@ -1073,7 +1099,7 @@ ${HANJA_ENG_MAP}
                       onClick={handleEditMode}
                       className="text-[10px] text-gray-500 underline font-semibold hover:text-indigo-600"
                     >
-                      {LOCAL_UI.edit[language]}
+                      {BD_EDIT_UI.edit[language]}
                       <span className="ml-1 font-extrabold text-indigo-600 dark:text-indigo-400">
                         {MAX_EDIT_COUNT - editCount}
                       </span>
@@ -1084,7 +1110,7 @@ ${HANJA_ENG_MAP}
                       onClick={handleCancelEdit}
                       className="text-[10px] text-red-500 underline font-extrabold hover:text-red-700"
                     >
-                      {LOCAL_UI.cancel[language]}
+                      {BD_EDIT_UI.cancel[language]}
                     </button>
                   )}
                 </div>
@@ -1162,7 +1188,7 @@ ${HANJA_ENG_MAP}
                 onClick={handleSaveMyInfo}
                 className="w-full mt-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
               >
-                {LOCAL_UI.complete[language]}
+                {BD_EDIT_UI.complete[language]}
                 <span className="ml-2 text-sm font-extrabold text-white bg-indigo-500 px-2 py-0.5 rounded-lg shadow-sm">
                   {MAX_EDIT_COUNT - editCount}
                 </span>
@@ -1170,7 +1196,6 @@ ${HANJA_ENG_MAP}
               </button>
             </div>
           </div>
-
           {user && (
             <div className="p-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 text-center flex flex-col gap-1">
               <div className="text-sm font-bold text-gray-600 dark:text-gray-300">
@@ -1222,7 +1247,7 @@ ${HANJA_ENG_MAP}
         <div
           id="saju-capture"
           style={{ width: `${containerWidth}px`, maxWidth: '100%' }}
-          className="mt-2 relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]"
+          className=" relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]"
         >
           {bgShow && (
             <div className="absolute inset-0 z-0 flex flex-col pointer-events-none transition-all duration-500">
@@ -1442,13 +1467,13 @@ ${HANJA_ENG_MAP}
       )}
 
       {/* 4. AI 버튼 영역 (3분할) */}
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
+      <div className="my-2 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         <div className="flex justify-between gap-3">
           {/* 1. 메인 분석 버튼 */}
           <button
             onClick={handleAiAnalysis}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 h-12 rounded-xl font-bold shadow-lg transition-all overflow-hidden relative group ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : isCached ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-[1.02]' : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]'}`}
+            className={`flex-1 h-24 rounded-xl font-bold shadow-lg transition-all overflow-hidden relative group ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : isCached ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-[1.02]' : 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]'}`}
           >
             {loading && loadingType === 'main' && (
               <div
@@ -1476,7 +1501,7 @@ ${HANJA_ENG_MAP}
                   </svg>
                   {isCachedLoading
                     ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language)}{' '}
+                    : getLoadingText(progress, language, 'main')}
                   ({Math.round(progress)}%)
                 </>
               ) : !user ? (
@@ -1495,7 +1520,7 @@ ${HANJA_ENG_MAP}
           <button
             onClick={handleNewYearFortune}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 h-12 rounded-xl font-bold shadow-lg text-sm transition-all relative overflow-hidden ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 hover:scale-[1.02]'}`}
+            className={`flex-1 h-24 rounded-xl font-bold shadow-lg text-sm transition-all relative overflow-hidden ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700 hover:scale-[1.02]'}`}
           >
             {loading && loadingType === 'year' && (
               <div
@@ -1523,7 +1548,7 @@ ${HANJA_ENG_MAP}
                   </svg>
                   {isCachedLoading
                     ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language)}{' '}
+                    : getLoadingText(progress, language, 'year')}
                   ({Math.round(progress)}%)
                 </>
               ) : language === 'ko' ? (
@@ -1538,7 +1563,7 @@ ${HANJA_ENG_MAP}
           <button
             onClick={handleDailyFortune}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 h-12 rounded-xl font-bold shadow-lg text-sm transition-all relative overflow-hidden ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-yellow-500 text-white hover:bg-yellow-600 hover:scale-[1.02]'}`}
+            className={`flex-1 h-24 rounded-xl font-bold shadow-lg text-sm transition-all relative overflow-hidden ${loading || !user || !isSaved ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-yellow-500 text-white hover:bg-yellow-600 hover:scale-[1.02]'}`}
           >
             {loading && loadingType === 'daily' && (
               <div
@@ -1566,7 +1591,7 @@ ${HANJA_ENG_MAP}
                   </svg>
                   {isCachedLoading
                     ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language)}{' '}
+                    : getLoadingText(progress, language, 'daily')}
                   ({Math.round(progress)}%)
                 </>
               ) : language === 'ko' ? (
