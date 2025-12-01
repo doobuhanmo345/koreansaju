@@ -47,7 +47,7 @@ export const DEFAULT_INSTRUCTION = `너는 한국의 최고 능력을 지닌 사
 - 정신건강 3개 키워드 도출
 - 키워드별 2문장 설명
 
-7. 사주의 주제어
+. 사주의 주제어
 - 의뢰자의 사주를 나타낼 수 있는 주제어
 - 주제어는 신비스럽고 웅장한 느낌으로 설정 (EX. 질주하는 백호, 태평양의 진주, 구국의 대장군)
 - 주제어는 한 단어, 또는 두 단어로 나타내야 함. 너무 길면 안됨
@@ -79,6 +79,11 @@ export const UI_TEXT = {
   },
   saveFirst: { ko: "내 정보를 먼저 저장해주세요.", en: "Please save your info first." },
   lockedMsg: { ko: "일일 한도 초과", en: "Limit Reached" },
+    // --- 채팅 기록 관련 텍스트 ---
+  historyTitle: { ko: "최근 분석 기록", en: "Recent Analysis History" },
+  historyQ: { ko: "질문:", en: "Q:" },
+  historyA: { ko: "답변:", en: "A:" },
+  noHistory: { ko: "아직 저장된 분석 기록이 없습니다.", en: "No analysis history found." },
   
   // --- 기본 라벨 ---
   birthLabel: { ko: "생년월일시 입력", en: "Date of Birth & Time" },
