@@ -1360,8 +1360,8 @@ export const UI_TEXT = {
   // --- 알림 메시지 ---
   loginReq: { ko: '로그인이 필요합니다!', en: 'Login is required!' },
   saveConfirm: {
-    ko: '정보를 저장하시겠습니까?\n(하루에 최대 3회까지 수정 가능합니다.)',
-    en: 'Do you want to save?\n(You can edit up to 3 times a day.)',
+    ko: '정보를 저장하시겠습니까?',
+    en: 'Do you want to save?',
   },
   saveSuccess: {
     ko: '저장되었습니다! 이제 사주를 볼 수 있습니다.',

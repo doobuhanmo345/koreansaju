@@ -1,15 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { onSnapshot } from 'firebase/firestore'; // 상단 import 확인
+
 import { toPng } from 'html-to-image';
 import {
-  BoltIcon,
+  GlobeAltIcon,
   PlusCircleIcon,
   AdjustmentsHorizontalIcon,
   ChevronLeftIcon,
   LockClosedIcon,
+  TicketIcon,
   ShareIcon,
   SparklesIcon,
+  UserCircleIcon,
+  CalendarDaysIcon,
+  ArrowRightStartOnRectangleIcon, // 로그아웃용
+  PencilSquareIcon, // 수정용
+  XMarkIcon, // 취소용
+  BoltIcon,
+  MinusIcon, // 행동력(Credit)용
 } from '@heroicons/react/24/outline';
-
 import { Solar } from 'lunar-javascript';
 import { doc, getDoc, setDoc, arrayUnion, increment } from 'firebase/firestore'; // increment 추가 확인
 
@@ -62,7 +71,7 @@ export default function App() {
   // 🔒 저장 및 수정 횟수 관리
   const [isSaved, setIsSaved] = useState(false);
   const [editCount, setEditCount] = useState(0);
-  const MAX_EDIT_COUNT = 30;
+  const MAX_EDIT_COUNT = 100;
   const [resultType, setResultType] = useState(null);
   const [chatList, setChatList] = useState([]);
   const [viewMode, setViewMode] = useState('result');
@@ -101,7 +110,7 @@ export default function App() {
     grd3: '',
   });
 
-  const [containerWidth, setContainerWidth] = useState(411);
+  const [containerWidth, setContainerWidth] = useState(470);
   const [aiResult, setAiResult] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,6 +122,58 @@ export default function App() {
   const [charShow, setCharShow] = useState(true);
   const [bgShow, setBgShow] = useState(true);
 
+  const [dbUser, setDbUser] = useState(null);
+  // [상단] useState, useEffect 추가 필요
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    // 크레딧이 꽉 찼으면 타이머 돌릴 필요 없음
+    if (editCount <= 0) {
+      setTimeLeft('');
+      return;
+    }
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      // 다음날 자정(00:00:00) 계산
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+
+      const diff = midnight - now;
+
+      if (diff <= 0) return '00:00:00';
+
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+      // 두 자리수 포맷팅 (05:03:01)
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    // 1초마다 갱신
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    // 초기값 설정
+    setTimeLeft(calculateTimeLeft());
+
+    return () => clearInterval(timer);
+  }, [editCount]); // editCount가 변할 때마다(사용할 때마다) 체크
+
+  useEffect(() => {
+    if (user) {
+      const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+        if (doc.exists()) {
+          setDbUser(doc.data()); // DB가 변경될 때마다 dbUser를 최신으로 업데이트
+        }
+      });
+      return () => unsubscribe();
+    } else {
+      setDbUser(null);
+    }
+  }, [user]);
   // --- Effects ---
   useEffect(() => {
     if (theme === 'dark') document.documentElement.classList.add('dark');
@@ -466,19 +527,21 @@ export default function App() {
   };
 
   const handleSaveMyInfo = async () => {
+    // 1. 로그인 체크는 유지
     if (!user) {
       alert(UI_TEXT.loginReq[language]);
       login();
       return;
     }
-    if (editCount >= MAX_EDIT_COUNT) {
-      alert(UI_TEXT.limitReached[language]);
-      return;
-    }
+
+    // [삭제됨] 횟수 제한 체크 로직 (if (editCount >= MAX_EDIT_COUNT)...)
+
     if (window.confirm(UI_TEXT.saveConfirm[language])) {
       try {
         const todayStr = new Date().toLocaleDateString('en-CA');
-        const newCount = editCount + 1;
+
+        // [삭제됨] 새 카운트 계산 (const newCount = editCount + 1;)
+
         await setDoc(
           doc(db, 'users', user.uid),
           {
@@ -487,15 +550,18 @@ export default function App() {
             isTimeUnknown,
             updatedAt: new Date(),
             lastEditDate: todayStr,
-            editCount: newCount,
+            // [삭제됨] editCount: newCount 필드 업데이트 제외
             email: user.email,
           },
           { merge: true },
         );
-        setEditCount(newCount);
+
+        // [삭제됨] UI 카운트 업데이트 (setEditCount(newCount);)
+
         setIsSaved(true);
         alert(UI_TEXT.saveSuccess[language]);
       } catch (error) {
+        console.error(error);
         alert(UI_TEXT.saveFail[language]);
       }
     }
@@ -606,6 +672,8 @@ export default function App() {
     // 로딩 타입 설정 (메인 분석)
     setLoadingType('main');
     setResultType('main');
+
+    // 1. 캐시(이전 결과) 확인 로직
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
     let isMatch = false;
     if (cachedData && cachedData.saju) {
@@ -619,18 +687,32 @@ export default function App() {
         if (isSajuMatch) isMatch = true;
       }
     }
+
+    // 2. 캐시가 있으면 횟수 차감 없이 결과만 보여줌 (Free)
     if (isMatch) {
       setAiResult(cachedData.result);
       setIsSuccess(true);
       setIsModalOpen(true);
       setViewMode('result');
+      setLoadingType(null); // 로딩 해제
       return;
     }
+
+    // 💥 [추가] 캐시가 없으면 횟수(행동력) 체크
+    if (editCount >= MAX_EDIT_COUNT) {
+      alert(UI_TEXT.limitReached[language]); // "횟수 제한에 도달했습니다" 등의 메시지
+      setLoading(false);
+      setLoadingType(null);
+      return;
+    }
+
+    // 3. AI 분석 시작
     setLoading(true);
     setAiResult('');
     setIsSuccess(false);
     setIsCachedLoading(false);
     setViewMode('result');
+
     try {
       const currentSajuKey = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
@@ -649,7 +731,14 @@ ${HANJA_MAP}
 `;
       const hanja = language === 'ko' ? hantokor : hantoeng;
       const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
+
+      // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
+
+      // 💥 [추가] 행동력(Count) 증가
+      const newCount = editCount + 1;
+
+      // DB 업데이트 (결과 저장 + 카운트 증가)
       await setDoc(
         doc(db, 'users', user.uid),
         {
@@ -658,9 +747,14 @@ ${HANJA_MAP}
           lastPrompt: userPrompt,
           lastLanguage: language,
           lastGender: gender,
+          editCount: newCount, // 여기서 카운트 업데이트
         },
         { merge: true },
       );
+
+      // 로컬 상태 업데이트
+      setEditCount(newCount);
+
       setCachedData({
         saju: saju,
         result: result,
@@ -756,202 +850,134 @@ ${HANJA_MAP}
       setQLoading(false); // 로딩 종료
     }
   };
+  console.log(user);
 
-  // --- 🔮 [오늘의 운세] (Alert X -> Modal O, 로딩 표시 O) ---
+  // ----------------------------------------------------------------
+  // 🔮 [오늘의 운세] (3중 체크: 날짜/언어/사주)
+  // ----------------------------------------------------------------
   const handleDailyFortune = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]); // 로딩 시작 및 타입 설정
-
-    setLoading(true);
-    setLoadingType('daily');
-    setAiResult(''); // 결과 초기화
-    setResultType('daily');
-
-    const currentSajuKey = createSajuKey(saju);
-    const todayDate = new Date().toLocaleDateString('en-CA'); // 💥 [수정] 캐시 키는 변경하지 않았습니다. (기존 로직 유지)
-    // 만약 "최근 3개 저장" 로직을 적용하려면 이전 답변의 배열 로직을 써야 합니다.
-    // 여기서는 질문하신 "프롬프트 입력 값" 수정에 집중합니다.
-    const cacheKey = `daily_fortune.${currentSajuKey}.${todayDate}`;
-
-    try {
-      const userDocRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userDocRef);
-      const userData = userSnap.exists() ? userSnap.data() : {}; // 1. 캐시 확인
-
-      if (userData.fortune_cache && userData.fortune_cache[cacheKey]) {
-        const cachedResult = userData.fortune_cache[cacheKey];
-        setAiResult(cachedResult);
-        setIsSuccess(true);
-        setIsModalOpen(true);
-        setViewMode('result');
-        setLoading(false);
-        setLoadingType(null);
-        return;
-      } // 2. 카운트 체크
-
-      if (editCount >= MAX_EDIT_COUNT) {
-        setLoading(false);
-        setLoadingType(null);
-        return alert(UI_TEXT.limitReached[language]);
-      } // 3. API 호출 준비
-
-      // 💥 [핵심 수정] 사주 JSON을 한글/영어 텍스트로 명확하게 변환
-      const userSajuText = `${saju.sky3}${saju.grd3}년(Year) ${saju.sky2}${saju.grd2}월(Month) ${saju.sky1}${saju.grd1}일(Day) ${saju.sky0}${saju.grd0}시(Time)`;
-
-      // 1. 날짜 객체 생성
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1); // 오늘 날짜에 하루 더함
-
-      // 2. 사주 데이터 추출 (위에서 만든 getPillars 함수 사용)
-      const todayPillars = getPillars(today);
-      const tomorrowPillars = getPillars(tomorrow);
-
-      if (!todayPillars || !tomorrowPillars) {
-        // 에러 처리 (필요시 알림 등)
-        return;
-      }
-
-      // 3. 텍스트 변환 (오늘)
-      const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년(Year) ${todayPillars.sky2}${todayPillars.grd2}월(Month) ${todayPillars.sky1}${todayPillars.grd1}일(Day)`;
-
-      // 4. 텍스트 변환 (내일)
-      const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`;
-
-      // 5. 최종 프롬프트 정보 구성 (User Saju / Today / Tomorrow)
-      // userSajuText는 이미 상단에서 정의되어 있다고 가정
-      const sajuInfo = `[User Saju] ${userSajuText} / [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
-      const langPrompt =
-        language === 'ko' ? '답변은 한국어로. 500자 이내.' : 'Answer in English. Max 500 chars.';
-      const hantoeng = `[Terminology Reference]
-When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
-DO NOT use Simplified Chinese characters.
-Refer to the following mapping for exact terms:
-${HANJA_ENG_MAP}
-`;
-      const hantokor = `[Terminology Reference]
-사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
-아래의 매핑을 참조:
-${HANJA_MAP}
-`;
-      const hanja = language === 'ko' ? hantokor : hantoeng;
-
-      // 최종 프롬프트
-      const fullPrompt = `${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
-
-      const result = await fetchGeminiAnalysis(fullPrompt);
-      const newCount = editCount + 1; // 4. DB 저장 (캐시 & 카운트)
-
-      let fortuneCache = userData.fortune_cache || {};
-      fortuneCache[cacheKey] = result;
-
-      await setDoc(
-        userDocRef,
-        {
-          editCount: newCount,
-          lastEditDate: new Date().toLocaleDateString('en-CA'),
-          fortune_cache: fortuneCache,
-        },
-        { merge: true },
-      );
-
-      setEditCount(newCount); // 5. 결과 모달 띄우기
-
-      setAiResult(result);
-      setIsSuccess(true);
-      setIsModalOpen(true);
-      setViewMode('result');
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-  // --- 🎉 [신년 운세] (Alert X -> Modal O, 로딩 표시 O) ---
-  const handleNewYearFortune = async () => {
+    // 1. 기본 체크
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
 
-    // 로딩 시작 및 타입 설정
     setLoading(true);
-    setLoadingType('year');
+    setLoadingType('daily');
+    setResultType('daily');
     setAiResult('');
-    setResultType('year');
 
-    const currentSajuKey = createSajuKey(saju);
-    const nextYear = new Date().getFullYear() + 1;
-    const cacheKey = `new_year_fortune.${currentSajuKey}.${nextYear}`;
+    // 비교를 위한 기준 데이터 준비
+    const todayDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userDocRef);
       const userData = userSnap.exists() ? userSnap.data() : {};
 
-      // 1. 캐시 확인
-      if (userData.fortune_cache && userData.fortune_cache[cacheKey]) {
-        const cachedResult = userData.fortune_cache[cacheKey];
-        // 캐시 있으면 바로 모달
-        setAiResult(cachedResult);
+      // 현재 DB에 저장된 행동력(크레딧) 가져오기
+      const currentCount = userData.editCount || 0;
+
+      // 💥 [Step 1] 저장된 최신 결과(lastDaily)와 현재 조건 3가지 비교
+      let isMatch = false;
+      if (userData.lastDaily) {
+        const { date, language: savedLang, saju: savedSaju, result } = userData.lastDaily;
+
+        // ① 날짜가 오늘인가?
+        const isDateMatch = date === todayDate;
+        // ② 언어 설정이 같은가?
+        const isLangMatch = savedLang === language;
+        // ③ 사주 팔자(8글자)가 완전히 같은가?
+        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
+
+        // 셋 다 맞을 때만 '일치'로 판정
+        if (isDateMatch && isLangMatch && isSajuMatch && result) {
+          isMatch = true;
+          setAiResult(result); // 저장된 결과 사용
+        }
+      }
+
+      // 💥 [Step 2] 일치하면 -> 크레딧 차감 없이 바로 보여줌 (무료)
+      if (isMatch) {
         setIsSuccess(true);
         setIsModalOpen(true);
         setViewMode('result');
         setLoading(false);
         setLoadingType(null);
-        return;
+        return; // 여기서 함수 종료!
       }
 
-      // 2. 카운트 체크
-      if (editCount >= MAX_EDIT_COUNT) {
+      // 💥 [Step 3] 불일치하면 -> 여기서부터 유료 (크레딧 체크 & 차감)
+
+      // (1) 크레딧 부족한지 확인
+      if (currentCount >= MAX_EDIT_COUNT) {
         setLoading(false);
         setLoadingType(null);
         return alert(UI_TEXT.limitReached[language]);
       }
 
-      // 3. API 호출
-      const currentSajuJson = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
+      // (2) API 호출을 위한 프롬프트 구성
+      const userSajuText = `${saju.sky3}${saju.grd3}년(Year) ${saju.sky2}${saju.grd2}월(Month) ${saju.sky1}${saju.grd1}일(Day) ${saju.sky0}${saju.grd0}시(Time)`;
+
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+
+      const todayPillars = getPillars(today);
+      const tomorrowPillars = getPillars(tomorrow);
+
+      if (!todayPillars || !tomorrowPillars) return;
+
+      const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년(Year) ${todayPillars.sky2}${todayPillars.grd2}월(Month) ${todayPillars.sky1}${todayPillars.grd1}일(Day)`;
+      const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`;
+
+      const sajuInfo = `[User Saju] ${userSajuText} / [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
+
       const langPrompt =
         language === 'ko' ? '답변은 한국어로. 500자 이내.' : 'Answer in English. Max 500 chars.';
-      const hantoeng = `[Terminology Reference]
-When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
-DO NOT use Simplified Chinese characters.
-Refer to the following mapping for exact terms:
-${HANJA_ENG_MAP}
-`;
-      const hantokor = `[Terminology Reference]
-사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
-아래의 매핑을 참조:
-${HANJA_MAP}
-`;
+      const hantoeng = `[Terminology Reference]\nWhen translating or referring to Saju terms... \n${HANJA_ENG_MAP}`;
+      const hantokor = `[Terminology Reference]\n사주 용어를 해석할 때... \n${HANJA_MAP}`;
       const hanja = language === 'ko' ? hantokor : hantoeng;
-      const fullPrompt = `${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
+      const fullPrompt = `${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+
+      // (3) 실제 AI 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
-      const newCount = editCount + 1;
 
-      // 4. DB 저장
+      // (4) 크레딧 1 차감 (DB값 + 1)
+      const newCount = currentCount + 1;
+
+      // (5) DB 저장 (결과 + 날짜/언어/사주 정보 + 크레딧)
+      // 히스토리용 캐시 키 생성
+      const currentSajuKey = JSON.stringify(saju);
+      const cacheKey = `daily_fortune.${currentSajuKey}.${todayDate}.${language}`;
       let fortuneCache = userData.fortune_cache || {};
       fortuneCache[cacheKey] = result;
 
       await setDoc(
         userDocRef,
         {
-          editCount: newCount,
-          lastEditDate: new Date().toLocaleDateString('en-CA'),
+          editCount: newCount, // 횟수 증가 저장
+          lastEditDate: todayDate,
           fortune_cache: fortuneCache,
+          // 👇 다음에 비교할 '최신 상태' 저장
+          lastDaily: {
+            result: result,
+            date: todayDate, // 오늘 날짜
+            saju: saju, // 지금 사주
+            language: language, // 지금 언어
+          },
         },
         { merge: true },
       );
 
+      // UI 반영
       setEditCount(newCount);
-
-      // 5. 결과 모달
       setAiResult(result);
       setIsSuccess(true);
       setIsModalOpen(true);
       setViewMode('result');
     } catch (e) {
+      console.error(e);
       alert(`Error: ${e.message}`);
     } finally {
       setLoading(false);
@@ -959,6 +985,137 @@ ${HANJA_MAP}
     }
   };
 
+  // ----------------------------------------------------------------
+  // 🎉 [신년 운세] (캐시 확인 + 로직 개선)
+  // ----------------------------------------------------------------
+  const handleNewYearFortune = async () => {
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
+
+    setLoading(true);
+    setLoadingType('year');
+    setResultType('year');
+    setAiResult('');
+
+    const nextYear = new Date().getFullYear() + 1;
+    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+
+    try {
+      // 1. DB에서 최신 데이터 가져오기
+      const userDocRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userDocRef);
+      const userData = userSnap.exists() ? userSnap.data() : {};
+
+      // 💥 현재 카운트 확보
+      const currentCount = userData.editCount || 0;
+
+      // [캐시 체크] 이미 본 결과면 무료
+      let isMatch = false;
+      if (userData.lastNewYear) {
+        const { year, language: savedLang, saju: savedSaju, result } = userData.lastNewYear;
+        const isYearMatch = String(year) === String(nextYear);
+        const isLangMatch = savedLang === language;
+        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
+
+        if (isYearMatch && isLangMatch && isSajuMatch && result) {
+          setAiResult(result);
+          setIsSuccess(true);
+          setIsModalOpen(true);
+          setViewMode('result');
+          setLoading(false);
+          setLoadingType(null);
+          return;
+        }
+      }
+
+      // [횟수 제한 체크]
+      if (currentCount >= MAX_EDIT_COUNT) {
+        setLoading(false);
+        setLoadingType(null);
+        return alert(UI_TEXT.limitReached[language]);
+      }
+
+      // --- API 호출 준비 ---
+      const currentSajuJson = JSON.stringify(saju);
+      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
+      const langPrompt =
+        language === 'ko' ? '답변은 한국어로. 500자 이내.' : 'Answer in English. Max 500 chars.';
+      const hantoeng = `[Terminology Reference]\nStrictly use Korean Hanja...\n${HANJA_ENG_MAP}`;
+      const hantokor = `[Terminology Reference]\n엄격하게 한국한자 사용...\n${HANJA_MAP}`;
+      const hanja = language === 'ko' ? hantokor : hantoeng;
+
+      const fullPrompt = `${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+
+      // 💥 API 호출 (AI 분석)
+      const result = await fetchGeminiAnalysis(fullPrompt);
+
+      // 💥 [핵심] 크레딧 차감
+      const newCount = currentCount + 1;
+
+      // DB 저장
+      const cacheKey = `new_year_fortune.${currentSajuJson}.${nextYear}.${language}`;
+      let fortuneCache = userData.fortune_cache || {};
+      fortuneCache[cacheKey] = result;
+
+      await setDoc(
+        userDocRef,
+        {
+          editCount: newCount, // 저장
+          lastEditDate: new Date().toLocaleDateString('en-CA'),
+          fortune_cache: fortuneCache,
+          lastNewYear: {
+            result: result,
+            year: nextYear,
+            saju: saju,
+            language: language,
+          },
+        },
+        { merge: true },
+      );
+
+      // UI 반영
+      setEditCount(newCount);
+      setAiResult(result);
+      setIsSuccess(true);
+      setIsModalOpen(true);
+      setViewMode('result');
+    } catch (e) {
+      console.error(e);
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+      setLoadingType(null);
+    }
+  };
+  // [변수 설정] 체크 표시 로직 (안전한 비교)
+  const todayStr = new Date().toLocaleDateString('en-CA');
+  const nextYear = new Date().getFullYear() + 1;
+  const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+
+  // 공통 비교 함수 (사주 8글자가 같은지 확인)
+  const checkSajuMatch = (targetSaju) => {
+    if (!targetSaju) return false;
+    return sajuKeys.every((key) => targetSaju[key] === saju[key]);
+  };
+
+  // 1. 메인 분석 완료 여부 (로컬 캐시 OR DB의 lastSaju 확인)
+  const isMainDone =
+    (cachedData && checkSajuMatch(cachedData.saju) && cachedData.language === language) ||
+    (dbUser && checkSajuMatch(dbUser.lastSaju) && dbUser.lastLanguage === language);
+
+  // 2. 신년운세 완료 여부 (DB 확인)
+  const isYearDone =
+    dbUser?.lastNewYear &&
+    String(dbUser.lastNewYear.year) === String(nextYear) &&
+    dbUser.lastNewYear.language === language &&
+    checkSajuMatch(dbUser.lastNewYear.saju);
+
+  // 3. 오늘의 운세 완료 여부 (DB 확인)
+  const isDailyDone =
+    dbUser?.lastDaily &&
+    dbUser.lastDaily.date === todayStr &&
+    dbUser.lastDaily.language === language &&
+    checkSajuMatch(dbUser.lastDaily.saju);
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (editCount >= MAX_EDIT_COUNT) return alert(UI_TEXT.limitReached[language]);
@@ -1102,17 +1259,40 @@ ${HANJA_MAP}
           </div>
         )}
 
-        {/* ✅ 오른쪽: 버튼 그룹 (공유하기 + 테마 변경) */}
+        {/* ✅ 오른쪽: 버튼 그룹 (언어 + 테마 변경) */}
         <div className="flex items-center gap-2">
-          {/* 🔗 공유하기 버튼 (기존 handleShare 함수 재사용) */}
           <button
-            onClick={handleShare}
-            className="p-2.5 rounded-xl bg-indigo-50 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-slate-600 transition-colors text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-gray-600/50"
-            aria-label="Share"
+            onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
+            className="px-4 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-slate-600 flex items-center gap-2 transition-all"
           >
-            <ShareIcon className="w-5 h-5" />
-          </button>
+            {/* 지구본 아이콘 */}
+            <GlobeAltIcon className="w-5 h-5 text-gray-400 dark:text-gray-400" />
 
+            {/* 언어 텍스트 (KO | EN) */}
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`transition-colors ${
+                  language === 'ko'
+                    ? 'text-indigo-600 dark:text-indigo-400 font-extrabold'
+                    : 'text-gray-400 dark:text-gray-500 font-medium'
+                }`}
+              >
+                KO
+              </span>
+
+              <span className="text-gray-300 dark:text-gray-600 text-[10px]">|</span>
+
+              <span
+                className={`transition-colors ${
+                  language === 'en'
+                    ? 'text-indigo-600 dark:text-indigo-400 font-extrabold'
+                    : 'text-gray-400 dark:text-gray-500 font-medium'
+                }`}
+              >
+                EN
+              </span>
+            </div>
+          </button>
           {/* 🌙 테마 토글 버튼 */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -1123,88 +1303,96 @@ ${HANJA_MAP}
           </button>
         </div>
       </div>
-      {/* ▲▲▲▲▲▲ 헤더 영역 수정 끝 ▲▲▲▲▲▲ */}
-      <div className="w-full max-w-lg  p-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
-        <div className="flex flex-col gap-2">
-          <div className="flex bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
-            <button
-              onClick={() => setLanguage('en')}
-              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${language === 'en' ? 'bg-white dark:bg-slate-600 dark:text-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}
-            >
-              English
-            </button>
-            <button
-              onClick={() => setLanguage('ko')}
-              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${language === 'ko' ? 'bg-white dark:bg-slate-600 dark:text-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}
-            >
-              한국어
-            </button>
-          </div>
-          <div className="flex items-center justify-between bg-indigo-50 dark:bg-slate-700/50 p-3 rounded-xl border border-indigo-100 dark:border-indigo-500/30">
-            {user ? (
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={user.photoURL}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full border border-indigo-200"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
-                      {user.displayName}
-                      {language == 'ko' && <>님</>}
+      <div className="bg-white/70 dark:bg-slate-800/60 p-3 my-2 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md max-w-lg m-auto">
+        {user ? (
+          <div className="flex items-center justify-between">
+            {/* 1. 왼쪽: 심플한 프로필 영역 */}
+            <div className="flex items-center gap-3">
+              <img
+                src={user.photoURL}
+                alt="Profile"
+                className="w-9 h-9 rounded-full border border-indigo-100 dark:border-slate-600"
+              />
+              <div className="flex flex-col justify-center">
+                <span className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-none mb-0.5">
+                  {user.displayName}
+                  {language === 'ko' && (
+                    <span className="font-normal text-xs ml-0.5 text-gray-500">님</span>
+                  )}
+                </span>
+                <span className="text-[10px] text-gray-400">{UI_TEXT.welcome[language]}</span>
+              </div>
+            </div>
+
+            {/* 2. 오른쪽: 통합 컨트롤 바 (한 줄 배치) */}
+            <div className="flex items-center">
+              {/* 행동력 */}
+              <div className="flex items-center gap-2 mr-3 pr-3 border-r border-gray-200 dark:border-gray-700 h-9">
+                {/* h-9로 높이 고정하여 흔들림 방지 */}
+                {/* 아이콘: 중앙 정렬 */}
+                <BoltIcon className="w-4 h-4 text-amber-500 fill-amber-500/20" />
+                {/* 텍스트 영역: 오른쪽 정렬 */}
+                <div className="flex flex-col items-end justify-center leading-none">
+                  {/* 1. 라벨 (CREDIT) */}
+                  <span className="text-[9px] font-bold text-amber-600/70 dark:text-amber-500 uppercase tracking-tighter mb-[1px]">
+                    Daily Credit
+                  </span>
+
+                  {/* 2. 숫자 (3/5) */}
+                  <span className="text-xs font-black text-gray-700 dark:text-gray-200 font-mono">
+                    {MAX_EDIT_COUNT - editCount}
+                    <span className="text-gray-300 text-[10px] mx-0.5">/</span>
+                    {MAX_EDIT_COUNT}
+                  </span>
+
+                  {/* 3. ✨ [추가됨] 타이머 (아주 작게 하단 배치) */}
+                  {/* 꽉 차지 않았을 때만 타이머 표시 */}
+                  {MAX_EDIT_COUNT - editCount < MAX_EDIT_COUNT && timeLeft ? (
+                    <span className="text-[8px] font-mono font-medium text-gray-400 dark:text-gray-500 tracking-tight mt-[1px]">
+                      refill in {timeLeft}
                     </span>
-                    <span className="text-[10px] text-gray-400">{UI_TEXT.welcome[language]}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  <button
-                    onClick={logout}
-                    className="text-xs px-3 py-1.5 bg-gray-200 rounded-lg font-bold"
-                  >
-                    {UI_TEXT.logout[language]}
-                  </button>
-                  {isLocked ? (
-                    <span className="text-[10px] text-red-500 font-bold">
-                      {UI_TEXT.lockedMsg[language]}
-                    </span>
-                  ) : isSaved ? (
-                    <button
-                      onClick={handleEditMode}
-                      className="text-[10px] text-gray-500 underline font-semibold hover:text-indigo-600"
-                    >
-                      {BD_EDIT_UI.edit[language]}
-                      <span className="ml-1 font-extrabold text-indigo-600 dark:text-indigo-400">
-                        {MAX_EDIT_COUNT - editCount}
-                      </span>
-                      <span className="text-gray-400">/{MAX_EDIT_COUNT}</span>
-                    </button>
                   ) : (
-                    <button
-                      onClick={handleCancelEdit}
-                      className="text-[10px] text-red-500 underline font-extrabold hover:text-red-700"
-                    >
-                      {BD_EDIT_UI.cancel[language]}
-                    </button>
+                    /* 꽉 찼을 때는 빈 공간 유지 or FULL 표시 (깔끔함을 위해 빈 공간 추천) */
+                    <span className="h-[10px]"></span>
                   )}
                 </div>
               </div>
-            ) : (
-              <div className="w-full">
-                <button
-                  onClick={login}
-                  className="w-full flex items-center justify-center gap-2 py-2 bg-white hover:bg-gray-50 text-gray-700 border rounded-lg font-bold shadow-sm"
-                >
-                  {/* SVG Icons omitted for brevity, they are same */}
-                  <span className="text-sm">{UI_TEXT.googleLogin[language]}</span>
-                </button>
-                <p className="text-[10px] text-center text-gray-400 mt-1">
-                  {UI_TEXT.loginMsg[language]}
-                </p>
-              </div>
-            )}
-          </div>
 
+              {/* (B) 액션 버튼 (Actions) - 아이콘 위주 */}
+              <div className="flex items-center gap-1">
+                {/* 로그아웃 버튼 */}
+                <button
+                  onClick={logout}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-all"
+                  title={UI_TEXT.logout[language]}
+                >
+                  <ArrowRightStartOnRectangleIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // 비로그인 상태 (기존 유지)
+          <div className="w-full text-center">
+            <button
+              onClick={login}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-bold shadow-sm transition-all"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.2,4.73C15.29,4.73 17.1,6.7 17.1,6.7L19,4.72C19,4.72 16.56,2 12.1,2C6.42,2 2.03,6.8 2.03,12C2.03,17.05 6.16,22 12.25,22C17.6,22 21.5,18.33 21.5,12.91C21.5,11.76 21.35,11.1 21.35,11.1V11.1Z"
+                />
+              </svg>
+              <span className="text-sm">{UI_TEXT.googleLogin[language]}</span>
+            </button>
+            <p className="text-[10px] text-gray-400 mt-2">{UI_TEXT.loginMsg[language]}</p>
+          </div>
+        )}
+      </div>
+      {/* ▲▲▲▲▲▲ 헤더 영역 수정 끝 ▲▲▲▲▲▲ */}
+      <div className="w-full max-w-lg  p-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
+        <div className="flex flex-col gap-2">
           <div
             className={`transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
           >
@@ -1271,297 +1459,355 @@ ${HANJA_MAP}
             </div>
           </div>
           {user && (
-            <div className="p-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800 text-center flex flex-col gap-1">
-              <div className="text-sm font-bold text-gray-600 dark:text-gray-300">
-                {inputDate.replace('T', ' ')}
-                {isTimeUnknown && (
-                  <span className="ml-1 text-xs font-normal text-gray-400">
-                    ({UI_TEXT.unknownTime[language]})
+            <div className="relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
+              {/* 1. 상단 라벨 (여기가 내 정보임을 알리는 핵심) */}
+
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 tracking-widest uppercase">
+                  <UserCircleIcon className="w-3 h-3" />
+                  <span>My Profile</span>
+                </div>
+              </div>
+              <div className="absolute top-2 right-2">
+                {isLocked ? (
+                  <span className="text-[10px] text-red-500 font-bold px-2">
+                    {UI_TEXT.lockedMsg[language]}
                   </span>
+                ) : isSaved ? (
+                  // 수정 버튼 (심플한 아이콘 버튼)
+                  <button
+                    onClick={handleEditMode}
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-full transition-all"
+                    title={BD_EDIT_UI.edit[language]}
+                  >
+                    <PencilSquareIcon className="w-5 h-5" />
+                  </button>
+                ) : (
+                  // 취소 버튼
+                  <button
+                    onClick={handleCancelEdit}
+                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
                 )}
               </div>
-              <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-lg font-extrabold text-indigo-900 dark:text-indigo-200 tracking-wider">
-                <span className="whitespace-nowrap">
-                  {t(saju.sky3)}
-                  {t(saju.grd3)}
-                  <span className="text-xs font-normal text-indigo-400 ml-1">
-                    {UI_TEXT.year[language]}
-                  </span>
-                </span>
-                <span className="whitespace-nowrap">
-                  {t(saju.sky2)}
-                  {t(saju.grd2)}
-                  <span className="text-xs font-normal text-indigo-400 ml-1">
-                    {UI_TEXT.month[language]}
-                  </span>
-                </span>
-                <span className="whitespace-nowrap">
-                  {t(saju.sky1)}
-                  {t(saju.grd1)}
-                  <span className="text-xs font-normal text-indigo-400 ml-1">
+
+              <div className="flex flex-col gap-3 pt-1">
+                {/* 2. 양력 생일 정보 (입력값) */}
+                <div className="flex items-center justify-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <CalendarDaysIcon className="w-4 h-4 text-indigo-400" />
+                  <span className="font-mono tracking-wide">{inputDate.replace('T', ' ')}</span>
+                  {isTimeUnknown && (
+                    <span className="px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-700 rounded text-gray-400">
+                      {UI_TEXT.unknownTime[language]}
+                    </span>
+                  )}
+                </div>
+
+                {/* 구분선 */}
+                <div className="border-t border-dashed border-indigo-100 dark:border-indigo-800 w-full"></div>
+
+                {/* 3. 사주 명식 (변환값) - 가장 중요하게 강조 */}
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                  {/* 년주 */}
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs text-indigo-300 dark:text-indigo-600 uppercase mb-0.5">
+                      {UI_TEXT.year[language]}
+                    </span>
+                    <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-100 tracking-widest leading-none">
+                      {t(saju.sky3)}
+                      {t(saju.grd3)}
+                    </span>
+                  </div>
+
+                  {/* 월주 */}
+                  <div className="flex flex-col items-center">
+                    <span className="text-xs text-indigo-300 dark:text-indigo-600 uppercase mb-0.5">
+                      {UI_TEXT.month[language]}
+                    </span>
+                    <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-100 tracking-widest leading-none">
+                      {t(saju.sky2)}
+                      {t(saju.grd2)}
+                    </span>
+                  </div>
+
+                  {/* 일주 (강조) */}
+                  <div className="flex flex-col items-center relative">
+                    {/* 일주 강조용 배경 점 */}
+                    <div className="absolute inset-0 bg-indigo-100/50 dark:bg-indigo-500/20 blur-md rounded-full transform scale-150"></div>
+                    <span className="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase mb-0.5 relative z-10">
+                      {UI_TEXT.day[language]}
+                    </span>
+                    <span className="text-xl font-black text-indigo-600 dark:text-indigo-200 tracking-widest leading-none relative z-10 drop-shadow-sm">
+                      {t(saju.sky1)}
+                      {t(saju.grd1)}
+                    </span>
+                  </div>
+
+                  {/* 시주 */}
+                  {!isTimeUnknown && (
+                    <div className="flex flex-col items-center">
+                      <span className="text-xs text-indigo-300 dark:text-indigo-600 uppercase mb-0.5">
+                        {UI_TEXT.hour[language]}
+                      </span>
+                      <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-100 tracking-widest leading-none">
+                        {t(saju.sky0)}
+                        {t(saju.grd0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {!!showIcons && user && (
+            <div
+              id="saju-capture"
+              style={{ width: `${containerWidth}px`, maxWidth: '100%' }}
+              className=" relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]"
+            >
+              {bgShow && (
+                <div className="absolute inset-0 z-0 flex flex-col pointer-events-none transition-all duration-500">
+                  <div
+                    className={`h-1/2 w-full relative bg-gradient-to-b overflow-hidden transition-colors duration-700 ease-in-out ${theme === 'dark' ? 'from-indigo-950/80 via-slate-900/70 to-blue-900/60' : 'from-sky-400/40 via-sky-200/40 to-white/5'}`}
+                  >
+                    {/* 배경 아이콘 유지 */}
+                  </div>
+                  <div
+                    className={`h-1/2 w-full relative bg-gradient-to-b transition-colors duration-700 ease-in-out border-t ${theme === 'dark' ? 'from-slate-800/50 to-gray-900/70 border-slate-700/30' : 'from-stone-300/40 to-amber-100/60 border-stone-400/20'}`}
+                  ></div>
+                </div>
+              )}
+              <div className="relative z-10 flex justify-center bg-white/10 backdrop-blur-sm">
+                {charShow && (
+                  <div className="flex flex-col items-end  pt-[10px] animate-[fadeIn_0.5s_ease-out]">
+                    <div className="h-4" />
+                    <div className="h-[90px] flex items-center pr-2 border-r border-sky-700/30">
+                      <div className="text-right">
+                        <span className="block text-[10px] font-bold text-sky-700 uppercase tracking-widest opacity-80 dark:text-cyan-600">
+                          Heavenly
+                        </span>
+                        <span className="block text-[10px] font-serif font-bold text-gray-700 drop-shadow-sm dark:text-gray-400">
+                          Stem
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-[110px] flex items-center pr-2 border-r border-stone-400/20">
+                      <div className="text-right">
+                        <span className="block text-[10px] font-bold text-stone-500 uppercase tracking-widest opacity-70 dark:text-yellow-600">
+                          Earthly
+                        </span>
+                        <span className="block text-[10px] font-serif font-bold text-stone-700 drop-shadow-sm dark:text-gray-400">
+                          Branch
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!isTimeUnknown && !!saju.grd0 && (
+                  <div className={pillarStyle}>
+                    <div className={pillarLabelStyle}>{UI_TEXT.hour[language]}</div>
+                    <div
+                      className={classNames(
+                        iconsViewStyle,
+                        saju.sky0 ? bgToBorder(sigan.color) : 'border-gray-200',
+                        'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
+                      )}
+                    >
+                      <div className="text-3xl mb-1">{getIcon(saju.sky0, 'sky')}</div>
+                      {!!saju.sky0 && (
+                        <>
+                          <div className="text-[10px] font-bold">{getHanja(saju.sky0, 'sky')}</div>
+                          <div className="text-[8px] uppercase tracking-tighter">
+                            {t(saju.sky0)}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <div
+                      className={classNames(
+                        iconsViewStyle,
+                        saju.grd0 ? bgToBorder(sijidata.color) : 'border-gray-200',
+                        'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
+                      )}
+                    >
+                      <div className="text-3xl mb-1">{getIcon(saju.grd0, 'grd')}</div>
+                      {!!saju.grd0 && (
+                        <>
+                          <div className="text-[10px] font-bold">{getHanja(saju.grd0, 'grd')}</div>
+                          <div className="text-[8px] uppercase tracking-tighter">
+                            {t(saju.grd0)}
+                          </div>
+                        </>
+                      )}
+                      <div className="flex w-full opacity-50">
+                        {sijiji.map((i, idx) => (
+                          <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
+                            <div className="text-[7px]">{i.sub.sky[1]}</div>
+                            <div>{i.sub.sky[2]}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div
+                  className={classNames(
+                    pillarStyle,
+                    bgShow
+                      ? 'bg-white/90 dark:bg-white/40 border-gray-600 border-[0.5px] border-dashed'
+                      : 'bg-yellow-100/50 border-yellow-500',
+                  )}
+                >
+                  <span className={classNames(pillarLabelStyle, 'dark:!text-gray-700')}>
                     {UI_TEXT.day[language]}
                   </span>
-                </span>
-                {!isTimeUnknown && (
-                  <span className="whitespace-nowrap">
-                    {t(saju.sky0)}
-                    {t(saju.grd0)}
-                    <span className="text-xs font-normal text-indigo-400 ml-1">
-                      {UI_TEXT.hour[language]}
-                    </span>
-                  </span>
-                )}
+                  <div
+                    className={classNames(
+                      iconsViewStyle,
+                      saju.sky1 ? bgToBorder(ilgan.color) : 'border-gray-200',
+                      'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
+                    )}
+                  >
+                    <div className="text-3xl mb-1">{getIcon(saju.sky1, 'sky')}</div>
+                    {!!saju.sky1 && (
+                      <>
+                        <div className="text-[10px] font-bold">{getHanja(saju.sky1, 'sky')}</div>
+                        <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky1)}</div>
+                      </>
+                    )}
+                  </div>
+                  <div
+                    className={classNames(
+                      iconsViewStyle,
+                      saju.grd1 ? bgToBorder(iljidata.color) : 'border-gray-200',
+                      'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
+                    )}
+                  >
+                    <div className="text-3xl mb-1">{getIcon(saju.grd1, 'grd')}</div>
+                    {!!saju.grd1 && (
+                      <>
+                        <div className="text-[10px] font-bold">{getHanja(saju.grd1, 'grd')}</div>
+                        <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd1)}</div>
+                      </>
+                    )}
+                    <div className="flex w-full opacity-50">
+                      {iljiji.map((i, idx) => (
+                        <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
+                          <div className="text-[7px]">{i.sub.sky[1]}</div>
+                          <div>{i.sub.sky[2]}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className={pillarStyle}>
+                  <span className={pillarLabelStyle}>{UI_TEXT.month[language]}</span>
+                  <div
+                    className={classNames(
+                      iconsViewStyle,
+                      saju.sky2 ? bgToBorder(wolgan.color) : 'border-gray-200',
+                      'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
+                    )}
+                  >
+                    <div className="text-3xl mb-1">{getIcon(saju.sky2, 'sky')}</div>
+                    {!!saju.sky2 && (
+                      <>
+                        <div className="text-[10px] font-bold">{getHanja(saju.sky2, 'sky')}</div>
+                        <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky2)}</div>
+                      </>
+                    )}
+                  </div>
+                  <div
+                    className={classNames(
+                      iconsViewStyle,
+                      saju.grd2 ? bgToBorder(woljidata.color) : 'border-gray-200',
+                      'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
+                    )}
+                  >
+                    <div className="text-3xl mb-1">{getIcon(saju.grd2, 'grd')}</div>
+                    {!!saju.grd2 && (
+                      <>
+                        <div className="text-[10px] font-bold">{getHanja(saju.grd2, 'grd')}</div>
+                        <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd2)}</div>
+                      </>
+                    )}
+                    <div className="flex w-full opacity-50">
+                      {woljiji.map((i, idx) => (
+                        <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
+                          <div className="text-[7px]">{i.sub.sky[1]}</div>
+                          <div>{i.sub.sky[2]}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className={pillarStyle}>
+                  <span className={pillarLabelStyle}>{UI_TEXT.year[language]}</span>
+                  <div
+                    className={classNames(
+                      iconsViewStyle,
+                      saju.sky3 ? bgToBorder(yeongan.color) : 'border-gray-200',
+                      'rounded-md w-16 flex flex-col items-center justify-center py-2 shadow-sm',
+                    )}
+                  >
+                    <div className="text-3xl mb-1">{getIcon(saju.sky3, 'sky')}</div>
+                    {!!saju.sky3 && (
+                      <>
+                        <div className="text-[10px] font-bold">{getHanja(saju.sky3, 'sky')}</div>
+                        <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky3)}</div>
+                      </>
+                    )}
+                  </div>
+                  <div
+                    className={classNames(
+                      iconsViewStyle,
+                      saju.grd3 ? bgToBorder(yeonjidata.color) : 'border-gray-200',
+                      'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
+                    )}
+                  >
+                    <div className="text-3xl mb-1">{getIcon(saju.grd3, 'grd')}</div>
+                    {!!saju.grd3 && (
+                      <>
+                        <div className="text-[10px] font-bold">{getHanja(saju.grd3, 'grd')}</div>
+                        <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd3)}</div>
+                      </>
+                    )}
+                    <div className="flex w-full opacity-50">
+                      {yeonjiji.map((i, idx) => (
+                        <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
+                          <div className="text-[7px]">{i.sub.sky[1]}</div>
+                          <div>{i.sub.sky[2]}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {!!showIcons && user && (
-        <div
-          id="saju-capture"
-          style={{ width: `${containerWidth}px`, maxWidth: '100%' }}
-          className=" relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]"
-        >
-          {bgShow && (
-            <div className="absolute inset-0 z-0 flex flex-col pointer-events-none transition-all duration-500">
-              <div
-                className={`h-1/2 w-full relative bg-gradient-to-b overflow-hidden transition-colors duration-700 ease-in-out ${theme === 'dark' ? 'from-indigo-950/80 via-slate-900/70 to-blue-900/60' : 'from-sky-400/40 via-sky-200/40 to-white/5'}`}
-              >
-                {/* 배경 아이콘 유지 */}
-              </div>
-              <div
-                className={`h-1/2 w-full relative bg-gradient-to-b transition-colors duration-700 ease-in-out border-t ${theme === 'dark' ? 'from-slate-800/50 to-gray-900/70 border-slate-700/30' : 'from-stone-300/40 to-amber-100/60 border-stone-400/20'}`}
-              ></div>
-            </div>
-          )}
-          <div className="relative z-10 flex justify-center bg-white/10 backdrop-blur-sm">
-            {charShow && (
-              <div className="flex flex-col items-end  pt-[10px] animate-[fadeIn_0.5s_ease-out]">
-                <div className="h-4" />
-                <div className="h-[90px] flex items-center pr-2 border-r border-sky-700/30">
-                  <div className="text-right">
-                    <span className="block text-[10px] font-bold text-sky-700 uppercase tracking-widest opacity-80 dark:text-cyan-600">
-                      Heavenly
-                    </span>
-                    <span className="block text-[10px] font-serif font-bold text-gray-700 drop-shadow-sm dark:text-gray-400">
-                      Stem
-                    </span>
-                  </div>
-                </div>
-                <div className="h-[110px] flex items-center pr-2 border-r border-stone-400/20">
-                  <div className="text-right">
-                    <span className="block text-[10px] font-bold text-stone-500 uppercase tracking-widest opacity-70 dark:text-yellow-600">
-                      Earthly
-                    </span>
-                    <span className="block text-[10px] font-serif font-bold text-stone-700 drop-shadow-sm dark:text-gray-400">
-                      Branch
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-            {!isTimeUnknown && !!saju.grd0 && (
-              <div className={pillarStyle}>
-                <div className={pillarLabelStyle}>{UI_TEXT.hour[language]}</div>
-                <div
-                  className={classNames(
-                    iconsViewStyle,
-                    saju.sky0 ? bgToBorder(sigan.color) : 'border-gray-200',
-                    'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
-                  )}
-                >
-                  <div className="text-3xl mb-1">{getIcon(saju.sky0, 'sky')}</div>
-                  {!!saju.sky0 && (
-                    <>
-                      <div className="text-[10px] font-bold">{getHanja(saju.sky0, 'sky')}</div>
-                      <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky0)}</div>
-                    </>
-                  )}
-                </div>
-                <div
-                  className={classNames(
-                    iconsViewStyle,
-                    saju.grd0 ? bgToBorder(sijidata.color) : 'border-gray-200',
-                    'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
-                  )}
-                >
-                  <div className="text-3xl mb-1">{getIcon(saju.grd0, 'grd')}</div>
-                  {!!saju.grd0 && (
-                    <>
-                      <div className="text-[10px] font-bold">{getHanja(saju.grd0, 'grd')}</div>
-                      <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd0)}</div>
-                    </>
-                  )}
-                  <div className="flex w-full opacity-50">
-                    {sijiji.map((i, idx) => (
-                      <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
-                        <div className="text-[7px]">{i.sub.sky[1]}</div>
-                        <div>{i.sub.sky[2]}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div
-              className={classNames(
-                pillarStyle,
-                bgShow
-                  ? 'bg-white/90 dark:bg-white/40 border-gray-600 border-[0.5px] border-dashed'
-                  : 'bg-yellow-100/50 border-yellow-500',
-              )}
-            >
-              <span className={classNames(pillarLabelStyle, 'dark:!text-gray-700')}>
-                {UI_TEXT.day[language]}
-              </span>
-              <div
-                className={classNames(
-                  iconsViewStyle,
-                  saju.sky1 ? bgToBorder(ilgan.color) : 'border-gray-200',
-                  'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
-                )}
-              >
-                <div className="text-3xl mb-1">{getIcon(saju.sky1, 'sky')}</div>
-                {!!saju.sky1 && (
-                  <>
-                    <div className="text-[10px] font-bold">{getHanja(saju.sky1, 'sky')}</div>
-                    <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky1)}</div>
-                  </>
-                )}
-              </div>
-              <div
-                className={classNames(
-                  iconsViewStyle,
-                  saju.grd1 ? bgToBorder(iljidata.color) : 'border-gray-200',
-                  'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
-                )}
-              >
-                <div className="text-3xl mb-1">{getIcon(saju.grd1, 'grd')}</div>
-                {!!saju.grd1 && (
-                  <>
-                    <div className="text-[10px] font-bold">{getHanja(saju.grd1, 'grd')}</div>
-                    <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd1)}</div>
-                  </>
-                )}
-                <div className="flex w-full opacity-50">
-                  {iljiji.map((i, idx) => (
-                    <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
-                      <div className="text-[7px]">{i.sub.sky[1]}</div>
-                      <div>{i.sub.sky[2]}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className={pillarStyle}>
-              <span className={pillarLabelStyle}>{UI_TEXT.month[language]}</span>
-              <div
-                className={classNames(
-                  iconsViewStyle,
-                  saju.sky2 ? bgToBorder(wolgan.color) : 'border-gray-200',
-                  'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
-                )}
-              >
-                <div className="text-3xl mb-1">{getIcon(saju.sky2, 'sky')}</div>
-                {!!saju.sky2 && (
-                  <>
-                    <div className="text-[10px] font-bold">{getHanja(saju.sky2, 'sky')}</div>
-                    <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky2)}</div>
-                  </>
-                )}
-              </div>
-              <div
-                className={classNames(
-                  iconsViewStyle,
-                  saju.grd2 ? bgToBorder(woljidata.color) : 'border-gray-200',
-                  'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
-                )}
-              >
-                <div className="text-3xl mb-1">{getIcon(saju.grd2, 'grd')}</div>
-                {!!saju.grd2 && (
-                  <>
-                    <div className="text-[10px] font-bold">{getHanja(saju.grd2, 'grd')}</div>
-                    <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd2)}</div>
-                  </>
-                )}
-                <div className="flex w-full opacity-50">
-                  {woljiji.map((i, idx) => (
-                    <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
-                      <div className="text-[7px]">{i.sub.sky[1]}</div>
-                      <div>{i.sub.sky[2]}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className={pillarStyle}>
-              <span className={pillarLabelStyle}>{UI_TEXT.year[language]}</span>
-              <div
-                className={classNames(
-                  iconsViewStyle,
-                  saju.sky3 ? bgToBorder(yeongan.color) : 'border-gray-200',
-                  'rounded-md w-16 flex flex-col items-center justify-center py-2 shadow-sm',
-                )}
-              >
-                <div className="text-3xl mb-1">{getIcon(saju.sky3, 'sky')}</div>
-                {!!saju.sky3 && (
-                  <>
-                    <div className="text-[10px] font-bold">{getHanja(saju.sky3, 'sky')}</div>
-                    <div className="text-[8px] uppercase tracking-tighter">{t(saju.sky3)}</div>
-                  </>
-                )}
-              </div>
-              <div
-                className={classNames(
-                  iconsViewStyle,
-                  saju.grd3 ? bgToBorder(yeonjidata.color) : 'border-gray-200',
-                  'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
-                )}
-              >
-                <div className="text-3xl mb-1">{getIcon(saju.grd3, 'grd')}</div>
-                {!!saju.grd3 && (
-                  <>
-                    <div className="text-[10px] font-bold">{getHanja(saju.grd3, 'grd')}</div>
-                    <div className="text-[8px] uppercase tracking-tighter">{t(saju.grd3)}</div>
-                  </>
-                )}
-                <div className="flex w-full opacity-50">
-                  {yeonjiji.map((i, idx) => (
-                    <div key={idx} className={[jiStyle, i.color, ''].join(' ')}>
-                      <div className="text-[7px]">{i.sub.sky[1]}</div>
-                      <div>{i.sub.sky[2]}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 4. AI 버튼 영역 (3분할) 및 로딩 상태창 */}
       <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {/* A. 버튼 그룹 */}
-        <div className="flex justify-between gap-3 h-24">
+        <div className="flex justify-between gap-3 h-28">
           {/* 1. 메인 분석 버튼 */}
           <button
             onClick={handleAiAnalysis}
             disabled={loading || !user || !isSaved}
             className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
-              ${
-                loading || !user || !isSaved
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                  : isCached
-                    ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white hover:scale-[1.02] shadow-emerald-200/50'
-                    : 'bg-gradient-to-br from-violet-600 to-indigo-600 text-white hover:scale-[1.02] shadow-indigo-200/50'
-              }`}
+            ${
+              loading || !user || !isSaved
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                : 'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 text-white hover:scale-[1.02] shadow-indigo-200/50 dark:shadow-none'
+            }`}
           >
-            {/* 아이콘 및 텍스트 */}
             <span className="text-2xl drop-shadow-md">
-              {/* 로딩 중이면 스피너, 캐시 있으면 체크, 아니면 수정구슬 */}
               {loading && loadingType === 'main' ? (
-                <svg className="animate-spin h-7 w-7 text-indigo-500" viewBox="0 0 24 24">
+                <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -1576,8 +1822,6 @@ ${HANJA_MAP}
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : isCached ? (
-                '✅'
               ) : (
                 '🔮'
               )}
@@ -1587,28 +1831,45 @@ ${HANJA_MAP}
                 ? UI_TEXT.loginReq[language]
                 : !isSaved
                   ? 'Save Info'
-                  : isCached
-                    ? language === 'ko'
-                      ? '사주 분석 완료'
-                      : 'Decoding Completed' // 여기를 수정했습니다
-                    : UI_TEXT.analyzeBtn[language]}
+                  : language === 'ko'
+                    ? '사주 분석'
+                    : 'Life Path Decoding'}
             </span>
+
+            {/* 하단 뱃지 */}
+            {isMainDone && !loading && (
+              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/30 shadow-sm mt-1">
+                <span className="text-[10px] font-bold text-white tracking-wide uppercase pt-[1px]">
+                  Free
+                </span>
+                <TicketIcon className="w-3 h-3 text-white" />
+              </div>
+            )}
+            {!isMainDone && !loading && (
+              <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm mt-1">
+                <span className="text-[11px] font-extrabold text-white leading-none mb-0.5">
+                  -1
+                </span>
+                <BoltIcon className="w-3 h-3 text-white fill-white/80" />
+              </div>
+            )}
           </button>
 
           {/* 2. 신년 운세 버튼 */}
           <button
             onClick={handleNewYearFortune}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative overflow-hidden flex flex-col items-center justify-center gap-1.5
-              ${
-                loading || !user || !isSaved
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                  : 'bg-gradient-to-br from-green-500 to-emerald-700 text-white hover:scale-[1.02] shadow-green-200/50'
-              }`}
+            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
+            ${
+              loading || !user || !isSaved
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300 dark:to-blue-600 to-blue-300 text-white hover:scale-[1.02] shadow-blue-200/50 dark:shadow-none'
+            }`}
           >
-            <span className="text-2xl drop-shadow-md">
-              {loading && loadingType === 'year' ? (
-                <svg className="animate-spin h-7 w-7 text-green-600" viewBox="0 0 24 24">
+            <div className="relative z-10 flex flex-col items-center gap-1 text-sm md:text-base">
+              {!loading && <span className="text-2xl drop-shadow-md">🐎</span>}
+              {loading && loadingType === 'year' && (
+                <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -1623,29 +1884,44 @@ ${HANJA_MAP}
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : (
-                '🐲'
               )}
-            </span>
-            <span className="text-sm sm:text-sm font-medium">
-              {language === 'ko' ? '신년 운세' : '2026 Path Guide'}
-            </span>
+              {language === 'ko' ? '2026 신년 운세' : '2026 Path Decoding'}
+            </div>
+
+            {/* 하단 뱃지 */}
+            {isYearDone && !loading && (
+              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/30 shadow-sm mt-1">
+                <span className="text-[10px] font-bold text-white tracking-wide uppercase pt-[1px]">
+                  Free
+                </span>
+                <TicketIcon className="w-3 h-3 text-white" />
+              </div>
+            )}
+            {!isYearDone && !loading && (
+              <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm mt-1">
+                <span className="text-[11px] font-extrabold text-white leading-none mb-0.5">
+                  -1
+                </span>
+                <BoltIcon className="w-3 h-3 text-white fill-white/80" />
+              </div>
+            )}
           </button>
 
           {/* 3. 오늘의 운세 버튼 */}
           <button
             onClick={handleDailyFortune}
             disabled={loading || !user || !isSaved}
-            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative overflow-hidden flex flex-col items-center justify-center gap-1.5
-              ${
-                loading || !user || !isSaved
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                  : 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white hover:scale-[1.02] shadow-orange-200/50'
-              }`}
+            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
+            ${
+              loading || !user || !isSaved
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                : // 💥 수정: 너무 쨍한 Cyan 제거 -> 차분한 Sky Blue 계열 적용
+                  'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 text-white hover:scale-[1.02] shadow-sky-200/50 dark:shadow-none'
+            }`}
           >
             <span className="text-2xl drop-shadow-md">
               {loading && loadingType === 'daily' ? (
-                <svg className="animate-spin h-7 w-7 text-orange-500" viewBox="0 0 24 24">
+                <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -1667,10 +1943,27 @@ ${HANJA_MAP}
             <span className="text-sm sm:text-sm font-medium">
               {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
             </span>
+
+            {/* 하단 뱃지 */}
+            {isDailyDone && !loading && (
+              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/30 shadow-sm mt-1">
+                <span className="text-[10px] font-bold text-white tracking-wide uppercase pt-[1px]">
+                  Free
+                </span>
+                <TicketIcon className="w-3 h-3 text-white" />
+              </div>
+            )}
+            {!isDailyDone && !loading && (
+              <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm mt-1">
+                <span className="text-[11px] font-extrabold text-white leading-none mb-0.5">
+                  -1
+                </span>
+                <BoltIcon className="w-3 h-3 text-white fill-white/80" />
+              </div>
+            )}
           </button>
         </div>
-
-        {/* B. ✨ [새로 추가] 독립된 로딩 상태 표시창 (버튼 아래 위치) */}
+        {/* B. ✨ 독립된 로딩 상태 표시창 (기존 디자인 유지) */}
         {loading && (
           <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-gray-700 shadow-xl animate-[fadeIn_0.3s_ease-out]">
             <div className="flex flex-col gap-2">
@@ -1739,13 +2032,21 @@ ${HANJA_MAP}
                       'Daily Limit Reached'
                     )
                   ) : (
-                    <>
-                      {language === 'ko' ? '남은 질문' : 'Remaining'}:
-                      <span className="ml-1 font-extrabold text-indigo-600 dark:text-indigo-400">
+                    <div className="flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-full shadow-sm">
+                      {/* 번개 아이콘 (에너지 느낌) */}
+                      <BoltIcon className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+
+                      {/* 숫자 표시 (현재/최대) */}
+                      <span className="text-xs font-extrabold text-gray-700 dark:text-gray-200 font-mono tracking-tight">
                         {MAX_EDIT_COUNT - editCount}
+                        <span className="text-gray-300 dark:text-gray-600 mx-0.5 font-normal">
+                          /
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500 font-medium">
+                          {MAX_EDIT_COUNT}
+                        </span>
                       </span>
-                      <span className="text-gray-400">/{MAX_EDIT_COUNT}</span>
-                    </>
+                    </div>
                   )}
                 </span>
               </div>
@@ -1991,7 +2292,11 @@ ${HANJA_MAP}
                           className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-bold shadow-lg transition-all hover:scale-105"
                         >
                           <ShareIcon className="w-5 h-5" />
-                          <span>결과 공유하고 친구에게 추천하기</span>
+                          <span>
+                            {language === 'eng'
+                              ? 'Share & Invite Friends'
+                              : '결과 공유하고 친구에게 추천하기'}
+                          </span>
                         </button>
                       </div>
 
@@ -2118,7 +2423,7 @@ ${HANJA_MAP}
                       <div ref={chatEndRef} />
                     </div>
 
-                    {/* 2. 하단 입력창 영역 (기존 코드 유지) */}
+                    {/* 2. 하단 입력창 영역 */}
                     <div className="p-3 border-t dark:border-gray-700 bg-white dark:bg-slate-800 flex flex-col gap-2 flex-shrink-0 relative z-10">
                       <div className="relative flex items-center">
                         <input
@@ -2137,26 +2442,67 @@ ${HANJA_MAP}
                             handleAdditionalQuestion()
                           }
                           disabled={isLocked || qLoading}
-                          className="w-full pl-5 pr-14 py-3.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl shadow-inner outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-60 transition-all"
+                          // 💥 [수정] pr-14 -> pr-28 (버튼이 길어져서 여백을 더 줌)
+                          className="w-full pl-5 pr-28 py-3.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl shadow-inner outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-60 transition-all"
                         />
+
                         <button
                           onClick={handleAdditionalQuestion}
                           disabled={isLocked || !customQuestion.trim() || qLoading}
-                          className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all flex items-center justify-center ${
+                          // 💥 [수정] 버튼 스타일 변경 (가로로 길게, 내부 flex 정렬)
+                          className={`absolute right-2 top-1/2 -translate-y-1/2 h-9 px-3 rounded-xl transition-all flex items-center gap-2 ${
                             isLocked || !customQuestion.trim() || qLoading
-                              ? 'text-gray-400 bg-gray-100 dark:bg-slate-700 cursor-not-allowed'
+                              ? 'text-gray-400 bg-gray-200 dark:bg-slate-700 cursor-not-allowed'
                               : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-md active:scale-95'
                           }`}
                         >
-                          {/* 전송 아이콘 (종이비행기 모양으로 변경 추천) */}
+                          {/* ... 버튼 내부 코드 ... */}
+
+                          {/* 1. 전송 아이콘 (기존 유지) */}
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="currentColor"
-                            className="w-5 h-5 relative left-[1px]"
+                            className="w-4 h-4"
                           >
                             <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                           </svg>
+
+                          {/* 2. 구분선 및 비용 표시 (디자인 개선) */}
+                          <div
+                            className={`flex items-center gap-1 pl-2 border-l ${
+                              !customQuestion.trim() ? 'border-gray-400/50' : 'border-indigo-400'
+                            }`}
+                          >
+                            {/* 비용을 감싸는 뱃지 */}
+                            <div
+                              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md ${
+                                !customQuestion.trim()
+                                  ? 'bg-transparent' // 비활성 상태
+                                  : 'bg-black/20' // 활성 상태: 어두운 배경을 깔아서 노란색을 돋보이게 함
+                              }`}
+                            >
+                              {/* 숫자: 앰버색 + 그림자 */}
+                              <span
+                                className={`text-[11px] font-black leading-none pt-[1px] font-mono ${
+                                  !customQuestion.trim()
+                                    ? 'text-gray-500'
+                                    : 'text-amber-300 drop-shadow-sm'
+                                }`}
+                              >
+                                -1
+                              </span>
+
+                              {/* 아이콘: 앰버색 + 채우기 */}
+                              <BoltIcon
+                                className={`w-3.5 h-3.5 ${
+                                  !customQuestion.trim()
+                                    ? 'text-gray-400'
+                                    : 'text-amber-400 fill-amber-400'
+                                }`}
+                              />
+                            </div>
+                          </div>
                         </button>
                       </div>
                     </div>
