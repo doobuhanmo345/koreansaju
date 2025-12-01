@@ -10,7 +10,7 @@ import { fetchGeminiAnalysis } from "./api/gemini";
 import { 
   SAJU_DATA, UI_TEXT, HANJA_MAP, DEFAULT_INSTRUCTION, GONGMANG_DATA, CHUNEUL,
   SKY_CH_TEXT, GRD_CH_TEXT, BANGHAP_TEXT, HAP3_TEXT, HAP6_TEXT, GRD_BANHAP_TEXT, SKY_HAP_TEXT,
-  BANGHAP_EXP, HAP3_EXP, HAP6_EXP, GRD_BANHAP_EXP, SKY_HAP_EXP,ENG_MAP,HANJA_ENG_MAP
+  BANGHAP_EXP, HAP3_EXP, HAP6_EXP, GRD_BANHAP_EXP, SKY_HAP_EXP,ENG_MAP,HANJA_ENG_MAP, DAILY_FORTUNE_PROMPT
 } from "./data/constants";
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from "./utils/helpers";
 
@@ -375,6 +375,60 @@ const handleSaveMyInfo = async () => {
     
     return true; 
   })();
+// ... (handleAiAnalysis 함수 이전에 추가)
+
+// [추가] 현재 날짜의 사주를 계산하는 함수
+// ... (App 컴포넌트 내부의 핸들러 정의 영역에 위치)
+
+// [수정] 현재 날짜의 사주를 정확히 계산하는 함수
+const getPillarsForNow = () => {
+    // 1. 로컬 시간 기준의 Date 객체 생성
+    const now = new Date();
+    
+    // 2. Solar.fromYmdHms가 요구하는 형식(년, 월, 일, 시, 분) 추출
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // getMonth()는 0부터 시작하므로 +1
+    const day = now.getDate();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+
+    try {
+        // Solar.fromYmdHms는 로컬 시간을 기반으로 만세력을 계산합니다.
+        // 예를 들어, 한국(KST)에서 실행되면 KST 기준의 사주가 계산됩니다.
+        const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
+        const lunar = solar.getLunar();
+        const baZi = lunar.getBaZi(); // [년주, 월주, 일주, 시주]
+
+        const parsePillar = (ganjiHanja) => {
+            const skyHanja = ganjiHanja[0];
+            const grdHanja = ganjiHanja[1];
+            // HANJA_MAP은 이미 정의되어 있다고 가정합니다.
+            return {
+                sky: HANJA_MAP[skyHanja] || skyHanja,
+                grd: HANJA_MAP[grdHanja] || grdHanja,
+            };
+        };
+
+        const yearP = parsePillar(baZi[0]);
+        const monthP = parsePillar(baZi[1]);
+        const dayP = parsePillar(baZi[2]);
+        const hourP = parsePillar(baZi[3]);
+
+        // 현재 날짜의 사주 8글자를 반환
+        return {
+            sky3: yearP.sky, grd3: yearP.grd, // 년
+            sky2: monthP.sky, grd2: monthP.grd, // 월
+            sky1: dayP.sky, grd1: dayP.grd, // 일
+            sky0: hourP.sky, grd0: hourP.grd, // 시
+            date: now.toLocaleDateString('en-CA') // YYYY-MM-DD 형식으로 오늘 날짜
+        };
+    } catch (error) {
+        console.error("오늘 날짜 사주 계산 실패:", error);
+        return null;
+    }
+};
+
+// ...
   // 💥 [핵심] 캐싱 적용된 AI 분석 함수
 
   const handleAiAnalysis = async () => {
@@ -547,6 +601,71 @@ const handleSetViewMode = async (mode) => {
              setChatList([]); // 사주 키가 없으면 빈 목록
         }
         setQLoading(false); // 로딩 종료
+    }
+};
+// ... (handleAdditionalQuestion 함수 이전에 추가)
+
+// [새로 추가] 오늘의 운세 분석 요청 핸들러
+const handleDailyFortuneQuestion = async () => {
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+    if (editCount >= MAX_EDIT_COUNT) return alert(UI_TEXT.limitReached[language]);
+    
+    // 1. 현재 사주 정보가 저장되어 있어야 함
+    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
+
+    // 2. 오늘의 운세 프롬프트 설정 및 채팅창에 표시
+    const fortunePromptText = language === "ko" ? "오늘의 운세를 알려주세요." : "Tell me today's fortune.";
+    
+    // 3. 현재 사주 키와 질문 설정 (handleAdditionalQuestion과 동일)
+    const myQuestion = fortunePromptText;
+    setChatList(prev => [...prev, { role: "user", text: myQuestion }]);
+    setQLoading(true);
+    
+    const currentSajuKey = createSajuKey(saju); // 기존 저장된 사주
+    const currentSajuJson = JSON.stringify(saju);
+    
+    // 4. 오늘의 날짜 사주 정보 계산
+    const todayPillars = getPillarsForNow();
+    if (!todayPillars) {
+        setQLoading(false);
+        return setChatList(prev => [...prev, { role: "ai", text: "Error: 현재 날짜 정보를 불러올 수 없습니다." }]);
+    }
+
+    // 5. API 호출용 최종 프롬프트 구성
+    const todayPillarsJson = JSON.stringify(todayPillars);
+    
+    const sajuInfo = `[사용자 사주] 성별:${gender}, 팔자:${currentSajuJson} / [오늘 날짜 사주] 날짜:${todayPillars.date}, 팔자:${todayPillarsJson}`;
+    const langPrompt = language === "ko" ? "답변은 한국어로. 500자 이내로 " : "Answer in English. Max 500 chars.";
+    const hantoeng = `[Terminology Reference]
+When translating Saju terms (Heavenly Stems & Earthly Branches) into English when using Hanja, strictly refer to the following mappings:
+REFER
+    ${HANJA_ENG_MAP}
+`;
+    
+    const fullPrompt = `${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hantoeng}`;
+    
+    try {
+        const result = await fetchGeminiAnalysis(fullPrompt);
+        const newCount = editCount + 1;
+
+        // DB 저장 및 Capping (handleAdditionalQuestion과 동일 로직)
+        await setDoc(doc(db, "users", user.uid), {
+            editCount: newCount,
+            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            question_history: arrayUnion({ question: myQuestion, sajuKey: currentSajuKey, timestamp: new Date().toISOString(), id: Date.now() })
+        }, { merge: true });
+
+        if (currentSajuKey) {
+            await saveAndCapChatRecord(user.uid, currentSajuKey, myQuestion, result);
+        }
+
+        setEditCount(newCount);
+        setChatList(prev => [...prev, { role: "ai", text: result }]);
+
+    } catch (e) {
+        setChatList(prev => [...prev, { role: "ai", text: "Error: 운세 분석에 실패했습니다." }]);
+    } finally {
+        setQLoading(false);
     }
 };
 
@@ -1072,7 +1191,7 @@ REFER
 
                   <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
                       {/* 1. 만세력 패널 (좌측 고정 - 언제나 보임) */}
-                      <div className="w-full md:w-[160px] flex-shrink-0 bg-gray-50 dark:bg-slate-900/50 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-700 overflow-y-auto custom-scrollbar p-4 flex md:flex-col flex-row items-center justify-center gap-2">
+                      <div className="hidden md:flex md:w-[160px] flex-shrink-0 bg-gray-50 dark:bg-slate-900/50 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-700 overflow-y-auto custom-scrollbar p-4 flex md:flex-col flex-row items-center justify-center gap-2">
                            {!isTimeUnknown && !!saju.grd0 && (
                             <div className="flex flex-col gap-1 items-center">
                                 <span className="text-[10px] uppercase font-bold text-gray-400">{UI_TEXT.hour[language]}</span>
@@ -1179,8 +1298,22 @@ REFER
                                       <div ref={chatEndRef} />
                                   </div>
 
+                                
+
                                   {/* 채팅 입력창 */}
                                   <div className="p-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-slate-900/50 flex flex-col gap-2 flex-shrink-0">
+{/* 🔮 [새로 추가] 오늘의 운세 버튼 영역 */}
+                                <div className="p-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-slate-900/50 flex flex-shrink-0">
+                                    <button 
+                                        onClick={handleDailyFortuneQuestion}
+                                        disabled={isLocked || qLoading || !isSaved}
+                                        className={`w-full py-2 rounded-xl text-sm font-bold shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 
+                                            ${(isLocked || qLoading || !isSaved) ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-yellow-500 text-white hover:bg-yellow-600"}`}
+                                    >
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        {language === "ko" ? "🔮 오늘의 운세 보기" : "🔮 View Daily Fortune"}
+                                    </button>
+                                </div>
                                       <div className="relative flex items-center">
                                           <input 
                                               type="text" 
@@ -1201,12 +1334,6 @@ REFER
                                               </svg>
                                           </button>
                                       </div>
-{/*                                       <div className="flex justify-end items-center px-1">
-                                          <span className={`text-[10px] font-bold ${isLocked ? "text-red-500" : "text-gray-400"}`}>
-                                              {isLocked ? (language === "ko" ? "일일 횟수 초과" : "Limit Reached") : 
-                                              `${language === "ko" ? "남은 질문" : "Remaining"}: ${MAX_EDIT_COUNT - editCount}`}
-                                          </span>
-                                      </div> */}
                                   </div>
                               </>
                           )}

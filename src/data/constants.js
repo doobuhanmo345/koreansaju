@@ -52,7 +52,10 @@ export const DEFAULT_INSTRUCTION = `너는 한국의 최고 능력을 지닌 사
 - 주제어는 신비스럽고 웅장한 느낌으로 설정 (EX. 질주하는 백호, 태평양의 진주, 구국의 대장군)
 - 주제어는 한 단어, 또는 두 단어로 나타내야 함. 너무 길면 안됨
 - 주제어를 한 문장으로 풀어쓴 해석`;
-
+export const DAILY_FORTUNE_PROMPT = {
+    ko: "다음 사주 정보와 현재 날짜를 바탕으로, 해당 사주를 가진 사람의 오늘(당일) 운세를 상세하게 분석해 주세요. 특히 오늘 날짜와 사주의 관계에 초점을 맞춰서 500자 이내로 답변해 주세요.",
+    en: "Based on the Saju information and the current date provided, please give a detailed daily fortune analysis for today (the current day) for the person with this Saju, focusing on the relationship between the current date's pillars and the native Saju pillars. Keep the response under 500 characters."
+};
 export const UI_TEXT = {
   title: { ko: "🔮 만세력 분석기", en: "🔮 Saju Analyzer" },
   
