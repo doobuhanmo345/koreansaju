@@ -90,6 +90,7 @@ Then, please provide the fortune for each month as follows (keep each under 100 
 12. December Fortune: Fortune for Gyeongja Month of Eulsa Year
 `,
 };
+
 export const BD_EDIT_UI = {
   cancel: { en: 'Cancel Edit Birthday', ko: '생일 수정 취소' },
   complete: { en: 'Complete Edit Birthday', ko: '생일 수정 완료' },

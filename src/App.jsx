@@ -7,6 +7,7 @@ import {
   ChevronLeftIcon,
   LockClosedIcon,
   ShareIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 
 import { Solar } from 'lunar-javascript';
@@ -509,7 +510,18 @@ export default function App() {
     }
     return true;
   })();
-
+  // 💡 [추가] 초기 인사말 생성 함수
+  const getInitialGreeting = (lang, birthDate, saju, tFunc) => {
+    const formattedDate = birthDate.replace('T', ' ');
+    // 사주 텍스트 (예: 갑자년 을축월 병인일 정묘시)
+    const sajuText = `${tFunc(saju.sky3)}${tFunc(saju.grd3)}년 ${tFunc(saju.sky2)}${tFunc(saju.grd2)}월 ${tFunc(saju.sky1)}${tFunc(saju.grd1)}일 ${tFunc(saju.sky0)}${tFunc(saju.grd0)}시`;
+    const sajuTextEng = `Year:${tFunc(saju.sky3)}${tFunc(saju.grd3)} Month:${tFunc(saju.sky2)}${tFunc(saju.grd2)} Day:${tFunc(saju.sky1)}${tFunc(saju.grd1)} Time:${tFunc(saju.sky0)}${tFunc(saju.grd0)}`;
+    if (lang === 'ko') {
+      return `안녕하세요. 사주 도사입니다.\n\n당신이 입력한 생년월일·시 [${formattedDate}]와\n만세력 데이터 [${sajuText}]를 기반으로 운세를 분석합니다.\n\n질문을 하시면 하루에 사용 가능한 토큰이 1개씩 차감됩니다.\n오늘 남은 토큰을 소중하게 사용해 주세요.\n\n준비되셨다면, 알고 싶은 것을 질문해 주세요.`;
+    } else {
+      return `Hello, I am your Saju Master.\n\nI analyze your fortune based on your birth data [${formattedDate}]\nand Four Pillars [${sajuTextEng}].\n\nEach time you ask a question, one token from your daily limit will be deducted.\nPlease use your remaining tokens wisely.\n\nWhen you’re ready, ask your first question.`;
+    }
+  };
   // 💥 [수정] Solar 라이브러리를 사용하여 현재 날짜 및 사주 계산
   const getPillarsForNow = () => {
     const now = new Date();
@@ -666,33 +678,51 @@ ${HANJA_MAP}
     await setDoc(userDocRef, { chat_records: sajuRecords, updatedAt: new Date() }, { merge: true });
   };
 
+  // [수정] setViewMode 함수 (항상 초기 인사말이 맨 위에 뜨도록 변경)
   const handleSetViewMode = async (mode) => {
     setViewMode(mode);
+
     if (mode === 'chat' && user) {
-      setQLoading(true);
+      setQLoading(true); // 로딩 시작
       const currentSajuKey = createSajuKey(saju);
+
+      // 1. 기본 인사말 생성 (조건 없이 항상 생성)
+      const greetingMsg = getInitialGreeting(language, inputDate, saju, t);
+      const greetingObj = { role: 'ai', text: greetingMsg };
+
       if (currentSajuKey) {
         try {
           const userDocRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userDocRef);
           const data = userSnap.exists() ? userSnap.data() : {};
+
+          // 해당 사주 키의 기록만 가져옴
           const sajuRecords = data.chat_records || {};
           let currentSajuHistory = sajuRecords[currentSajuKey] || [];
+
+          // 시간 순으로 정렬
           currentSajuHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-          const newChatList = currentSajuHistory
+
+          // 채팅 리스트 형식으로 변환
+          let historyList = currentSajuHistory
             .map((item) => [
               { role: 'user', text: item.question },
               { role: 'ai', text: item.answer },
             ])
             .flat();
-          setChatList(newChatList);
+
+          // ✨ [핵심 수정] 기록 유무와 상관없이 인사말을 맨 앞에 결합
+          setChatList([greetingObj, ...historyList]);
         } catch (error) {
-          setChatList([]);
+          console.error('채팅 이력 불러오기 오류:', error);
+          // 오류 나도 인사말은 보여줌
+          setChatList([greetingObj]);
         }
       } else {
-        setChatList([]);
+        // 사주 키가 없는 경우에도 인사말은 보여줌
+        setChatList([greetingObj]);
       }
-      setQLoading(false);
+      setQLoading(false); // 로딩 종료
     }
   };
 
@@ -1799,42 +1829,97 @@ ${HANJA_MAP}
                   </>
                 )}
 
+                {/* ▼▼▼▼▼▼ 채팅 모드 전체 코드 교체 시작 ▼▼▼▼▼▼ */}
                 {viewMode === 'chat' && (
                   <>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
-                      {chatList.map((msg, idx) => (
-                        <div
-                          key={idx}
-                          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
+                    {/* 1. 채팅 메시지 리스트 영역 */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-5 bg-gray-50 dark:bg-slate-900/20">
+                      {chatList.map((msg, idx) => {
+                        const isUser = msg.role === 'user';
+                        // AI 이름 설정 (언어별)
+                        const aiName = language === 'ko' ? '사주 도사' : 'Saju Master';
+                        // 사용자 이름 설정 (없으면 기본값)
+                        const userName = user?.displayName || (language === 'ko' ? '나' : 'Me');
+
+                        return (
                           <div
-                            className={`max-w-[90%] md:max-w-[85%] p-4 rounded-2xl shadow-sm text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 rounded-tl-none prose prose-indigo dark:prose-invert max-w-none'}`}
+                            key={idx}
+                            className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''} animate-[fadeIn_0.3s_ease-out]`}
                           >
-                            {msg.text}
+                            {/* A. 프로필 이미지 영역 */}
+                            <div className="flex-shrink-0 mt-1">
+                              {isUser ? (
+                                // 사용자 프로필 (구글 사진)
+                                <img
+                                  src={user?.photoURL}
+                                  alt="User Profile"
+                                  className="w-9 h-9 rounded-full shadow-sm border border-gray-200 dark:border-gray-600 object-cover"
+                                />
+                              ) : (
+                                // AI 도사 프로필 (아이콘)
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm border border-indigo-400/30">
+                                  <SparklesIcon className="w-5 h-5 text-white" />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* B. 메시지 내용 영역 (이름 + 말풍선) */}
+                            <div
+                              className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} max-w-[85%]`}
+                            >
+                              {/* 이름표 */}
+                              <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1 ml-1 mr-1">
+                                {isUser ? userName : aiName}
+                              </span>
+
+                              {/* 말풍선 */}
+                              <div
+                                className={`p-3.5 rounded-2xl shadow-sm text-sm leading-relaxed whitespace-pre-wrap break-words
+                ${
+                  isUser
+                    ? 'bg-indigo-600 text-white rounded-tr-none' // 사용자 말풍선 스타일
+                    : 'bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 text-gray-800 dark:text-gray-100 rounded-tl-none prose prose-sm dark:prose-invert max-w-none shadow-md' // AI 말풍선 스타일
+                }`}
+                              >
+                                {msg.text}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
+
+                      {/* 로딩 중 스켈레톤 (AI 프로필 + 로딩 말풍선) */}
                       {qLoading && (
-                        <div className="flex justify-start animate-pulse">
-                          <div className="bg-gray-100 dark:bg-slate-700 px-4 py-3 rounded-2xl rounded-tl-none">
-                            <div className="flex gap-1">
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                        <div className="flex items-start gap-3 animate-pulse">
+                          {/* 도사 프로필 스켈레톤 */}
+                          <div className="flex-shrink-0 mt-1 w-9 h-9 rounded-full bg-gray-200 dark:bg-slate-700"></div>
+                          <div className="flex flex-col items-start max-w-[85%]">
+                            <span className="text-[11px] font-bold text-gray-400 mb-1 ml-1">
+                              {language === 'ko' ? '사주 도사' : 'Saju Master'}...
+                            </span>
+                            {/* 로딩 점 3개 말풍선 */}
+                            <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 px-5 py-4 rounded-2xl rounded-tl-none shadow-md flex gap-1.5">
+                              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-100"></div>
+                              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-200"></div>
                             </div>
                           </div>
                         </div>
                       )}
                       <div ref={chatEndRef} />
                     </div>
-                    <div className="p-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-slate-900/50 flex flex-col gap-2 flex-shrink-0">
+
+                    {/* 2. 하단 입력창 영역 (기존 코드 유지) */}
+                    <div className="p-3 border-t dark:border-gray-700 bg-white dark:bg-slate-800 flex flex-col gap-2 flex-shrink-0 relative z-10">
                       <div className="relative flex items-center">
                         <input
                           type="text"
                           value={customQuestion}
                           onChange={(e) => setCustomQuestion(e.target.value)}
                           placeholder={
-                            language === 'ko' ? '궁금한 점을 물어보세요...' : 'Ask your question...'
+                            language === 'ko'
+                              ? '도사님께 궁금한 점을 물어보세요...'
+                              : 'Ask the Master anything...'
                           }
                           onKeyDown={(e) =>
                             e.key === 'Enter' &&
@@ -1843,31 +1928,32 @@ ${HANJA_MAP}
                             handleAdditionalQuestion()
                           }
                           disabled={isLocked || qLoading}
-                          className="w-full pl-4 pr-12 py-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-60"
+                          className="w-full pl-5 pr-14 py-3.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-600 rounded-2xl shadow-inner outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white disabled:opacity-60 transition-all"
                         />
                         <button
                           onClick={handleAdditionalQuestion}
                           disabled={isLocked || !customQuestion.trim() || qLoading}
-                          className={`absolute right-2 p-1.5 rounded-lg transition-all ${isLocked || !customQuestion.trim() || qLoading ? 'text-gray-400' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                          className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all flex items-center justify-center ${
+                            isLocked || !customQuestion.trim() || qLoading
+                              ? 'text-gray-400 bg-gray-100 dark:bg-slate-700 cursor-not-allowed'
+                              : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-md active:scale-95'
+                          }`}
                         >
+                          {/* 전송 아이콘 (종이비행기 모양으로 변경 추천) */}
                           <svg
-                            className="w-6 h-6"
-                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
-                            stroke="currentColor"
+                            fill="currentColor"
+                            className="w-5 h-5 relative left-[1px]"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                            />
+                            <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
                           </svg>
                         </button>
                       </div>
                     </div>
                   </>
                 )}
+                {/* ▲▲▲▲▲▲ 채팅 모드 전체 코드 교체 끝 ▲▲▲▲▲▲ */}
               </div>
             </div>
           </div>
