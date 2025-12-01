@@ -45,6 +45,7 @@ import logoKorDark from './assets/Logo_Kor_DarkMode.png';
 import logoEngDark from './assets/Logo_Eng_DarkMode.png';
 import logoKor from './assets/Logo_Kor.png';
 import logoEng from './assets/Logo_Eng.png';
+import sajaProfile from './assets/sajaProfile.png';
 // 💡 추가된 텍스트 상수
 
 export default function App() {
@@ -1853,12 +1854,16 @@ ${HANJA_MAP}
                                 <img
                                   src={user?.photoURL}
                                   alt="User Profile"
-                                  className="w-9 h-9 rounded-full shadow-sm border border-gray-200 dark:border-gray-600 object-cover"
+                                  className="w-10 h-10 rounded-full shadow-sm border border-gray-200 dark:border-gray-600 object-cover"
                                 />
                               ) : (
                                 // AI 도사 프로필 (아이콘)
-                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm border border-indigo-400/30">
-                                  <SparklesIcon className="w-5 h-5 text-white" />
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br dark:from-indigo-500 dark:to-purple-600 flex items-center justify-center dark:shadow-sm border dark:border-indigo-400/30 shadow-md">
+                                  <img
+                                    src={sajaProfile}
+                                    alt="Sajucha Logo"
+                                    className="w-10 h-10 rounded-full shadow-sm object-cover"
+                                  />
                                 </div>
                               )}
                             </div>
