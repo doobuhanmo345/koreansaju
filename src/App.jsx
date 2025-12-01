@@ -63,7 +63,7 @@ export default function App() {
   const [isSaved, setIsSaved] = useState(false);
   const [editCount, setEditCount] = useState(0);
   const MAX_EDIT_COUNT = 30;
-
+  const [resultType, setResultType] = useState(null);
   const [chatList, setChatList] = useState([]);
   const [viewMode, setViewMode] = useState('result');
   const chatEndRef = useRef(null);
@@ -513,6 +513,32 @@ export default function App() {
     }
     return true;
   })();
+
+  const handleShareResult = async () => {
+    const shareData = {
+      title: '내 사주 분석 결과',
+      text: `${aiResult}\n\n👇 나도 분석하러 가기 👇`,
+      url: window.location.href, // 현재 사이트 주소
+    };
+
+    // 모바일 네이티브 공유하기 (카톡, 문자 등 앱 선택 뜸)
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log('공유 취소됨');
+      }
+    } else {
+      // PC 등 지원 안 하는 경우 -> 클립보드 복사
+      try {
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        alert('결과와 링크가 복사되었습니다! 친구에게 붙여넣기 해보세요.');
+      } catch (err) {
+        alert('복사에 실패했습니다.');
+      }
+    }
+  };
+
   // 💡 [추가] 초기 인사말 생성 함수
   const getInitialGreeting = (lang, birthDate, saju, tFunc) => {
     const formattedDate = birthDate.replace('T', ' ');
@@ -577,7 +603,7 @@ export default function App() {
 
     // 로딩 타입 설정 (메인 분석)
     setLoadingType('main');
-
+    setResultType('main');
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
     let isMatch = false;
     if (cachedData && cachedData.saju) {
@@ -737,6 +763,7 @@ ${HANJA_MAP}
     setLoading(true);
     setLoadingType('daily');
     setAiResult(''); // 결과 초기화
+    setResultType('daily');
 
     const currentSajuKey = createSajuKey(saju);
     const todayDate = new Date().toLocaleDateString('en-CA'); // 💥 [수정] 캐시 키는 변경하지 않았습니다. (기존 로직 유지)
@@ -766,21 +793,32 @@ ${HANJA_MAP}
         return alert(UI_TEXT.limitReached[language]);
       } // 3. API 호출 준비
 
-      const todayPillars = getPillarsForNow();
-      if (!todayPillars) {
-        setLoading(false);
-        setLoadingType(null);
-        return alert('Error: 현재 날짜 정보를 불러올 수 없습니다.');
-      }
-
       // 💥 [핵심 수정] 사주 JSON을 한글/영어 텍스트로 명확하게 변환
       const userSajuText = `${saju.sky3}${saju.grd3}년(Year) ${saju.sky2}${saju.grd2}월(Month) ${saju.sky1}${saju.grd1}일(Day) ${saju.sky0}${saju.grd0}시(Time)`;
 
-      // 💥 [핵심 수정] 오늘 날짜 사주도 텍스트로 변환
+      // 1. 날짜 객체 생성
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1); // 오늘 날짜에 하루 더함
+
+      // 2. 사주 데이터 추출 (위에서 만든 getPillars 함수 사용)
+      const todayPillars = getPillars(today);
+      const tomorrowPillars = getPillars(tomorrow);
+
+      if (!todayPillars || !tomorrowPillars) {
+        // 에러 처리 (필요시 알림 등)
+        return;
+      }
+
+      // 3. 텍스트 변환 (오늘)
       const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년(Year) ${todayPillars.sky2}${todayPillars.grd2}월(Month) ${todayPillars.sky1}${todayPillars.grd1}일(Day)`;
 
-      // 프롬프트 정보 구성 (JSON 대신 변환된 텍스트 사용)
-      const sajuInfo = `[User Saju] ${userSajuText} / [Today's Date Saju] ${todayDate}, ${todaySajuText}`;
+      // 4. 텍스트 변환 (내일)
+      const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`;
+
+      // 5. 최종 프롬프트 정보 구성 (User Saju / Today / Tomorrow)
+      // userSajuText는 이미 상단에서 정의되어 있다고 가정
+      const sajuInfo = `[User Saju] ${userSajuText} / [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
       const langPrompt =
         language === 'ko' ? '답변은 한국어로. 500자 이내.' : 'Answer in English. Max 500 chars.';
       const hantoeng = `[Terminology Reference]
@@ -837,6 +875,7 @@ ${HANJA_MAP}
     setLoading(true);
     setLoadingType('year');
     setAiResult('');
+    setResultType('year');
 
     const currentSajuKey = createSajuKey(saju);
     const nextYear = new Date().getFullYear() + 1;
@@ -1547,7 +1586,9 @@ ${HANJA_MAP}
                 : !isSaved
                   ? 'Save Info'
                   : isCached
-                    ? 'Decoding Completed'
+                    ? language === 'ko'
+                      ? '사주 분석 완료'
+                      : 'Decoding Completed' // 여기를 수정했습니다
                     : UI_TEXT.analyzeBtn[language]}
             </span>
           </button>
@@ -1835,71 +1876,150 @@ ${HANJA_MAP}
                 {viewMode === 'result' && (
                   <>
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-                      <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
-                        {/* [추가된 부분] WHO AM I 헤더 영역 */}
-                        <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
-                          {/* 왼쪽 장식 선 (그라데이션으로 자연스럽게 사라짐) */}
-                          <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                      {resultType === 'main' && (
+                        <>
+                          {/* [NEW] 메인 대형 타이틀 영역 */}
+                          <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                            {/* 작은 소제목 (영문) */}
+                            <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                              Destiny Analysis
+                            </p>
 
-                          {/* 텍스트: 기존 디자인과 어울리는 인디고 컬러 + 넓은 자간 */}
-                          <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
-                            Who Am I?
-                          </span>
+                            {/* 메인 대형 텍스트 (그라데이션 효과) */}
+                            <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                              {language === 'ko' ? '사주 정밀 분석' : 'Life Path Decoding'}
+                            </h1>
 
-                          {/* 오른쪽 장식 선 */}
-                          <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
-                        </div>
-                        {/* 상단 장식 아이콘 (선택사항) */}
-                        <div className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                          <div className="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                            <div className="flex items-center jusify-center">
-                              <SparklesIcon className="w-24 h-24 m-auto" />
+                            {/* 장식용 밑줄 점 */}
+                            <div className="flex justify-center gap-2 mt-4 opacity-50">
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                            </div>
+                          </div>
+                          <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
+                            {/* [추가된 부분] WHO AM I 헤더 영역 */}
+                            <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
+                              {/* 왼쪽 장식 선 (그라데이션으로 자연스럽게 사라짐) */}
+                              <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
+
+                              {/* 텍스트: 기존 디자인과 어울리는 인디고 컬러 + 넓은 자간 */}
+                              <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
+                                Who Am I?
+                              </span>
+
+                              {/* 오른쪽 장식 선 */}
+                              <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                            </div>
+                            {/* 상단 장식 아이콘 (선택사항) */}
+                            <div className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                              <div className="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                                <div className="flex items-center jusify-center">
+                                  <SparklesIcon className="w-24 h-24 m-auto" />
+                                </div>
+
+                                <div>Signature</div>
+                              </div>
                             </div>
 
-                            <div>Signature</div>
+                            {/* 제목 */}
+                            <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
+                              {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.title}
+                            </div>
+
+                            {/* 설명 */}
+                            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
+                              {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.desc}
+                            </div>
                           </div>
-                        </div>
+                        </>
+                      )}
+                      {resultType === 'year' && (
+                        <>
+                          {/* [NEW] 메인 대형 타이틀 영역 */}
+                          <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                            {/* 작은 소제목 (영문) */}
+                            <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                              Prepare For Next Year
+                            </p>
 
-                        {/* 제목 */}
-                        <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
-                          {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.title}
-                        </div>
+                            {/* 메인 대형 텍스트 (그라데이션 효과) */}
+                            <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                              {language === 'ko' ? '2026년 신년운세' : '2026 Path Guide'}
+                            </h1>
 
-                        {/* 설명 */}
-                        <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
-                          {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.desc}
-                        </div>
-                      </div>
+                            {/* 장식용 밑줄 점 */}
+                            <div className="flex justify-center gap-2 mt-4 opacity-50">
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      {resultType === 'daily' && (
+                        <>
+                          {/* [NEW] 메인 대형 타이틀 영역 */}
+                          <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                            {/* 작은 소제목 (영문) */}
+                            <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                              Your Saju Daily
+                            </p>
 
+                            {/* 메인 대형 텍스트 (그라데이션 효과) */}
+                            <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                              {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
+                            </h1>
+
+                            {/* 장식용 밑줄 점 */}
+                            <div className="flex justify-center gap-2 mt-4 opacity-50">
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                              <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       <div className="prose prose-indigo dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-200 pb-10">
                         {aiResult}
                       </div>
-                      {/* ... 위쪽 설명글 코드 ... */}
+                      <div className="mt-8 flex justify-center">
+                        <button
+                          onClick={handleShareResult}
+                          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-bold shadow-lg transition-all hover:scale-105"
+                        >
+                          <ShareIcon className="w-5 h-5" />
+                          <span>결과 공유하고 친구에게 추천하기</span>
+                        </button>
+                      </div>
 
                       {/* [추가] 동일 일주 유명인 리스트 (뱃지 스타일) */}
-                      {iljuNameList?.[`${saju?.sky1}${saju?.grd1}`] && language === 'ko' && (
-                        <div className="mt-4 pt-4 border-t border-indigo-100 dark:border-indigo-900/30">
-                          <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-wider mb-2">
-                            Same Vibe
+                      {resultType === 'main' &&
+                        iljuNameList?.[`${saju?.sky1}${saju?.grd1}`] &&
+                        language === 'ko' && (
+                          <div className="mt-4 pt-4 border-t border-indigo-100 dark:border-indigo-900/30">
+                            <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-wider mb-2">
+                              Same Vibe
+                            </div>
+                            <div className="flex flex-wrap justify-center gap-2">
+                              {iljuNameList[`${saju?.sky1}${saju?.grd1}`].map((name, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2.5 py-1 text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-white/60 dark:bg-indigo-900/40 rounded-full shadow-sm border border-indigo-50 dark:border-indigo-800/50"
+                                >
+                                  {name}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex flex-wrap justify-center gap-2">
-                            {iljuNameList[`${saju?.sky1}${saju?.grd1}`].map((name, index) => (
-                              <span
-                                key={index}
-                                className="px-2.5 py-1 text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-white/60 dark:bg-indigo-900/40 rounded-full shadow-sm border border-indigo-50 dark:border-indigo-800/50"
-                              >
-                                {name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                     <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-slate-900/50 flex justify-between items-center flex-shrink-0">
                       <button
                         onClick={handleShare}
                         className="px-5 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm text-sm font-bold text-gray-600 dark:text-gray-200 hover:bg-gray-50 flex gap-2"
                       >
+                        <ShareIcon className="w-5 h-5" />
                         {UI_TEXT.shareBtn[language]}
                       </button>
                       <button
