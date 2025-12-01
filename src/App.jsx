@@ -554,17 +554,17 @@ export default function App() {
     }
   };
   // 💥 [수정] Solar 라이브러리를 사용하여 현재 날짜 및 사주 계산
-  const getPillarsForNow = () => {
-    const now = new Date();
+  // 날짜 객체를 받아서 해당 날짜의 사주(Pillars)를 반환하는 공통 함수
+  const getPillars = (targetDate) => {
     try {
-      // Solar.fromYmdHms(year, month, day, hour, minute, second) 사용
+      // Solar.fromYmdHms(year, month, day, hour, minute, second)
       const solar = Solar.fromYmdHms(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        now.getDate(),
-        now.getHours(),
-        now.getMinutes(),
-        now.getSeconds(),
+        targetDate.getFullYear(),
+        targetDate.getMonth() + 1,
+        targetDate.getDate(),
+        targetDate.getHours(),
+        targetDate.getMinutes(),
+        targetDate.getSeconds(),
       );
 
       const lunar = solar.getLunar();
@@ -590,10 +590,10 @@ export default function App() {
         grd1: dayP.grd,
         sky0: hourP.sky,
         grd0: hourP.grd,
-        date: now.toLocaleDateString('en-CA'),
+        date: targetDate.toLocaleDateString('en-CA'), // YYYY-MM-DD 형식
       };
     } catch (error) {
-      console.error('오늘 날짜 사주 계산 실패:', error);
+      console.error('사주 계산 실패:', error);
       return null;
     }
   };
@@ -1129,13 +1129,13 @@ ${HANJA_MAP}
           <div className="flex bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
             <button
               onClick={() => setLanguage('en')}
-              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${language === 'en' ? 'bg-white dark:bg-slate-600 text-indigo-600 shadow-sm' : 'text-gray-400'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${language === 'en' ? 'bg-white dark:bg-slate-600 dark:text-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}
             >
               English
             </button>
             <button
               onClick={() => setLanguage('ko')}
-              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${language === 'ko' ? 'bg-white dark:bg-slate-600 text-indigo-600 shadow-sm' : 'text-gray-400'}`}
+              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${language === 'ko' ? 'bg-white dark:bg-slate-600 dark:text-white text-indigo-600 shadow-sm' : 'text-gray-400'}`}
             >
               한국어
             </button>
