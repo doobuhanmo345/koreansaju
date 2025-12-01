@@ -41,6 +41,7 @@ import {
   BD_EDIT_UI,
   IljuExp,
 } from './data/constants';
+import { iljuNameList } from './data/iljuNameList';
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from './utils/helpers';
 import logoKorDark from './assets/Logo_Kor_DarkMode.png';
 import logoEngDark from './assets/Logo_Eng_DarkMode.png';
@@ -1869,9 +1870,30 @@ ${HANJA_MAP}
                           {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.desc}
                         </div>
                       </div>
+
                       <div className="prose prose-indigo dark:prose-invert max-w-none text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-200 pb-10">
                         {aiResult}
                       </div>
+                      {/* ... 위쪽 설명글 코드 ... */}
+
+                      {/* [추가] 동일 일주 유명인 리스트 (뱃지 스타일) */}
+                      {iljuNameList?.[`${saju?.sky1}${saju?.grd1}`] && language === 'ko' && (
+                        <div className="mt-4 pt-4 border-t border-indigo-100 dark:border-indigo-900/30">
+                          <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-wider mb-2">
+                            Same Vibe
+                          </div>
+                          <div className="flex flex-wrap justify-center gap-2">
+                            {iljuNameList[`${saju?.sky1}${saju?.grd1}`].map((name, index) => (
+                              <span
+                                key={index}
+                                className="px-2.5 py-1 text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-white/60 dark:bg-indigo-900/40 rounded-full shadow-sm border border-indigo-50 dark:border-indigo-800/50"
+                              >
+                                {name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-slate-900/50 flex justify-between items-center flex-shrink-0">
                       <button
