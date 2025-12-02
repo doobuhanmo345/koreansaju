@@ -1246,10 +1246,10 @@ ${HANJA_MAP}
         </div>
       )}
 
-      <div className="w-full max-w-lg  p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
-        <div className="flex flex-col ">
+      <div className="w-full max-w-lg  bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
+        <div className="flex flex-col m-2">
           <div
-            className={`mb-4 transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
+            className={`m-3 mt-1 transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
           >
             <div className={`${!user ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
               <div className="mb-4">
@@ -1288,7 +1288,7 @@ ${HANJA_MAP}
                     </span>
                   </label>
                 </div>
-                <div className="relative">
+                <div className="relative w-full p-1">
                   <input
                     type={isTimeUnknown ? 'date' : 'datetime-local'}
                     value={isTimeUnknown ? inputDate.split('T')[0] : inputDate}
@@ -1297,19 +1297,15 @@ ${HANJA_MAP}
                       if (isTimeUnknown) val += 'T00:00';
                       setInputDate(val);
                     }}
-                    className={`w-full p-3 bg-gray-50 dark:bg-slate-900/50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white dark:[color-scheme:dark]`}
+                    className="w-full p-2 bg-gray-50 dark:bg-slate-900/50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white dark:[color-scheme:dark]"
                   />
                 </div>
               </div>
               <button
                 onClick={handleSaveMyInfo}
-                className="w-full mt-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
+                className="w-full  py-3 mt-3 mb-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
               >
                 {BD_EDIT_UI.complete[language]}
-                <span className="ml-2 text-sm font-extrabold text-white bg-indigo-500 px-2 py-0.5 rounded-lg shadow-sm">
-                  {MAX_EDIT_COUNT - editCount}
-                </span>
-                <span className="text-indigo-200 text-xs">/{MAX_EDIT_COUNT}</span>
               </button>
             </div>
           </div>
@@ -1700,7 +1696,13 @@ ${HANJA_MAP}
 
             {/* 하단 뱃지 영역 */}
             {isMainDone && !loading && (
-              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm relative z-10">
+              <div
+                className={
+                  `` + isLocked
+                    ? `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40`
+                    : `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-white/30 bg-white/20`
+                }
+              >
                 <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
@@ -1778,7 +1780,13 @@ ${HANJA_MAP}
 
             {/* 하단 뱃지 영역 */}
             {isYearDone && !loading && (
-              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm relative z-10">
+              <div
+                className={
+                  `` + isLocked
+                    ? `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40`
+                    : `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-white/30 bg-white/20`
+                }
+              >
                 <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
@@ -1844,8 +1852,15 @@ ${HANJA_MAP}
             </span>
 
             {/* 하단 뱃지 영역 */}
+            {isLocked && 'true'}
             {isDailyDone && !loading && (
-              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm relative z-10">
+              <div
+                className={
+                  `` + isLocked
+                    ? `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40`
+                    : `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-white/30 bg-white/20`
+                }
+              >
                 <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
