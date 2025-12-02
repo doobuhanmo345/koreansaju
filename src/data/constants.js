@@ -217,6 +217,19 @@ Then, please provide the fortune for each month as follows (keep each under 100 
 12. December Fortune: Fortune for Gyeongja Month of Eulsa Year
 `,
 };
+export const langPrompt =
+  language === 'ko' ? '답변은 한국어로. 300단어 이내.' : 'Answer in English. 300 WORDS.';
+const hantoeng = `[Terminology Reference]
+When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
+DO NOT use Simplified Chinese characters.
+Refer to the following mapping for exact terms:
+${HANJA_ENG_MAP}
+`;
+const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}`;
+export const hanja = language === 'ko' ? hantokor : hantoeng;
 export const IljuExp = {
   ko: {
     // === 갑목 (甲木) ===
@@ -1576,6 +1589,8 @@ export const ENG_MAP = {
   술: 'Sul',
   해: 'Hae',
 };
+
+export const jijiText = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
 export const HANJA_ENG_MAP = {
   甲: 'Gap',
   乙: 'Eul',

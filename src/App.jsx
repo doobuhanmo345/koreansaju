@@ -49,6 +49,9 @@ import {
   NEW_YEAR_FORTUNE_PROMPT,
   BD_EDIT_UI,
   IljuExp,
+  langPrompt,
+  hanja,
+  jijiText,
 } from './data/constants';
 import { iljuNameList } from './data/iljuNameList';
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from './utils/helpers';
@@ -59,14 +62,13 @@ import logoEng from './assets/Logo_Eng.png';
 import sajaProfile from './assets/sajaProfile.png';
 import useLocalStorage from './hooks/useLocalStorage';
 import { LockClosedIcon } from '@heroicons/react/24/solid';
-import { languages } from 'eslint-plugin-prettier';
-const LANGUAGE_STORAGE_KEY = 'userLanguage';
-
+import AnalysisButton from './components/AnalysisButton';
 // 💡 추가된 텍스트 상수
 
 export default function App() {
   // --- States ---
   const [user, setUser] = useState(null);
+
   const [theme, setTheme] = useState(localStorage.theme || 'light');
   const [language, setLanguage] = useLocalStorage('userLanguage', 'en');
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
@@ -218,42 +220,11 @@ export default function App() {
 
   // --- Logic (Relation & Colors) ---
   const relationAd = SAJU_DATA.sky;
-  const jijiText = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
-  let sigan,
-    ilgan,
-    wolgan,
-    yeongan,
-    siji,
-    ilji,
-    wolji,
-    yeonji,
-    sijidata,
-    iljidata,
-    woljidata,
-    yeonjidata;
+  let sigan, ilgan, wolgan, yeongan, sijidata, iljidata, woljidata, yeonjidata;
   let sijiji = [],
     iljiji = [],
     woljiji = [],
-    yeonjiji = [],
-    insu = [],
-    sik = [],
-    jae = [],
-    guan = [];
-  let gongmang = [],
-    gongmangbool = [false, false, false],
-    chuneulbool = [false, false, false];
-  let sky12ch = false,
-    sky12hap = [false, {}],
-    sky23ch = false,
-    sky23hap = [false, {}];
-  let grd12ch = false,
-    grd12banhap = [false, {}],
-    grd126 = [false, {}];
-  let grd23ch = false,
-    grd23banhap = [false, {}],
-    grd236 = [false, {}];
-  let banghap = [false, {}],
-    hap3 = [false, {}];
+    yeonjiji = [];
 
   if (relationAd) {
     sigan =
@@ -296,99 +267,6 @@ export default function App() {
     yeonjidata = y.data;
     yeonji = y.sub;
     yeonjiji = y.hidden;
-
-    if (saju.sky1 && ilgan.id !== 0) {
-      ilgan?.relation['인수'].forEach((id) => insu.push(relationAd.find((item) => item.id === id)));
-      ilgan?.relation['식상'].forEach((id) => sik.push(relationAd.find((item) => item.id === id)));
-      ilgan?.relation['관성'].forEach((id) => guan.push(relationAd.find((item) => item.id === id)));
-      ilgan?.relation['재성'].forEach((id) => jae.push(relationAd.find((item) => item.id === id)));
-    } else {
-      const empty = relationAd.find((i) => i.id === 0);
-      insu = [empty];
-      sik = [empty];
-      guan = [empty];
-      jae = [empty];
-    }
-
-    if (saju.sky1 && saju.grd1) {
-      const ilju = saju.sky1 + saju.grd1;
-      for (let idx = 0; idx < GONGMANG_DATA.length; idx++) {
-        if (GONGMANG_DATA[idx].includes(ilju)) {
-          const gmMap = [
-            ['술', '해'],
-            ['신', '유'],
-            ['오', '미'],
-            ['진', '사'],
-            ['인', '묘'],
-            ['자', '축'],
-          ];
-          gongmang = gmMap[idx] || [];
-          break;
-        }
-      }
-      gongmangbool = [
-        gongmang.includes(saju.grd1),
-        gongmang.includes(saju.grd2),
-        gongmang.includes(saju.grd3),
-      ];
-    }
-    if (saju.sky1 && CHUNEUL[saju.sky1]) {
-      chuneulbool = [
-        CHUNEUL[saju.sky1].includes(saju.grd1),
-        CHUNEUL[saju.sky1].includes(saju.grd2),
-        CHUNEUL[saju.sky1].includes(saju.grd3),
-      ];
-    }
-    const checkHapChung = (t1, t2, type) => {
-      const txt = t1 + t2;
-      const rev = t2 + t1;
-      if (type === 'sky') {
-        if (SKY_HAP_TEXT.includes(txt)) return { hap: [true, SKY_HAP_EXP[txt]], ch: false };
-        if (SKY_HAP_TEXT.includes(rev)) return { hap: [true, SKY_HAP_EXP[rev]], ch: false };
-        if (SKY_CH_TEXT.includes(txt) || SKY_CH_TEXT.includes(rev))
-          return { hap: [false, {}], ch: true };
-        return { hap: [false, {}], ch: false };
-      }
-      if (type === 'grd') {
-        let res = { ch: false, banhap: [false, {}], hap6: [false, {}] };
-        if (GRD_CH_TEXT.includes(txt) || GRD_CH_TEXT.includes(rev)) res.ch = true;
-        if (GRD_BANHAP_TEXT.includes(txt)) res.banhap = [true, GRD_BANHAP_EXP[txt]];
-        else if (GRD_BANHAP_TEXT.includes(rev)) res.banhap = [true, GRD_BANHAP_EXP[rev]];
-        if (HAP6_TEXT.includes(txt)) res.hap6 = [true, HAP6_EXP[txt]];
-        else if (HAP6_TEXT.includes(rev)) res.hap6 = [true, HAP6_EXP[rev]];
-        return res;
-      }
-    };
-    if (saju.sky1 && saju.sky2) {
-      const r = checkHapChung(saju.sky1, saju.sky2, 'sky');
-      sky12hap = r.hap;
-      sky12ch = r.ch;
-    }
-    if (saju.sky2 && saju.sky3) {
-      const r = checkHapChung(saju.sky2, saju.sky3, 'sky');
-      sky23hap = r.hap;
-      sky23ch = r.ch;
-    }
-    if (saju.grd1 && saju.grd2) {
-      const r = checkHapChung(saju.grd1, saju.grd2, 'grd');
-      grd12ch = r.ch;
-      grd12banhap = r.banhap;
-      grd126 = r.hap6;
-    }
-    if (saju.grd2 && saju.grd3) {
-      const r = checkHapChung(saju.grd2, saju.grd3, 'grd');
-      grd23ch = r.ch;
-      grd23banhap = r.banhap;
-      grd236 = r.hap6;
-    }
-    if (saju.grd1 && saju.grd2 && saju.grd3) {
-      const txt = saju.grd1 + saju.grd2 + saju.grd3;
-      const rev = saju.grd3 + saju.grd2 + saju.grd1;
-      if (BANGHAP_TEXT.includes(txt)) banghap = [true, BANGHAP_EXP[txt]];
-      else if (BANGHAP_TEXT.includes(rev)) banghap = [true, BANGHAP_EXP[rev]];
-      if (HAP3_TEXT.includes(txt)) hap3 = [true, HAP3_EXP[txt]];
-      else if (HAP3_TEXT.includes(rev)) hap3 = [true, HAP3_EXP[rev]];
-    }
   }
 
   // --- Handlers ---
@@ -597,9 +475,7 @@ export default function App() {
     await setDoc(userDocRef, { chat_records: sajuRecords, updatedAt: new Date() }, { merge: true });
   };
 
-  // ----------------------------------------------------------------
   // 🔮 [오늘의 운세] (3중 체크: 날짜/언어/사주)
-  // ----------------------------------------------------------------
   const handleDailyFortune = async () => {
     // 1. 기본 체크
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -676,12 +552,6 @@ export default function App() {
       const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`;
 
       const sajuInfo = `[User Saju] ${userSajuText} / [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
-
-      const langPrompt =
-        language === 'ko' ? '답변은 한국어로. 500자 이내.' : 'Answer in English. Max 500 chars.';
-      const hantoeng = `[Terminology Reference]\nWhen translating or referring to Saju terms... \n${HANJA_ENG_MAP}`;
-      const hantokor = `[Terminology Reference]\n사주 용어를 해석할 때... \n${HANJA_MAP}`;
-      const hanja = language === 'ko' ? hantokor : hantoeng;
       const strictPrompt = STRICT_INSTRUCTION[language];
       const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
@@ -781,23 +651,8 @@ export default function App() {
     try {
       const currentSajuKey = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      const langPrompt = language === 'ko' ? '답변은 한국어로.  ' : 'Answer in English.';
-
-      const hantoeng = `[Terminology Reference]
-When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
-DO NOT use Simplified Chinese characters.
-Refer to the following mapping for exact terms:
-${HANJA_ENG_MAP}
-`;
-      const hantokor = `[Terminology Reference]
-사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
-아래의 매핑을 참조:
-${HANJA_MAP}
-`;
       const strictPrompt = STRICT_INSTRUCTION[language];
-      const hanja = langu;
 
-      age === 'ko' ? hantokor : hantoeng;
       const fullPrompt = `${strictPrompt}\n${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
 
       // API 호출
@@ -840,9 +695,7 @@ ${HANJA_MAP}
       setLoadingType(null);
     }
   };
-  // ----------------------------------------------------------------
   // 🎉 [신년 운세] (캐시 확인 + 로직 개선)
-  // ----------------------------------------------------------------
   const handleNewYearFortune = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
@@ -893,11 +746,6 @@ ${HANJA_MAP}
       // --- API 호출 준비 ---
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
-      const langPrompt =
-        language === 'ko' ? '답변은 한국어로. 500자 이내.' : 'Answer in English. Max 500 chars.';
-      const hantoeng = `[Terminology Reference]\nStrictly use Korean Hanja...\n${HANJA_ENG_MAP}`;
-      const hantokor = `[Terminology Reference]\n엄격하게 한국한자 사용...\n${HANJA_MAP}`;
-      const hanja = language === 'ko' ? hantokor : hantoeng;
       const strictPrompt = STRICT_INSTRUCTION[language];
       const fullPrompt = `${strictPrompt}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
@@ -985,20 +833,6 @@ ${HANJA_MAP}
     try {
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
-      const langPrompt =
-        language === 'ko' ? '답변은 한국어로. 300단어 이내.' : 'Answer in English. 300 WORDS.';
-      const hantoeng = `[Terminology Reference]
-When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
-DO NOT use Simplified Chinese characters.
-Refer to the following mapping for exact terms:
-${HANJA_ENG_MAP}
-`;
-      const hantokor = `[Terminology Reference]
-사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
-아래의 매핑을 참조:
-${HANJA_MAP}
-`;
-      const hanja = language === 'ko' ? hantokor : hantoeng;
 
       const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
@@ -1042,7 +876,7 @@ ${HANJA_MAP}
   const chatEnergy = useConsumeEnergy();
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      {/* ▼▼▼▼▼▼ 헤더 영역 수정 시작 ▼▼▼▼▼▼ */}
+      {/* 헤더시작 */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 max-w-xl m-auto">
         {/* ✅ 왼쪽: 로고 + 타이틀 그룹 */}
         {theme === 'dark' ? (
@@ -1109,6 +943,9 @@ ${HANJA_MAP}
           </button>
         </div>
       </div>
+      {/* 헤더끝 */}
+
+      {/* 로그인 스테이터스 */}
       <div className="bg-white/70 dark:bg-slate-800/60 p-3 my-2 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md max-w-lg m-auto">
         {user ? (
           <div className="flex items-center justify-between">
@@ -1196,7 +1033,8 @@ ${HANJA_MAP}
           </div>
         )}
       </div>
-      {/* ▲▲▲▲▲▲ 헤더 영역 수정 끝 ▲▲▲▲▲▲ */}
+
+      {/* 로그인 되지 않았을 시 블러처리 */}
       {!user && (
         <div
           className="absolute inset-x-0 h-[450px] z-10 
@@ -1248,6 +1086,7 @@ ${HANJA_MAP}
 
       <div className="w-full max-w-lg  bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
         <div className="flex flex-col m-2">
+          {/* 정보수정 */}
           <div
             className={`m-3 mt-1 transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
           >
@@ -1309,7 +1148,7 @@ ${HANJA_MAP}
               </button>
             </div>
           </div>
-
+          {/* 저장된 유저정보 */}
           {user && (
             <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
               {/* 1. 상단 라벨 (여기가 내 정보임을 알리는 핵심) */}
@@ -1413,6 +1252,7 @@ ${HANJA_MAP}
               </div>
             </div>
           )}
+          {/* 사주시각화 */}
           {user && (
             <div
               id="saju-capture"
@@ -1645,243 +1485,67 @@ ${HANJA_MAP}
       {/* 4. AI 버튼 영역 (3분할) 및 로딩 상태창 */}
       <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {/* A. 버튼 그룹 */}
-        {/* A. 버튼 그룹 (높이 살짝 증가: h-28 -> h-32 설명 문구 공간 확보) */}
         <div className="flex justify-between gap-3 h-32">
           {/* 1. 메인 분석 버튼 */}
-          <button
-            onClick={() => mainEnergy.triggerConsume(handleAiAnalysis)}
-            disabled={(loading && !mainEnergy.isConsuming) || !user || !isSaved}
-            className={`flex-1 rounded-2xl font-bold transition-all relative group flex flex-col items-center justify-center gap-1
-            ${
-              (loading && !mainEnergy.isConsuming) || !user || !isSaved
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                : // 💥 [수정 4] 버튼 입체감 강화 (shadow-lg -> shadow-xl + ring 효과)
-                  'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] dark:shadow-none border-b-4 border-indigo-700/30 active:border-b-0 active:translate-y-1'
-            }`}
-          >
-            <span className="text-2xl drop-shadow-md mb-1 relative z-10">
-              {loading && loadingType === 'main' ? (
-                <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : (
-                '🔮'
-              )}
-            </span>
+          <AnalysisButton
+            energy={mainEnergy}
+            handleAnalysis={handleAiAnalysis}
+            loading={qLoading}
+            loadingType={loadingType}
+            user={user}
+            isSaved={isSaved}
+            isLocked={isLocked}
+            isAnalysisDone={isMainDone}
+            language={language}
+            icon={'🔮'}
+            buttonType={'main'}
+            textKo={'사주 분석'}
+            TextEn={'Life Path Decoding'}
+            subTextKo={'타고난 운명 파악'}
+            subTextEn={'Discover your Fate'}
+            colorType={'indigo'}
+          />
 
-            {/* 메인 텍스트 */}
-            <span className="text-sm font-bold leading-tight relative z-10">
-              {language === 'ko' ? '사주 분석' : 'Life Path Decoding'}
-            </span>
-
-            {/* 💥 [수정 1] 설명 문구 추가 */}
-            <span
-              className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep relative z-10
-            "
-            >
-              {language === 'ko' ? '타고난 운명 파악' : 'Discover Your Fate'}
-            </span>
-
-            {/* 하단 뱃지 영역 */}
-            {isMainDone && !loading && (
-              <div
-                className={
-                  `` + isLocked
-                    ? `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40`
-                    : `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-white/30 bg-white/20`
-                }
-              >
-                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
-                  Free
-                </span>
-                <TicketIcon className="w-3 h-3 text-white" />
-              </div>
-            )}
-            {!isMainDone && !user && (
-              <div className="mt-1 relative z-10">
-                <LockClosedIcon className="w-4 h-4 text-amber-500" />
-              </div>
-            )}
-            {!isMainDone && !!user && (
-              <div className="mt-1">
-                <EnergyBadge
-                  active={isSaved && user}
-                  consuming={mainEnergy.isConsuming}
-                  loading={loading && !mainEnergy.isConsuming}
-                />
-              </div>
-            )}
-          </button>
-
-          {/* 2. 신년 운세 버튼 */}
-          <button
-            onClick={() => yearEnergy.triggerConsume(handleNewYearFortune)}
-            disabled={(loading && !yearEnergy.isConsuming) || !user || !isSaved}
-            className={`flex-1 rounded-2xl font-bold transition-all relative group flex flex-col items-center justify-center gap-1 overflow-hidden
-            ${
-              (loading && !yearEnergy.isConsuming) || !user || !isSaved
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                : // 💥 [수정 4] 버튼 입체감 강화
-                  'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] dark:shadow-none border-b-4 border-blue-700/30 active:border-b-0 active:translate-y-1'
-            }`}
-          >
-            {/* 💥 [수정 2] 기간 한정 리본 (Limited Time Badge) */}
-            {!loading && user && isSaved && (
-              <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden rounded-tr-2xl">
-                <div className="absolute top-0 right-0 h-full w-full flex items-center justify-center bg-transparent">
-                  <div className="absolute top-[10px] right-[-28px] w-[100px] h-[18px] bg-gradient-to-r from-rose-500 to-red-600 text-white text-[8px] font-black uppercase tracking-widest flex items-center justify-center transform rotate-45 shadow-md z-20 border-y border-white/20">
-                    Limited
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <span className="text-2xl drop-shadow-md mb-1 relative z-10">
-              {loading && loadingType === 'year' ? (
-                <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : (
-                '🐍'
-              )}
-            </span>
-            <span className="text-sm font-bold leading-tight relative z-10">
-              {language === 'ko' ? '2026 신년 운세' : '2026 Path Guide'}
-            </span>
-
-            {/* 💥 [수정 1] 설명 문구 추가 */}
-            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep relative z-10">
-              {language === 'ko' ? '미리보는 1년 계획' : 'Yearly Forecast'}
-            </span>
-
-            {/* 하단 뱃지 영역 */}
-            {isYearDone && !loading && (
-              <div
-                className={
-                  `` + isLocked
-                    ? `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40`
-                    : `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-white/30 bg-white/20`
-                }
-              >
-                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
-                  Free
-                </span>
-                <TicketIcon className="w-3 h-3 text-white" />
-              </div>
-            )}
-            {!isYearDone && !user && (
-              <div className="mt-1 relative z-10">
-                <LockClosedIcon className="w-4 h-4 text-amber-500" />
-              </div>
-            )}
-            {!isYearDone && !!user && (
-              <div className="mt-1 relative">
-                <EnergyBadge
-                  active={isSaved && user}
-                  consuming={yearEnergy.isConsuming}
-                  loading={loading && !yearEnergy.isConsuming}
-                />
-              </div>
-            )}
-          </button>
+          {/* 신년운세버튼 */}
+          <AnalysisButton
+            energy={yearEnergy}
+            handleAnalysis={handleNewYearFortune}
+            loading={qLoading}
+            loadingType={loadingType}
+            user={user}
+            redBadge={true}
+            isSaved={isSaved}
+            isLocked={isLocked}
+            isAnalysisDone={isYearDone}
+            language={language}
+            icon={'🐍'}
+            buttonType={'year'}
+            textKo={'2026 신년 운세'}
+            TextEn={'2026 Path Guide'}
+            subTextKo={'미리보는 1년 계획'}
+            subTextEn={'Yearly Forecast'}
+            colorType={'blue'}
+          />
 
           {/* 3. 오늘의 운세 버튼 */}
-          <button
-            onClick={() => dailyEnergy.triggerConsume(handleDailyFortune)}
-            disabled={(loading && !dailyEnergy.isConsuming) || !user || !isSaved}
-            className={`flex-1 rounded-2xl font-bold transition-all relative group flex flex-col items-center justify-center gap-1
-            ${
-              (loading && !dailyEnergy.isConsuming) || !user || !isSaved
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                : // 💥 [수정 4] 버튼 입체감 강화
-                  'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(14,165,233,0.5)] dark:shadow-none border-b-4 border-sky-700/30 active:border-b-0 active:translate-y-1'
-            }`}
-          >
-            <span className="text-2xl drop-shadow-md mb-1 relative z-10">
-              {loading && loadingType === 'daily' ? (
-                <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              ) : (
-                '🌞'
-              )}
-            </span>
-            <span className="text-sm font-bold leading-tight relative z-10">
-              {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
-            </span>
-
-            {/* 💥 [수정 1] 설명 문구 추가 */}
-            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep relative z-10">
-              {language === 'ko' ? '하루의 흐름 확인' : 'Daily Guide'}
-            </span>
-
-            {/* 하단 뱃지 영역 */}
-            {isLocked && 'true'}
-            {isDailyDone && !loading && (
-              <div
-                className={
-                  `` + isLocked
-                    ? `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40`
-                    : `mt-1 flex items-center gap-1  backdrop-blur-sm px-2 py-0.5 rounded-full border  shadow-sm relative z-10 border-white/30 bg-white/20`
-                }
-              >
-                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
-                  Free
-                </span>
-                <TicketIcon className="w-3 h-3 text-white" />
-              </div>
-            )}
-            {!isDailyDone && !user && (
-              <div className="mt-1 relative z-10">
-                <LockClosedIcon className="w-4 h-4 text-amber-500" />
-              </div>
-            )}
-            {!isDailyDone && !!user && (
-              <div className="mt-1 relative">
-                <EnergyBadge
-                  active={isSaved && user}
-                  consuming={dailyEnergy.isConsuming}
-                  loading={loading && !dailyEnergy.isConsuming}
-                />
-              </div>
-            )}
-          </button>
+          <AnalysisButton
+            energy={dailyEnergy}
+            handleAnalysis={handleDailyFortune}
+            loading={qLoading}
+            loadingType={loadingType}
+            user={user}
+            isSaved={isSaved}
+            isLocked={isLocked}
+            isAnalysisDone={isDailyDone}
+            language={language}
+            icon={'🌞'}
+            buttonType={'daily'}
+            textKo={'오늘의 운세'}
+            TextEn={"Today's Luck"}
+            subTextKo={'하루의 흐름 확인'}
+            subTextEn={'Daily Guide'}
+            colorType={'sky'}
+          />
         </div>
         {/* B. ✨ 독립된 로딩 상태 표시창 (기존 디자인 유지) */}
         {loading && (
@@ -2434,47 +2098,6 @@ ${HANJA_MAP}
                 )}
                 {/* ▲▲▲▲▲▲ 채팅 모드 전체 코드 교체 끝 ▲▲▲▲▲▲ */}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {true && (
-        <div className="flex flex-col items-center mt-2 sr-only">
-          <div
-            id="day-pillar-capture"
-            className={classNames(
-              pillarStyle,
-              true ? 'bg-white dark:bg-gray-400' : 'bg-yellow-50 dark:bg-gray-400',
-            )}
-          >
-            <span className={classNames(pillarLabelStyle, 'dark:!text-gray-500')}>Day</span>
-            <div
-              className={classNames(
-                iconsViewStyle,
-                saju.sky1 ? bgToBorder(ilgan.color) : 'border-gray-200',
-                'rounded-md w-16 px-2 flex flex-col items-center justify-center py-2 shadow-sm',
-              )}
-            >
-              <div className="text-3xl mb-1">{getIcon(saju.sky1, 'sky')}</div>
-              {!!saju.sky1 && (
-                <>
-                  <div className="text-[10px] font-bold">{getHanja(saju.sky1, 'sky')}</div>
-                </>
-              )}
-            </div>
-            <div
-              className={classNames(
-                iconsViewStyle,
-                saju.grd1 ? bgToBorder(iljidata.color) : 'border-gray-200',
-                'rounded-md w-16 flex flex-col items-center justify-center shadow-sm',
-              )}
-            >
-              <div className="text-3xl mb-1">{getIcon(saju.grd1, 'grd')}</div>
-              {!!saju.grd1 && (
-                <>
-                  <div className="text-[10px] font-bold">{getHanja(saju.grd1, 'grd')}</div>
-                </>
-              )}
             </div>
           </div>
         </div>
