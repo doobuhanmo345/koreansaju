@@ -179,3 +179,4 @@ export const bgToBorder = (bgClass) => {
   // 2. 없으면 bg-를 border-로 바꿔서 시도
   return bgClass.replace('bg-', 'border-');
 };
+export const t = (char) => (language === 'en' ? getEng(char) : char);

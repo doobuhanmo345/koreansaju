@@ -3,7 +3,7 @@ import { onSnapshot } from 'firebase/firestore'; // 상단 import 확인
 import EnergyBadge from './components/EnergyBadge';
 import { useShareActions } from './hooks/useShareAction';
 import { useTimer } from './hooks/useTimer';
-import { calculateSaju, getPillars } from './utils/sajuCalculator';
+import { getPillars } from './utils/sajuCalculator';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import { jiStyle, pillarLabelStyle, iconsViewStyle, pillarStyle } from './data/style';
 import {
@@ -20,7 +20,7 @@ import {
   BoltIcon,
 } from '@heroicons/react/24/outline';
 import { doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
-
+import { useModal } from './hooks/useModal';
 // Local Imports
 import { login, logout, onUserStateChange, db } from './lib/firebase';
 import { fetchGeminiAnalysis } from './api/gemini';
@@ -28,6 +28,7 @@ import {
   SAJU_DATA,
   UI_TEXT,
   HANJA_MAP,
+  STRICT_INSTRUCTION,
   DEFAULT_INSTRUCTION,
   GONGMANG_DATA,
   CHUNEUL,
@@ -56,13 +57,16 @@ import logoEngDark from './assets/Logo_Eng_DarkMode.png';
 import logoKor from './assets/Logo_Kor.png';
 import logoEng from './assets/Logo_Eng.png';
 import sajaProfile from './assets/sajaProfile.png';
+import useLocalStorage from './hooks/useLocalStorage';
+const LANGUAGE_STORAGE_KEY = 'userLanguage';
+
 // 💡 추가된 텍스트 상수
 
 export default function App() {
   // --- States ---
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState(localStorage.theme || 'light');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useLocalStorage('userLanguage', 'en');
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
   const [gender, setGender] = useState('female');
   const [qLoading, setQLoading] = useState(false);
@@ -75,7 +79,7 @@ export default function App() {
   const [chatList, setChatList] = useState([]);
   const [viewMode, setViewMode] = useState('result');
   const chatEndRef = useRef(null);
-
+  const { isModalOpen, openModal, closeModal } = useModal();
   const isLocked = editCount >= MAX_EDIT_COUNT;
   const isInputDisabled = isLocked || isSaved;
 
@@ -203,14 +207,6 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [loading, isCachedLoading]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  useEffect(() => {
-    if (isModalOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = 'unset';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isModalOpen]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -646,7 +642,7 @@ export default function App() {
       // 💥 [Step 2] 일치하면 -> 크레딧 차감 없이 바로 보여줌 (무료)
       if (isMatch) {
         setIsSuccess(true);
-        setIsModalOpen(true);
+        openModal();
         setViewMode('result');
         setLoading(false);
         setLoadingType(null);
@@ -684,8 +680,8 @@ export default function App() {
       const hantoeng = `[Terminology Reference]\nWhen translating or referring to Saju terms... \n${HANJA_ENG_MAP}`;
       const hantokor = `[Terminology Reference]\n사주 용어를 해석할 때... \n${HANJA_MAP}`;
       const hanja = language === 'ko' ? hantokor : hantoeng;
-
-      const fullPrompt = `${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+      const strictPrompt = STRICT_INSTRUCTION[language];
+      const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
       // (3) 실제 AI 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -721,7 +717,7 @@ export default function App() {
       setEditCount(newCount);
       setAiResult(result);
       setIsSuccess(true);
-      setIsModalOpen(true);
+      openModal();
       setViewMode('result');
     } catch (e) {
       console.error(e);
@@ -759,7 +755,7 @@ export default function App() {
     if (isMatch) {
       setAiResult(cachedData.result);
       setIsSuccess(true);
-      setIsModalOpen(true);
+      openModal();
       setViewMode('result');
       setLoadingType(null); // 로딩 해제
       return;
@@ -796,8 +792,11 @@ ${HANJA_ENG_MAP}
 아래의 매핑을 참조:
 ${HANJA_MAP}
 `;
-      const hanja = language === 'ko' ? hantokor : hantoeng;
-      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
+      const strictPrompt = STRICT_INSTRUCTION[language];
+      const hanja = langu;
+
+      age === 'ko' ? hantokor : hantoeng;
+      const fullPrompt = `${strictPrompt}\n${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -831,7 +830,7 @@ ${HANJA_MAP}
       });
       setAiResult(result);
       setIsSuccess(true);
-      setIsModalOpen(true);
+      openModal();
     } catch (e) {
       alert(`Error: ${e.message}`);
     } finally {
@@ -874,7 +873,7 @@ ${HANJA_MAP}
         if (isYearMatch && isLangMatch && isSajuMatch && result) {
           setAiResult(result);
           setIsSuccess(true);
-          setIsModalOpen(true);
+          openModal();
           setViewMode('result');
           setLoading(false);
           setLoadingType(null);
@@ -897,8 +896,8 @@ ${HANJA_MAP}
       const hantoeng = `[Terminology Reference]\nStrictly use Korean Hanja...\n${HANJA_ENG_MAP}`;
       const hantokor = `[Terminology Reference]\n엄격하게 한국한자 사용...\n${HANJA_MAP}`;
       const hanja = language === 'ko' ? hantokor : hantoeng;
-
-      const fullPrompt = `${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+      const strictPrompt = STRICT_INSTRUCTION[language];
+      const fullPrompt = `${strictPrompt}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
 
       // 💥 API 호출 (AI 분석)
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -931,7 +930,7 @@ ${HANJA_MAP}
       setEditCount(newCount);
       setAiResult(result);
       setIsSuccess(true);
-      setIsModalOpen(true);
+      openModal();
       setViewMode('result');
     } catch (e) {
       console.error(e);
@@ -1845,7 +1844,7 @@ ${HANJA_MAP}
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 dark:text-gray-300">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setIsModalOpen(false)}
+            onClick={() => closeModal()}
           />
           <div className="relative w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh]">
             <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-slate-800">
@@ -1903,7 +1902,7 @@ ${HANJA_MAP}
                   </button>
                 )}
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => closeModal()}
                   className="p-2 bg-gray-100 dark:bg-slate-700 rounded-full"
                 >
                   ✕
@@ -2136,7 +2135,7 @@ ${HANJA_MAP}
                         >
                           <ShareIcon className="w-5 h-5" />
                           <span>
-                            {language === 'eng'
+                            {language === 'en'
                               ? 'Share & Invite Friends'
                               : '결과 공유하고 친구에게 추천하기'}
                           </span>
