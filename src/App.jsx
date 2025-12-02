@@ -188,6 +188,7 @@ export default function App() {
 
   useEffect(() => {
     let interval;
+
     if (loading) {
       setProgress(0);
       interval = setInterval(() => {
@@ -493,6 +494,7 @@ export default function App() {
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
 
     setLoading(true);
+
     setLoadingType('daily');
     setResultType('daily');
     setAiResult('');
@@ -885,6 +887,7 @@ export default function App() {
   const yearEnergy = useConsumeEnergy();
   const dailyEnergy = useConsumeEnergy();
   const chatEnergy = useConsumeEnergy();
+
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* 헤더시작 */}
@@ -1501,7 +1504,7 @@ export default function App() {
           <AnalysisButton
             energy={mainEnergy}
             handleAnalysis={handleAiAnalysis}
-            loading={qLoading}
+            loading={loading}
             loadingType={loadingType}
             user={user}
             isSaved={isSaved}
@@ -1521,7 +1524,7 @@ export default function App() {
           <AnalysisButton
             energy={yearEnergy}
             handleAnalysis={handleNewYearFortune}
-            loading={qLoading}
+            loading={loading}
             loadingType={loadingType}
             user={user}
             redBadge={true}
@@ -1542,7 +1545,7 @@ export default function App() {
           <AnalysisButton
             energy={dailyEnergy}
             handleAnalysis={handleDailyFortune}
-            loading={qLoading}
+            loading={loading}
             loadingType={loadingType}
             user={user}
             isSaved={isSaved}
