@@ -1435,9 +1435,10 @@ ${HANJA_MAP}
                   ></div>
                 </div>
               )}
+
               <div className="relative z-10 flex justify-center bg-white/10 backdrop-blur-sm">
                 {true && (
-                  <div className="flex flex-col items-end  pt-[10px] animate-[fadeIn_0.5s_ease-out]">
+                  <div className="flex flex-col max-xs:hidden items-end  pt-[10px] animate-[fadeIn_0.5s_ease-out]">
                     <div className="h-4" />
                     <div className="h-[90px] flex items-center pr-2 border-r border-sky-700/30">
                       <div className="text-right">
