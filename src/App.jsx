@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { onSnapshot } from 'firebase/firestore'; // 상단 import 확인
+import { onSnapshot, updateDoc } from 'firebase/firestore'; // 상단 import 확인
 import EnergyBadge from './components/EnergyBadge';
 import { useShareActions } from './hooks/useShareAction';
 import { useTimer } from './hooks/useTimer';
@@ -78,7 +78,7 @@ export default function App() {
   // 🔒 저장 및 수정 횟수 관리
   const [isSaved, setIsSaved] = useState(false);
   const [editCount, setEditCount] = useState(0);
-  const MAX_EDIT_COUNT = 100;
+  const MAX_EDIT_COUNT = 10;
   const [resultType, setResultType] = useState(null);
   const [chatList, setChatList] = useState([]);
   const [viewMode, setViewMode] = useState('result');
@@ -136,6 +136,18 @@ export default function App() {
     localStorage.theme = theme;
   }, [theme]);
 
+  const updateLastLoginDate = async (uid, db) => {
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const userDocRef = doc(db, 'users', uid);
+
+    try {
+      await updateDoc(userDocRef, {
+        lastLoginDate: todayStr, // 오늘 날짜 문자열로 저장 (예: 2025-12-03)
+      });
+    } catch (error) {
+      console.error('마지막 로그인 날짜 업데이트 실패:', error);
+    }
+  };
   // 로그인 & 데이터 불러오기
   useEffect(() => {
     onUserStateChange(async (currentUser) => {
@@ -144,8 +156,9 @@ export default function App() {
         try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
+
           if (userSnap.exists()) {
-            const data = userSnap.data();
+            const data = userSnap.data(); // 기본 정보 로드 (기존 로직 유지)
             if (data.birthDate) {
               setInputDate(data.birthDate);
               setIsSaved(true);
@@ -153,10 +166,27 @@ export default function App() {
             if (data.gender) setGender(data.gender);
             if (data.isTimeUnknown !== undefined) setIsTimeUnknown(data.isTimeUnknown);
 
+            // ⭐⭐⭐ EditCount 리셋 및 lastLoginDate 처리 핵심 로직 (강화) ⭐⭐⭐
             const todayStr = new Date().toLocaleDateString('en-CA');
-            if (data.lastEditDate !== todayStr) setEditCount(0);
-            else setEditCount(data.editCount || 0);
+            const lastLoginDate = data.lastLoginDate; // 1. lastLoginDate가 없거나 (기존 사용자), 오늘 날짜와 다를 경우 (다음 날)
 
+            if (!lastLoginDate || lastLoginDate !== todayStr) {
+              // EditCount를 0으로 리셋 (UI 상태)
+              setEditCount(0);
+
+              // 🚨 핵심 수정: DB의 editCount도 0으로 함께 업데이트하여 동기화 (updateDoc 함수는 비동기)
+              try {
+                await updateDoc(userDocRef, {
+                  lastLoginDate: todayStr,
+                  editCount: 0, // ⭐️ DB의 editCount도 0으로 확실하게 설정
+                });
+              } catch (e) {
+                console.error('EditCount/LoginDate DB 업데이트 실패:', e);
+              }
+            } else {
+              // 2. lastLoginDate가 오늘 날짜와 같을 경우
+              setEditCount(data.editCount || 0);
+            } // ⭐⭐⭐ 핵심 로직 끝 ⭐⭐⭐
             if (data.lastAiResult && data.lastSaju) {
               setCachedData({
                 saju: data.lastSaju,
@@ -167,21 +197,23 @@ export default function App() {
               });
             }
           } else {
+            // DB에 문서가 없는 경우 (신규 사용자)
             setIsSaved(false);
             setEditCount(0);
             setCachedData(null);
+            // 이 시점에 신규 사용자 문서 생성 및 lastLoginDate를 기록해야 합니다.
           }
         } catch (error) {
           console.error('정보 불러오기 실패:', error);
         }
       } else {
+        // 로그아웃 상태 처리 (기존 로직 유지)
         setIsSaved(false);
         setEditCount(0);
         setCachedData(null);
       }
     });
   }, []);
-
   // 만세력 계산
   const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
   // 로딩 애니메이션
@@ -974,7 +1006,7 @@ export default function App() {
               <img
                 src={user.photoURL}
                 alt="Profile"
-                className="w-9 h-9 rounded-full border border-indigo-100 dark:border-slate-600"
+                className="w-12 h-12 rounded-full border border-indigo-100 dark:border-slate-600"
               />
               <div className="flex flex-col justify-center">
                 <span className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-none mb-0.5">
@@ -988,36 +1020,44 @@ export default function App() {
             </div>
 
             {/* 2. 오른쪽: 통합 컨트롤 바 (한 줄 배치) */}
+
             <div className="flex items-center">
               {/* 행동력 */}
-              <div className="flex items-center gap-2 mr-3 pr-3 border-r border-gray-200 dark:border-gray-700 h-9">
-                {/* h-9로 높이 고정하여 흔들림 방지 */}
+              <div className="flex items-center gap-2 mr-3 pr-3 border-r border-gray-200 dark:border-gray-700 h-14">
+                {/* h-12로 높이 고정하여 흔들림 방지 */}
                 {/* 아이콘: 중앙 정렬 */}
-                <BoltIcon className="w-4 h-4 text-amber-500 fill-amber-500/20" />
-                {/* 텍스트 영역: 오른쪽 정렬 */}
-                <div className="flex flex-col items-end justify-center leading-none">
-                  {/* 1. 라벨 (CREDIT) */}
-                  <span className="text-[9px] font-bold text-amber-600/70 dark:text-amber-500 uppercase tracking-tighter mb-[1px]">
-                    Daily Credit
-                  </span>
+                <div>
+                  {' '}
+                  <div className="flex items-center justify-end leading-none">
+                    <BoltIcon className="w-6 h-6 text-amber-500 fill-amber-500/20" />
+                    {/* 텍스트 영역: 오른쪽 정렬 */}
+                    <div className="flex flex-col items-end justify-center leading-none">
+                      {/* 1. 라벨 (CREDIT) */}
+                      <span className="text-[12px] font-bold text-amber-600/70 dark:text-amber-500 uppercase tracking-tighter mb-[1px]">
+                        Daily Credit
+                      </span>
 
-                  {/* 2. 숫자 (3/5) */}
-                  <span className="text-xs font-black text-gray-700 dark:text-gray-200 font-mono">
-                    {MAX_EDIT_COUNT - editCount}
-                    <span className="text-gray-300 text-[10px] mx-0.5">/</span>
-                    {MAX_EDIT_COUNT}
-                  </span>
-
-                  {/* 3. ✨ [추가됨] 타이머 (아주 작게 하단 배치) */}
-                  {/* 꽉 차지 않았을 때만 타이머 표시 */}
-                  {MAX_EDIT_COUNT - editCount < MAX_EDIT_COUNT && timeLeft ? (
-                    <span className="text-[8px] font-mono font-medium text-gray-400 dark:text-gray-500 tracking-tight mt-[1px]">
-                      refill in {timeLeft}
-                    </span>
-                  ) : (
-                    /* 꽉 찼을 때는 빈 공간 유지 or FULL 표시 (깔끔함을 위해 빈 공간 추천) */
-                    <span className="h-[10px]"></span>
-                  )}
+                      {/* 2. 숫자 (3/5) */}
+                      <span className="text-md font-black text-gray-700 dark:text-gray-200 font-mono">
+                        {MAX_EDIT_COUNT - editCount}
+                        <span className="mx-0.5">/</span>
+                        {MAX_EDIT_COUNT}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <div>
+                      {/* 꽉 차지 않았을 때만 타이머 표시 */}
+                      {MAX_EDIT_COUNT - editCount < MAX_EDIT_COUNT && timeLeft ? (
+                        <span className="text-[14px] font-mono font-medium text-gray-400 dark:text-gray-500 tracking-tight mt-[1px]">
+                          refill in {timeLeft}
+                        </span>
+                      ) : (
+                        /* 꽉 찼을 때는 빈 공간 유지 or FULL 표시 (깔끔함을 위해 빈 공간 추천) */
+                        <span className="h-[0px]"></span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
