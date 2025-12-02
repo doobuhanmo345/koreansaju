@@ -220,7 +220,18 @@ export default function App() {
 
   // --- Logic (Relation & Colors) ---
   const relationAd = SAJU_DATA.sky;
-  let sigan, ilgan, wolgan, yeongan, sijidata, iljidata, woljidata, yeonjidata;
+  let siji,
+    ilji,
+    wolji,
+    yeonji,
+    sigan,
+    ilgan,
+    wolgan,
+    yeongan,
+    sijidata,
+    iljidata,
+    woljidata,
+    yeonjidata;
   let sijiji = [],
     iljiji = [],
     woljiji = [],
@@ -553,7 +564,7 @@ export default function App() {
 
       const sajuInfo = `[User Saju] ${userSajuText} / [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
       const strictPrompt = STRICT_INSTRUCTION[language];
-      const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+      const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       // (3) 실제 AI 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -653,7 +664,7 @@ export default function App() {
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const strictPrompt = STRICT_INSTRUCTION[language];
 
-      const fullPrompt = `${strictPrompt}\n${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
+      const fullPrompt = `${strictPrompt}\n${userPrompt}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -747,7 +758,7 @@ export default function App() {
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
       const strictPrompt = STRICT_INSTRUCTION[language];
-      const fullPrompt = `${strictPrompt}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+      const fullPrompt = `${strictPrompt}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       // 💥 API 호출 (AI 분석)
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -834,7 +845,7 @@ export default function App() {
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
 
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt}\n${hanja}`;
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;

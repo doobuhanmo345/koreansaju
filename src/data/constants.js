@@ -1,4 +1,5 @@
 // src/data/constants.js
+
 export const STRICT_INSTRUCTION = {
   ko: `당신은 현대적 감각과 깊은 통찰력을 겸비한 최고의 사주 명리학 전문가입니다. 의뢰인의 사주 만세력 데이터를 바탕으로, 인생의 흐름을 읽어내고 그들에게 영감과 위로를 주는 '운명 리포트'를 작성해야 합니다.
 업로드한 만세력 데이터를 바탕으로, 아래 출력 템플릿에 맞춘 리포트를 작성해주세요. 작성 원칙은 반드시 준수해야 하 ㅂ니다.
@@ -217,19 +218,7 @@ Then, please provide the fortune for each month as follows (keep each under 100 
 12. December Fortune: Fortune for Gyeongja Month of Eulsa Year
 `,
 };
-export const langPrompt =
-  language === 'ko' ? '답변은 한국어로. 300단어 이내.' : 'Answer in English. 300 WORDS.';
-const hantoeng = `[Terminology Reference]
-When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
-DO NOT use Simplified Chinese characters.
-Refer to the following mapping for exact terms:
-${HANJA_ENG_MAP}
-`;
-const hantokor = `[Terminology Reference]
-사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
-아래의 매핑을 참조:
-${HANJA_MAP}`;
-export const hanja = language === 'ko' ? hantokor : hantoeng;
+
 export const IljuExp = {
   ko: {
     // === 갑목 (甲木) ===
@@ -1614,6 +1603,23 @@ export const HANJA_ENG_MAP = {
   酉: 'Yu',
   戌: 'Sul',
   亥: 'Hae',
+};
+export const langPrompt = (language) => {
+  return language === 'ko' ? '답변은 한국어로. 300단어 이내.' : 'Answer in English. 300 WORDS.';
+};
+
+const hantoeng = `[Terminology Reference]
+When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
+DO NOT use Simplified Chinese characters.
+Refer to the following mapping for exact terms:
+${HANJA_ENG_MAP}
+`;
+const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}`;
+export const hanja = (language) => {
+  return language === 'ko' ? hantokor : hantoeng;
 };
 
 export const SAJU_DATA = {
