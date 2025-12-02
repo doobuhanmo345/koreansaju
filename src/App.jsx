@@ -58,6 +58,8 @@ import logoKor from './assets/Logo_Kor.png';
 import logoEng from './assets/Logo_Eng.png';
 import sajaProfile from './assets/sajaProfile.png';
 import useLocalStorage from './hooks/useLocalStorage';
+import { LockClosedIcon } from '@heroicons/react/24/solid';
+import { languages } from 'eslint-plugin-prettier';
 const LANGUAGE_STORAGE_KEY = 'userLanguage';
 
 // 💡 추가된 텍스트 상수
@@ -1195,6 +1197,55 @@ ${HANJA_MAP}
         )}
       </div>
       {/* ▲▲▲▲▲▲ 헤더 영역 수정 끝 ▲▲▲▲▲▲ */}
+      {!user && (
+        <div
+          className="absolute inset-x-0 h-[450px] z-10 
+                    backdrop-blur-sm flex justify-center items-center"
+        >
+          <div className="relative w-[260px]">
+            <div
+              // 🔹 배경 투명도를 더 높이고 (30% -> 20%) 블러를 추가하여 유리판 질감 강화
+              className="absolute -top-[180px] w-full p-4 
+                   bg-gray-300/20 dark:bg-white/20 backdrop-blur-md rounded-xl 
+                   shadow-2xl dark:shadow-black/20 shadow-black/40
+                   flex flex-col items-center justify-center space-y-3 mx-auto 
+                   border border-gray-300/30 dark:border-gray-700/40"
+            >
+              {/* A. 강조 문구 (텍스트 그림자로 블러 위 가독성 확보) */}
+              {language === 'en' ? (
+                <p className="text-md font-extrabold text-gray-900 dark:text-white drop-shadow-md">
+                  Login to get <span className="text-amber-500">{MAX_EDIT_COUNT} daily ⚡️</span>
+                </p>
+              ) : (
+                <p className="text-md font-extrabold text-gray-900 dark:text-white drop-shadow-md">
+                  로그인시 하루에⚡️<span className="text-amber-500">{MAX_EDIT_COUNT}개!</span> 충전
+                </p>
+              )}
+              {/* B. 콜투액션(CTA) 버튼 (가장 중요한 요소) */}
+              <button
+                className="w-full py-3 bg-amber-400 text-gray-900 font-extrabold text-md rounded-xl 
+               hover:bg-amber-500 active:bg-yellow-500 
+               transition-all duration-150 transform hover:scale-[1.03] 
+               shadow-xl shadow-amber-500/60" // 👈 그림자를 버튼 색과 동일하게 설정하여 입체감 극대화
+                onClick={login}
+              >
+                <span className="text-white">
+                  {language === 'en'
+                    ? `FREE ACCESS UPON LOGIN` // 👈 문구 강조
+                    : `무료 사주 보기`}
+                </span>
+              </button>
+              {/* C. 보조 정보 (톤 다운) */}
+              <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                {language === 'en'
+                  ? `Daily Gift: ${MAX_EDIT_COUNT} ⚡️ inside`
+                  : `매일 ${MAX_EDIT_COUNT}개⚡️ 선물 증정`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-lg  p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
         <div className="flex flex-col ">
           <div
@@ -1594,7 +1645,6 @@ ${HANJA_MAP}
           )}
         </div>
       </div>
-
       {/* 4. AI 버튼 영역 (3분할) 및 로딩 상태창 */}
       <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {/* A. 버튼 그룹 */}
@@ -1612,7 +1662,7 @@ ${HANJA_MAP}
                   'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] dark:shadow-none border-b-4 border-indigo-700/30 active:border-b-0 active:translate-y-1'
             }`}
           >
-            <span className="text-2xl drop-shadow-md mb-1">
+            <span className="text-2xl drop-shadow-md mb-1 relative z-10">
               {loading && loadingType === 'main' ? (
                 <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
@@ -1635,31 +1685,33 @@ ${HANJA_MAP}
             </span>
 
             {/* 메인 텍스트 */}
-            <span className="text-sm font-bold leading-tight">
-              {!user
-                ? UI_TEXT.loginReq[language]
-                : !isSaved
-                  ? 'Save Info'
-                  : language === 'ko'
-                    ? '사주 분석'
-                    : 'Life Path Decoding'}
+            <span className="text-sm font-bold leading-tight relative z-10">
+              {language === 'ko' ? '사주 분석' : 'Life Path Decoding'}
             </span>
 
             {/* 💥 [수정 1] 설명 문구 추가 */}
-            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep">
+            <span
+              className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep relative z-10
+            "
+            >
               {language === 'ko' ? '타고난 운명 파악' : 'Discover Your Fate'}
             </span>
 
             {/* 하단 뱃지 영역 */}
             {isMainDone && !loading && (
-              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm">
+              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm relative z-10">
                 <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
                 <TicketIcon className="w-3 h-3 text-white" />
               </div>
             )}
-            {!isMainDone && (
+            {!isMainDone && !user && (
+              <div className="mt-1 relative z-10">
+                <LockClosedIcon className="w-4 h-4 text-amber-500" />
+              </div>
+            )}
+            {!isMainDone && !!user && (
               <div className="mt-1">
                 <EnergyBadge
                   active={isSaved && user}
@@ -1732,8 +1784,13 @@ ${HANJA_MAP}
                 <TicketIcon className="w-3 h-3 text-white" />
               </div>
             )}
-            {!isYearDone && (
+            {!isYearDone && !user && (
               <div className="mt-1 relative z-10">
+                <LockClosedIcon className="w-4 h-4 text-amber-500" />
+              </div>
+            )}
+            {!isYearDone && !!user && (
+              <div className="mt-1 relative">
                 <EnergyBadge
                   active={isSaved && user}
                   consuming={yearEnergy.isConsuming}
@@ -1755,7 +1812,7 @@ ${HANJA_MAP}
                   'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(14,165,233,0.5)] dark:shadow-none border-b-4 border-sky-700/30 active:border-b-0 active:translate-y-1'
             }`}
           >
-            <span className="text-2xl drop-shadow-md mb-1">
+            <span className="text-2xl drop-shadow-md mb-1 relative z-10">
               {loading && loadingType === 'daily' ? (
                 <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
@@ -1776,26 +1833,31 @@ ${HANJA_MAP}
                 '🌞'
               )}
             </span>
-            <span className="text-sm font-bold leading-tight">
+            <span className="text-sm font-bold leading-tight relative z-10">
               {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
             </span>
 
             {/* 💥 [수정 1] 설명 문구 추가 */}
-            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep">
+            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep relative z-10">
               {language === 'ko' ? '하루의 흐름 확인' : 'Daily Guide'}
             </span>
 
             {/* 하단 뱃지 영역 */}
             {isDailyDone && !loading && (
-              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm">
+              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm relative z-10">
                 <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
                 <TicketIcon className="w-3 h-3 text-white" />
               </div>
             )}
-            {!isDailyDone && (
-              <div className="mt-1">
+            {!isDailyDone && !user && (
+              <div className="mt-1 relative z-10">
+                <LockClosedIcon className="w-4 h-4 text-amber-500" />
+              </div>
+            )}
+            {!isDailyDone && !!user && (
+              <div className="mt-1 relative">
                 <EnergyBadge
                   active={isSaved && user}
                   consuming={dailyEnergy.isConsuming}
