@@ -161,7 +161,7 @@ export default function App() {
               setCachedData({
                 saju: data.lastSaju,
                 result: data.lastAiResult,
-                prompt: data.lastPrompt || DEFAULT_INSTRUCTION,
+                prompt: data.lastPrompt,
                 language: data.lastLanguage || 'en',
                 gender: data.lastGender || data.gender,
               });
@@ -625,12 +625,8 @@ export default function App() {
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
     let isMatch = false;
     if (cachedData && cachedData.saju) {
-      const savedPrompt = cachedData.prompt || DEFAULT_INSTRUCTION;
-      if (
-        savedPrompt === userPrompt &&
-        cachedData.language === language &&
-        cachedData.gender === gender
-      ) {
+      const savedPrompt = cachedData.prompt;
+      if (cachedData.language === language && cachedData.gender === gender) {
         const isSajuMatch = keys.every((key) => cachedData.saju[key] === saju[key]);
         if (isSajuMatch) isMatch = true;
       }
@@ -665,8 +661,7 @@ export default function App() {
       const currentSajuKey = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const strictPrompt = STRICT_INSTRUCTION[language];
-
-      const fullPrompt = `${strictPrompt}\n${userPrompt}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
+      const fullPrompt = `${strictPrompt}\n${DEFAULT_INSTRUCTION[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -814,16 +809,26 @@ export default function App() {
     return sajuKeys.every((key) => targetSaju[key] === saju[key]);
   };
 
+  // 현재 분석하려는 사주 데이터에 포함된 성별 변수라고 가정합니다.
+  // 예시: const gender = 'M'; // 또는 'F'
+
   // 1. 메인 분석 완료 여부 (로컬 캐시 OR DB의 lastSaju 확인)
   const isMainDone =
-    (cachedData && checkSajuMatch(cachedData.saju) && cachedData.language === language) ||
-    (dbUser && checkSajuMatch(dbUser.lastSaju) && dbUser.lastLanguage === language);
+    (cachedData &&
+      checkSajuMatch(cachedData.saju) &&
+      cachedData.language === language &&
+      cachedData.gender === gender) || // 👈 cachedData에 gender 추가
+    (dbUser &&
+      checkSajuMatch(dbUser.lastSaju) &&
+      dbUser.lastLanguage === language &&
+      dbUser.lastGender === gender); // 👈 dbUser에 lastGender 추가
 
   // 2. 신년운세 완료 여부 (DB 확인)
   const isYearDone =
     dbUser?.lastNewYear &&
     String(dbUser.lastNewYear.year) === String(nextYear) &&
     dbUser.lastNewYear.language === language &&
+    dbUser.lastNewYear.gender === gender && // 👈 lastNewYear에 gender 추가
     checkSajuMatch(dbUser.lastNewYear.saju);
 
   // 3. 오늘의 운세 완료 여부 (DB 확인)
@@ -831,6 +836,7 @@ export default function App() {
     dbUser?.lastDaily &&
     dbUser.lastDaily.date === todayStr &&
     dbUser.lastDaily.language === language &&
+    dbUser.lastDaily.gender === gender && // 👈 lastDaily에 gender 추가
     checkSajuMatch(dbUser.lastDaily.saju);
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);

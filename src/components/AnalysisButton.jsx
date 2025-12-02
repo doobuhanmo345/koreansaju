@@ -38,7 +38,7 @@ export default function AnalysisButton({
   const ACTIVE_INTERACTION =
     'text-white hover:scale-[1.02] active:scale-[0.98] dark:shadow-none border-b-4 active:border-b-0 active:translate-y-1';
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
-  const isDisabled = (loading && !energy.isConsuming) || !user || !isSaved;
+  const isDisabled = (loading && !energy.isConsuming) || !user || !isSaved || loading;
 
   return (
     <button

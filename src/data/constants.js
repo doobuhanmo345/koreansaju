@@ -96,7 +96,7 @@ export const DEFAULT_INSTRUCTION = {
 
 5. 최종 결론
 (전체를 아우르며, 웅장하고 신비롭고 긍정적인 희망을 주는 단 한 문장의 결론)`,
-  eng: `
+  en: `
 [Report Title]: (A mysterious and poetic title reflecting the client's Saju characteristics)
 
 1. Client Information
