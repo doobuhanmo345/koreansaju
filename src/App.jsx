@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { onSnapshot } from 'firebase/firestore'; // 상단 import 확인
-
+import EnergyBadge from './components/EnergyBadge';
 import { toPng } from 'html-to-image';
 import {
   GlobeAltIcon,
@@ -567,18 +567,26 @@ export default function App() {
     }
   };
 
-  const isCached = (() => {
-    if (!cachedData || !cachedData.saju) return false;
-    const savedPrompt = cachedData.prompt || DEFAULT_INSTRUCTION;
-    if (savedPrompt !== userPrompt) return false;
-    if (cachedData.language !== language) return false;
-    if (cachedData.gender !== gender) return false;
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-    for (const key of keys) {
-      if (cachedData.saju[key] !== saju[key]) return false;
-    }
-    return true;
-  })();
+  // 컴포넌트 상단이나 별도 파일에 정의
+  const useConsumeEnergy = () => {
+    const [isConsuming, setIsConsuming] = useState(false);
+
+    const triggerConsume = async (actionFn) => {
+      // 1. 애니메이션 시작 (반짝!)
+      setIsConsuming(true);
+
+      // 2. 애니메이션 시간만큼 대기 (0.3초)
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // 3. 실제 기능 실행 (API 호출 등)
+      await actionFn();
+
+      // 4. 상태 초기화
+      setIsConsuming(false);
+    };
+
+    return { isConsuming, triggerConsume };
+  };
 
   const handleShareResult = async () => {
     // 1. 공유할 전체 텍스트를 미리 만듭니다. (결과 + 링크)
@@ -1233,7 +1241,10 @@ ${HANJA_MAP}
   const iconsViewStyle = 'bg-white bg-opacity-10 border-4';
   const pillarStyle = 'flex flex-col gap-[2px] rounded-lg p-1';
   const t = (char) => (language === 'en' ? getEng(char) : char);
-
+  const mainEnergy = useConsumeEnergy();
+  const yearEnergy = useConsumeEnergy();
+  const dailyEnergy = useConsumeEnergy();
+  const chatEnergy = useConsumeEnergy();
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* ▼▼▼▼▼▼ 헤더 영역 수정 시작 ▼▼▼▼▼▼ */}
@@ -1391,10 +1402,10 @@ ${HANJA_MAP}
         )}
       </div>
       {/* ▲▲▲▲▲▲ 헤더 영역 수정 끝 ▲▲▲▲▲▲ */}
-      <div className="w-full max-w-lg  p-5 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
-        <div className="flex flex-col gap-2">
+      <div className="w-full max-w-lg  p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
+        <div className="flex flex-col ">
           <div
-            className={`transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
+            className={`mb-4 transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
           >
             <div className={`${!user ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
               <div className="mb-4">
@@ -1458,8 +1469,9 @@ ${HANJA_MAP}
               </button>
             </div>
           </div>
+
           {user && (
-            <div className="relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
+            <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
               {/* 1. 상단 라벨 (여기가 내 정보임을 알리는 핵심) */}
 
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
@@ -1793,19 +1805,21 @@ ${HANJA_MAP}
       {/* 4. AI 버튼 영역 (3분할) 및 로딩 상태창 */}
       <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {/* A. 버튼 그룹 */}
-        <div className="flex justify-between gap-3 h-28">
+        {/* A. 버튼 그룹 (높이 살짝 증가: h-28 -> h-32 설명 문구 공간 확보) */}
+        <div className="flex justify-between gap-3 h-32">
           {/* 1. 메인 분석 버튼 */}
           <button
-            onClick={handleAiAnalysis}
-            disabled={loading || !user || !isSaved}
-            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
+            onClick={() => mainEnergy.triggerConsume(handleAiAnalysis)}
+            disabled={(loading && !mainEnergy.isConsuming) || !user || !isSaved}
+            className={`flex-1 rounded-2xl font-bold transition-all relative group flex flex-col items-center justify-center gap-1
             ${
-              loading || !user || !isSaved
+              (loading && !mainEnergy.isConsuming) || !user || !isSaved
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                : 'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 text-white hover:scale-[1.02] shadow-indigo-200/50 dark:shadow-none'
+                : // 💥 [수정 4] 버튼 입체감 강화 (shadow-lg -> shadow-xl + ring 효과)
+                  'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] dark:shadow-none border-b-4 border-indigo-700/30 active:border-b-0 active:translate-y-1'
             }`}
           >
-            <span className="text-2xl drop-shadow-md">
+            <span className="text-2xl drop-shadow-md mb-1">
               {loading && loadingType === 'main' ? (
                 <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
@@ -1826,7 +1840,9 @@ ${HANJA_MAP}
                 '🔮'
               )}
             </span>
-            <span className="text-sm sm:text-sm font-medium">
+
+            {/* 메인 텍스트 */}
+            <span className="text-sm font-bold leading-tight">
               {!user
                 ? UI_TEXT.loginReq[language]
                 : !isSaved
@@ -1836,39 +1852,56 @@ ${HANJA_MAP}
                     : 'Life Path Decoding'}
             </span>
 
-            {/* 하단 뱃지 */}
+            {/* 💥 [수정 1] 설명 문구 추가 */}
+            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep">
+              {language === 'ko' ? '타고난 운명 파악' : 'Discover Your Fate'}
+            </span>
+
+            {/* 하단 뱃지 영역 */}
             {isMainDone && !loading && (
-              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/30 shadow-sm mt-1">
-                <span className="text-[10px] font-bold text-white tracking-wide uppercase pt-[1px]">
+              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm">
+                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
                 <TicketIcon className="w-3 h-3 text-white" />
               </div>
             )}
-            {!isMainDone && !loading && (
-              <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm mt-1">
-                <span className="text-[11px] font-extrabold text-white leading-none mb-0.5">
-                  -1
-                </span>
-                <BoltIcon className="w-3 h-3 text-white fill-white/80" />
+            {!isMainDone && (
+              <div className="mt-1">
+                <EnergyBadge
+                  active={isSaved && user}
+                  consuming={mainEnergy.isConsuming}
+                  loading={loading && !mainEnergy.isConsuming}
+                />
               </div>
             )}
           </button>
 
           {/* 2. 신년 운세 버튼 */}
           <button
-            onClick={handleNewYearFortune}
-            disabled={loading || !user || !isSaved}
-            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
+            onClick={() => yearEnergy.triggerConsume(handleNewYearFortune)}
+            disabled={(loading && !yearEnergy.isConsuming) || !user || !isSaved}
+            className={`flex-1 rounded-2xl font-bold transition-all relative group flex flex-col items-center justify-center gap-1 overflow-hidden
             ${
-              loading || !user || !isSaved
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300 dark:to-blue-600 to-blue-300 text-white hover:scale-[1.02] shadow-blue-200/50 dark:shadow-none'
+              (loading && !yearEnergy.isConsuming) || !user || !isSaved
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                : // 💥 [수정 4] 버튼 입체감 강화
+                  'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] dark:shadow-none border-b-4 border-blue-700/30 active:border-b-0 active:translate-y-1'
             }`}
           >
-            <div className="relative z-10 flex flex-col items-center gap-1 text-sm md:text-base">
-              {!loading && <span className="text-2xl drop-shadow-md">🐎</span>}
-              {loading && loadingType === 'year' && (
+            {/* 💥 [수정 2] 기간 한정 리본 (Limited Time Badge) */}
+            {!loading && user && isSaved && (
+              <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden rounded-tr-2xl">
+                <div className="absolute top-0 right-0 h-full w-full flex items-center justify-center bg-transparent">
+                  <div className="absolute top-[10px] right-[-28px] w-[100px] h-[18px] bg-gradient-to-r from-rose-500 to-red-600 text-white text-[8px] font-black uppercase tracking-widest flex items-center justify-center transform rotate-45 shadow-md z-20 border-y border-white/20">
+                    Limited
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <span className="text-2xl drop-shadow-md mb-1 relative z-10">
+              {loading && loadingType === 'year' ? (
                 <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
@@ -1884,42 +1917,52 @@ ${HANJA_MAP}
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
+              ) : (
+                '🐍'
               )}
-              {language === 'ko' ? '2026 신년 운세' : '2026 Path Decoding'}
-            </div>
+            </span>
+            <span className="text-sm font-bold leading-tight relative z-10">
+              {language === 'ko' ? '2026 신년 운세' : '2026 Path Guide'}
+            </span>
 
-            {/* 하단 뱃지 */}
+            {/* 💥 [수정 1] 설명 문구 추가 */}
+            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep relative z-10">
+              {language === 'ko' ? '미리보는 1년 계획' : 'Yearly Forecast'}
+            </span>
+
+            {/* 하단 뱃지 영역 */}
             {isYearDone && !loading && (
-              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/30 shadow-sm mt-1">
-                <span className="text-[10px] font-bold text-white tracking-wide uppercase pt-[1px]">
+              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm relative z-10">
+                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
                 <TicketIcon className="w-3 h-3 text-white" />
               </div>
             )}
-            {!isYearDone && !loading && (
-              <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm mt-1">
-                <span className="text-[11px] font-extrabold text-white leading-none mb-0.5">
-                  -1
-                </span>
-                <BoltIcon className="w-3 h-3 text-white fill-white/80" />
+            {!isYearDone && (
+              <div className="mt-1 relative z-10">
+                <EnergyBadge
+                  active={isSaved && user}
+                  consuming={yearEnergy.isConsuming}
+                  loading={loading && !yearEnergy.isConsuming}
+                />
               </div>
             )}
           </button>
 
           {/* 3. 오늘의 운세 버튼 */}
           <button
-            onClick={handleDailyFortune}
-            disabled={loading || !user || !isSaved}
-            className={`flex-1 rounded-xl font-bold shadow-lg transition-all relative group flex flex-col items-center justify-center gap-1.5
+            onClick={() => dailyEnergy.triggerConsume(handleDailyFortune)}
+            disabled={(loading && !dailyEnergy.isConsuming) || !user || !isSaved}
+            className={`flex-1 rounded-2xl font-bold transition-all relative group flex flex-col items-center justify-center gap-1
             ${
-              loading || !user || !isSaved
+              (loading && !dailyEnergy.isConsuming) || !user || !isSaved
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                : // 💥 수정: 너무 쨍한 Cyan 제거 -> 차분한 Sky Blue 계열 적용
-                  'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 text-white hover:scale-[1.02] shadow-sky-200/50 dark:shadow-none'
+                : // 💥 [수정 4] 버튼 입체감 강화
+                  'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 text-white hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_20px_-6px_rgba(14,165,233,0.5)] dark:shadow-none border-b-4 border-sky-700/30 active:border-b-0 active:translate-y-1'
             }`}
           >
-            <span className="text-2xl drop-shadow-md">
+            <span className="text-2xl drop-shadow-md mb-1">
               {loading && loadingType === 'daily' ? (
                 <svg className="animate-spin h-7 w-7 text-white/50" viewBox="0 0 24 24">
                   <circle
@@ -1940,25 +1983,31 @@ ${HANJA_MAP}
                 '🌞'
               )}
             </span>
-            <span className="text-sm sm:text-sm font-medium">
+            <span className="text-sm font-bold leading-tight">
               {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
             </span>
 
-            {/* 하단 뱃지 */}
+            {/* 💥 [수정 1] 설명 문구 추가 */}
+            <span className="text-[10px] opacity-80 font-normal leading-tight px-1 break-keep">
+              {language === 'ko' ? '하루의 흐름 확인' : 'Daily Guide'}
+            </span>
+
+            {/* 하단 뱃지 영역 */}
             {isDailyDone && !loading && (
-              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/30 shadow-sm mt-1">
-                <span className="text-[10px] font-bold text-white tracking-wide uppercase pt-[1px]">
+              <div className="mt-1 flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/30 shadow-sm">
+                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                   Free
                 </span>
                 <TicketIcon className="w-3 h-3 text-white" />
               </div>
             )}
-            {!isDailyDone && !loading && (
-              <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm mt-1">
-                <span className="text-[11px] font-extrabold text-white leading-none mb-0.5">
-                  -1
-                </span>
-                <BoltIcon className="w-3 h-3 text-white fill-white/80" />
+            {!isDailyDone && (
+              <div className="mt-1">
+                <EnergyBadge
+                  active={isSaved && user}
+                  consuming={dailyEnergy.isConsuming}
+                  loading={loading && !dailyEnergy.isConsuming}
+                />
               </div>
             )}
           </button>
@@ -2015,7 +2064,7 @@ ${HANJA_MAP}
                     <ChevronLeftIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                   </button>
                 )}
-                <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-2 text-center">
                   {viewMode === 'chat'
                     ? language === 'ko'
                       ? '사자와 대화'
@@ -2023,7 +2072,7 @@ ${HANJA_MAP}
                     : UI_TEXT.modalTitle[language]}
                 </h3>
                 <span
-                  className={`text-[13px] font-bold ${isLocked ? 'text-red-500' : 'text-gray-400'}`}
+                  className={`px-2 text-[13px] font-bold ${isLocked ? 'text-red-500' : 'text-gray-400'}`}
                 >
                   {isLocked ? (
                     language === 'ko' ? (
@@ -2054,7 +2103,7 @@ ${HANJA_MAP}
                 {viewMode === 'result' && (
                   <button
                     onClick={handleCopyResult}
-                    className="px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs"
+                    className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs"
                   >
                     {isCopied ? UI_TEXT.copiedBtn[language] : UI_TEXT.copyBtn[language]}
                   </button>
@@ -2406,10 +2455,16 @@ ${HANJA_MAP}
                       {qLoading && (
                         <div className="flex items-start gap-3 animate-pulse">
                           {/* 사자 프로필 스켈레톤 */}
-                          <div className="flex-shrink-0 mt-1 w-9 h-9 rounded-full bg-gray-200 dark:bg-slate-700"></div>
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br dark:from-indigo-500 dark:to-purple-600 flex items-center justify-center dark:shadow-sm border dark:border-indigo-400/30 shadow-md">
+                            <img
+                              src={sajaProfile}
+                              alt="Sajucha Logo"
+                              className="w-10 h-10 rounded-full shadow-sm object-cover"
+                            />
+                          </div>
                           <div className="flex flex-col items-start max-w-[85%]">
                             <span className="text-[11px] font-bold text-gray-400 mb-1 ml-1">
-                              {language === 'ko' ? '사자' : 'Master Saza'}...
+                              {language === 'ko' ? '사자' : 'Master Saza'}
                             </span>
                             {/* 로딩 점 3개 말풍선 */}
                             <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 px-5 py-4 rounded-2xl rounded-tl-none shadow-md flex gap-1.5">
