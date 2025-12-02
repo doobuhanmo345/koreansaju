@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { onSnapshot } from 'firebase/firestore'; // 상단 import 확인
 import EnergyBadge from './components/EnergyBadge';
-import { toPng } from 'html-to-image';
+import { useShareActions } from './hooks/useShareAction';
+import { useTimer } from './hooks/useTimer';
+import { calculateSaju, getPillars } from './utils/sajuCalculator';
+import { useSajuCalculator } from './hooks/useSajuCalculator';
+import { jiStyle, pillarLabelStyle, iconsViewStyle, pillarStyle } from './data/style';
 import {
   GlobeAltIcon,
-  PlusCircleIcon,
-  AdjustmentsHorizontalIcon,
   ChevronLeftIcon,
-  LockClosedIcon,
   TicketIcon,
   ShareIcon,
   SparklesIcon,
@@ -17,10 +18,8 @@ import {
   PencilSquareIcon, // 수정용
   XMarkIcon, // 취소용
   BoltIcon,
-  MinusIcon, // 행동력(Credit)용
 } from '@heroicons/react/24/outline';
-import { Solar } from 'lunar-javascript';
-import { doc, getDoc, setDoc, arrayUnion, increment } from 'firebase/firestore'; // increment 추가 확인
+import { doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
 
 // Local Imports
 import { login, logout, onUserStateChange, db } from './lib/firebase';
@@ -99,68 +98,16 @@ export default function App() {
     }
   });
 
-  const [saju, setSaju] = useState({
-    sky0: '',
-    grd0: '',
-    sky1: '',
-    grd1: '',
-    sky2: '',
-    grd2: '',
-    sky3: '',
-    grd3: '',
-  });
-
   const [containerWidth, setContainerWidth] = useState(470);
   const [aiResult, setAiResult] = useState('');
-  const [isCopied, setIsCopied] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isCopied, handleCopyResult, handleShare } = useShareActions(aiResult);
   const [isSuccess, setIsSuccess] = useState(false);
   const [userPrompt, setUserPrompt] = useState(DEFAULT_INSTRUCTION);
-  const [showPromptInput, setShowPromptInput] = useState(false);
   const [customQuestion, setCustomQuestion] = useState('');
-  const [showIcons, setShowIcons] = useState(true);
-  const [charShow, setCharShow] = useState(true);
-  const [bgShow, setBgShow] = useState(true);
 
   const [dbUser, setDbUser] = useState(null);
   // [상단] useState, useEffect 추가 필요
-  const [timeLeft, setTimeLeft] = useState('');
-
-  useEffect(() => {
-    // 크레딧이 꽉 찼으면 타이머 돌릴 필요 없음
-    if (editCount <= 0) {
-      setTimeLeft('');
-      return;
-    }
-
-    const calculateTimeLeft = () => {
-      const now = new Date();
-      // 다음날 자정(00:00:00) 계산
-      const midnight = new Date(now);
-      midnight.setHours(24, 0, 0, 0);
-
-      const diff = midnight - now;
-
-      if (diff <= 0) return '00:00:00';
-
-      const h = Math.floor(diff / (1000 * 60 * 60));
-      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-      // 두 자리수 포맷팅 (05:03:01)
-      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    };
-
-    // 1초마다 갱신
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
-    // 초기값 설정
-    setTimeLeft(calculateTimeLeft());
-
-    return () => clearInterval(timer);
-  }, [editCount]); // editCount가 변할 때마다(사용할 때마다) 체크
+  const timeLeft = useTimer(editCount);
 
   useEffect(() => {
     if (user) {
@@ -228,54 +175,9 @@ export default function App() {
   }, []);
 
   // 만세력 계산
-  useEffect(() => {
-    if (!inputDate) return;
-    const dateObj = new Date(inputDate);
-    if (isNaN(dateObj.getTime())) return;
-
-    const year = dateObj.getFullYear();
-    const month = dateObj.getMonth() + 1;
-    const day = dateObj.getDate();
-    const hour = dateObj.getHours();
-    const minute = dateObj.getMinutes();
-
-    if (isNaN(year) || year < 1000 || year > 3000) return;
-
-    try {
-      const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
-      const lunar = solar.getLunar();
-      const baZi = lunar.getBaZi();
-
-      const parsePillar = (ganjiHanja) => {
-        const skyHanja = ganjiHanja[0];
-        const grdHanja = ganjiHanja[1];
-        return {
-          sky: HANJA_MAP[skyHanja] || skyHanja,
-          grd: HANJA_MAP[grdHanja] || grdHanja,
-        };
-      };
-
-      const yearP = parsePillar(baZi[0]);
-      const monthP = parsePillar(baZi[1]);
-      const dayP = parsePillar(baZi[2]);
-      const hourP = parsePillar(baZi[3]);
-
-      setSaju({
-        sky3: yearP.sky,
-        grd3: yearP.grd,
-        sky2: monthP.sky,
-        grd2: monthP.grd,
-        sky1: dayP.sky,
-        grd1: dayP.grd,
-        sky0: isTimeUnknown ? '' : hourP.sky,
-        grd0: isTimeUnknown ? '' : hourP.grd,
-      });
-    } catch (error) {
-      console.warn('만세력 계산 보류:', error);
-    }
-  }, [inputDate, isTimeUnknown]);
-
+  const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
   // 로딩 애니메이션
+
   useEffect(() => {
     let interval;
     if (loading) {
@@ -301,7 +203,7 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [loading, isCachedLoading]);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     if (isModalOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = 'unset';
@@ -492,14 +394,7 @@ export default function App() {
   }
 
   // --- Handlers ---
-  const handleChange = (e) => {
-    if (isInputDisabled && isSaved) return;
-    const { name, value } = e.target;
-    setSaju((prev) => ({ ...prev, [name]: value }));
-  };
-  const focusInput = (e) => {
-    if (!isSaved) e.target.value = '';
-  };
+
   const handleEditMode = () => {
     if (isLocked) {
       alert(UI_TEXT.limitReached[language]);
@@ -627,190 +522,6 @@ export default function App() {
       return `Hello, I am your Saju Master.\n\nI analyze your fortune based on your birth data [${formattedDate}]\nand Four Pillars [${sajuTextEng}].\n\nEach time you ask a question, one token from your daily limit will be deducted.\nPlease use your remaining tokens wisely.\n\nWhen you’re ready, ask your first question.`;
     }
   };
-  // 💥 [수정] Solar 라이브러리를 사용하여 현재 날짜 및 사주 계산
-  // 날짜 객체를 받아서 해당 날짜의 사주(Pillars)를 반환하는 공통 함수
-  const getPillars = (targetDate) => {
-    try {
-      // Solar.fromYmdHms(year, month, day, hour, minute, second)
-      const solar = Solar.fromYmdHms(
-        targetDate.getFullYear(),
-        targetDate.getMonth() + 1,
-        targetDate.getDate(),
-        targetDate.getHours(),
-        targetDate.getMinutes(),
-        targetDate.getSeconds(),
-      );
-
-      const lunar = solar.getLunar();
-      const baZi = lunar.getBaZi(); // [년주, 월주, 일주, 시주]
-
-      const parsePillar = (ganjiHanja) => {
-        const skyHanja = ganjiHanja[0];
-        const grdHanja = ganjiHanja[1];
-        return { sky: HANJA_MAP[skyHanja] || skyHanja, grd: HANJA_MAP[grdHanja] || grdHanja };
-      };
-
-      const yearP = parsePillar(baZi[0]);
-      const monthP = parsePillar(baZi[1]);
-      const dayP = parsePillar(baZi[2]);
-      const hourP = parsePillar(baZi[3]);
-
-      return {
-        sky3: yearP.sky,
-        grd3: yearP.grd,
-        sky2: monthP.sky,
-        grd2: monthP.grd,
-        sky1: dayP.sky,
-        grd1: dayP.grd,
-        sky0: hourP.sky,
-        grd0: hourP.grd,
-        date: targetDate.toLocaleDateString('en-CA'), // YYYY-MM-DD 형식
-      };
-    } catch (error) {
-      console.error('사주 계산 실패:', error);
-      return null;
-    }
-  };
-
-  // --- Main AI Analysis ---
-  const handleAiAnalysis = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-
-    // 로딩 타입 설정 (메인 분석)
-    setLoadingType('main');
-    setResultType('main');
-
-    // 1. 캐시(이전 결과) 확인 로직
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-    let isMatch = false;
-    if (cachedData && cachedData.saju) {
-      const savedPrompt = cachedData.prompt || DEFAULT_INSTRUCTION;
-      if (
-        savedPrompt === userPrompt &&
-        cachedData.language === language &&
-        cachedData.gender === gender
-      ) {
-        const isSajuMatch = keys.every((key) => cachedData.saju[key] === saju[key]);
-        if (isSajuMatch) isMatch = true;
-      }
-    }
-
-    // 2. 캐시가 있으면 횟수 차감 없이 결과만 보여줌 (Free)
-    if (isMatch) {
-      setAiResult(cachedData.result);
-      setIsSuccess(true);
-      setIsModalOpen(true);
-      setViewMode('result');
-      setLoadingType(null); // 로딩 해제
-      return;
-    }
-
-    // 💥 [추가] 캐시가 없으면 횟수(행동력) 체크
-    if (editCount >= MAX_EDIT_COUNT) {
-      alert(UI_TEXT.limitReached[language]); // "횟수 제한에 도달했습니다" 등의 메시지
-      setLoading(false);
-      setLoadingType(null);
-      return;
-    }
-
-    // 3. AI 분석 시작
-    setLoading(true);
-    setAiResult('');
-    setIsSuccess(false);
-    setIsCachedLoading(false);
-    setViewMode('result');
-
-    try {
-      const currentSajuKey = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      const langPrompt = language === 'ko' ? '답변은 한국어로.  ' : 'Answer in English.';
-
-      const hantoeng = `[Terminology Reference]
-When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
-DO NOT use Simplified Chinese characters.
-Refer to the following mapping for exact terms:
-${HANJA_ENG_MAP}
-`;
-      const hantokor = `[Terminology Reference]
-사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
-아래의 매핑을 참조:
-${HANJA_MAP}
-`;
-      const hanja = language === 'ko' ? hantokor : hantoeng;
-      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
-
-      // API 호출
-      const result = await fetchGeminiAnalysis(fullPrompt);
-
-      // 💥 [추가] 행동력(Count) 증가
-      const newCount = editCount + 1;
-
-      // DB 업데이트 (결과 저장 + 카운트 증가)
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          lastAiResult: result,
-          lastSaju: saju,
-          lastPrompt: userPrompt,
-          lastLanguage: language,
-          lastGender: gender,
-          editCount: newCount, // 여기서 카운트 업데이트
-        },
-        { merge: true },
-      );
-
-      // 로컬 상태 업데이트
-      setEditCount(newCount);
-
-      setCachedData({
-        saju: saju,
-        result: result,
-        prompt: userPrompt,
-        language: language,
-        gender: gender,
-      });
-      setAiResult(result);
-      setIsSuccess(true);
-      setIsModalOpen(true);
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-
-  const createSajuKey = (saju) => {
-    if (!saju || !saju.grd1) return null;
-    return [
-      saju.sky0,
-      saju.grd0,
-      saju.sky1,
-      saju.grd1,
-      saju.sky2,
-      saju.grd2,
-      saju.sky3,
-      saju.grd3,
-    ].join('-');
-  };
-
-  const saveAndCapChatRecord = async (userId, sajuKey, question, answer) => {
-    const userDocRef = doc(db, 'users', userId);
-    const userSnap = await getDoc(userDocRef);
-    let data = userSnap.exists() ? userSnap.data() : {};
-    let sajuRecords = data.chat_records || {};
-    let currentSajuHistory = sajuRecords[sajuKey] || [];
-    const newRecord = { question, answer, timestamp: new Date().toISOString(), id: Date.now() };
-    currentSajuHistory.push(newRecord);
-    currentSajuHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    if (currentSajuHistory.length > 5) {
-      currentSajuHistory = currentSajuHistory.slice(currentSajuHistory.length - 5);
-    }
-    sajuRecords[sajuKey] = currentSajuHistory;
-    await setDoc(userDocRef, { chat_records: sajuRecords, updatedAt: new Date() }, { merge: true });
-  };
-
   // [수정] setViewMode 함수 (항상 초기 인사말이 맨 위에 뜨도록 변경)
   const handleSetViewMode = async (mode) => {
     setViewMode(mode);
@@ -858,7 +569,35 @@ ${HANJA_MAP}
       setQLoading(false); // 로딩 종료
     }
   };
-  console.log(user);
+  const createSajuKey = (saju) => {
+    if (!saju || !saju.grd1) return null;
+    return [
+      saju.sky0,
+      saju.grd0,
+      saju.sky1,
+      saju.grd1,
+      saju.sky2,
+      saju.grd2,
+      saju.sky3,
+      saju.grd3,
+    ].join('-');
+  };
+
+  const saveAndCapChatRecord = async (userId, sajuKey, question, answer) => {
+    const userDocRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userDocRef);
+    let data = userSnap.exists() ? userSnap.data() : {};
+    let sajuRecords = data.chat_records || {};
+    let currentSajuHistory = sajuRecords[sajuKey] || [];
+    const newRecord = { question, answer, timestamp: new Date().toISOString(), id: Date.now() };
+    currentSajuHistory.push(newRecord);
+    currentSajuHistory.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    if (currentSajuHistory.length > 5) {
+      currentSajuHistory = currentSajuHistory.slice(currentSajuHistory.length - 5);
+    }
+    sajuRecords[sajuKey] = currentSajuHistory;
+    await setDoc(userDocRef, { chat_records: sajuRecords, updatedAt: new Date() }, { merge: true });
+  };
 
   // ----------------------------------------------------------------
   // 🔮 [오늘의 운세] (3중 체크: 날짜/언어/사주)
@@ -992,7 +731,114 @@ ${HANJA_MAP}
       setLoadingType(null);
     }
   };
+  // --- Main AI Analysis ---
+  const handleAiAnalysis = async () => {
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
 
+    // 로딩 타입 설정 (메인 분석)
+    setLoadingType('main');
+    setResultType('main');
+
+    // 1. 캐시(이전 결과) 확인 로직
+    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+    let isMatch = false;
+    if (cachedData && cachedData.saju) {
+      const savedPrompt = cachedData.prompt || DEFAULT_INSTRUCTION;
+      if (
+        savedPrompt === userPrompt &&
+        cachedData.language === language &&
+        cachedData.gender === gender
+      ) {
+        const isSajuMatch = keys.every((key) => cachedData.saju[key] === saju[key]);
+        if (isSajuMatch) isMatch = true;
+      }
+    }
+
+    // 2. 캐시가 있으면 횟수 차감 없이 결과만 보여줌 (Free)
+    if (isMatch) {
+      setAiResult(cachedData.result);
+      setIsSuccess(true);
+      setIsModalOpen(true);
+      setViewMode('result');
+      setLoadingType(null); // 로딩 해제
+      return;
+    }
+
+    // 💥 [추가] 캐시가 없으면 횟수(행동력) 체크
+    if (editCount >= MAX_EDIT_COUNT) {
+      alert(UI_TEXT.limitReached[language]); // "횟수 제한에 도달했습니다" 등의 메시지
+      setLoading(false);
+      setLoadingType(null);
+      return;
+    }
+
+    // 3. AI 분석 시작
+    setLoading(true);
+    setAiResult('');
+    setIsSuccess(false);
+    setIsCachedLoading(false);
+    setViewMode('result');
+
+    try {
+      const currentSajuKey = JSON.stringify(saju);
+      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
+      const langPrompt = language === 'ko' ? '답변은 한국어로.  ' : 'Answer in English.';
+
+      const hantoeng = `[Terminology Reference]
+When translating or referring to Saju terms (Heavenly Stems & Earthly Branches), strictly use **Korean Hanja** (Traditional Chinese characters as used in Korea). 
+DO NOT use Simplified Chinese characters.
+Refer to the following mapping for exact terms:
+${HANJA_ENG_MAP}
+`;
+      const hantokor = `[Terminology Reference]
+사주 용어를 해석할 때(천간과 지지), strictly use **한국한자** (Traditional Chinese characters as used in Korea). 
+아래의 매핑을 참조:
+${HANJA_MAP}
+`;
+      const hanja = language === 'ko' ? hantokor : hantoeng;
+      const fullPrompt = `${userPrompt}\n${sajuInfo}\n${hanja}\n${langPrompt}`;
+
+      // API 호출
+      const result = await fetchGeminiAnalysis(fullPrompt);
+
+      // 💥 [추가] 행동력(Count) 증가
+      const newCount = editCount + 1;
+
+      // DB 업데이트 (결과 저장 + 카운트 증가)
+      await setDoc(
+        doc(db, 'users', user.uid),
+        {
+          lastAiResult: result,
+          lastSaju: saju,
+          lastPrompt: userPrompt,
+          lastLanguage: language,
+          lastGender: gender,
+          editCount: newCount, // 여기서 카운트 업데이트
+        },
+        { merge: true },
+      );
+
+      // 로컬 상태 업데이트
+      setEditCount(newCount);
+
+      setCachedData({
+        saju: saju,
+        result: result,
+        prompt: userPrompt,
+        language: language,
+        gender: gender,
+      });
+      setAiResult(result);
+      setIsSuccess(true);
+      setIsModalOpen(true);
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+      setLoadingType(null);
+    }
+  };
   // ----------------------------------------------------------------
   // 🎉 [신년 운세] (캐시 확인 + 로직 개선)
   // ----------------------------------------------------------------
@@ -1188,58 +1034,6 @@ ${HANJA_MAP}
     }
   };
 
-  const handleCopyResult = async () => {
-    if (aiResult) {
-      await navigator.clipboard.writeText(aiResult);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    }
-  };
-  const handleShare = async () => {
-    const shareData = { title: 'Sajucha', text: 'AI 사주 분석', url: window.location.href };
-    if (navigator.share) await navigator.share(shareData);
-    else {
-      await navigator.clipboard.writeText(shareData.url);
-      alert('주소 복사됨!');
-    }
-  };
-
-  const saveAsImageSaju = useCallback(async () => {
-    const el = document.getElementById('saju-capture');
-    if (el) {
-      const dataUrl = await toPng(el, {
-        cacheBust: true,
-        pixelRatio: 2,
-        style: { margin: '0' },
-        backgroundColor: localStorage.theme === 'dark' ? '#1e293b' : '#ffffff',
-      });
-      const link = document.createElement('a');
-      link.download = 'saju.png';
-      link.href = dataUrl;
-      link.click();
-    }
-  }, []);
-  const saveAsImageIlju = useCallback(async () => {
-    const el = document.getElementById('day-pillar-capture');
-    if (el) {
-      const dataUrl = await toPng(el, {
-        cacheBust: true,
-        pixelRatio: 2,
-        style: { margin: '0' },
-        backgroundColor: localStorage.theme === 'dark' ? '#1e293b' : '#ffffff',
-      });
-      const link = document.createElement('a');
-      link.download = 'ilju.png';
-      link.href = dataUrl;
-      link.click();
-    }
-  }, []);
-
-  const jiStyle = ' w-1/2 text-center text-xs';
-  const pillarLabelStyle =
-    'text-sm font-extrabold text-slate-500 uppercase tracking-widest text-center dark:text-slate-400';
-  const iconsViewStyle = 'bg-white bg-opacity-10 border-4';
-  const pillarStyle = 'flex flex-col gap-[2px] rounded-lg p-1';
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const mainEnergy = useConsumeEnergy();
   const yearEnergy = useConsumeEnergy();
@@ -1573,13 +1367,13 @@ ${HANJA_MAP}
               </div>
             </div>
           )}
-          {!!showIcons && user && (
+          {user && (
             <div
               id="saju-capture"
               style={{ width: `${containerWidth}px`, maxWidth: '100%' }}
               className=" relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]"
             >
-              {bgShow && (
+              {true && (
                 <div className="absolute inset-0 z-0 flex flex-col pointer-events-none transition-all duration-500">
                   <div
                     className={`h-1/2 w-full relative bg-gradient-to-b overflow-hidden transition-colors duration-700 ease-in-out ${theme === 'dark' ? 'from-indigo-950/80 via-slate-900/70 to-blue-900/60' : 'from-sky-400/40 via-sky-200/40 to-white/5'}`}
@@ -1592,7 +1386,7 @@ ${HANJA_MAP}
                 </div>
               )}
               <div className="relative z-10 flex justify-center bg-white/10 backdrop-blur-sm">
-                {charShow && (
+                {true && (
                   <div className="flex flex-col items-end  pt-[10px] animate-[fadeIn_0.5s_ease-out]">
                     <div className="h-4" />
                     <div className="h-[90px] flex items-center pr-2 border-r border-sky-700/30">
@@ -1667,7 +1461,7 @@ ${HANJA_MAP}
                 <div
                   className={classNames(
                     pillarStyle,
-                    bgShow
+                    true
                       ? 'bg-white/90 dark:bg-white/40 border-gray-600 border-[0.5px] border-dashed'
                       : 'bg-yellow-100/50 border-yellow-500',
                   )}
@@ -2511,8 +2305,6 @@ ${HANJA_MAP}
                               : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-md active:scale-95'
                           }`}
                         >
-                          {/* ... 버튼 내부 코드 ... */}
-
                           {/* 1. 전송 아이콘 (기존 유지) */}
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -2569,13 +2361,13 @@ ${HANJA_MAP}
           </div>
         </div>
       )}
-      {!!showIcons && (
+      {true && (
         <div className="flex flex-col items-center mt-2 sr-only">
           <div
             id="day-pillar-capture"
             className={classNames(
               pillarStyle,
-              bgShow ? 'bg-white dark:bg-gray-400' : 'bg-yellow-50 dark:bg-gray-400',
+              true ? 'bg-white dark:bg-gray-400' : 'bg-yellow-50 dark:bg-gray-400',
             )}
           >
             <span className={classNames(pillarLabelStyle, 'dark:!text-gray-500')}>Day</span>
