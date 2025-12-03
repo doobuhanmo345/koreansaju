@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { onSnapshot, updateDoc } from 'firebase/firestore'; // 상단 import 확인
-import EnergyBadge from './components/EnergyBadge';
+import EnergyBadge from './ui/EnergyBadge';
 import { useShareActions } from './hooks/useShareAction';
 import { useTimer } from './hooks/useTimer';
 import { getPillars } from './utils/sajuCalculator';
@@ -55,14 +55,12 @@ import {
 } from './data/constants';
 import { iljuNameList } from './data/iljuNameList';
 import { classNames, getIcon, getHanja, getEng, getLoadingText, bgToBorder } from './utils/helpers';
-import logoKorDark from './assets/Logo_Kor_DarkMode.png';
-import logoEngDark from './assets/Logo_Eng_DarkMode.png';
-import logoKor from './assets/Logo_Kor.png';
-import logoEng from './assets/Logo_Eng.png';
 import sajaProfile from './assets/sajaProfile.png';
 import useLocalStorage from './hooks/useLocalStorage';
-import { LockClosedIcon } from '@heroicons/react/24/solid';
-import AnalysisButton from './components/AnalysisButton';
+import useContactModal from './hooks/useContactModal';
+import AnalysisButton from './ui/AnalysisButton';
+import NavBar from './component/Navbar';
+import ContactModal from './component/ContactModal';
 // 💡 추가된 텍스트 상수
 
 export default function App() {
@@ -86,7 +84,8 @@ export default function App() {
   const { isModalOpen, openModal, closeModal } = useModal();
   const isLocked = editCount >= MAX_EDIT_COUNT;
   const isInputDisabled = isLocked || isSaved;
-
+  // 팝업/모달 상태를 관리합니다.
+  const { isContactModalOpen, handleShowContact, handleCloseContact } = useContactModal();
   // 💾 캐싱 데이터
   const [cachedData, setCachedData] = useState(null);
 
@@ -136,29 +135,24 @@ export default function App() {
     localStorage.theme = theme;
   }, [theme]);
 
-  const updateLastLoginDate = async (uid, db) => {
-    const todayStr = new Date().toLocaleDateString('en-CA');
-    const userDocRef = doc(db, 'users', uid);
-
-    try {
-      await updateDoc(userDocRef, {
-        lastLoginDate: todayStr, // 오늘 날짜 문자열로 저장 (예: 2025-12-03)
-      });
-    } catch (error) {
-      console.error('마지막 로그인 날짜 업데이트 실패:', error);
-    }
-  };
   // 로그인 & 데이터 불러오기
   useEffect(() => {
-    onUserStateChange(async (currentUser) => {
+    let unsubscribe; // onUserStateChange의 구독 해제 함수를 저장할 변수
+
+    // onUserStateChange는 Firebase Auth의 onAuthStateChanged 역할을 가정합니다.
+    unsubscribe = onUserStateChange(async (currentUser) => {
       setUser(currentUser);
+
       if (currentUser) {
+        // 1. 로그인 상태: Firestore에서 사용자 데이터 로드
         try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
 
           if (userSnap.exists()) {
-            const data = userSnap.data(); // 기본 정보 로드 (기존 로직 유지)
+            const data = userSnap.data();
+
+            // 1-1. 기본 사용자 정보 로드
             if (data.birthDate) {
               setInputDate(data.birthDate);
               setIsSaved(true);
@@ -166,27 +160,33 @@ export default function App() {
             if (data.gender) setGender(data.gender);
             if (data.isTimeUnknown !== undefined) setIsTimeUnknown(data.isTimeUnknown);
 
-            // ⭐⭐⭐ EditCount 리셋 및 lastLoginDate 처리 핵심 로직 (강화) ⭐⭐⭐
+            // 1-2. ⭐ EditCount 리셋 및 lastLoginDate 처리 핵심 로직 ⭐
+            // ⚠️ new Date().toLocaleDateString('en-CA') 구문 오류 수정 완료
             const todayStr = new Date().toLocaleDateString('en-CA');
-            const lastLoginDate = data.lastLoginDate; // 1. lastLoginDate가 없거나 (기존 사용자), 오늘 날짜와 다를 경우 (다음 날)
+            const lastLoginDate = data.lastLoginDate;
 
+            // lastLoginDate가 없거나 (기존 사용자), 오늘 날짜와 다를 경우 (다음 날)
             if (!lastLoginDate || lastLoginDate !== todayStr) {
               // EditCount를 0으로 리셋 (UI 상태)
               setEditCount(0);
 
-              // 🚨 핵심 수정: DB의 editCount도 0으로 함께 업데이트하여 동기화 (updateDoc 함수는 비동기)
+              // DB 업데이트: lastLoginDate와 editCount를 동시에 갱신/생성
               try {
+                // userDocRef와 db가 상위 스코프에서 유효하다고 가정합니다.
                 await updateDoc(userDocRef, {
-                  lastLoginDate: todayStr,
-                  editCount: 0, // ⭐️ DB의 editCount도 0으로 확실하게 설정
+                  lastLoginDate: todayStr, // 오늘 날짜 기록
+                  editCount: 0, // DB의 카운트도 0으로 리셋
                 });
               } catch (e) {
                 console.error('EditCount/LoginDate DB 업데이트 실패:', e);
               }
             } else {
-              // 2. lastLoginDate가 오늘 날짜와 같을 경우
+              // lastLoginDate가 오늘 날짜와 같을 경우: DB 값 사용
               setEditCount(data.editCount || 0);
-            } // ⭐⭐⭐ 핵심 로직 끝 ⭐⭐⭐
+            }
+            // ⭐ 핵심 로직 끝 ⭐
+
+            // 1-3. 캐시된 AI 결과 로드
             if (data.lastAiResult && data.lastSaju) {
               setCachedData({
                 saju: data.lastSaju,
@@ -197,23 +197,31 @@ export default function App() {
               });
             }
           } else {
-            // DB에 문서가 없는 경우 (신규 사용자)
+            // DB에 문서가 없는 경우: 초기 상태 설정
             setIsSaved(false);
             setEditCount(0);
             setCachedData(null);
-            // 이 시점에 신규 사용자 문서 생성 및 lastLoginDate를 기록해야 합니다.
+            // ⚠️ 신규 사용자 문서 생성 로직이 이 else 블록 내에 필요할 수 있습니다.
           }
         } catch (error) {
           console.error('정보 불러오기 실패:', error);
+          // 에러 발생 시 초기 상태 설정
+          setIsSaved(false);
+          setEditCount(0);
+          setCachedData(null);
         }
       } else {
-        // 로그아웃 상태 처리 (기존 로직 유지)
+        // 2. 로그아웃 상태: 모든 상태 초기화
         setIsSaved(false);
         setEditCount(0);
         setCachedData(null);
+        // 추가적인 상태 초기화 필요 (setInputDate, setGender 등)
       }
     });
-  }, []);
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe && unsubscribe();
+  }, []); // 의존성 배열이 비어 있어 마운트 시 한 번만 실행됨
   // 만세력 계산
   const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
   // 로딩 애니메이션
@@ -223,27 +231,35 @@ export default function App() {
 
     if (loading) {
       setProgress(0);
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 99) return 99;
-          const r = Math.random();
-          let increment = 0;
-          if (isCachedLoading) {
-            increment = 25;
-          } else {
-            if (prev < 20) increment = r < 0.7 ? 1 : 2;
-            else if (prev < 50) increment = r < 0.5 ? 1 : 0;
-            else if (prev < 80) increment = r < 0.2 ? 1 : 0;
-            else increment = r < 0.05 ? 1 : 0;
-          }
-          return prev + increment;
-        });
-      }, 50);
+
+      // ⭐ 23초에 맞추기 위한 간격 계산: 232ms 사용
+      const intervalDuration = 232;
+
+      interval = setInterval(
+        () => {
+          setProgress((prev) => {
+            if (prev >= 99) return 99;
+
+            let increment = 0;
+            if (isCachedLoading) {
+              // 캐시 로딩: 빠르게 25씩 증가
+              increment = 25;
+            } else {
+              // 일반 로딩: 매 232ms마다 1%씩 증가
+              increment = 1;
+            }
+
+            return prev + increment;
+          });
+        },
+        isCachedLoading ? 50 : intervalDuration,
+      ); // 간격 동적 변경
     } else {
       setProgress(100);
     }
     return () => clearInterval(interval);
   }, [loading, isCachedLoading]);
+  // 이 블록만 남아있어야 합니다.
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -519,7 +535,6 @@ export default function App() {
     await setDoc(userDocRef, { chat_records: sajuRecords, updatedAt: new Date() }, { merge: true });
   };
 
-  // 🔮 [오늘의 운세] (3중 체크: 날짜/언어/사주)
   const handleDailyFortune = async () => {
     // 1. 기본 체크
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -529,40 +544,43 @@ export default function App() {
 
     setLoadingType('daily');
     setResultType('daily');
-    setAiResult('');
+    setAiResult(''); // 비교를 위한 기준 데이터 준비
 
-    // 비교를 위한 기준 데이터 준비
     const todayDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userDocRef);
-      const userData = userSnap.exists() ? userSnap.data() : {};
+      const userData = userSnap.exists() ? userSnap.data() : {}; // 현재 DB에 저장된 행동력(크레딧) 가져오기
 
-      // 현재 DB에 저장된 행동력(크레딧) 가져오기
-      const currentCount = userData.editCount || 0;
+      const currentCount = userData.editCount || 0; // 💥 [Step 1] 저장된 최신 결과(lastDaily)와 현재 조건 4가지 비교 (성별 추가)
 
-      // 💥 [Step 1] 저장된 최신 결과(lastDaily)와 현재 조건 3가지 비교
       let isMatch = false;
       if (userData.lastDaily) {
-        const { date, language: savedLang, saju: savedSaju, result } = userData.lastDaily;
-
+        const {
+          date,
+          language: savedLang,
+          saju: savedSaju,
+          gender: savedGender,
+          result,
+        } = userData.lastDaily; // 👈 gender 추가
         // ① 날짜가 오늘인가?
-        const isDateMatch = date === todayDate;
-        // ② 언어 설정이 같은가?
-        const isLangMatch = savedLang === language;
-        // ③ 사주 팔자(8글자)가 완전히 같은가?
-        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
 
-        // 셋 다 맞을 때만 '일치'로 판정
-        if (isDateMatch && isLangMatch && isSajuMatch && result) {
+        const isDateMatch = date === todayDate; // ② 언어 설정이 같은가?
+        const isLangMatch = savedLang === language; // ③ 사주 팔자(8글자)가 완전히 같은가?
+        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
+        // ④ 성별 설정이 같은가?
+        const isGenderMatch = savedGender === gender; // 👈 성별 비교 추가
+        // 넷 다 맞을 때만 '일치'로 판정
+
+        if (isDateMatch && isLangMatch && isSajuMatch && isGenderMatch && result) {
+          // 👈 조건 변경
           isMatch = true;
           setAiResult(result); // 저장된 결과 사용
         }
-      }
+      } // 💥 [Step 2] 일치하면 -> 크레딧 차감 없이 바로 보여줌 (무료)
 
-      // 💥 [Step 2] 일치하면 -> 크레딧 차감 없이 바로 보여줌 (무료)
       if (isMatch) {
         setIsSuccess(true);
         openModal();
@@ -570,18 +588,15 @@ export default function App() {
         setLoading(false);
         setLoadingType(null);
         return; // 여기서 함수 종료!
-      }
-
-      // 💥 [Step 3] 불일치하면 -> 여기서부터 유료 (크레딧 체크 & 차감)
-
+      } // 💥 [Step 3] 불일치하면 -> 여기서부터 유료 (크레딧 체크 & 차감)
       // (1) 크레딧 부족한지 확인
+
       if (currentCount >= MAX_EDIT_COUNT) {
         setLoading(false);
         setLoadingType(null);
         return alert(UI_TEXT.limitReached[language]);
-      }
+      } // (2) API 호출을 위한 프롬프트 구성 (성별 정보 추가)
 
-      // (2) API 호출을 위한 프롬프트 구성
       const userSajuText = `${saju.sky3}${saju.grd3}년(Year) ${saju.sky2}${saju.grd2}월(Month) ${saju.sky1}${saju.grd1}일(Day) ${saju.sky0}${saju.grd0}시(Time)`;
 
       const today = new Date();
@@ -594,22 +609,21 @@ export default function App() {
       if (!todayPillars || !tomorrowPillars) return;
 
       const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년(Year) ${todayPillars.sky2}${todayPillars.grd2}월(Month) ${todayPillars.sky1}${todayPillars.grd1}일(Day)`;
-      const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`;
+      const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`; // 프롬프트에 성별 정보 명시 (해석의 정확도 향상)
 
+      const genderInfo = `[User Gender] ${gender}`;
       const sajuInfo = `[User Saju] ${userSajuText} / [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
       const strictPrompt = STRICT_INSTRUCTION[language];
-      const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
-
+      const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${genderInfo}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`; // 👈 genderInfo 추가
       // (3) 실제 AI 호출
-      const result = await fetchGeminiAnalysis(fullPrompt);
 
-      // (4) 크레딧 1 차감 (DB값 + 1)
-      const newCount = currentCount + 1;
+      const result = await fetchGeminiAnalysis(fullPrompt); // (4) 크레딧 1 차감 (DB값 + 1)
 
-      // (5) DB 저장 (결과 + 날짜/언어/사주 정보 + 크레딧)
-      // 히스토리용 캐시 키 생성
+      const newCount = currentCount + 1; // (5) DB 저장 (결과 + 날짜/언어/사주/성별 정보 + 크레딧)
+      // 히스토리용 캐시 키 생성 (gender 포함)
+
       const currentSajuKey = JSON.stringify(saju);
-      const cacheKey = `daily_fortune.${currentSajuKey}.${todayDate}.${language}`;
+      const cacheKey = `daily_fortune.${currentSajuKey}.${gender}.${todayDate}.${language}`; // 👈 gender 추가
       let fortuneCache = userData.fortune_cache || {};
       fortuneCache[cacheKey] = result;
 
@@ -618,19 +632,18 @@ export default function App() {
         {
           editCount: newCount, // 횟수 증가 저장
           lastEditDate: todayDate,
-          fortune_cache: fortuneCache,
-          // 👇 다음에 비교할 '최신 상태' 저장
+          fortune_cache: fortuneCache, // 👇 다음에 비교할 '최신 상태' 저장
           lastDaily: {
             result: result,
             date: todayDate, // 오늘 날짜
             saju: saju, // 지금 사주
             language: language, // 지금 언어
+            gender: gender, // 👈 성별 정보 추가
           },
         },
         { merge: true },
-      );
+      ); // UI 반영
 
-      // UI 반영
       setEditCount(newCount);
       setAiResult(result);
       setIsSuccess(true);
@@ -870,6 +883,7 @@ export default function App() {
     dbUser.lastDaily.language === language &&
     dbUser.lastDaily.gender === gender && // 👈 lastDaily에 gender 추가
     checkSajuMatch(dbUser.lastDaily.saju);
+
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (editCount >= MAX_EDIT_COUNT) return alert(UI_TEXT.limitReached[language]);
@@ -884,8 +898,8 @@ export default function App() {
     try {
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
-
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
+      const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 그리고 2025년은 을사년이고 2026년은 병오년이야. 2027년은 정미년.`;
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;
@@ -929,74 +943,22 @@ export default function App() {
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* 헤더시작 */}
-      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 max-w-xl m-auto">
-        {/* ✅ 왼쪽: 로고 + 타이틀 그룹 */}
-        {theme === 'dark' ? (
-          <div className="flex items-center gap-3">
-            {/* ✨ 언어에 따라 다른 로고 이미지 표시 */}
-            <img
-              src={language === 'ko' ? logoKorDark : logoEngDark}
-              alt="Sajucha Logo"
-              className="w-[300px] rounded-xl shadow-sm object-cover"
-            />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            {/* ✨ 언어에 따라 다른 로고 이미지 표시 */}
-            <img
-              src={language === 'ko' ? logoKor : logoEng}
-              alt="Sajucha Logo"
-              className="w-[300px] rounded-xl shadow-sm object-cover"
-            />
-          </div>
-        )}
 
-        {/* ✅ 오른쪽: 버튼 그룹 (언어 + 테마 변경) */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
-            className="px-4 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-slate-600 flex items-center gap-2 transition-all"
-          >
-            {/* 지구본 아이콘 */}
-            <GlobeAltIcon className="w-5 h-5 text-gray-400 dark:text-gray-400" />
-
-            {/* 언어 텍스트 (KO | EN) */}
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`transition-colors ${
-                  language === 'ko'
-                    ? 'text-indigo-600 dark:text-indigo-400 font-extrabold'
-                    : 'text-gray-400 dark:text-gray-500 font-medium'
-                }`}
-              >
-                KO
-              </span>
-
-              <span className="text-gray-300 dark:text-gray-600 text-[10px]">|</span>
-
-              <span
-                className={`transition-colors ${
-                  language === 'en'
-                    ? 'text-indigo-600 dark:text-indigo-400 font-extrabold'
-                    : 'text-gray-400 dark:text-gray-500 font-medium'
-                }`}
-              >
-                EN
-              </span>
-            </div>
-          </button>
-          {/* 🌙 테마 토글 버튼 */}
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors border border-gray-200 dark:border-gray-600/50"
-            aria-label="Toggle Theme"
-          >
-            <span className="text-lg leading-none">{theme === 'dark' ? '🌙' : '☀️'}</span>
-          </button>
-        </div>
-      </div>
+      <NavBar
+        language={language} // ⭐ NavBar.language로 'ko' 또는 'en' 값이 전달됨
+        setLanguage={setLanguage} // ⭐ NavBar.setLanguage로 함수가 전달됨
+        theme={theme} // ⭐ NavBar.theme로 'dark' 또는 'light' 값이 전달됨
+        setTheme={setTheme} // ⭐ NavBar.setTheme로 함수가 전달됨
+        onShowContact={handleShowContact}
+      />
+      {isContactModalOpen && (
+        <ContactModal
+          onClose={handleCloseContact}
+          language={language}
+          email="doobuhanmo3@gmail.com"
+        />
+      )}
       {/* 헤더끝 */}
-
       {/* 로그인 스테이터스 */}
       <div className="bg-white/70 dark:bg-slate-800/60 p-3 my-2 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md max-w-lg m-auto">
         {user ? (
@@ -1015,7 +977,7 @@ export default function App() {
                     <span className="font-normal text-xs ml-0.5 text-gray-500">님</span>
                   )}
                 </span>
-                <span className="text-[10px] text-gray-400">{UI_TEXT.welcome[language]}</span>
+                <span className="text-[12px] text-gray-400">{UI_TEXT.welcome[language]}</span>
               </div>
             </div>
 
@@ -1049,8 +1011,10 @@ export default function App() {
                     <div>
                       {/* 꽉 차지 않았을 때만 타이머 표시 */}
                       {MAX_EDIT_COUNT - editCount < MAX_EDIT_COUNT && timeLeft ? (
-                        <span className="text-[14px] font-mono font-medium text-gray-400 dark:text-gray-500 tracking-tight mt-[1px]">
-                          refill in {timeLeft}
+                        <span className="text-[12px]  font-medium text-gray-400 dark:text-gray-500 tracking-tight mt-[1px]">
+                          {language === 'en'
+                            ? `refill in ${timeLeft}`
+                            : `${timeLeft}후에 자동 충전`}
                         </span>
                       ) : (
                         /* 꽉 찼을 때는 빈 공간 유지 or FULL 표시 (깔끔함을 위해 빈 공간 추천) */
@@ -1093,7 +1057,6 @@ export default function App() {
           </div>
         )}
       </div>
-
       {/* 로그인 되지 않았을 시 블러처리 */}
       {!user && (
         <div
@@ -1102,48 +1065,62 @@ export default function App() {
         >
           <div className="relative w-[260px]">
             <div
-              // 🔹 배경 투명도를 더 높이고 (30% -> 20%) 블러를 추가하여 유리판 질감 강화
+              // 🔹 배경 투명도를 더 낮추고 (20% -> 15%) 블러를 유지하여 유리판 질감 강화
               className="absolute -top-[180px] w-full p-4 
-                   bg-gray-300/20 dark:bg-white/20 backdrop-blur-md rounded-xl 
-                   shadow-2xl dark:shadow-black/20 shadow-black/40
-                   flex flex-col items-center justify-center space-y-3 mx-auto 
-                   border border-gray-300/30 dark:border-gray-700/40"
+             bg-gray-300/15 dark:bg-white/15 backdrop-blur-lg rounded-xl 
+             shadow-2xl dark:shadow-black/20 shadow-black/40
+             flex flex-col items-center justify-center space-y-4 mx-auto 
+             border border-gray-300/30 dark:border-gray-700/40"
             >
-              {/* A. 강조 문구 (텍스트 그림자로 블러 위 가독성 확보) */}
+              {/* A. 강조 문구: 혜택을 상단에 명확하게 배치 */}
               {language === 'en' ? (
                 <p className="text-md font-extrabold text-gray-900 dark:text-white drop-shadow-md">
                   Login to get <span className="text-amber-500">{MAX_EDIT_COUNT} daily ⚡️</span>
                 </p>
               ) : (
-                <p className="text-md font-extrabold text-gray-900 dark:text-white drop-shadow-md">
-                  로그인시 하루에⚡️<span className="text-amber-500">{MAX_EDIT_COUNT}개!</span> 충전
+                <p className="text-sm font-extrabold text-gray-900 dark:text-white drop-shadow-lg">
+                  <span className="text-amber-500">매일 ⚡️{MAX_EDIT_COUNT}개 혜택</span>을 <br />{' '}
+                  지금 바로 받으세요!
                 </p>
               )}
-              {/* B. 콜투액션(CTA) 버튼 (가장 중요한 요소) */}
+
+              {/* B. 콜투액션(CTA) 버튼: 가장 중요한 요소 */}
               <button
                 className="w-full py-3 bg-amber-400 text-gray-900 font-extrabold text-md rounded-xl 
-               hover:bg-amber-500 active:bg-yellow-500 
-               transition-all duration-150 transform hover:scale-[1.03] 
-               shadow-xl shadow-amber-500/60" // 👈 그림자를 버튼 색과 동일하게 설정하여 입체감 극대화
+             hover:bg-amber-500 active:bg-yellow-500 
+             transition-all duration-150 transform hover:scale-[1.03] 
+             shadow-xl shadow-amber-500/60 flex items-center justify-center space-x-2" // 👈 flex로 아이콘과 텍스트 분리
                 onClick={login}
               >
+                {/* 1. Google 아이콘 (한국어 모드에서만 사용) */}
+                {language !== 'en' && (
+                  <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
+                    <path d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.2,4.73C15.29,4.73 17.1,6.7 17.1,6.7L19,4.72C19,4.72 16.56,2 12.1,2C6.42,2 2.03,6.8 2.03,12C2.03,17.05 6.16,22 12.25,22C17.6,22 21.5,18.33 21.5,12.91C21.5,11.76 21.35,11.1 21.35,11.1V11.1Z" />
+                  </svg>
+                )}
+
+                {/* 2. 텍스트 강조 (핵심 메시지 전달) */}
                 <span className="text-white">
-                  {language === 'en'
-                    ? `FREE ACCESS UPON LOGIN` // 👈 문구 강조
-                    : `무료 사주 보기`}
+                  {language === 'en' ? (
+                    `FREE ACCESS UPON LOGIN`
+                  ) : (
+                    <>
+                      <span className="text-md font-black">1초 로그인</span>으로 사주 보기
+                    </>
+                  )}
                 </span>
               </button>
-              {/* C. 보조 정보 (톤 다운) */}
-              <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                {language === 'en'
-                  ? `Daily Gift: ${MAX_EDIT_COUNT} ⚡️ inside`
-                  : `매일 ${MAX_EDIT_COUNT}개⚡️ 선물 증정`}
-              </p>
+
+              {/* C. 보조 정보는 제거하거나, 필요한 경우 버튼 아래에 간결하게 유지 */}
+              {/* <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+    {language === 'en'
+      ? `Daily Gift: ${MAX_EDIT_COUNT} ⚡️ inside`
+      : `매일 ${MAX_EDIT_COUNT}개⚡️ 선물 증정`}
+  </p> */}
             </div>
           </div>
         </div>
       )}
-
       <div className="w-full max-w-lg  bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
         <div className="flex flex-col m-2">
           {/* 정보수정 */}
@@ -1544,6 +1521,39 @@ export default function App() {
       </div>
       {/* 4. AI 버튼 영역 (3분할) 및 로딩 상태창 */}
       <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
+        {/* B. ✨ 독립된 로딩 상태 표시창 (기존 디자인 유지) */}
+        {loading && (
+          <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-gray-700 shadow-xl animate-[fadeIn_0.3s_ease-out]">
+            <div className="flex flex-col gap-2">
+              {/* 로딩 멘트 */}
+              <div className="flex justify-between items-end">
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
+                  {isCachedLoading
+                    ? UI_TEXT.loadingCached[language]
+                    : getLoadingText(progress, language, loadingType)}
+                </span>
+                <span className="text-sm font-black text-gray-700 dark:text-gray-200">
+                  {Math.round(progress)}%
+                </span>
+              </div>
+
+              {/* 프로그레스 바 (독립형) */}
+              <div className="w-full h-2.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ease-out 
+                    ${
+                      loadingType === 'main'
+                        ? 'bg-gradient-to-r from-violet-500 to-indigo-600'
+                        : loadingType === 'year'
+                          ? 'bg-gradient-to-r from-green-400 to-emerald-600'
+                          : 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                    }`}
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
         {/* A. 버튼 그룹 */}
         <div className="flex justify-between gap-3 h-32">
           {/* 1. 메인 분석 버튼 */}
@@ -1607,39 +1617,6 @@ export default function App() {
             colorType={'sky'}
           />
         </div>
-        {/* B. ✨ 독립된 로딩 상태 표시창 (기존 디자인 유지) */}
-        {loading && (
-          <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-gray-700 shadow-xl animate-[fadeIn_0.3s_ease-out]">
-            <div className="flex flex-col gap-2">
-              {/* 로딩 멘트 */}
-              <div className="flex justify-between items-end">
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
-                  {isCachedLoading
-                    ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language, loadingType)}
-                </span>
-                <span className="text-sm font-black text-gray-700 dark:text-gray-200">
-                  {Math.round(progress)}%
-                </span>
-              </div>
-
-              {/* 프로그레스 바 (독립형) */}
-              <div className="w-full h-2.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ease-out 
-                    ${
-                      loadingType === 'main'
-                        ? 'bg-gradient-to-r from-violet-500 to-indigo-600'
-                        : loadingType === 'year'
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-600'
-                          : 'bg-gradient-to-r from-yellow-400 to-orange-500'
-                    }`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       {/* 5. 모달 */}
       {isModalOpen && (
