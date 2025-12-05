@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { onSnapshot, updateDoc } from 'firebase/firestore'; // 상단 import 확인
-import EnergyBadge from './ui/EnergyBadge';
+import { UserIcon } from '@heroicons/react/24/outline';
 import { useShareActions } from './hooks/useShareAction';
 import { useTimer } from './hooks/useTimer';
 import { getPillars } from './utils/sajuCalculator';
@@ -8,6 +8,7 @@ import { useSajuCalculator } from './hooks/useSajuCalculator';
 import { jiStyle, pillarLabelStyle, iconsViewStyle, pillarStyle } from './data/style';
 import FourPillarVis from './component/FourPillarVis';
 import processSajuData from './sajuDataProcessor';
+
 import {
   GlobeAltIcon,
   ChevronLeftIcon,
@@ -46,11 +47,14 @@ import useContactModal from './hooks/useContactModal';
 import AnalysisButton from './ui/AnalysisButton';
 import NavBar from './component/Navbar';
 import ContactModal from './component/ContactModal';
+import ModifyBd from './ui/ModifyBd';
+import LoadingBar from './ui/LoadingBar';
+import LoginStatus from './component/LoginStatus';
 // 💡 추가된 텍스트 상수
 
 export default function App() {
   // --- States ---
-  const [user, setUser] = useState(null);
+
   const [theme, setTheme] = useState(localStorage.theme || 'light');
   const [language, setLanguage] = useLocalStorage('userLanguage', 'en');
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
@@ -96,7 +100,6 @@ export default function App() {
   const [userPrompt, setUserPrompt] = useState(DEFAULT_INSTRUCTION);
   const [customQuestion, setCustomQuestion] = useState('');
 
-  const [dbUser, setDbUser] = useState(null);
   // [상단] useState, useEffect 추가 필요
   const timeLeft = useTimer(editCount);
   const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
@@ -119,6 +122,8 @@ export default function App() {
     yeonji,
     yeonjiji,
   } = processedData;
+  const [user, setUser] = useState(null);
+  const [dbUser, setDbUser] = useState(null);
   useEffect(() => {
     if (user) {
       const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
@@ -131,13 +136,6 @@ export default function App() {
       setDbUser(null);
     }
   }, [user]);
-  // --- Effects ---
-  useEffect(() => {
-    if (theme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-    localStorage.theme = theme;
-  }, [theme]);
-
   // 로그인 & 데이터 불러오기
   useEffect(() => {
     let unsubscribe; // onUserStateChange의 구독 해제 함수를 저장할 변수
@@ -225,7 +223,12 @@ export default function App() {
     // 컴포넌트 언마운트 시 구독 해제
     return () => unsubscribe && unsubscribe();
   }, []); // 의존성 배열이 비어 있어 마운트 시 한 번만 실행됨
-  // 만세력 계산
+  // --- Effects ---
+  useEffect(() => {
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+    localStorage.theme = theme;
+  }, [theme]);
 
   // 로딩 애니메이션
 
@@ -359,34 +362,47 @@ export default function App() {
 
     return { isConsuming, triggerConsume };
   };
+  const Notification = ({ message, type, onClose }) => {
+    if (!message) return null;
 
-  const handleShareResult = async () => {
-    // 1. 공유할 전체 텍스트를 미리 만듭니다. (결과 + 링크)
-    const shareTitle = '내 사주 분석 결과';
-    const shareText = `${aiResult}\n\n👇 나도 분석하러 가기 👇\n${window.location.href}`;
+    const baseStyle =
+      'fixed bottom-5 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-xl text-white font-semibold z-50 transition-all duration-300';
+    const typeStyle = type === 'success' ? 'bg-green-500' : 'bg-red-500';
 
-    // 2. 모바일 네이티브 공유하기
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          // 💥 중요: url 필드를 넣지 마세요!
-          // url: window.location.href  <-- 이걸 넣으면 텍스트가 씹히는 경우가 많음
-        });
-      } catch (err) {
-        console.log('공유 취소됨');
-      }
-    } else {
-      // 3. PC 등 지원 안 하는 경우 -> 클립보드 복사
-      try {
-        await navigator.clipboard.writeText(shareText);
-        alert('결과와 링크가 복사되었습니다! 친구에게 붙여넣기(Ctrl+V) 해보세요.');
-      } catch (err) {
-        alert('복사에 실패했습니다.');
-      }
+    return (
+      <div className={`${baseStyle} ${typeStyle}`}>
+        <div className="flex items-center space-x-2">
+          <span>{message}</span>
+          <button onClick={onClose} className="ml-4 font-bold opacity-75 hover:opacity-100">
+            &times;
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const handleShareResult = (htmlString) => {
+    try {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlString;
+
+      // 텍스트를 추출하고 불필요한 공백을 제거합니다.
+      // 예를 들어, <div>텍스트1</div><div>텍스트2</div>는 "텍스트1텍스트2"가 아닌 "텍스트1 텍스트2"로 만드는 것이 좋습니다.
+      let plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+      // 여러 개의 줄 바꿈이나 공백을 하나로 정리합니다.
+      plainText = plainText
+        .replace(/(\s*\n\s*){2,}/g, '\n\n') // 2줄 이상 공백/줄바꿈은 2줄로
+        .replace(/ {2,}/g, ' ') // 연속된 공백은 하나로
+        .trim();
+
+      return plainText;
+    } catch (error) {
+      console.error('HTML 텍스트 추출 중 오류 발생:', error);
+      return '사주 분석 결과를 추출하는 데 실패했습니다.';
     }
   };
+
   // 💡 [추가] 초기 인사말 생성 함수
   const getInitialGreeting = (lang, birthDate, saju, tFunc) => {
     const formattedDate = birthDate.replace('T', ' ');
@@ -901,103 +917,13 @@ export default function App() {
       )}
       {/* 헤더끝 */}
       {/* 로그인 스테이터스 */}
-      <div className="bg-white/70 dark:bg-slate-800/60 p-3 my-2 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md max-w-lg m-auto">
-        {user ? (
-          <div className="flex items-center justify-between">
-            {/* 1. 왼쪽: 심플한 프로필 영역 */}
-            <div className="flex items-center gap-3">
-              <img
-                src={user.photoURL}
-                alt="Profile"
-                className="w-12 h-12 rounded-full border border-indigo-100 dark:border-slate-600"
-              />
-              <div className="flex flex-col justify-center">
-                <span className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-none mb-0.5">
-                  {user.displayName}
-                  {language === 'ko' && (
-                    <span className="font-normal text-xs ml-0.5 text-gray-500">님</span>
-                  )}
-                </span>
-                <span className="text-[12px] text-gray-400">{UI_TEXT.welcome[language]}</span>
-              </div>
-            </div>
 
-            {/* 2. 오른쪽: 통합 컨트롤 바 (한 줄 배치) */}
-
-            <div className="flex items-center">
-              {/* 행동력 */}
-              <div className="flex items-center gap-2 mr-3 pr-3 border-r border-gray-200 dark:border-gray-700 h-14">
-                {/* h-12로 높이 고정하여 흔들림 방지 */}
-                {/* 아이콘: 중앙 정렬 */}
-                <div>
-                  {' '}
-                  <div className="flex items-center justify-end leading-none">
-                    <BoltIcon className="w-6 h-6 text-amber-500 fill-amber-500/20" />
-                    {/* 텍스트 영역: 오른쪽 정렬 */}
-                    <div className="flex flex-col items-end justify-center leading-none">
-                      {/* 1. 라벨 (CREDIT) */}
-                      <span className="text-[12px] font-bold text-amber-600/70 dark:text-amber-500 uppercase tracking-tighter mb-[1px]">
-                        Daily Credit
-                      </span>
-
-                      {/* 2. 숫자 (3/5) */}
-                      <span className="text-md font-black text-gray-700 dark:text-gray-200 font-mono">
-                        {MAX_EDIT_COUNT - editCount}
-                        <span className="mx-0.5">/</span>
-                        {MAX_EDIT_COUNT}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <div>
-                      {/* 꽉 차지 않았을 때만 타이머 표시 */}
-                      {MAX_EDIT_COUNT - editCount < MAX_EDIT_COUNT && timeLeft ? (
-                        <span className="text-[12px]  font-medium text-gray-400 dark:text-gray-500 tracking-tight mt-[1px]">
-                          {language === 'en'
-                            ? `refill in ${timeLeft}`
-                            : `${timeLeft}후에 자동 충전`}
-                        </span>
-                      ) : (
-                        /* 꽉 찼을 때는 빈 공간 유지 or FULL 표시 (깔끔함을 위해 빈 공간 추천) */
-                        <span className="h-[0px]"></span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* (B) 액션 버튼 (Actions) - 아이콘 위주 */}
-              <div className="flex items-center gap-1">
-                {/* 로그아웃 버튼 */}
-                <button
-                  onClick={logout}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-all"
-                  title={UI_TEXT.logout[language]}
-                >
-                  <ArrowRightStartOnRectangleIcon className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // 비로그인 상태 (기존 유지)
-          <div className="w-full text-center">
-            <button
-              onClick={login}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-bold shadow-sm transition-all"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.2,4.73C15.29,4.73 17.1,6.7 17.1,6.7L19,4.72C19,4.72 16.56,2 12.1,2C6.42,2 2.03,6.8 2.03,12C2.03,17.05 6.16,22 12.25,22C17.6,22 21.5,18.33 21.5,12.91C21.5,11.76 21.35,11.1 21.35,11.1V11.1Z"
-                />
-              </svg>
-              <span className="text-sm">{UI_TEXT.googleLogin[language]}</span>
-            </button>
-            <p className="text-[10px] text-gray-400 mt-2">{UI_TEXT.loginMsg[language]}</p>
-          </div>
-        )}
-      </div>
+      <LoginStatus
+        user={user}
+        language={language}
+        MAX_EDIT_COUNT={MAX_EDIT_COUNT}
+        editCount={editCount}
+      />
       {/* 로그인 되지 않았을 시 블러처리 */}
       {!user && (
         <div
@@ -1051,187 +977,64 @@ export default function App() {
                   )}
                 </span>
               </button>
-
-              {/* C. 보조 정보는 제거하거나, 필요한 경우 버튼 아래에 간결하게 유지 */}
-              {/* <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
-    {language === 'en'
-      ? `Daily Gift: ${MAX_EDIT_COUNT} ⚡️ inside`
-      : `매일 ${MAX_EDIT_COUNT}개⚡️ 선물 증정`}
-  </p> */}
             </div>
           </div>
         </div>
       )}
       <div className="w-full max-w-lg  bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
         <div className="flex flex-col m-2">
-          {/* 정보수정 */}
-          <div
-            className={`m-3 mt-1 transition-all duration-300 overflow-hidden ${isSaved ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'}`}
-          >
-            <div className={`${!user ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">
-                  {UI_TEXT.genderLabel[language]}
-                </label>
-                <div className="flex bg-gray-100 dark:bg-slate-700 p-1 rounded-xl">
-                  <button
-                    onClick={() => setGender('male')}
-                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${gender === 'male' ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-600' : 'text-gray-400'}`}
-                  >
-                    {UI_TEXT.male[language]}
-                  </button>
-                  <button
-                    onClick={() => setGender('female')}
-                    className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${gender === 'female' ? 'bg-white text-pink-500 shadow-sm dark:bg-slate-600' : 'text-gray-400'}`}
-                  >
-                    {UI_TEXT.female[language]}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between items-end mb-2">
-                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                    {UI_TEXT.birthLabel[language]}
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity">
-                    <input
-                      type="checkbox"
-                      checked={isTimeUnknown}
-                      onChange={(e) => setIsTimeUnknown(e.target.checked)}
-                      className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 dark:bg-slate-700"
-                    />
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                      {UI_TEXT.unknownTime[language]}
-                    </span>
-                  </label>
-                </div>
-                <div className="relative w-full p-1">
-                  <input
-                    type={isTimeUnknown ? 'date' : 'datetime-local'}
-                    value={isTimeUnknown ? inputDate.split('T')[0] : inputDate}
-                    onChange={(e) => {
-                      let val = e.target.value;
-                      if (isTimeUnknown) val += 'T00:00';
-                      setInputDate(val);
-                    }}
-                    className="w-full p-2 bg-gray-50 dark:bg-slate-900/50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white dark:[color-scheme:dark]"
-                  />
-                </div>
-              </div>
-              <button
-                onClick={handleSaveMyInfo}
-                className="w-full  py-3 mt-3 mb-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98]"
-              >
-                {BD_EDIT_UI.complete[language]}
-              </button>
-            </div>
-          </div>
           {/* 저장된 유저정보 */}
-          {user && (
-            <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
-              {/* 1. 상단 라벨 (여기가 내 정보임을 알리는 핵심) */}
 
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 tracking-widest uppercase">
-                  <UserCircleIcon className="w-3 h-3" />
-                  <span>My Profile</span>
-                </div>
-              </div>
-              <div className="absolute top-2 right-2">
-                {isLocked ? (
-                  <span className="text-[10px] text-red-500 font-bold px-2">
-                    {UI_TEXT.lockedMsg[language]}
-                  </span>
-                ) : isSaved ? (
-                  // 수정 버튼 (심플한 아이콘 버튼)
-                  <button
-                    onClick={handleEditMode}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-full transition-all"
-                    title={BD_EDIT_UI.edit[language]}
-                  >
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                ) : (
-                  // 취소 버튼
-                  <button
-                    onClick={handleCancelEdit}
-                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
-                  >
-                    <XMarkIcon className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
+          <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
+            {/* 1. 상단 라벨 (여기가 내 정보임을 알리는 핵심) */}
 
-              <div className="flex flex-col gap-3 pt-1">
-                {/* 2. 양력 생일 정보 (입력값) */}
-                <div className="flex items-center justify-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-                  <CalendarDaysIcon className="w-4 h-4 text-indigo-400" />
-                  <span className="font-mono tracking-wide">{inputDate.replace('T', ' ')}</span>
-                  {isTimeUnknown && (
-                    <span className="px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-gray-700 rounded text-gray-400">
-                      {UI_TEXT.unknownTime[language]}
-                    </span>
-                  )}
-                </div>
-
-                {/* 구분선 */}
-                <div className="border-t border-dashed border-indigo-100 dark:border-indigo-800 w-full"></div>
-
-                {/* 3. 사주 명식 (변환값) - 가장 중요하게 강조 */}
-                <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-                  {/* 년주 */}
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs text-indigo-300 dark:text-indigo-600 uppercase mb-0.5">
-                      {UI_TEXT.year[language]}
-                    </span>
-                    <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-100 tracking-widest leading-none">
-                      {t(saju.sky3)}
-                      {t(saju.grd3)}
-                    </span>
-                  </div>
-
-                  {/* 월주 */}
-                  <div className="flex flex-col items-center">
-                    <span className="text-xs text-indigo-300 dark:text-indigo-600 uppercase mb-0.5">
-                      {UI_TEXT.month[language]}
-                    </span>
-                    <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-100 tracking-widest leading-none">
-                      {t(saju.sky2)}
-                      {t(saju.grd2)}
-                    </span>
-                  </div>
-
-                  {/* 일주 (강조) */}
-                  <div className="flex flex-col items-center relative">
-                    {/* 일주 강조용 배경 점 */}
-                    <div className="absolute inset-0 bg-indigo-100/50 dark:bg-indigo-500/20 blur-md rounded-full transform scale-150"></div>
-                    <span className="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase mb-0.5 relative z-10">
-                      {UI_TEXT.day[language]}
-                    </span>
-                    <span className="text-xl font-black text-indigo-600 dark:text-indigo-200 tracking-widest leading-none relative z-10 drop-shadow-sm">
-                      {t(saju.sky1)}
-                      {t(saju.grd1)}
-                    </span>
-                  </div>
-
-                  {/* 시주 */}
-                  {!isTimeUnknown && (
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs text-indigo-300 dark:text-indigo-600 uppercase mb-0.5">
-                        {UI_TEXT.hour[language]}
-                      </span>
-                      <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-100 tracking-widest leading-none">
-                        {t(saju.sky0)}
-                        {t(saju.grd0)}
-                      </span>
-                    </div>
-                  )}
-                </div>
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 tracking-widest uppercase">
+                <UserCircleIcon className="w-3 h-3" />
+                <span>My Profile</span>
               </div>
             </div>
-          )}
+
+            <div className="absolute top-2 right-2">
+              {isLocked ? (
+                <span className="text-[10px] text-red-500 font-bold px-2">
+                  {UI_TEXT.lockedMsg[language]}
+                </span>
+              ) : isSaved ? (
+                // 수정 버튼 (심플한 아이콘 버튼)
+                <button
+                  onClick={handleEditMode}
+                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-full transition-all"
+                  title={BD_EDIT_UI.edit[language]}
+                >
+                  <PencilSquareIcon className="w-5 h-5" />
+                </button>
+              ) : (
+                // 취소 버튼
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+
+            <ModifyBd
+              gender={gender}
+              language={language}
+              inputDate={inputDate}
+              isTimeUnknown={isTimeUnknown}
+              saju={saju}
+              handleSaveMyInfo={handleSaveMyInfo}
+              user={user}
+              setInputDate={setInputDate}
+              isSaved={isSaved}
+            />
+          </div>
+
           {/* 만세력 시각화 */}
-          {user && (
+          {user && saju?.sky1 && (
             <FourPillarVis
               containerWidth={containerWidth}
               isTimeUnknown={isTimeUnknown}
@@ -1245,37 +1048,14 @@ export default function App() {
       <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {/* B. ✨ 독립된 로딩 상태 표시창 (기존 디자인 유지) */}
         {loading && (
-          <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-gray-700 shadow-xl animate-[fadeIn_0.3s_ease-out]">
-            <div className="flex flex-col gap-2">
-              {/* 로딩 멘트 */}
-              <div className="flex justify-between items-end">
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
-                  {isCachedLoading
-                    ? UI_TEXT.loadingCached[language]
-                    : getLoadingText(progress, language, loadingType)}
-                </span>
-                <span className="text-sm font-black text-gray-700 dark:text-gray-200">
-                  {Math.round(progress)}%
-                </span>
-              </div>
-
-              {/* 프로그레스 바 (독립형) */}
-              <div className="w-full h-2.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ease-out 
-                    ${
-                      loadingType === 'main'
-                        ? 'bg-gradient-to-r from-violet-500 to-indigo-600'
-                        : loadingType === 'year'
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-600'
-                          : 'bg-gradient-to-r from-yellow-400 to-orange-500'
-                    }`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          </div>
+          <LoadingBar
+            progress={progress}
+            language={language}
+            loadingType={loadingType}
+            isCachedLoading={isCachedLoading}
+          />
         )}
+
         {/* A. 버튼 그룹 */}
         <div className="flex justify-between gap-3 h-32">
           {/* 1. 메인 분석 버튼 */}

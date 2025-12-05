@@ -1,7 +1,7 @@
 // src/context/AppProvider.js
 
 import React, { createContext, useContext } from 'react';
-import { useTheme } from '../hooks/useTheme';
+import { useTheme } from './useThemeContext';
 import { useLanguage } from '../hooks/useLanguage';
 
 // 필요한 다른 훅들도 여기에 임포트합니다.
