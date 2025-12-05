@@ -1,6 +1,7 @@
 import { useTimer } from '../hooks/useTimer';
 import { login, logout } from '../lib/firebase';
 import { UI_TEXT } from '../data/constants';
+import { BoltIcon, ArrowRightStartOnRectangleIcon } from '@heroicons/react/24/outline';
 export default function LoginStatus({ user, language, MAX_EDIT_COUNT, editCount }) {
   const timeLeft = useTimer(editCount);
   return (
