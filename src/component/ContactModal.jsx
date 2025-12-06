@@ -1,11 +1,11 @@
 // ContactModal.jsx
 
 import React, { useState } from 'react'; // useState 임포트
-
-export default function ContactModal({ onClose, language, email }) {
+import { useLanguage } from '../context/useLanguageContext';
+export default function ContactModal({ onClose, email }) {
   // 1. 복사 상태 관리를 위한 State 추가
   const [isCopied, setIsCopied] = useState(false);
-
+  const { language } = useLanguage();
   // 2. 클립보드 복사 핸들러 함수
   const handleCopyEmail = async (e) => {
     e.preventDefault(); // 기본 링크(href) 동작 방지

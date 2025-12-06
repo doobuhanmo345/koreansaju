@@ -1,17 +1,18 @@
 import { LockClosedIcon } from '@heroicons/react/24/solid';
 import { TicketIcon } from '@heroicons/react/24/outline';
 import EnergyBadge from './EnergyBadge';
+import { useLanguage } from '../context/useLanguageContext';
+import { useAuthContext } from '../context/useAuthContext';
 
 export default function AnalysisButton({
   energy, //dailyEnergy hook에서 전달된 객체
   handleAnalysis, //handleDailyAnalysis 함수
   loading,
   loadingType,
-  user,
+
   isSaved,
   isLocked,
   isAnalysisDone, //isDailyDone, isMainDone, isYearlyDone
-  language,
   icon,
   buttonType, //loadingType과 비교용 'daily'같은거
   textKo,
@@ -24,7 +25,8 @@ export default function AnalysisButton({
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
   }
-
+  const { user } = useAuthContext();
+  const { language } = useLanguage();
   const BUTTON_THEMES = {
     sky: 'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 shadow-[0_8px_20px_-6px_rgba(14,165,233,0.5)] border-sky-700/30',
     blue: 'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300  shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] border-amber-700/30',

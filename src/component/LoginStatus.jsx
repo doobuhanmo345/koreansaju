@@ -1,9 +1,21 @@
 import { useTimer } from '../hooks/useTimer';
-import { login, logout } from '../lib/firebase';
 import { UI_TEXT } from '../data/constants';
 import { BoltIcon, ArrowRightStartOnRectangleIcon } from '@heroicons/react/24/outline';
-export default function LoginStatus({ user, language, MAX_EDIT_COUNT, editCount }) {
+import { useAuthContext } from '../context/useAuthContext';
+import { useLanguage } from '../context/useLanguageContext';
+
+// MAX_EDIT_COUNT는 설정값이므로 prop으로 받거나 기본값을 10으로 둡니다.
+export default function LoginStatus({ MAX_EDIT_COUNT }) {
+  // 👇 1. 전역 상태 가져오기 (Props 대신 Context 사용)
+  const { user, userData, login, logout } = useAuthContext();
+  const { language } = useLanguage();
+
+  // 👇 2. DB 유저 정보에서 editCount 추출 (없으면 0)
+  const editCount = userData?.editCount || 0;
+
+  // 👇 3. 타이머 훅 연결
   const timeLeft = useTimer(editCount);
+
   return (
     <div className="bg-white/70 dark:bg-slate-800/60 p-3 my-2 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md max-w-lg m-auto">
       {user ? (
@@ -27,11 +39,9 @@ export default function LoginStatus({ user, language, MAX_EDIT_COUNT, editCount 
           </div>
 
           {/* 2. 오른쪽: 통합 컨트롤 바 (한 줄 배치) */}
-
           <div className="flex items-center">
             {/* 행동력 */}
             <div className="flex items-center gap-2 mr-3 pr-3 border-r border-gray-200 dark:border-gray-700 h-14">
-              {/* h-12로 높이 고정하여 흔들림 방지 */}
               {/* 아이콘: 중앙 정렬 */}
               <div>
                 <div className="flex items-center justify-end leading-none">
@@ -59,7 +69,6 @@ export default function LoginStatus({ user, language, MAX_EDIT_COUNT, editCount 
                         {language === 'en' ? `refill in ${timeLeft}` : `${timeLeft}후에 자동 충전`}
                       </span>
                     ) : (
-                      /* 꽉 찼을 때는 빈 공간 유지 or FULL 표시 (깔끔함을 위해 빈 공간 추천) */
                       <span className="h-[0px]"></span>
                     )}
                   </div>
@@ -81,7 +90,7 @@ export default function LoginStatus({ user, language, MAX_EDIT_COUNT, editCount 
           </div>
         </div>
       ) : (
-        // 비로그인 상태 (기존 유지)
+        // 비로그인 상태
         <div className="w-full text-center">
           <button
             onClick={login}

@@ -1,17 +1,20 @@
 import { UI_TEXT, BD_EDIT_UI } from '../data/constants';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../context/useLanguageContext';
+import { useAuthContext } from '../context/useAuthContext';
 import { getEng } from '../utils/helpers';
 export default function ModifyBd({
   gender,
-  language,
   inputDate,
   isTimeUnknown,
   saju,
   handleSaveMyInfo,
-  user,
   setInputDate,
   isSaved,
+  setGender,
 }) {
+  const { user } = useAuthContext();
+  const { language } = useLanguage();
   const t = (char) => (language === 'en' ? getEng(char) : char);
   return (
     <div className="flex flex-col gap-1 pt-1">

@@ -1,10 +1,18 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css' // 👈 🔴 이 줄이 꼭 있어야 합니다!
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { AppProvider } from './context/AppProvider';
+import { AuthContextProvider } from './context/useAuthContext';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
   <React.StrictMode>
-    <App />
+    <AppProvider>
+      <AuthContextProvider>
+        <App />
+      </AuthContextProvider>
+    </AppProvider>
   </React.StrictMode>,
-)
+);

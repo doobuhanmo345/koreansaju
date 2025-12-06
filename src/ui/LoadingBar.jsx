@@ -1,7 +1,9 @@
 import { UI_TEXT } from '../data/constants';
 import { getLoadingText } from '../utils/helpers';
+import { useLanguage } from '../context/useLanguageContext';
 
-export default function LoadingBar({ loadingType, progress, language, isCachedLoading }) {
+export default function LoadingBar({ loadingType, progress, isCachedLoading }) {
+  const { language } = useLanguage();
   return (
     <div className="mb-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-gray-700 shadow-xl animate-[fadeIn_0.3s_ease-out]">
       <div className="flex flex-col gap-2">

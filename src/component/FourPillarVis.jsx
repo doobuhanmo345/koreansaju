@@ -1,11 +1,14 @@
 import { pillarStyle, iconsViewStyle, pillarLabelStyle, jiStyle } from '../data/style';
-import { UI_TEXT, jijiText } from '../data/constants';
+import { UI_TEXT } from '../data/constants';
 import { getIcon, classNames, getHanja, bgToBorder, getEng } from '../utils/helpers';
 import processSajuData from '../sajuDataProcessor';
-import useLocalStorage from '../hooks/useLocalStorage';
+import { useLanguage } from '../context/useLanguageContext';
+import { useTheme } from '../context/useThemeContext';
 
-export default function FourPillarVis({ containerWidth, isTimeUnknown, saju, theme }) {
+export default function FourPillarVis({ isTimeUnknown, saju }) {
+  const { language } = useLanguage();
   const t = (char) => (language === 'en' ? getEng(char) : char);
+  const { theme, setTheme } = useTheme();
   const processedData = processSajuData(saju);
   const {
     sigan,
@@ -21,11 +24,10 @@ export default function FourPillarVis({ containerWidth, isTimeUnknown, saju, the
     yeonjidata,
     yeonjiji,
   } = processedData;
-  const [language, setLanguage] = useLocalStorage('userLanguage', 'en');
   return (
     <div
       id="saju-capture"
-      style={{ width: `${containerWidth}px`, maxWidth: '100%' }}
+      style={{ width: `470px`, maxWidth: '100%' }}
       className=" relative rounded-xl border border-gray-200 dark:border-gray-600 overflow-hidden m-auto transition-[width] duration-100 ease-linear py-2 bg-white dark:bg-slate-800 animate-[fadeIn_0.5s_ease-out]"
     >
       {true && (
