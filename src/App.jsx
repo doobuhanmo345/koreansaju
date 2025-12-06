@@ -1,20 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useShareActions } from './hooks/useShareAction';
 import { getPillars } from './utils/sajuCalculator';
+import Test from './Test';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import FourPillarVis from './component/FourPillarVis';
 import processSajuData from './sajuDataProcessor';
-
 import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { doc, setDoc } from 'firebase/firestore';
 import { useModal } from './hooks/useModal';
-
-// Local Imports
 import { db } from './lib/firebase';
 import { useAuthContext } from './context/useAuthContext';
 import { useTheme } from './context/useThemeContext';
 import { useLanguage } from './context/useLanguageContext';
-
 import { fetchGeminiAnalysis } from './api/gemini';
 import {
   UI_TEXT,
@@ -26,8 +22,6 @@ import {
   langPrompt,
   hanja,
 } from './data/constants';
-
-// Components
 import AiSajuModal from './component/AiSajuModal';
 import useContactModal from './hooks/useContactModal';
 import AnalysisButton from './ui/AnalysisButton';
@@ -516,6 +510,7 @@ export default function App() {
 
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+      <Test />
       <NavBar onShowContact={handleShowContact} />
       {isContactModalOpen && (
         <ContactModal onClose={handleCloseContact} email="doobuhanmo3@gmail.com" />
