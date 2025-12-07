@@ -12,16 +12,13 @@ import { useAuthContext } from './context/useAuthContext';
 import { useTheme } from './context/useThemeContext';
 import { useLanguage } from './context/useLanguageContext';
 import { fetchGeminiAnalysis } from './api/gemini';
+import { UI_TEXT, BD_EDIT_UI, langPrompt, hanja } from './data/constants';
 import {
-  UI_TEXT,
   STRICT_INSTRUCTION,
   DEFAULT_INSTRUCTION,
   DAILY_FORTUNE_PROMPT,
   NEW_YEAR_FORTUNE_PROMPT,
-  BD_EDIT_UI,
-  langPrompt,
-  hanja,
-} from './data/constants';
+} from './data/aiResultConstants';
 import AiSajuModal from './component/AiSajuModal';
 import useContactModal from './hooks/useContactModal';
 import AnalysisButton from './ui/AnalysisButton';

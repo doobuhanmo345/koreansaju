@@ -1,10 +1,10 @@
-import { aiSajuStyle } from '../data/constants';
+import { aiSajuStyle, IljuExp } from '../data/aiResultConstants';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeftIcon, ShareIcon, SparklesIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // firebase db import 필요
 import { fetchGeminiAnalysis } from '../api/gemini'; // API 호출 import 필요
-import { UI_TEXT, IljuExp, langPrompt, hanja } from '../data/constants';
+import { UI_TEXT, langPrompt, hanja } from '../data/constants';
 import { iljuNameList } from '../data/iljuNameList';
 import { classNames, getIcon, getHanja, getEng, bgToBorder } from '../utils/helpers';
 import { iconsViewStyle } from '../data/style';
