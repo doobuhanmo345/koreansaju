@@ -201,228 +201,335 @@ export const DEFAULT_INSTRUCTION = {
 </div>`,
 };
 export const DAILY_FORTUNE_PROMPT = {
-  ko: `
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
-  .destiny-container { font-family: 'Nanum Myeongjo', 'Batang', serif; background-color: #fdfbf7; color: #333333; padding: 40px 30px; line-height: 1.9; word-break: keep-all; border: 1px solid #e8e6e1; border-radius: 8px; max-width: 100%; box-sizing: border-box; }
-  .destiny-header { text-align: center; margin-bottom: 50px; border-bottom: 1px solid #dcdcdc; padding-bottom: 20px; }
-  .destiny-title { font-size: 26px; font-weight: 400; color: #1a1a1a; margin: 0; letter-spacing: 3px; }
-  .destiny-subtitle { font-size: 19px; color: #5d4037; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #a1887f; font-weight: 400; letter-spacing: 1px; }
-  .destiny-content { font-size: 16px; color: #4a4a4a; text-align: justify; margin: 0; }
-  .destiny-footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #e0e0e0; font-size: 16px; font-style: italic; color: #6d6d6d; }
-</style>
-
-<div class="destiny-container">
-  <h1 class="destiny-title" style="text-align:left; margin-bottom:30px;">일일 운세 리포트</h1>
+  ko: `<div class="destiny-container">
+  <h1 class="section-title-h2" >일일 운세 리포트</h1>
   
-  <h2 class="destiny-subtitle">1. [오늘의 운세] ([오늘 날짜 기재])</h2>
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 10px; margin-bottom: 15px; font-weight: 400;">[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
-  <p class="destiny-content">
-    [오늘의 운세 상세 분석 내용을 공백 포함 500자 이내로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 서술.]
-  </p>
-  
-  <h2 class="destiny-subtitle" style="margin-top: 40px;">2. [내일의 운세] ([내일 날짜 기재])</h2>
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 10px; margin-bottom: 15px; font-weight: 400;">[내일의 일진과 사주 관계를 함축한 명사형 제목]</h3>
-  <p class="destiny-content">
-    [내일의 운세 상세 분석 내용을 공백 포함 500자 이내로 작성. 의뢰인의 사주와 내일의 일진(간지) 관계를 분석하여 대비해야 할 점이나 기대되는 요소를 서술.]
-  </p>
+  <h2 class="section-title-h3">1. [오늘의 운세] ([오늘 날짜 기재])</h2>
+  <h3 class="report-keyword" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
+  <p class="report-text">
+    [오늘의 운세 상세 분석 내용을 공백 포함 500자 이내로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 서술.]</p>
+  <h2 class="section-title-h3">1. [내일의 운세] ([내일 날짜 기재])</h2>
+  <h3 class="report-keyword" >[내일의 일진과 사주 관계를 함축한 명사형 제목]</h3>
+  <p class="report-text">
+    [내일의 운세 상세 분석 내용을 공백 포함 500자 이내로 작성. 의뢰인의 사주와 내일의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 서술.]</p>  
 </div>
 `,
   en: `
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
-  .destiny-container { font-family: 'Nanum Myeongjo', 'Batang', serif; background-color: #fdfbf7; color: #333333; padding: 40px 30px; line-height: 1.9; word-break: keep-all; border: 1px solid #e8e6e1; border-radius: 8px; max-width: 100%; box-sizing: border-box; }
-  .destiny-header { text-align: center; margin-bottom: 50px; border-bottom: 1px solid #dcdcdc; padding-bottom: 20px; }
-  .destiny-title { font-size: 26px; font-weight: 400; color: #1a1a1a; margin: 0; letter-spacing: 3px; }
-  .destiny-subtitle { font-size: 19px; color: #5d4037; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #a1887f; font-weight: 400; letter-spacing: 1px; }
-  .destiny-content { font-size: 16px; color: #4a4a4a; text-align: justify; margin: 0; }
-  .destiny-footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #e0e0e0; font-size: 16px; font-style: italic; color: #6d6d6d; }
-</style>
-
 <div class="destiny-container">
-  <h1 class="destiny-title" style="text-align:left; margin-bottom:30px;">Daily Fortune Report</h1>
+  <h1 class="section-title-h2" >Daily Fortune Report</h1>
   
-  <h2 class="destiny-subtitle">1. [Today's Fortune] ([Insert Today's Date])</h2>
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 10px; margin-bottom: 15px; font-weight: 400;">[Noun phrase title summarizing the relationship between today's energy and the client's Saju]</h3>
-  <p class="destiny-content">
+  <h2 class="section-title-h3">1. [Today's Fortune] ([Insert Today's Date])</h2>
+  <h3 class="report-keyword" >[Noun phrase title summarizing the relationship between today's energy and the client's Saju]</h3>
+  <p class="report-text">
     [Detailed analysis of today's fortune. Analyze the relationship between the client's Saju and today's Iljin (Daily Pillar) to describe the day's flow, cautions, and positive elements. Keep the length concise, within approx. 150 words.]
   </p>
   
-  <h2 class="destiny-subtitle" style="margin-top: 40px;">2. [Tomorrow's Fortune] ([Insert Tomorrow's Date])</h2>
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 10px; margin-bottom: 15px; font-weight: 400;">[Noun phrase title summarizing the relationship between tomorrow's energy and the client's Saju]</h3>
-  <p class="destiny-content">
+  <h2 class="section-title-h3" >2. [Tomorrow's Fortune] ([Insert Tomorrow's Date])</h2>
+  <h3 class="report-keyword">[Noun phrase title summarizing the relationship between tomorrow's energy and the client's Saju]</h3>
+  <p class="report-text">
     [Detailed analysis of tomorrow's fortune. Analyze the relationship between the client's Saju and tomorrow's Iljin (Daily Pillar) to describe points of preparation or expectations. Keep the length concise, within approx. 150 words.]
   </p>
-</div>
-`,
+</div>`,
 };
-
 export const NEW_YEAR_FORTUNE_PROMPT = {
-  ko: `
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
-  .destiny-container { font-family: 'Nanum Myeongjo', 'Batang', serif; background-color: #fdfbf7; color: #333333; padding: 40px 30px; line-height: 1.9; word-break: keep-all; border: 1px solid #e8e6e1; border-radius: 8px; max-width: 100%; box-sizing: border-box; }
-  .destiny-header { text-align: center; margin-bottom: 50px; border-bottom: 1px solid #dcdcdc; padding-bottom: 20px; }
-  .destiny-title { font-size: 26px; font-weight: 400; color: #1a1a1a; margin: 0; letter-spacing: 3px; }
-  .destiny-subtitle { font-size: 19px; color: #5d4037; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #a1887f; font-weight: 400; letter-spacing: 1px; }
-  .destiny-content { font-size: 16px; color: #4a4a4a; text-align: justify; margin: 0; }
-  .destiny-footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #e0e0e0; font-size: 16px; font-style: italic; color: #6d6d6d; }
-</style>
-
-<div class="destiny-container">
-  <h1 class="destiny-title" style="text-align:left; margin-bottom:30px;">2026년 신년 운세</h1>
+  ko: `<div class="destiny-container">
   
-  <h2 class="destiny-subtitle">종합 분석 (2026년 병오년)</h2>
-  <p class="destiny-content" style="margin-bottom: 30px;">
+  <h2 class="section-title-h2">종합 분석 (2026년 병오년)</h2>
+  <p class="report-text">
     [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요.]
   </p>
 
-  <h2 class="destiny-subtitle">월별 운세</h2>
+  <h2 class="section-title-h2">월별 운세</h2>
   
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">1. 1월 운세 : 을사년 기축월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">1. 1월 운세 : 을사년 기축월</h3>
+  <p class="report-text">
     [을사년 기축월의 운세 100자 이내]
   </p>
   
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">2. 2월 운세 : 을사년 경인월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">2. 2월 운세 : 을사년 경인월</h3>
+   <p class="report-text">
     [을사년 경인월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">3. 3월 운세 : 을사년 신묘월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">3. 3월 운세 : 을사년 신묘월</h3>
+   <p class="report-text">
     [을사년 신묘월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">4. 4월 운세 : 을사년 임진월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">4. 4월 운세 : 을사년 임진월</h3>
+   <p class="report-text">
     [을사년 임진월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">5. 5월 운세 : 을사년 계사월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">5. 5월 운세 : 을사년 계사월</h3>
+   <p class="report-text">
     [을사년 계사월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">6. 6월 운세 : 을사년 갑오월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">6. 6월 운세 : 을사년 갑오월</h3>
+   <p class="report-text">
     [을사년 갑오월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">7. 7월 운세 : 을사년 을미월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">7. 7월 운세 : 을사년 을미월</h3>
+   <p class="report-text">
     [을사년 을미월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">8. 8월 운세 : 을사년 병신월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">8. 8월 운세 : 을사년 병신월</h3>
+   <p class="report-text">
     [을사년 병신월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">9. 9월 운세 : 을사년 정유월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">9. 9월 운세 : 을사년 정유월</h3>
+   <p class="report-text">
     [을사년 정유월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">10. 10월 운세 : 을사년 무술월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">10. 10월 운세 : 을사년 무술월</h3>
+   <p class="report-text">
     [을사년 무술월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">11. 11월 운세 : 을사년 기해월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">11. 11월 운세 : 을사년 기해월</h3>
+   <p class="report-text">
     [을사년 기해월의 운세 100자 이내]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">12. 12월 운세 : 을사년 경자월</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">12. 12월 운세 : 을사년 경자월</h3>
+   <p class="report-text">
     [을사년 경자월의 운세 100자 이내]
   </p>
 </div>
-`,
-  en: `
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
-  .destiny-container { font-family: 'Nanum Myeongjo', 'Batang', serif; background-color: #fdfbf7; color: #333333; padding: 40px 30px; line-height: 1.9; word-break: keep-all; border: 1px solid #e8e6e1; border-radius: 8px; max-width: 100%; box-sizing: border-box; }
-  .destiny-header { text-align: center; margin-bottom: 50px; border-bottom: 1px solid #dcdcdc; padding-bottom: 20px; }
-  .destiny-title { font-size: 26px; font-weight: 400; color: #1a1a1a; margin: 0; letter-spacing: 3px; }
-  .destiny-subtitle { font-size: 19px; color: #5d4037; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #a1887f; font-weight: 400; letter-spacing: 1px; }
-  .destiny-content { font-size: 16px; color: #4a4a4a; text-align: justify; margin: 0; }
-  .destiny-footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #e0e0e0; font-size: 16px; font-style: italic; color: #6d6d6d; }
-</style>
 
-<div class="destiny-container">
-  <h1 class="destiny-title" style="text-align:left; margin-bottom:30px;">2026 New Year Fortune</h1>
+
+`,
+  en: `<div class="destiny-container">
   
-  <h2 class="destiny-subtitle">Comprehensive Analysis (2026 Byeong-o Year)</h2>
-  <p class="destiny-content" style="margin-bottom: 30px;">
+  <h2 class="section-title-h2">Comprehensive Analysis (2026 Byeong-o Year)</h2>
+  <p class="report-text">
     [Based on the provided Saju information, please provide a comprehensive analysis of the fortune for the year 2026 (Byeong-o Year). Summarize the key points within 500 characters.]
   </p>
 
-  <h2 class="destiny-subtitle">Monthly Fortune</h2>
+  <h2 class="section-title-h2">Monthly Fortune</h2>
   
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">1. January Fortune: Gichuk Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">1. January Fortune: Gichuk Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Gichuk Month of Eulsa Year (Under 100 characters)]
   </p>
   
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">2. February Fortune: Gyeongin Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">2. February Fortune: Gyeongin Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Gyeongin Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">3. March Fortune: Sinmyo Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">3. March Fortune: Sinmyo Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Sinmyo Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">4. April Fortune: Imjin Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">4. April Fortune: Imjin Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Imjin Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">5. May Fortune: Gyesa Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">5. May Fortune: Gyesa Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Gyesa Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">6. June Fortune: Gabo Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">6. June Fortune: Gabo Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Gabo Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">7. July Fortune: Eulmi Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">7. July Fortune: Eulmi Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Eulmi Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">8. August Fortune: Byeongshin Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">8. August Fortune: Byeongshin Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Byeongshin Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">9. September Fortune: Jeongyu Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">9. September Fortune: Jeongyu Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Jeongyu Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">10. October Fortune: Musul Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">10. October Fortune: Musul Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Musul Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">11. November Fortune: Gihae Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">11. November Fortune: Gihae Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Gihae Month of Eulsa Year (Under 100 characters)]
   </p>
 
-  <h3 style="font-size: 16px; color: #4a4a4a; margin-top: 20px; font-weight: 400;">12. December Fortune: Gyeongja Month of Eulsa Year</h3>
-  <p class="destiny-content" style="margin-bottom: 15px;">
+  <h3 class="section-title-h3">12. December Fortune: Gyeongja Month of Eulsa Year</h3>
+  <p class="report-text">
     [Fortune for Gyeongja Month of Eulsa Year (Under 100 characters)]
   </p>
 </div>
 `,
 };
+export const aiSajuStyle = `<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
+
+  /* =================================================== */
+  /* 1. 기본 스타일 (라이트 모드 / Light Mode Defaults) */
+  /* =================================================== */
+
+  .report-container {
+    font-family: 'Nanum Myeongjo', 'Batang', serif;
+    background-color: #fcfbf8; /* Light BG */
+    color: #333333; /* Dark Text */
+    padding: 35px;
+    line-height: 1.8;
+    max-width: 100%;
+    border: 1px solid #e8e8e8;
+  }
+  .section-title-h2 {
+    font-size: 22px;
+    color: #5d4037;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #d4d4d4;
+    padding-bottom: 5px;
+    font-weight: 400;
+  }
+  .section-title-h3 {
+    font-size: 18px;
+    color: #4a4a4a;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-left: 4px solid #bcaaa4;
+    padding-left: 10px;
+    font-weight: 400;
+  }
+  .report-text {
+    font-size: 15px;
+    text-align: justify;
+    margin-bottom: 15px;
+    color: #444;
+  }
+  .info-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    font-size: 15px;
+  }
+  .info-list li {
+    margin-bottom: 8px;
+    padding-left: 15px;
+    text-indent: -15px;
+  }
+  .info-list li::before {
+    content: "•";
+    color: #8d6e63;
+    margin-right: 8px;
+  }
+  .keyword-summary {
+    font-size: 15px;
+    margin-top: 15px;
+    margin-bottom: 25px;
+  }
+  .keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .keyword-tag {
+    background-color: #eee;
+    color: #777;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .keyword-explanation-block {
+    margin-top: 15px;
+    border: 1px solid #f0f0f0;
+    padding: 15px;
+    background-color: #f7f7f7;
+  }
+  .explanation-item {
+    margin-bottom: 10px;
+    padding-left: 10px;
+  }
+  .explanation-item::before {
+    content: "◇";
+    color: #8d6e63;
+    margin-right: 5px;
+  }
+  .final-conclusion {
+    font-size: 18px;
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 2px solid #a1887f;
+    font-style: italic;
+    color: #3e3e3e;
+  }
+  .report-keyword {
+  font-weight:600;
+  margin-bottom : 5px}
+
+  /* ======================================================= */
+  /* 2. 다크 모드 오버라이드 (React 상태 기반 - html.dark)  */
+  /* ======================================================= */
+
+  /* html 태그에 .dark 클래스가 있을 때만 아래 스타일이 적용됩니다. */
+  html.dark .report-container {
+   background-color: transparent;
+    color: #e0e0e0; /* Light Text */
+    border: 1px solid #3a3a3a;
+  }
+  html.dark .section-title-h2 {
+    color: #a1887f;
+    border-bottom: 1px solid #4a4a4a;
+  }
+  html.dark .section-title-h3 {
+    color: #cccccc;
+    border-left: 4px solid #bcaaa4;
+  }
+  html.dark .report-text {
+    color: #cccccc;
+  }
+  html.dark .info-list li {
+    color: #e0e0e0;
+  }
+  html.dark .info-list li::before {
+    content: "•";
+    color: #a1887f;
+  }
+  html.dark .keyword-summary {
+    color: #e0e0e0;
+  }
+  html.dark .keyword-tag {
+    background-color: #3a3a3a;
+    color: #b0b0b0;
+  }
+  html.dark .keyword-explanation-block {
+    border: 1px solid #3a3a3a;
+    background-color: #2a2a2a;
+  }
+  html.dark .explanation-item {
+    color: #e0e0e0;
+  }
+  html.dark .explanation-item::before {
+    content: "◇";
+    color: #a1887f;
+  }
+  html.dark .final-conclusion {
+    border-top: 2px solid #a1887f;
+    color: #bcaaa4;
+  }
+  
+</style>`;
 export const IljuExp = {
   ko: {
     // === 갑목 (甲木) ===

@@ -1,9 +1,9 @@
+import { aiSajuStyle } from '../data/constants';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeftIcon, ShareIcon, SparklesIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // firebase db import 필요
 import { fetchGeminiAnalysis } from '../api/gemini'; // API 호출 import 필요
-
 import { UI_TEXT, IljuExp, langPrompt, hanja } from '../data/constants';
 import { iljuNameList } from '../data/iljuNameList';
 import { classNames, getIcon, getHanja, getEng, bgToBorder } from '../utils/helpers';
@@ -121,7 +121,6 @@ export default function ResultModal({
   }
 
   const pureHtml = extractPureHtml(aiResult);
-  console.log(pureHtml);
 
   useEffect(() => {
     if (viewMode === 'chat' && chatEndRef.current) {
@@ -541,160 +540,9 @@ export default function ResultModal({
                   <div className="">
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: `<style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
-
-  /* =================================================== */
-  /* 1. 기본 스타일 (라이트 모드 / Light Mode Defaults) */
-  /* =================================================== */
-
-  .report-container {
-    font-family: 'Nanum Myeongjo', 'Batang', serif;
-    background-color: #fcfbf8; /* Light BG */
-    color: #333333; /* Dark Text */
-    padding: 35px;
-    line-height: 1.8;
-    max-width: 100%;
-    border: 1px solid #e8e8e8;
-  }
-  .section-title-h2 {
-    font-size: 22px;
-    color: #5d4037;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #d4d4d4;
-    padding-bottom: 5px;
-    font-weight: 400;
-  }
-  .section-title-h3 {
-    font-size: 18px;
-    color: #4a4a4a;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    border-left: 4px solid #bcaaa4;
-    padding-left: 10px;
-    font-weight: 400;
-  }
-  .report-text {
-    font-size: 15px;
-    text-align: justify;
-    margin-bottom: 15px;
-    color: #444;
-  }
-  .info-list {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0;
-    font-size: 15px;
-  }
-  .info-list li {
-    margin-bottom: 8px;
-    padding-left: 15px;
-    text-indent: -15px;
-  }
-  .info-list li::before {
-    content: "•";
-    color: #8d6e63;
-    margin-right: 8px;
-  }
-  .keyword-summary {
-    font-size: 15px;
-    margin-top: 15px;
-    margin-bottom: 25px;
-  }
-  .keyword-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  .keyword-tag {
-    background-color: #eee;
-    color: #777;
-    padding: 5px 10px;
-    border-radius: 3px;
-    font-size: 14px;
-    font-weight: 400;
-  }
-  .keyword-explanation-block {
-    margin-top: 15px;
-    border: 1px solid #f0f0f0;
-    padding: 15px;
-    background-color: #f7f7f7;
-  }
-  .explanation-item {
-    margin-bottom: 10px;
-    padding-left: 10px;
-  }
-  .explanation-item::before {
-    content: "◇";
-    color: #8d6e63;
-    margin-right: 5px;
-  }
-  .final-conclusion {
-    font-size: 18px;
-    text-align: center;
-    margin-top: 60px;
-    padding-top: 20px;
-    border-top: 2px solid #a1887f;
-    font-style: italic;
-    color: #3e3e3e;
-  }
-
-  /* ======================================================= */
-  /* 2. 다크 모드 오버라이드 (React 상태 기반 - html.dark)  */
-  /* ======================================================= */
-
-  /* html 태그에 .dark 클래스가 있을 때만 아래 스타일이 적용됩니다. */
-  html.dark .report-container {
-   background-color: transparent;
-    color: #e0e0e0; /* Light Text */
-    border: 1px solid #3a3a3a;
-  }
-  html.dark .section-title-h2 {
-    color: #a1887f;
-    border-bottom: 1px solid #4a4a4a;
-  }
-  html.dark .section-title-h3 {
-    color: #cccccc;
-    border-left: 4px solid #bcaaa4;
-  }
-  html.dark .report-text {
-    color: #cccccc;
-  }
-  html.dark .info-list li {
-    color: #e0e0e0;
-  }
-  html.dark .info-list li::before {
-    content: "•";
-    color: #a1887f;
-  }
-  html.dark .keyword-summary {
-    color: #e0e0e0;
-  }
-  html.dark .keyword-tag {
-    background-color: #3a3a3a;
-    color: #b0b0b0;
-  }
-  html.dark .keyword-explanation-block {
-    border: 1px solid #3a3a3a;
-    background-color: #2a2a2a;
-  }
-  html.dark .explanation-item {
-    color: #e0e0e0;
-  }
-  html.dark .explanation-item::before {
-    content: "◇";
-    color: #a1887f;
-  }
-  html.dark .final-conclusion {
-    border-top: 2px solid #a1887f;
-    color: #bcaaa4;
-  }
-</style>`,
+                        __html: aiSajuStyle,
                       }}
                     />
-
                     <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
                   </div>
 
