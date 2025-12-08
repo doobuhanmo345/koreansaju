@@ -374,28 +374,28 @@ export const aiSajuStyle = `<style>
 
   .report-container {
     font-family: 'Nanum Myeongjo', 'Batang', serif;
-    background-color: #fcfbf8; /* Light BG */
-    color: #333333; /* Dark Text */
-    padding: 35px;
+    background-color: transparent; /* 배경 투명 강제 적용 */
+    color: #333344; /* 짙은 인디고/회색 텍스트 (튀지 않음) */
+    padding: 15px;
     line-height: 1.8;
     max-width: 100%;
-    border: 1px solid #e8e8e8;
+
   }
   .section-title-h2 {
     font-size: 22px;
-    color: #5d4037;
+    color: #4B0082; /* Main Indigo */
     margin-top: 40px;
     margin-bottom: 20px;
-    border-bottom: 1px solid #d4d4d4;
+    border-bottom: 1px solid #B0B0D8;
     padding-bottom: 5px;
     font-weight: 400;
   }
   .section-title-h3 {
     font-size: 18px;
-    color: #4a4a4a;
+    color: #555577;
     margin-top: 25px;
     margin-bottom: 15px;
-    border-left: 4px solid #bcaaa4;
+    border-left: 4px solid #4B0082; /* Main Indigo accent */
     padding-left: 10px;
     font-weight: 400;
   }
@@ -403,7 +403,7 @@ export const aiSajuStyle = `<style>
     font-size: 15px;
     text-align: justify;
     margin-bottom: 15px;
-    color: #444;
+    color: #333344; /* 짙은 인디고/회색 - 튀지 않는 일반 텍스트 */
   }
   .info-list {
     list-style: none;
@@ -418,7 +418,7 @@ export const aiSajuStyle = `<style>
   }
   .info-list li::before {
     content: "•";
-    color: #8d6e63;
+    color: #6A5ACD; /* Medium Slate Blue/Indigo point */
     margin-right: 8px;
   }
   .keyword-summary {
@@ -433,8 +433,8 @@ export const aiSajuStyle = `<style>
     margin-top: 10px;
   }
   .keyword-tag {
-    background-color: #eee;
-    color: #777;
+    background-color: #E6E6FA; /* Lavender (Light Indigo) */
+    color: #4B0082; /* Main Indigo Text */
     padding: 5px 10px;
     border-radius: 3px;
     font-size: 14px;
@@ -442,9 +442,9 @@ export const aiSajuStyle = `<style>
   }
   .keyword-explanation-block {
     margin-top: 15px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid #E0E0F0;
     padding: 15px;
-    background-color: #f7f7f7;
+    background-color: #F8F8FF; /* Ghost White (흰색에 가까운 톤 유지) */
   }
   .explanation-item {
     margin-bottom: 10px;
@@ -452,7 +452,7 @@ export const aiSajuStyle = `<style>
   }
   .explanation-item::before {
     content: "◇";
-    color: #8d6e63;
+    color: #6A5ACD; /* Medium Slate Blue/Indigo point */
     margin-right: 5px;
   }
   .final-conclusion {
@@ -460,65 +460,69 @@ export const aiSajuStyle = `<style>
     text-align: center;
     margin-top: 60px;
     padding-top: 20px;
-    border-top: 2px solid #a1887f;
+    border-top: 2px solid #4B0082; /* Main Indigo line */
     font-style: italic;
-    color: #3e3e3e;
+    color: #4B0082;
   }
   .report-keyword {
-  font-weight:600;
-  margin-bottom : 5px}
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #4B0082;
+  }
 
   /* ======================================================= */
-  /* 2. 다크 모드 오버라이드 (React 상태 기반 - html.dark)  */
+  /* 2. 다크 모드 오버라이드 (React 상태 기반 - html.dark)  */
   /* ======================================================= */
 
   /* html 태그에 .dark 클래스가 있을 때만 아래 스타일이 적용됩니다. */
   html.dark .report-container {
-   background-color: transparent;
-    color: #e0e0e0; /* Light Text */
-    border: 1px solid #3a3a3a;
+    background-color: transparent; /* 배경 투명 */
+    color: #F0F0FF; /* Very Light Indigo Text for readability */
+
   }
   html.dark .section-title-h2 {
-    color: #a1887f;
-    border-bottom: 1px solid #4a4a4a;
+    color: #E6E6FA; /* Lavender for contrast */
+    border-bottom: 1px solid #4B0082;
   }
   html.dark .section-title-h3 {
-    color: #cccccc;
-    border-left: 4px solid #bcaaa4;
+    color: #F0F0FF;
+    border-left: 4px solid #7B68EE; /* Medium Slate Blue accent */
   }
   html.dark .report-text {
-    color: #cccccc;
+    color: #F0F0FF; /* Very Light Indigo - 다크 모드 텍스트 */
   }
   html.dark .info-list li {
-    color: #e0e0e0;
+    color: #F0F0FF;
   }
   html.dark .info-list li::before {
     content: "•";
-    color: #a1887f;
+    color: #7B68EE; /* Medium Slate Blue point */
   }
   html.dark .keyword-summary {
-    color: #e0e0e0;
+    color: #F0F0FF;
   }
   html.dark .keyword-tag {
-    background-color: #3a3a3a;
-    color: #b0b0b0;
+    background-color: #2E0854; /* Darker Indigo */
+    color: #E6E6FA; /* Light Indigo Text */
   }
   html.dark .keyword-explanation-block {
-    border: 1px solid #3a3a3a;
-    background-color: #2a2a2a;
+    border: 1px solid #4B0082;
+    background-color: #1A0033; /* Very Dark Indigo BG */
   }
   html.dark .explanation-item {
-    color: #e0e0e0;
+    color: #F0F0FF;
   }
   html.dark .explanation-item::before {
     content: "◇";
-    color: #a1887f;
+    color: #7B68EE;
   }
   html.dark .final-conclusion {
-    border-top: 2px solid #a1887f;
-    color: #bcaaa4;
+    border-top: 2px solid #7B68EE;
+    color: #E6E6FA;
   }
-  
+  html.dark .report-keyword {
+    color: #7B68EE;
+  }
 </style>`;
 export const IljuExp = {
   ko: {

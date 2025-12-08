@@ -548,7 +548,8 @@ export default function ResultModal({
                         __html: aiSajuStyle,
                       }}
                     />
-
+                    {/* <div dangerouslySetInnerHTML={{ __html: DEFAULT_INSTRUCTION.ko }} />
+                    <div dangerouslySetInnerHTML={{ __html: DAILY_FORTUNE_PROMPT.ko }} /> */}
                     <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
                   </div>
 
