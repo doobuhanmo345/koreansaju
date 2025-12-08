@@ -47,9 +47,9 @@ const provider = new GoogleAuthProvider();
 export const login = () =>
   signInWithPopup(auth, provider).catch((error) => {
     console.error('로그인 에러:', error); // 에러 핸들링 로직은 그대로 유지
-    alert(
-      "로그인 중 오류가 발생했습니다. Firebase 콘솔 설정을 확인하거나, 브라우저의 '교차 사이트 추적 방지' 설정을 해제해보세요.",
-    );
+    // alert(
+    //   "로그인 중 오류가 발생했습니다. Firebase 콘솔 설정을 확인하거나, 브라우저의 '교차 사이트 추적 방지' 설정을 해제해보세요.",
+    // );
   });
 
 // 로그아웃 함수
