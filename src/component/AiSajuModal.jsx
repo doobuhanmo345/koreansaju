@@ -12,6 +12,11 @@ import sajaProfile from '../assets/sajaProfile.png';
 import { useLanguage } from '../context/useLanguageContext';
 import { useAuthContext } from '../context/useAuthContext';
 import { useShareActions } from '../hooks/useShareAction';
+import {
+  DEFAULT_INSTRUCTION,
+  DAILY_FORTUNE_PROMPT,
+  NEW_YEAR_FORTUNE_PROMPT,
+} from '../data/aiResultConstants';
 export default function ResultModal({
   isOpen,
   onClose,
@@ -543,6 +548,7 @@ export default function ResultModal({
                         __html: aiSajuStyle,
                       }}
                     />
+
                     <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
                   </div>
 

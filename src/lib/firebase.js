@@ -4,8 +4,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
-  // ⭐️⭐️ 인증 지속성 관련 모듈 추가 ⭐️⭐️
+  onAuthStateChanged, // ⭐️ 인증 지속성 관련 모듈 추가
   setPersistence,
   browserSessionPersistence,
 } from 'firebase/auth';
@@ -28,17 +27,18 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// ⭐️⭐️ Safari 문제 해결: 인증 지속성 설정 ⭐️⭐️
+// --- 🔑 인증 지속성 설정 (Persistence) ---
 // signInWithPopup/Redirect 전에 실행되어야 합니다.
+// browserSessionPersistence는 브라우저 세션이 종료될 때까지 (창을 닫거나 탭을 닫을 때까지)
+// 인증 정보를 유지하도록 설정합니다.
 setPersistence(auth, browserSessionPersistence)
   .then(() => {
-    // console.log("인증 지속성 설정 완료:", browserSessionPersistence.type);
-    // 성공적으로 설정되면 다음 작업을 계속합니다.
+    console.log('인증 지속성 설정 완료: browserSessionPersistence 적용'); // 성공적으로 설정되면 다음 작업을 계속합니다.
   })
   .catch((error) => {
-    console.error('인증 지속성 설정 오류:', error);
-    // 오류가 발생해도 앱이 동작하도록 예외 처리를 합니다.
+    console.error('인증 지속성 설정 오류:', error); // 오류가 발생해도 앱이 동작하도록 예외 처리를 합니다.
   });
+// ------------------------------------------
 
 // 구글 로그인 설정
 const provider = new GoogleAuthProvider();
@@ -46,9 +46,7 @@ const provider = new GoogleAuthProvider();
 // 로그인 함수
 export const login = () =>
   signInWithPopup(auth, provider).catch((error) => {
-    console.error('로그인 에러:', error);
-    // error.code === 'auth/missing-or-invalid-nonce' (SAML) 또는
-    // 'auth/cancelled-popup-request'와 관련된 에러일 수 있습니다.
+    console.error('로그인 에러:', error); // 에러 핸들링 로직은 그대로 유지
     alert(
       "로그인 중 오류가 발생했습니다. Firebase 콘솔 설정을 확인하거나, 브라우저의 '교차 사이트 추적 방지' 설정을 해제해보세요.",
     );

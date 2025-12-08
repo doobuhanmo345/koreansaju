@@ -36,12 +36,10 @@ Analyze the data above, and generate the report result by strictly filling in th
 };
 export const DEFAULT_INSTRUCTION = {
   ko: `
-  ### 2. HTML Output Template (Final Code to be Filled)
+
 <div class="report-container">
 
-  <h1 style="text-align:center; font-size:28px; margin-bottom:40px; font-weight:400; color:#1a1a1a;">
-    </h1>
-
+ 
   <h2 class="section-title-h2">1. 의뢰자 정보</h2>
   <ul class="info-list">
     <li>생년월일 및 태어난 시간: [입력된 생년월일 시간]</li>
@@ -117,11 +115,8 @@ export const DEFAULT_INSTRUCTION = {
     </p>
 </div>`,
   en: `
-  ### 2. HTML Output Template (Final Code to be Filled)
+ 
 <div class="report-container">
-
-  <h1 style="text-align:center; font-size:28px; margin-bottom:40px; font-weight:400; color:#1a1a1a;">
-    </h1>
 
   <h2 class="section-title-h2">1. Client Information</h2>
   <ul class="info-list">
@@ -200,8 +195,6 @@ export const DEFAULT_INSTRUCTION = {
 };
 export const DAILY_FORTUNE_PROMPT = {
   ko: `<div class="destiny-container">
-  <h1 class="section-title-h2" >일일 운세 리포트</h1>
-  
   <h2 class="section-title-h3">1. [오늘의 운세] ([오늘 날짜 기재])</h2>
   <h3 class="report-keyword" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
   <p class="report-text">
@@ -214,7 +207,6 @@ export const DAILY_FORTUNE_PROMPT = {
 `,
   en: `
 <div class="destiny-container">
-  <h1 class="section-title-h2" >Daily Fortune Report</h1>
   
   <h2 class="section-title-h3">1. [Today's Fortune] ([Insert Today's Date])</h2>
   <h3 class="report-keyword" >[Noun phrase title summarizing the relationship between today's energy and the client's Saju]</h3>
