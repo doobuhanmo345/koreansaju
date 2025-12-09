@@ -516,7 +516,7 @@ export default function App() {
 
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
       {!user && (
-        <div className="absolute inset-x-0 h-[600px] z-10 backdrop-blur-sm flex justify-center items-center">
+        <div className="absolute inset-x-0 h-[615px] z-10 backdrop-blur-sm flex justify-center items-center">
           <div className="relative w-[260px]">
             <div className="absolute -top-[150px] w-full p-4 bg-gray-300/15 dark:bg-white/15 backdrop-blur-lg rounded-xl shadow-2xl dark:shadow-black/20 shadow-black/40 flex flex-col items-center justify-center space-y-4 mx-auto border border-gray-300/30 dark:border-gray-700/40">
               {language === 'en' ? (
@@ -541,7 +541,10 @@ export default function App() {
                 )}
                 <span className="text-white">
                   {language === 'en' ? (
-                    <span className="text-sm">FREE ACCESS UPON LOGIN</span>
+                    <span className="text-sm">
+                      FREE ACCESSN
+                      <br /> UPON LOGIN
+                    </span>
                   ) : (
                     <>
                       <span className="text-md font-black">1초 로그인</span>으로 사주 보기
@@ -605,7 +608,7 @@ export default function App() {
       </div>
 
       {/* 분석 버튼 영역 */}
-      <div className="my-4 pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
+      <div className="mt-4 mb-8  pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {loading && (
           <LoadingBar
             progress={progress}
