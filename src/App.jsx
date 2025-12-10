@@ -27,7 +27,6 @@ import NavBar from './component/Navbar';
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
 import LoginStatus from './component/LoginStatus';
-import SajuBlur from './component/SajuBlur';
 
 export default function App() {
   // --- Context Hooks ---
