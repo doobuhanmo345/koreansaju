@@ -76,7 +76,10 @@ export default function ResultModal({
 
       // 3. 🔗 주소를 텍스트 뒤에 아예 합쳐버림 (가장 확실한 방법)
       const currentUrl = window.location.href;
-      const shareTitle = language === 'ko' ? '사자(Saza) 사주 분석' : 'Saza Analysis Result';
+      const shareTitle =
+        language === 'ko'
+          ? '🦁사자사주가 보는 천기누설 맞춤 사주해석🦁'
+          : '🦁Saza Analysis Result🦁';
       const finalShareText = `${shareTitle}\n🔗${currentUrl}\n\n${plainText}`;
 
       // 4. 공유 실행
@@ -280,7 +283,7 @@ export default function ResultModal({
       setQLoading(false);
     }
   };
-  console.log(pureHtml);
+
   // 모달 렌더링 시작
   if (!isOpen) return null;
 
