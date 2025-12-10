@@ -15,6 +15,7 @@ import logoEng from '../assets/Logo_Eng.png';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useTheme } from '../context/useThemeContext';
 import useContactModal from '../hooks/useContactModal';
+import ContactModal from './ContactModal';
 
 // 1. 햄버거 메뉴의 추가 항목 리스트를 정의합니다.
 // 이 리스트는 객체 형태로, 각 항목의 아이콘, 한국어/영어 텍스트, 클릭 이벤트 핸들러를 포함합니다.
@@ -42,12 +43,12 @@ export default function NavBar({}) {
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const { isContactModalOpen, handleCloseContact, handleshowContrnact } = useContactModal();
+  const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
   const { language, setLanguage } = useLanguage();
   // 2. Map 함수를 위한 항목 클릭 핸들러
   const handleItemClick = (item) => {
-    if (item.action === 'SHOW_CONTACT_MODAL' && handleshowContrnact) {
-      handleshowContrnact(); // 부모에서 받은 문의 팝업 함수 실행
+    if (item.action === 'SHOW_CONTACT_MODAL' && handleShowContact) {
+      handleShowContact(); // 부모에서 받은 문의 팝업 함수 실행
     } else if (typeof item.action === 'function') {
       item.action(); // 기타 함수 실행
     }

@@ -1,5 +1,3 @@
-// ContactModal.jsx
-
 import React, { useState } from 'react'; // useState 임포트
 import { useLanguage } from '../context/useLanguageContext';
 export default function ContactModal({ onClose, email }) {
