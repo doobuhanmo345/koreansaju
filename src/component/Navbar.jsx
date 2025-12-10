@@ -65,7 +65,7 @@ export default function NavBar({}) {
           <img
             src={language === 'ko' ? logoKorDark : logoEngDark}
             alt="Sajucha Logo"
-            className="w-[300px] rounded-xl shadow-sm object-cover"
+            className="w-[300px]  object-cover"
           />
         </div>
       ) : (
@@ -73,7 +73,7 @@ export default function NavBar({}) {
           <img
             src={language === 'ko' ? logoKor : logoEng}
             alt="Sajucha Logo"
-            className="w-[300px] rounded-xl shadow-sm object-cover"
+            className="w-[300px]  object-cover"
           />
         </div>
       )}
