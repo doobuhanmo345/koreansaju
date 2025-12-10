@@ -1,6 +1,8 @@
 import { useAuthContext } from '../context/useAuthContext';
+import { useLanguage } from '../context/useLanguageContext';
 export default function SajuBlur({ MAX_EDIT_COUNT }) {
   const { login } = useAuthContext();
+  const { language } = useLanguage();
   return (
     <div className="absolute inset-x-0 h-[615px] z-10 backdrop-blur-sm flex justify-center items-center">
       <div className="relative w-[260px]">

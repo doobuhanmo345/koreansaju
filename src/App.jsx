@@ -507,7 +507,7 @@ export default function App() {
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <Test />
-      <NavBar onShowContact={handleShowContact} />
+      <NavBar />
       {/* 로그인이 안되어 있을 때는 LOGIN STATUS보이지 않음 */}
       {!!user && <LoginStatus MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
 
