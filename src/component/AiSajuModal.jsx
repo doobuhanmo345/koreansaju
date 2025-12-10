@@ -280,7 +280,7 @@ export default function ResultModal({
       setQLoading(false);
     }
   };
-
+  console.log(pureHtml);
   // 모달 렌더링 시작
   if (!isOpen) return null;
 
@@ -541,7 +541,6 @@ export default function ResultModal({
                       </div>
                     </div>
                   )}
-
                   <div className="">
                     {/* <div dangerouslySetInnerHTML={{ __html: DEFAULT_INSTRUCTION.ko }} />
                     <div dangerouslySetInnerHTML={{ __html: DAILY_FORTUNE_PROMPT.ko }} /> */}
@@ -552,7 +551,6 @@ export default function ResultModal({
                       __html: aiSajuStyle,
                     }}
                   />
-                  {pureHtml}
 
                   <div className="mt-8 flex justify-center">
                     <button
@@ -567,7 +565,6 @@ export default function ResultModal({
                       </span>
                     </button>
                   </div>
-
                   {/* Same Vibe List */}
                   {resultType === 'main' &&
                     iljuNameList?.[`${saju?.sky1}${saju?.grd1}`] &&
