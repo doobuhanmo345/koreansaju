@@ -34,6 +34,7 @@ import { GiCrystalBall } from 'react-icons/gi';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
+
   const { theme } = useTheme();
   const { language } = useLanguage();
 
@@ -44,8 +45,10 @@ export default function App() {
   // 저장/수정 상태
   const [isSaved, setIsSaved] = useState(false);
   const [editCount, setEditCount] = useState(0);
-  const MAX_EDIT_COUNT = 10;
-
+  let MAX_EDIT_COUNT = 3;
+  if (user?.uid === 'PQs3NGG6zqPqyiEeLVFYZkQvOHu1') {
+    MAX_EDIT_COUNT = 20;
+  }
   // 결과 상태
   const [resultType, setResultType] = useState(null); // 'main', 'year', 'daily'
   const [aiResult, setAiResult] = useState('');

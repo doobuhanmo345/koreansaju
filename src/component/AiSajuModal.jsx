@@ -543,15 +543,15 @@ export default function ResultModal({
                   )}
 
                   <div className="">
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: aiSajuStyle,
-                      }}
-                    />
                     {/* <div dangerouslySetInnerHTML={{ __html: DEFAULT_INSTRUCTION.ko }} />
                     <div dangerouslySetInnerHTML={{ __html: DAILY_FORTUNE_PROMPT.ko }} /> */}
                     <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
                   </div>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: aiSajuStyle,
+                    }}
+                  />
 
                   <div className="mt-8 flex justify-center">
                     <button

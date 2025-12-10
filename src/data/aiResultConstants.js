@@ -42,7 +42,8 @@ export const DEFAULT_INSTRUCTION = {
  
   <h2 class="section-title-h2">1. 의뢰자 정보</h2>
   <ul class="info-list">
-    <li>생년월일 및 태어난 시간: [입력된 생년월일 시간]</li>
+<li>생년월일 및 태어난 시간: [입력된 생년월일 시간]</li>
+<li>성별: [입력된 만세력 정보 단순 기재]</li>
     <li>만세력 주요 구성: [입력된 만세력 정보 단순 기재]</li>
   </ul>
 
@@ -120,7 +121,8 @@ export const DEFAULT_INSTRUCTION = {
 
   <h2 class="section-title-h2">1. Client Information</h2>
   <ul class="info-list">
-    <li>Date and Time of Birth: [INPUT DATE AND TIME]</li>
+<li>Date and Time of Birth: [INPUT DATE AND TIME]</li>
+<li>Gender: [INPUT DATE AND TIME]</li>
     <li>Main Saju Composition: [INPUT SAJU DATA SUMMARY]</li>
   </ul>
 
@@ -198,11 +200,11 @@ export const DAILY_FORTUNE_PROMPT = {
   <h2 class="section-title-h3">1. [오늘의 운세] ([오늘 날짜 기재])</h2>
   <h3 class="report-keyword" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
   <p class="report-text">
-    [오늘의 운세 상세 분석 내용을 공백 포함 500자 이내로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 서술.]</p>
+    [오늘의 운세 상세 분석 내용을 공백 포함 1000자 이내로 작성. 100점 만점의 운세 총점으로 시작. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 건강운, 연애운, 학업운, 직업운, 금전운 관저에서 서술.]</p>
   <h2 class="section-title-h3">1. [내일의 운세] ([내일 날짜 기재])</h2>
   <h3 class="report-keyword" >[내일의 일진과 사주 관계를 함축한 명사형 제목]</h3>
   <p class="report-text">
-    [내일의 운세 상세 분석 내용을 공백 포함 500자 이내로 작성. 의뢰인의 사주와 내일의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 서술.]</p>  
+    [내일의 운세 상세 분석 내용을 공백 포함 1000자 이내로 작성. 100점 만점의 운세 총점으로 시작. 의뢰인의 사주와 내일의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소를 건강운, 연애운, 학업운, 직업운, 금전운 관저에서 서술.]</p>  
 </div>
 `,
   en: `
@@ -233,62 +235,62 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
   
   <h3 class="section-title-h3">1. 1월 운세 : 을사년 기축월</h3>
   <p class="report-text">
-    [을사년 기축월의 운세 100자 이내]
+    [을사년 기축월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
   
   <h3 class="section-title-h3">2. 2월 운세 : 을사년 경인월</h3>
    <p class="report-text">
-    [을사년 경인월의 운세 100자 이내]
+    [을사년 경인월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">3. 3월 운세 : 을사년 신묘월</h3>
    <p class="report-text">
-    [을사년 신묘월의 운세 100자 이내]
+    [을사년 신묘월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">4. 4월 운세 : 을사년 임진월</h3>
    <p class="report-text">
-    [을사년 임진월의 운세 100자 이내]
+    [을사년 임진월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">5. 5월 운세 : 을사년 계사월</h3>
    <p class="report-text">
-    [을사년 계사월의 운세 100자 이내]
+    [을사년 계사월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">6. 6월 운세 : 을사년 갑오월</h3>
    <p class="report-text">
-    [을사년 갑오월의 운세 100자 이내]
+    [을사년 갑오월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">7. 7월 운세 : 을사년 을미월</h3>
    <p class="report-text">
-    [을사년 을미월의 운세 100자 이내]
+    [을사년 을미월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">8. 8월 운세 : 을사년 병신월</h3>
    <p class="report-text">
-    [을사년 병신월의 운세 100자 이내]
+    [을사년 병신월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">9. 9월 운세 : 을사년 정유월</h3>
    <p class="report-text">
-    [을사년 정유월의 운세 100자 이내]
+    [을사년 정유월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">10. 10월 운세 : 을사년 무술월</h3>
    <p class="report-text">
-    [을사년 무술월의 운세 100자 이내]
+    [을사년 무술월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">11. 11월 운세 : 을사년 기해월</h3>
    <p class="report-text">
-    [을사년 기해월의 운세 100자 이내]
+    [을사년 기해월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">12. 12월 운세 : 을사년 경자월</h3>
    <p class="report-text">
-    [을사년 경자월의 운세 100자 이내]
+    [을사년 경자월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 </div>
 
@@ -365,6 +367,7 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
 </div>
 `,
 };
+
 export const aiSajuStyle = `<style>
   @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
 
