@@ -586,7 +586,7 @@ export default function App() {
             isSaved={isSaved}
             isLocked={isLocked}
             isAnalysisDone={isMainDone}
-            icon={<GiCrystalBall className="w-8 h-8 text-violet-800 dark:text-violet-200 " />}
+            icon={<GiCrystalBall className="w-8 h-8 text-violet-800  " />}
             buttonType={'main'}
             textKo={'사주 분석'}
             TextEn={'Life Path Decoding'}
@@ -604,7 +604,7 @@ export default function App() {
             isSaved={isSaved}
             isLocked={isLocked}
             isAnalysisDone={isYearDone}
-            icon={<FaHorseHead className="w-8 h-8 text-amber-800 opacity-80" />}
+            icon={<FaHorseHead className="w-8 h-8 text-amber-800 opacity-70" />}
             buttonType={'year'}
             textKo={'2026 신년 운세'}
             TextEn={'2026 Path Guide'}
@@ -621,7 +621,7 @@ export default function App() {
             isSaved={isSaved}
             isLocked={isLocked}
             isAnalysisDone={isDailyDone}
-            icon={<SunIcon className="w-8 h-8 text-amber-500 " />}
+            icon={<SunIcon className="w-8 h-8 text-amber-500 opacity-80" />}
             buttonType={'daily'}
             textKo={'오늘의 운세'}
             TextEn={"Today's Luck"}

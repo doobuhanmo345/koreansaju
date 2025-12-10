@@ -5,7 +5,7 @@ export default function Test() {
 
   return (
     <div>
-      <FaHorse className="w-8 h-8 text-red-500" />
+      {/* <FaHorse className="w-8 h-8 text-red-500" /> */}
       {/* // dangerouslySetInnerHTML을 사용해야 HTML 태그가 먹힙니다. //{' '} */}
       {/* <div dangerouslySetInnerHTML={{ __html: testhtml }} /> */}
     </div>
