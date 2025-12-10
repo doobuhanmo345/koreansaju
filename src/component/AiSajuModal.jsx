@@ -552,6 +552,7 @@ export default function ResultModal({
                       __html: aiSajuStyle,
                     }}
                   />
+                  {pureHtml}
 
                   <div className="mt-8 flex justify-center">
                     <button

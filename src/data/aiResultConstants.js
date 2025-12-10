@@ -12,7 +12,7 @@ export const STRICT_INSTRUCTION = {
    - 의뢰인을 "당신"이라고 지칭하며, 신비롭고 예언가적인 '해요체'를 사용하십시오.
    - 전문 용어(식상, 관인 등)는 절대 사용하지 말고 현대적인 언어로 풀어서 설명하십시오.
 4. **구조 및 길이 준수**: 각 요약 및 키워드 해설의 문단 및 문장 개수 제한(예: '정확히 2문장')을 철저히 지키십시오.
-5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <style>나 <div> 태그여야 합니다.
+5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <h2>나 <div>태그여야 합니다.
 
 `,
   en: `
@@ -32,7 +32,7 @@ Analyze the data above, and generate the report result by strictly filling in th
    - Use a professional, prophetic, and mystical tone.
    - **Crucially**, avoid all complex Saju jargon (e.g., *Sik-sang-saeng-jae*). Translate concepts into modern, easily understandable language.
 4. **Structure and Length Compliance**: Strictly adhere to all sentence and paragraph quantity constraints (e.g., 'exactly 2 sentences').
-5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <style>나 <div> 태그여야 합니다.`,
+5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <h2>나 <div> 태그여야 합니다.`,
 };
 export const DEFAULT_INSTRUCTION = {
   ko: `
