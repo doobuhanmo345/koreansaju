@@ -9,15 +9,39 @@ export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
 
-  // 1️⃣ 첫 번째 Effect: 로그인 상태 감지 (User Auth)
+  // 1️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
   useEffect(() => {
-    // onUserStateChange가 unsubscribe 함수를 반환하지 않을 수도 있으므로 변수에 담음
+    // 🔥 [추가된 부분] 카카오톡/인앱 브라우저 감지 및 외부 브라우저 띄우기 시작
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isInApp =
+      userAgent.indexOf('kakaotalk') > -1 ||
+      userAgent.indexOf('instagram') > -1 ||
+      userAgent.indexOf('naver') > -1;
+    const currentUrl = window.location.href;
+
+    if (isInApp) {
+      // 1. 안드로이드: 크롬으로 강제 전환
+      if (userAgent.match(/android/)) {
+        const intentUrl = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = intentUrl;
+        return; // 리액트 앱 실행 중단하고 크롬으로 이동
+      }
+      // 2. 아이폰(iOS): 안내 메시지 띄우기
+      else if (userAgent.match(/iphone|ipad|ipod/)) {
+        alert(
+          'Google 로그인은 카카오톡 인앱 브라우저 보안 정책상 제한됩니다.\n\n화면의 [더보기(...)] 버튼을 눌러 [Safari로 열기]를 선택해주세요.',
+        );
+        // 아이폰은 강제로 닫을 수 없으므로 여기서 로직이 계속 흐를 수 있지만, 유저가 브라우저를 옮겨야 함을 알게 됩니다.
+      }
+    }
+    // 🔥 [추가된 부분] 끝
+
+    // 👇 기존 로그인 상태 감지 로직 (그대로 유지)
     const unsubscribe = onUserStateChange((firebaseUser) => {
       setUser(firebaseUser);
     });
 
     return () => {
-      // 🟢 안전장치: unsubscribe가 진짜 '함수'일 때만 실행 (에러 해결 핵심)
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
@@ -41,7 +65,7 @@ export function AuthContextProvider({ children }) {
 
           if (!data.lastLoginDate || data.lastLoginDate !== todayStr) {
             try {
-              // DB 업데이트 -> 이게 완료되면 다시 onSnapshot이 실행됨
+              // DB 업데이트
               await updateDoc(userDocRef, {
                 lastLoginDate: todayStr,
                 editCount: 0,
@@ -63,13 +87,13 @@ export function AuthContextProvider({ children }) {
       setUserData(null);
     }
 
-    // Cleanup: 유저가 바뀌거나 컴포넌트 해제될 때 DB 구독 취소
+    // Cleanup
     return () => {
       if (typeof unsubscribeSnapshot === 'function') {
         unsubscribeSnapshot();
       }
     };
-  }, [user]); // 👈 user 상태가 변할 때마다 실행됨
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, userData, login, logout }}>

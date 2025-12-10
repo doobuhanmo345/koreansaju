@@ -51,9 +51,12 @@ export default function NavBar({ onShowContact }) {
     }
     setIsMenuOpen(false); // 메뉴 닫기
   };
-
+  const { isContactModalOpen, handleCloseContact } = useContactModal();
   return (
     <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 max-w-xl m-auto relative z-20">
+      {isContactModalOpen && (
+        <ContactModal onClose={handleCloseContact} email="doobuhanmo3@gmail.com" />
+      )}
       {/* ✅ 왼쪽: 로고 + 타이틀 그룹 (변동 없음) */}
       {theme === 'dark' ? (
         <div className="flex items-center gap-3">
