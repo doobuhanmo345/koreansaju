@@ -27,6 +27,9 @@ import NavBar from './component/Navbar';
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
 import LoginStatus from './component/LoginStatus';
+import { FaHorseHead } from 'react-icons/fa';
+import { SunIcon } from '@heroicons/react/24/solid';
+import { GiCrystalBall } from 'react-icons/gi';
 
 export default function App() {
   // --- Context Hooks ---
@@ -583,7 +586,7 @@ export default function App() {
             isSaved={isSaved}
             isLocked={isLocked}
             isAnalysisDone={isMainDone}
-            icon={'🔮'}
+            icon={<GiCrystalBall className="w-8 h-8 text-violet-800 dark:text-violet-200 " />}
             buttonType={'main'}
             textKo={'사주 분석'}
             TextEn={'Life Path Decoding'}
@@ -601,7 +604,7 @@ export default function App() {
             isSaved={isSaved}
             isLocked={isLocked}
             isAnalysisDone={isYearDone}
-            icon={'🐍'}
+            icon={<FaHorseHead className="w-8 h-8 text-amber-800 opacity-80" />}
             buttonType={'year'}
             textKo={'2026 신년 운세'}
             TextEn={'2026 Path Guide'}
@@ -618,7 +621,7 @@ export default function App() {
             isSaved={isSaved}
             isLocked={isLocked}
             isAnalysisDone={isDailyDone}
-            icon={'🌞'}
+            icon={<SunIcon className="w-8 h-8 text-amber-500 " />}
             buttonType={'daily'}
             textKo={'오늘의 운세'}
             TextEn={"Today's Luck"}
