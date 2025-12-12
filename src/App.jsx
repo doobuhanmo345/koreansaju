@@ -32,9 +32,6 @@ import { SunIcon } from '@heroicons/react/24/solid';
 import { GiCrystalBall } from 'react-icons/gi';
 
 export default function App() {
-  // ******************
-
-  // ... 컴포넌트 렌더링 코드
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
 
