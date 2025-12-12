@@ -224,7 +224,17 @@ export default function ResultModal({
     }
     sajuRecords[sajuKey] = currentSajuHistory;
 
-    await setDoc(userDocRef, { chat_records: sajuRecords, updatedAt: new Date() }, { merge: true });
+    await setDoc(
+      userDocRef,
+      {
+        chat_records: sajuRecords,
+        updatedAt: new Date(),
+        dailyUsage: {
+          [new Date().toLocaleDateString('en-CA')]: editCount + 1, // 오늘 날짜 카운트 +1
+        },
+      },
+      { merge: true },
+    );
   };
 
   // 추가 질문하기 (API 호출)

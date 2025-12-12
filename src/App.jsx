@@ -294,6 +294,9 @@ export default function App() {
             language: language,
             gender: gender,
           },
+          dailyUsage: {
+            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
+          },
         },
         { merge: true },
       );
@@ -369,6 +372,9 @@ export default function App() {
             saju: saju,
             language: language,
             gender: gender,
+          },
+          dailyUsage: {
+            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
           },
         },
         { merge: true },
@@ -453,6 +459,9 @@ export default function App() {
             saju: saju,
             language: language,
             gender: gender,
+          },
+          dailyUsage: {
+            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
           },
         },
         { merge: true },
