@@ -32,6 +32,15 @@ import { SunIcon } from '@heroicons/react/24/solid';
 import { GiCrystalBall } from 'react-icons/gi';
 
 export default function App() {
+  // ******************
+  // 🚨 확인용 코드 추가 (브라우저 콘솔에 출력)
+  console.log(
+    'Gemini API Key Loaded:',
+    apiKey ? '✅ Loaded (Not shown for security)' : '❌ Not Loaded',
+  );
+  // ******************
+
+  // ... 컴포넌트 렌더링 코드
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
 
