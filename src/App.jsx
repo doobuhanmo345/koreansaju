@@ -33,13 +33,6 @@ import { GiCrystalBall } from 'react-icons/gi';
 
 export default function App() {
   // ******************
-  // 🚨 확인용 코드 추가 (브라우저 콘솔에 출력)
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  console.log(
-    'Gemini API Key Loaded:',
-    apiKey ? '✅ Loaded (Not shown for security)' : '❌ Not Loaded',
-  );
-  // ******************
 
   // ... 컴포넌트 렌더링 코드
   // --- Context Hooks ---
