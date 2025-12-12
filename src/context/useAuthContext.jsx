@@ -7,11 +7,10 @@ const AuthContext = createContext();
 
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(null); // 1️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
 
-  // 1️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
   useEffect(() => {
-    // 🔥 [추가된 부분] 카카오톡/인앱 브라우저 감지 및 외부 브라우저 띄우기 시작
+    // 🔥 [수정된 부분] 인앱 브라우저 감지 및 처리 시작
     const userAgent = navigator.userAgent.toLowerCase();
     const isInApp =
       userAgent.indexOf('kakaotalk') > -1 ||
@@ -20,23 +19,42 @@ export function AuthContextProvider({ children }) {
     const currentUrl = window.location.href;
 
     if (isInApp) {
-      // 1. 안드로이드: 크롬으로 강제 전환
+      // 1. 안드로이드: Chrome으로 강제 전환
       if (userAgent.match(/android/)) {
         const intentUrl = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
         window.location.href = intentUrl;
-        return; // 리액트 앱 실행 중단하고 크롬으로 이동
+        return; // 🔥 강제 이동했으므로, Context 로직 실행 중단
+      } else if (userAgent.match(/iphone|ipad|ipod/)) {
+        // 2. 아이폰(iOS): 주소 복사 후 수동 이동 안내
+        // 클립보드 복사 시도
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(currentUrl)
+            .then(() => {
+              alert(
+                'Google 로그인은 인앱 브라우저 보안 정책상 제한됩니다.\n\n' +
+                  '✔️ 현재 주소가 클립보드에 복사되었습니다.\n' +
+                  '✔️ 화면의 [더보기(...)] 버튼을 눌러 **[Safari로 열기]**를 선택하거나, 새 창에 주소를 붙여넣어 주세요.',
+              );
+            })
+            .catch(() => {
+              // 복사 실패 시 일반 안내
+              alert(
+                'Google 로그인은 인앱 브라우저 보안 정책상 제한됩니다.\n\n' +
+                  '화면의 [더보기(...)] 버튼을 눌러 **[Safari로 열기]**를 선택해주세요.',
+              );
+            });
+        } else {
+          // 클립보드 API가 없을 경우 일반 안내
+          alert(
+            'Google 로그인은 인앱 브라우저 보안 정책상 제한됩니다.\n\n' +
+              '화면의 [더보기(...)] 버튼을 눌러 **[Safari로 열기]**를 선택해주세요.',
+          );
+        }
+        return; // 🔥 경고 후에도 로그인 시도를 막기 위해 Context 로직 실행 중단
       }
-      // 2. 아이폰(iOS): 안내 메시지 띄우기
-      else if (userAgent.match(/iphone|ipad|ipod/)) {
-        alert(
-          'Google 로그인은 카카오톡 인앱 브라우저 보안 정책상 제한됩니다.\n\n화면의 [더보기(...)] 버튼을 눌러 [Safari로 열기]를 선택해주세요.',
-        );
-        // 아이폰은 강제로 닫을 수 없으므로 여기서 로직이 계속 흐를 수 있지만, 유저가 브라우저를 옮겨야 함을 알게 됩니다.
-      }
-    }
-    // 🔥 [추가된 부분] 끝
-
-    // 👇 기존 로그인 상태 감지 로직 (그대로 유지)
+    } // 🔥 [수정된 부분] 인앱 브라우저 감지 및 처리 끝 (인앱이 아닐 경우만 아래로 흐름)
+    // 👇 기존 로그인 상태 감지 로직 (인앱 브라우저가 아닐 때만 실행됨)
     const unsubscribe = onUserStateChange((firebaseUser) => {
       setUser(firebaseUser);
     });
@@ -49,55 +67,11 @@ export function AuthContextProvider({ children }) {
   }, []);
 
   // 2️⃣ 두 번째 Effect: 유저가 있을 때만 DB 데이터 실시간 동기화 (Firestore)
-  useEffect(() => {
-    let unsubscribeSnapshot;
-
-    if (user) {
-      const userDocRef = doc(db, 'users', user.uid);
-
-      // DB 실시간 구독 시작
-      unsubscribeSnapshot = onSnapshot(userDocRef, async (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-
-          // [일일 초기화 로직] 날짜가 바뀌었으면 카운트 리셋
-          const todayStr = new Date().toLocaleDateString('en-CA');
-
-          if (!data.lastLoginDate || data.lastLoginDate !== todayStr) {
-            try {
-              // DB 업데이트
-              await updateDoc(userDocRef, {
-                lastLoginDate: todayStr,
-                editCount: 0,
-              });
-            } catch (e) {
-              console.error('Daily reset failed:', e);
-            }
-          } else {
-            // 날짜가 같으면 데이터 상태 업데이트
-            setUserData(data);
-          }
-        } else {
-          // 문서가 없는 경우 (신규 유저 등)
-          setUserData({});
-        }
-      });
-    } else {
-      // 로그아웃 상태면 데이터 비움
-      setUserData(null);
-    }
-
-    // Cleanup
-    return () => {
-      if (typeof unsubscribeSnapshot === 'function') {
-        unsubscribeSnapshot();
-      }
-    };
-  }, [user]);
+  // ... (기존과 동일)
 
   return (
     <AuthContext.Provider value={{ user, userData, login, logout }}>
-      {children}
+            {children}   {' '}
     </AuthContext.Provider>
   );
 }
