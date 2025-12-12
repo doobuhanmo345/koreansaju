@@ -7,7 +7,7 @@ import { useEffect } from 'react';
  */
 export function useLanguage() {
   // 1. useLocalStorage를 사용하여 상태 관리 (로컬 스토리지 읽기/쓰기)
-  const [language, setLanguage] = useLocalStorage('userLanguage', 'en');
+  const [language, setLanguage] = useLocalStorage('userLanguage', 'ko');
 
   // 2. 🚀 useEffect 로직 통합: 언어 상태가 변경될 때마다 HTML lang 속성 업데이트
   useEffect(() => {

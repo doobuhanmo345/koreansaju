@@ -1,7 +1,7 @@
 import { aiSajuStyle, IljuExp } from '../data/aiResultConstants';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeftIcon, ShareIcon, SparklesIcon, BoltIcon } from '@heroicons/react/24/outline';
-import { doc, getDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, arrayUnion, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // firebase db import 필요
 import { fetchGeminiAnalysis } from '../api/gemini'; // API 호출 import 필요
 import { UI_TEXT, langPrompt, hanja } from '../data/constants';
@@ -43,12 +43,42 @@ export default function ResultModal({
   const { user } = useAuthContext();
   // --- Helpers ---
   const t = (char) => (language === 'en' ? getEng(char) : char);
+
   const handleShareResult = async (resultText) => {
     try {
       // 0. 내용 확인
       if (!resultText || resultText.trim() === '') {
         return alert('공유할 분석 결과가 없습니다.');
       }
+
+      // --- 🎯 새로 추가된 Firestore 카운팅 로직 시작 🎯 ---
+
+      // 현재 날짜를 YYYY-MM-DD 형식 (예: '2025-12-12')으로 가져옵니다.
+      const today = new Date().toLocaleDateString('en-CA');
+
+      // 데이터베이스 필드 경로를 동적으로 구성합니다. (예: '2025-12-12.premium_analysis')
+      const fieldPath = `shared.${today}.${resultType}`;
+
+      if (user && db && resultType) {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+
+          // updateDoc과 increment를 사용하여 원자적으로 카운트를 1 증가시킵니다.
+          // 해당 필드가 없으면 자동으로 1로 생성됩니다.
+          await updateDoc(userRef, {
+            [fieldPath]: increment(1),
+          });
+
+          console.log(`[${today}] ${resultType} 공유 카운트 +1 성공`);
+        } catch (e) {
+          console.error('Firestore 카운트 업데이트 실패:', e);
+          // 카운트 실패는 공유 흐름을 중단시키지 않습니다.
+        }
+      } else {
+        console.warn('사용자 정보, DB 또는 resultType이 없어 카운트 업데이트를 건너뜜.');
+      }
+
+      // --- 🎯 새로 추가된 Firestore 카운팅 로직 끝 🎯 ---
 
       let plainText = resultText;
 
@@ -70,11 +100,11 @@ export default function ResultModal({
 
       // 2. 텍스트 정리
       plainText = plainText
-        .replace(/(\s*\n\s*){2,}/g, '\n\n')
-        .replace(/ {2,}/g, ' ')
-        .trim();
+        .replace(/(\s*\n\s*){2,}/g, '\n\n') // 2줄 이상 빈 줄을 한 줄로
+        .replace(/ {2,}/g, ' ') // 2칸 이상 공백을 한 칸으로
+        .trim(); // 앞뒤 공백 제거
 
-      // 3. 🔗 주소를 텍스트 뒤에 아예 합쳐버림 (가장 확실한 방법)
+      // 3. 🔗 주소를 텍스트 뒤에 아예 합쳐버림 (공유 텍스트 생성)
       const currentUrl = window.location.href;
       const shareTitle =
         language === 'ko'
@@ -86,10 +116,10 @@ export default function ResultModal({
       if (navigator.share) {
         await navigator.share({
           title: language === 'ko' ? '사자(Saza) 사주 분석' : 'Saza Analysis Result',
-          text: finalShareText, // 👈 url 속성 대신 text에 합친 내용을 넣음
+          text: finalShareText, // url 속성 대신 text에 모두 합친 내용을 사용
         });
       } else {
-        // PC: 클립보드 복사
+        // PC 환경: 클립보드 복사
         await navigator.clipboard.writeText(finalShareText);
         alert(
           language === 'ko'
