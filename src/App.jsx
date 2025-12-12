@@ -221,14 +221,14 @@ export default function App() {
 
       // 1. 캐시 체크
       let isMatch = false;
-      if (data.lastDaily) {
+      if (data.ZLastDaily) {
         const {
           date,
           language: savedLang,
           saju: savedSaju,
           gender: savedGender,
           result,
-        } = data.lastDaily;
+        } = data.ZLastDaily;
         const isDateMatch = date === todayDate;
         const isLangMatch = savedLang === language;
         const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
@@ -276,18 +276,18 @@ export default function App() {
       const newCount = currentCount + 1;
 
       // 4. 저장
-      const currentSajuKey = JSON.stringify(saju);
-      const cacheKey = `daily_fortune.${currentSajuKey}.${gender}.${todayDate}.${language}`;
-      let fortuneCache = data.fortune_cache || {};
-      fortuneCache[cacheKey] = result;
+      // const currentSajuKey = JSON.stringify(saju);
+      // const cacheKey = `daily_fortune.${currentSajuKey}.${gender}.${todayDate}.${language}`;
+      // let fortuneCache = data.fortune_cache || {};
+      // fortuneCache[cacheKey] = result;
 
       await setDoc(
         doc(db, 'users', user.uid),
         {
           editCount: newCount,
           lastEditDate: todayDate,
-          fortune_cache: fortuneCache,
-          lastDaily: {
+          // fortune_cache: fortuneCache,
+          ZLastDaily: {
             result: result,
             date: todayDate,
             saju: saju,
@@ -313,67 +313,68 @@ export default function App() {
   const handleAiAnalysis = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-
+    setLoading(true);
     setLoadingType('main');
     setResultType('main');
+    setAiResult('');
 
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
     let isMatch = false;
-    if (cachedData && cachedData.saju) {
-      if (cachedData.language === language && cachedData.gender === gender) {
-        const isSajuMatch = keys.every((key) => cachedData.saju[key] === saju[key]);
-        if (isSajuMatch) isMatch = true;
-      }
-    }
-
-    if (isMatch) {
-      setAiResult(cachedData.result);
-      openModal();
-      setLoadingType(null);
-      return;
-    }
-
-    if (editCount >= MAX_EDIT_COUNT) {
-      alert(UI_TEXT.limitReached[language]);
-      setLoading(false);
-      setLoadingType(null);
-      return;
-    }
-
-    setLoading(true);
-    setAiResult('');
-    setIsCachedLoading(false);
 
     try {
+      const data = userData || {};
+      const currentCount = data.editCount || 0;
+
+      let isMatch = false;
+      if (data.ZAiAnalysis) {
+        const {
+          year,
+          language: savedLang,
+          saju: savedSaju,
+          result,
+          gender: savedGender,
+        } = data.ZAiAnalysis;
+        const isLangMatch = savedLang === language;
+        const isGenderMatch = savedGender === gender;
+        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
+
+        if (isLangMatch && isSajuMatch && isGenderMatch && result) {
+          setAiResult(result);
+          openModal();
+          setLoading(false);
+          setLoadingType(null);
+          return;
+        }
+      }
+
+      if (currentCount >= MAX_EDIT_COUNT) {
+        setLoading(false);
+        setLoadingType(null);
+        return alert(UI_TEXT.limitReached[language]);
+      }
       const currentSajuKey = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
       const strictPrompt = STRICT_INSTRUCTION[language];
       const fullPrompt = `${strictPrompt}\n${DEFAULT_INSTRUCTION[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
-
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;
 
       await setDoc(
         doc(db, 'users', user.uid),
         {
-          lastAiResult: result,
-          lastSaju: saju,
-          lastPrompt: DEFAULT_INSTRUCTION,
-          lastLanguage: language,
-          lastGender: gender,
           editCount: newCount,
+          lastEditDate: new Date().toLocaleDateString('en-CA'),
+          ZAiAnalysis: {
+            result: result,
+            saju: saju,
+            language: language,
+            gender: gender,
+          },
         },
         { merge: true },
       );
 
       setEditCount(newCount);
-      setCachedData({
-        saju: saju,
-        result: result,
-        prompt: DEFAULT_INSTRUCTION,
-        language: language,
-        gender: gender,
-      });
       setAiResult(result);
       openModal();
     } catch (e) {
@@ -401,14 +402,14 @@ export default function App() {
       const currentCount = data.editCount || 0;
 
       let isMatch = false;
-      if (data.lastNewYear) {
+      if (data.ZLastNewYear) {
         const {
           year,
           language: savedLang,
           saju: savedSaju,
           result,
           gender: savedGender,
-        } = data.lastNewYear;
+        } = data.ZLastNewYear;
         const isYearMatch = String(year) === String(nextYear);
         const isLangMatch = savedLang === language;
         const isGenderMatch = savedGender === gender;
@@ -436,17 +437,17 @@ export default function App() {
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = currentCount + 1;
-      const cacheKey = `new_year_fortune.${currentSajuJson}.${nextYear}.${language}`;
-      let fortuneCache = data.fortune_cache || {};
-      fortuneCache[cacheKey] = result;
+      // const cacheKey = `new_year_fortune.${currentSajuJson}.${nextYear}.${language}`;
+      // let fortuneCache = data.fortune_cache || {};
+      // fortuneCache[cacheKey] = result;
 
       await setDoc(
         doc(db, 'users', user.uid),
         {
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
-          fortune_cache: fortuneCache,
-          lastNewYear: {
+          // fortune_cache: fortuneCache,
+          ZLastNewYear: {
             result: result,
             year: nextYear,
             saju: saju,
@@ -461,7 +462,6 @@ export default function App() {
       setAiResult(result);
       openModal();
     } catch (e) {
-      console.error(e);
       alert(`Error: ${e.message}`);
     } finally {
       setLoading(false);
@@ -482,28 +482,24 @@ export default function App() {
   const dbUser = userData;
 
   const isMainDone =
-    (cachedData &&
-      checkSajuMatch(cachedData.saju) &&
-      cachedData.language === language &&
-      cachedData.gender === gender) ||
-    (dbUser &&
-      checkSajuMatch(dbUser.lastSaju) &&
-      dbUser.lastLanguage === language &&
-      dbUser.lastGender === gender);
+    dbUser?.ZAiAnalysis &&
+    dbUser.ZAiAnalysis.language === language &&
+    dbUser.ZAiAnalysis.gender === gender &&
+    checkSajuMatch(dbUser.ZAiAnalysis.saju);
 
   const isYearDone =
-    dbUser?.lastNewYear &&
-    String(dbUser.lastNewYear.year) === String(nextYear) &&
-    dbUser.lastNewYear.language === language &&
-    dbUser.lastNewYear.gender === gender &&
-    checkSajuMatch(dbUser.lastNewYear.saju);
+    dbUser?.ZLastNewYear &&
+    String(dbUser.ZLastNewYear.year) === String(nextYear) &&
+    dbUser.ZLastNewYear.language === language &&
+    dbUser.ZLastNewYear.gender === gender &&
+    checkSajuMatch(dbUser.ZLlastNewYear.saju);
 
   const isDailyDone =
-    dbUser?.lastDaily &&
-    dbUser.lastDaily.date === todayStr &&
-    dbUser.lastDaily.language === language &&
-    dbUser.lastDaily.gender === gender &&
-    checkSajuMatch(dbUser.lastDaily.saju);
+    dbUser?.ZLastDaily &&
+    dbUser.ZLastDaily.date === todayStr &&
+    dbUser.ZLastDaily.language === language &&
+    dbUser.ZLastDaily.gender === gender &&
+    checkSajuMatch(dbUser.ZLastDaily.saju);
 
   // 에너지 훅 인스턴스 생성
   const mainEnergy = useConsumeEnergy();
