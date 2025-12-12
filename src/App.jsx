@@ -492,7 +492,7 @@ export default function App() {
     String(dbUser.ZLastNewYear.year) === String(nextYear) &&
     dbUser.ZLastNewYear.language === language &&
     dbUser.ZLastNewYear.gender === gender &&
-    checkSajuMatch(dbUser.ZLlastNewYear.saju);
+    checkSajuMatch(dbUser.ZLastNewYear.saju);
 
   const isDailyDone =
     dbUser?.ZLastDaily &&
