@@ -7,6 +7,7 @@ export default function ModifyBd({
   gender,
   inputDate,
   isTimeUnknown,
+  setIsTimeUnknown,
   saju,
   handleSaveMyInfo,
   setInputDate,

@@ -563,6 +563,7 @@ export default function App() {
               gender={gender}
               inputDate={inputDate}
               isTimeUnknown={isTimeUnknown}
+              setIsTimeUnknown={setIsTimeUnknown}
               saju={saju}
               handleSaveMyInfo={handleSaveMyInfo}
               setInputDate={setInputDate}
