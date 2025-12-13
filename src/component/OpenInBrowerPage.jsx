@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IoShareOutline } from 'react-icons/io5';
-
-// --- 스타일 정의 (이전 스타일 유지) ---
+import sajaProfile from '../assets/sajaProfile.png';
+// --- 스타일 정의 ---
 const styles = {
   container: {
     display: 'flex',
@@ -45,7 +45,6 @@ const styles = {
     gap: '8px',
   },
   button: {
-    marginTop: '25px',
     padding: '14px 25px',
     fontSize: '18px',
     fontWeight: 'bold',
@@ -86,43 +85,83 @@ const styles = {
     fontSize: '1.1em',
     color: '#007aff',
   },
+  // 👇 말풍선 관련 스타일 👇
+  speechBubbleContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '20px',
+    position: 'relative',
+  },
+  characterImage: {
+    width: '80px', // 캐릭터 이미지 크기
+    height: '80px',
+    borderRadius: '50%', // 원형 이미지
+    objectFit: 'cover',
+    border: '2px solid #ddd',
+    marginTop: '20px',
+  },
+  speechBubble: {
+    position: 'relative',
+    backgroundColor: '#e9f7ff', // 말풍선 배경색
+    borderRadius: '15px',
+    padding: '15px 20px',
+    maxWidth: '85%',
+    textAlign: 'center',
+    color: '#333',
+    fontSize: '16px',
+    lineHeight: '1.4',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+  },
+  speechBubbleTail: {
+    position: 'absolute',
+    bottom: '-10px', // 말풍선 이미지 아래쪽에 위치
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '0',
+    height: '0',
+    borderLeft: '10px solid transparent',
+    borderRight: '10px solid transparent',
+    borderTop: '10px solid #e9f7ff', // 말풍선 배경색과 동일하게
+  },
+  // 👆 말풍선 관련 스타일 끝 👆
 };
 
-// --- 다국어 콘텐츠 정의 (괄호 제거 및 문구 수정) ---
+// --- 다국어 콘텐츠 정의 ---
 const messages = {
   ko: {
     metaNotice: '안전한 사용 환경을 위한 안내',
-    noticeTitle: '💡 외부 브라우저 사용 안내',
-    mainTitle: '크롬/사파리로 이용해 주세요',
-    mainText:
-      'Google 로그인 기능은 현재 인앱 브라우저에서 불안정합니다. 원활한 접속을 위해 Safari 또는 Chrome으로 이동해 주세요.',
+    noticeTitle: '외부 브라우저 사용 안내',
+    mainTitle: '서비스 이용을 위해 이동합니다', // 이 부분은 이제 캐릭터 말풍선으로 대체되므로 사용하지 않을 수 있음
+    mainText: '원활한 서비스 이용을 위해 외부 브라우저(Safari/Chrome)로 이동해주세요!', // 말풍선 내용
     buttonText: '외부 브라우저에서 계속 진행',
     failTitle: '자동 전환 실패 시 (iOS 사용자):',
-    // 괄호 제거
     step1: '1. 화면 우측 하단의 [공유 아이콘]을 눌러주세요.',
     step2: '2. 열린 메뉴에서 [Safari로 열기]를 선택해 주세요.',
     openInSafari: 'Safari로 열기',
     alertFail:
       "자동 전환이 실패했습니다. 화면 하단의 메뉴를 눌러 'Safari로 열기'를 직접 선택해주세요。",
+    characterName: '안내 캐릭터', // 캐릭터 이름 (선택 사항)
+    characterImageSrc: 'https://via.placeholder.com/80/007aff/FFFFFF?text=Char', // 🚨 실제 캐릭터 이미지 경로로 교체해주세요
   },
   en: {
     metaNotice: 'Notice for Secure Usage Environment',
-    noticeTitle: '💡 External Browser Required',
-    mainTitle: 'Redirecting for Service Access',
-    mainText:
-      'Google Sign-in is unstable in this in-app browser. Please proceed in Safari or Chrome for smooth access.',
+    noticeTitle: 'External Browser Required',
+    mainTitle: 'Redirecting for Service Access', // 이 부분은 이제 캐릭터 말풍선으로 대체되므로 사용하지 않을 수 있음
+    mainText: 'Please switch to an external browser (Safari/Chrome) for smooth service!', // 말풍선 내용
     buttonText: 'Continue in External Browser',
     failTitle: 'If Auto-Switch Fails (iOS Users):',
-    // 괄호 제거
     step1: '1. Please tap the [Share Icon] located at the bottom right.',
     step2: '2. Select [Open in Safari] from the opened menu.',
     openInSafari: 'Open in Safari',
     alertFail:
       "Automatic switch failed. Please manually select 'Open in Safari' from the menu at the bottom of your screen.",
+    characterName: 'Guide Character', // 캐릭터 이름 (선택 사항)
+    characterImageSrc: 'https://via.placeholder.com/80/007aff/FFFFFF?text=Char', // 🚨 실제 캐릭터 이미지 경로로 교체해주세요
   },
 };
 
-// HighlightedText 헬퍼 컴포넌트는 유지 (Safari로 열기 처리)
+// HighlightedText 헬퍼 컴포넌트 (Safari로 열기 처리)
 function HighlightedText({ text, highlight, style }) {
   if (!text || !text.includes(`[${highlight}]`)) return <span>{text}</span>;
 
@@ -141,7 +180,6 @@ function HighlightedText({ text, highlight, style }) {
 
 // React 아이콘을 텍스트에 삽입하기 위한 헬퍼 컴포넌트 (줄바꿈 안정화)
 function IconInText({ text, iconComponent, iconStyle, lang }) {
-  // 텍스트를 '아이콘 이전'과 '아이콘 이후'로 나누는 태그를 결정 (괄호 포함)
   const searchTag = lang === 'ko' ? '[공유 아이콘]' : '[Share Icon]';
 
   const [before, after] = text.split(searchTag);
@@ -151,20 +189,21 @@ function IconInText({ text, iconComponent, iconStyle, lang }) {
   const Icon = iconComponent;
   const highlightText = lang === 'ko' ? '공유 아이콘' : 'Share Icon';
 
-  // 텍스트 앞뒤의 공백을 살리고, 아이콘 주변 텍스트를 nowrap으로 감싸 줄바꿈 방지
   return (
     <span>
       {before}
-      <span style={{ whiteSpace: 'nowrap' }}>
-        <span style={{ display: 'flex' }}>
-          <span style={{ display: 'flex', fontWeight: 'bold' }}>
-            {highlightText}
-            <Icon style={iconStyle} />
-          </span>
-
-          {after}
-        </span>
+      <span
+        style={{
+          whiteSpace: 'nowrap',
+          display: 'inline-flex',
+          alignItems: 'center',
+          fontWeight: 'bold',
+        }}
+      >
+        {highlightText}
+        <Icon style={iconStyle} />
       </span>
+      {after}
     </span>
   );
 }
@@ -174,18 +213,15 @@ export default function OpenInBrowserPage() {
   const t = messages[lang];
 
   const handleOpenExternal = () => {
-    // 🚨 수정된 부분: window.location.origin 사용
-    // 'http://localhost:5173/open-in-browser'에서 'http://localhost:5173'만 추출합니다.
     const baseUrl = window.location.origin;
-
     const encodedUrl = encodeURIComponent(baseUrl);
-
     window.location.href = `kakaotalk://web/openExternal?url=${encodedUrl}`;
 
     setTimeout(() => {
       alert(t.alertFail);
     }, 1000);
   };
+
   const toggleLang = () => {
     setLang((currentLang) => (currentLang === 'ko' ? 'en' : 'ko'));
   };
@@ -204,15 +240,22 @@ export default function OpenInBrowserPage() {
         </div>
 
         <div style={styles.contentArea}>
-          {/* 2. 메인 안내 제목 */}
-          <div style={styles.notice}>
-            <span style={{ fontSize: '24px' }}>🛡️</span>
-            {t.noticeTitle}
+          {/* 2. 메인 안내 제목 (말풍선으로 대체) */}
+          {/* 기존 h2 태그는 주석 처리하거나 삭제합니다. */}
+          {/* <h2 style={{ fontSize: '24px', margin: '5px 0 20px 0' }}>{t.mainTitle}</h2> */}
+
+          {/* 👇 캐릭터 말풍선 섹션 👇 */}
+          <div style={styles.speechBubbleContainer}>
+            <div style={styles.speechBubble}>
+              {t.mainText}
+              <div style={styles.speechBubbleTail}></div>
+            </div>
+            <img src={sajaProfile} alt="Master" style={styles.characterImage} />
           </div>
+          {/* 👆 캐릭터 말풍선 섹션 끝 👆 */}
 
-          <h2 style={{ fontSize: '24px', margin: '5px 0 20px 0' }}>{t.mainTitle}</h2>
-
-          <p style={{ marginBottom: '30px', color: '#555555' }}>{t.mainText}</p>
+          {/* 기존 p 태그는 제거하거나 주석 처리합니다. */}
+          {/* <p style={{ marginBottom: '10px', color: '#555555' }}>{t.mainText}</p> */}
 
           {/* 3. 자동 전환 시도 버튼 */}
           <button onClick={handleOpenExternal} style={styles.button}>
@@ -223,7 +266,7 @@ export default function OpenInBrowserPage() {
           <div style={styles.instructionBlock}>
             <p style={{ fontWeight: 'bold' }}>{t.failTitle}</p>
 
-            <ol style={{ paddingLeft: '20px', margin: '10px 0 0' }}>
+            <ol style={{ paddingLeft: '5px', margin: '10px 0 0' }}>
               {/* 첫 번째 단계 (아이콘 포함) */}
               <li style={{ marginBottom: '5px' }}>
                 <IconInText
