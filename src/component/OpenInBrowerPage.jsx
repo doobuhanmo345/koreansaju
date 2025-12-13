@@ -174,15 +174,18 @@ export default function OpenInBrowserPage() {
   const t = messages[lang];
 
   const handleOpenExternal = () => {
-    const currentUrl = window.location.href;
-    const encodedUrl = encodeURIComponent(currentUrl);
+    // 🚨 수정된 부분: window.location.origin 사용
+    // 'http://localhost:5173/open-in-browser'에서 'http://localhost:5173'만 추출합니다.
+    const baseUrl = window.location.origin;
+
+    const encodedUrl = encodeURIComponent(baseUrl);
+
     window.location.href = `kakaotalk://web/openExternal?url=${encodedUrl}`;
 
     setTimeout(() => {
       alert(t.alertFail);
     }, 1000);
   };
-
   const toggleLang = () => {
     setLang((currentLang) => (currentLang === 'ko' ? 'en' : 'ko'));
   };
