@@ -42,10 +42,6 @@ export function useSajuCalculator(inputDate, isTimeUnknown) {
       if (language === 'ko' && !isTimeUnknown) {
         // 기존 분에서 30분 차감 (Date 객체가 알아서 날짜/시간 변경 처리함)
         processingDate.setMinutes(processingDate.getMinutes() - 30);
-
-        console.log(
-          `[SajuTime] 보정 전: ${originalDate.toLocaleString()} -> 보정 후(-30분): ${processingDate.toLocaleString()}`,
-        );
       }
 
       // 3. 외부 유틸리티 함수 호출

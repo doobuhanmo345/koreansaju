@@ -30,6 +30,7 @@ import LoginStatus from './component/LoginStatus';
 import { FaHorseHead } from 'react-icons/fa';
 import { SunIcon } from '@heroicons/react/24/solid';
 import { GiCrystalBall } from 'react-icons/gi';
+import { PiCurrencyDollarSimple } from 'react-icons/pi';
 
 export default function App() {
   // --- Context Hooks ---
@@ -514,10 +515,11 @@ export default function App() {
   const mainEnergy = useConsumeEnergy();
   const yearEnergy = useConsumeEnergy();
   const dailyEnergy = useConsumeEnergy();
+  // functions/index.js (부분 예시)
 
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      <Test />
+      {/* <Test inputDate={inputDate} inputGender={gender} /> */}
       <NavBar />
       {/* 로그인이 안되어 있을 때는 LOGIN STATUS보이지 않음 */}
       {!!user && <LoginStatus MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
