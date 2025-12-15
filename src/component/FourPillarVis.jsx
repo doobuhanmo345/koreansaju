@@ -181,10 +181,11 @@ export default function FourPillarVis({ isTimeUnknown, saju }) {
                 <span className="block text-[10px] font-bold text-stone-500 uppercase tracking-widest opacity-70 dark:text-yellow-600">
                   {language === 'en' ? 'Earthly' : '지지'}
                 </span>
-                <span className="block text-[10px] font-serif font-bold text-stone-700 drop-shadow-sm dark:text-gray-400"></span>
+                <span className="block text-[10px] font-serif font-bold text-stone-700 drop-shadow-sm dark:text-gray-400">
+                  {language === 'en' ? 'Branch' : ''}
+                </span>
               </div>
             </div>
-            {language === 'en' ? 'Branch' : ''}
           </div>
         )}
         {!isTimeUnknown && !!saju.grd0 && (
