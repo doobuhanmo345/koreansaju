@@ -508,7 +508,7 @@ export default function ResultModal({
             {/* VIEW MODE: RESULT */}
             {viewMode === 'result' && (
               <>
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                   {resultType === 'main' && (
                     <>
                       <div className="text-center mb-8 mt-2 animate-fade-in-up">
