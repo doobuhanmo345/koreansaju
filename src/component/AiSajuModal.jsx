@@ -12,11 +12,8 @@ import sajaProfile from '../assets/sajaProfile.png';
 import { useLanguage } from '../context/useLanguageContext';
 import { useAuthContext } from '../context/useAuthContext';
 import { useShareActions } from '../hooks/useShareAction';
-import {
-  DEFAULT_INSTRUCTION,
-  DAILY_FORTUNE_PROMPT,
-  NEW_YEAR_FORTUNE_PROMPT,
-} from '../data/aiResultConstants';
+import Test from '../Test';
+
 export default function ResultModal({
   isOpen,
   onClose,
@@ -527,73 +524,68 @@ export default function ResultModal({
                           <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
                         </div>
                       </div>
-                      <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
-                        <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
-                          <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
-                          <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
-                            Who Am I?
-                          </span>
-                          <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
-                        </div>
-                        <div className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                          <div className="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                            <div className="flex items-center jusify-center">
-                              <SparklesIcon className="w-24 h-24 m-auto" />
-                            </div>
-                            <div>Signature</div>
-                          </div>
-                        </div>
-                        <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
-                          {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.title}
-                        </div>
-                        <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
-                          {IljuExp[language]?.[`${saju?.sky1}${saju?.grd1}`]?.[gender]?.desc}
-                        </div>
-                      </div>
+
+                      <Test
+                        inputGender={gender}
+                        inputDate={inputDate}
+                        isTimeUnknown={isTimeUnknown}
+                      />
                     </>
                   )}
                   {resultType === 'year' && (
-                    <div className="text-center mb-8 mt-2 animate-fade-in-up">
-                      <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
-                        Prepare For Next Year
-                      </p>
-                      <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
-                        {language === 'ko' ? '2026년 신년운세' : '2026 Path Guide'}
-                      </h1>
-                      {/* Decoration dots */}
-                      <div className="flex justify-center gap-2 mt-4 opacity-50">
-                        <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
-                        <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
-                        <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                    <div>
+                      <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                        <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                          Prepare For Next Year
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                          {language === 'ko' ? '2026년 신년운세' : '2026 Path Guide'}
+                        </h1>
+                        {/* Decoration dots */}
+                        <div className="flex justify-center gap-2 mt-4 opacity-50">
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
+
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: aiSajuStyle,
+                          }}
+                        />
                       </div>
                     </div>
                   )}
                   {resultType === 'daily' && (
-                    <div className="text-center mb-8 mt-2 animate-fade-in-up">
-                      <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
-                        Your Saju Daily
-                      </p>
-                      <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
-                        {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
-                      </h1>
-                      {/* Decoration dots */}
-                      <div className="flex justify-center gap-2 mt-4 opacity-50">
-                        <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
-                        <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
-                        <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                    <div>
+                      <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                        <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                          Your Saju Daily
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                          {language === 'ko' ? '오늘의 운세' : "Today's Luck"}
+                        </h1>
+                        {/* Decoration dots */}
+                        <div className="flex justify-center gap-2 mt-4 opacity-50">
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
+
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: aiSajuStyle,
+                          }}
+                        />
                       </div>
                     </div>
                   )}
-                  <div className="">
-                    {/* <div dangerouslySetInnerHTML={{ __html: DEFAULT_INSTRUCTION.ko }} />
-                    <div dangerouslySetInnerHTML={{ __html: DAILY_FORTUNE_PROMPT.ko }} /> */}
-                    <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
-                  </div>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: aiSajuStyle,
-                    }}
-                  />
 
                   <div className="mt-8 flex justify-center">
                     <button

@@ -321,7 +321,6 @@ export default function App() {
     setLoading(true);
     setLoadingType('main');
     setResultType('main');
-    setAiResult('');
 
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
     let isMatch = false;
@@ -331,20 +330,13 @@ export default function App() {
       const currentCount = data.editCount || 0;
 
       let isMatch = false;
-      if (data.ZAiAnalysis) {
-        const {
-          year,
-          language: savedLang,
-          saju: savedSaju,
-          result,
-          gender: savedGender,
-        } = data.ZAiAnalysis;
+      if (data.ZApiAnalysis) {
+        const { language: savedLang, saju: savedSaju, gender: savedGender } = data.ZApiAnalysis;
         const isLangMatch = savedLang === language;
         const isGenderMatch = savedGender === gender;
         const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
 
-        if (isLangMatch && isSajuMatch && isGenderMatch && result) {
-          setAiResult(result);
+        if (isLangMatch && isSajuMatch && isGenderMatch) {
           openModal();
           setLoading(false);
           setLoadingType(null);
@@ -357,11 +349,11 @@ export default function App() {
         setLoadingType(null);
         return alert(UI_TEXT.limitReached[language]);
       }
-      const currentSajuKey = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      const strictPrompt = STRICT_INSTRUCTION[language];
-      const fullPrompt = `${strictPrompt}\n${DEFAULT_INSTRUCTION[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
-      const result = await fetchGeminiAnalysis(fullPrompt);
+      // const currentSajuKey = JSON.stringify(saju);
+      // const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
+      // const strictPrompt = STRICT_INSTRUCTION[language];
+      // const fullPrompt = `${strictPrompt}\n${DEFAULT_INSTRUCTION[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
+      // const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;
 
       await setDoc(
@@ -369,8 +361,7 @@ export default function App() {
         {
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
-          ZAiAnalysis: {
-            result: result,
+          ZApiAnalysis: {
             saju: saju,
             language: language,
             gender: gender,
@@ -383,7 +374,6 @@ export default function App() {
       );
 
       setEditCount(newCount);
-      setAiResult(result);
       openModal();
     } catch (e) {
       alert(`Error: ${e.message}`);
@@ -493,8 +483,8 @@ export default function App() {
   const dbUser = userData;
 
   const isMainDone =
-    dbUser?.ZAiAnalysis &&
-    dbUser.ZAiAnalysis.language === language &&
+    dbUser?.ZApiAnalysis &&
+    dbUser.ZApiAnalysis.language === language &&
     dbUser.ZAiAnalysis.gender === gender &&
     checkSajuMatch(dbUser.ZAiAnalysis.saju);
 
@@ -524,8 +514,7 @@ export default function App() {
 
   // 최종 경로 생성
   const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
-  console.log(iljuImagePath);
-  console.log(ILJU_DATA, saju.sky1 + saju.grd1);
+
   const iljuData = ILJU_DATA[saju.sky1 + saju.grd1] || {
     title: '갑자',
     desc: '데이터 없음',

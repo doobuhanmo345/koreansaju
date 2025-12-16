@@ -2623,3 +2623,5 @@ export const ILJU_DATA = {
     keywords: [],
   },
 };
+
+export const ILJU_DATA_EN = {};

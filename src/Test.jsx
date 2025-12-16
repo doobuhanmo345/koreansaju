@@ -6,8 +6,8 @@ import { ILJU_DATA } from './data/ilju_data';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import FourPillarVis from './component/FourPillarVis';
 import { getRomanizedIlju } from './data/sajuInt';
-// [기존 유지] 지장간 데이터 맵
 
+// [기존 유지] 지장간 데이터 맵
 const JIJANGGAN_MAP = {
   자: { initial: '임', middle: null, main: '계' },
   축: { initial: '계', middle: '신', main: '기' },
@@ -35,7 +35,7 @@ const getTenGodType = (masterOhaeng, targetOhaeng) => {
   return relations[masterOhaeng]?.[targetOhaeng] || '비겁';
 };
 
-// [기존 유지] 십성별 해석 멘트 (문맥에 맞게 자연스럽게 녹이기 위해 키워드 활용)
+// [기존 유지] 십성별 해석 멘트
 const TEN_GOD_DESC = {
   비겁: {
     name: '비겁',
@@ -63,40 +63,41 @@ const TEN_GOD_DESC = {
     middle: '본질을 꿰뚫어 보고자 하는 깊은 통찰력과 직관',
   },
 };
-const Test = ({}) => {
-  const [inputDate, setInputDate] = useState('1990-12-05T10:00');
-  const [inputGender, setInputGender] = useState('female');
-  const isTimeUnknown = false;
+
+const Test = ({ inputDate, inputGender, isTimeUnknown }) => {
   const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
-  // 1. 데이터 병합 (기존 ILJU_DATA의 title을 koTitle의 객체로 덮어쓰기)
 
   // [기존 유지] 입력 폼
   const SajuInputForm = ({ date, setDate, gender, setGender }) => {
     return (
-      <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg border border-stone-200 p-6 mb-8">
-        <h2 className="text-lg font-bold text-stone-700 mb-4 border-b pb-2">정보 입력</h2>
+      <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 mb-8 transition-colors">
+        <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 border-b dark:border-slate-700 pb-2">
+          정보 입력
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-stone-500 mb-2">
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
               태어난 날짜와 시간 (양력)
             </label>
             <input
               type="datetime-local"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full p-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-stone-700"
+              className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-700 dark:text-slate-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-500 mb-2">성별</label>
+            <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+              성별
+            </label>
             <div className="flex gap-2">
               <button
                 onClick={() => setGender('male')}
                 className={`flex-1 py-3 rounded-lg font-bold transition-all ${
                   gender === 'male'
                     ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-600'
                 }`}
               >
                 남성 (Male)
@@ -106,7 +107,7 @@ const Test = ({}) => {
                 className={`flex-1 py-3 rounded-lg font-bold transition-all ${
                   gender === 'female'
                     ? 'bg-red-500 text-white shadow-md'
-                    : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-600'
                 }`}
               >
                 여성 (Female)
@@ -272,29 +273,24 @@ const Test = ({}) => {
 
         order.forEach((section) => {
           const data = jijangganList[section.key];
-          let sectionStory = `<div class="mb-6 last:mb-0"><h4 class="font-bold text-stone-700 mb-1">${section.title}</h4>`;
-          sectionStory += `<p class="text-sm text-stone-600 leading-relaxed text-justify">`;
+          // 다크모드 클래스 추가
+          let sectionStory = `<div class="mb-6 last:mb-0"><h4 class="font-bold text-slate-700 dark:text-slate-200 mb-1">${section.title}</h4>`;
+          sectionStory += `<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed text-justify">`;
           sectionStory += `${section.context} `;
 
           const parts = [];
 
-          // 여기(Initial) 분석
           if (data.initial) {
             const initialOhaeng = OHAENG_MAP[data.initial];
             const tenGod = getTenGodType(dayMasterOhaeng, initialOhaeng);
-            // 예: "현실을 냉철하게 파악하는 감각이 바탕에 깔려 있고"
             parts.push(`<b>${TEN_GOD_DESC[tenGod].initial}</b>`);
           }
 
-          // 중기(Middle) 분석
-          // 중기(Middle) - 핵심/잠재력
           if (data.middle) {
             const middleOhaeng = OHAENG_MAP[data.middle];
             const tenGod = getTenGodType(dayMasterOhaeng, middleOhaeng);
-            // 예: "확실한 결과와 실속을 챙기려는 실리적인 욕망"
             parts.push(`그 내면에는 <b>${TEN_GOD_DESC[tenGod].middle}</b>이(가) 있습니다`);
           } else {
-            // 중기가 없는 경우 (자, 묘, 유 등 왕지)
             parts.push(
               `숨겨진 다른 마음 없이, 겉으로 드러난 기운이 곧 본심인 <b>솔직하고 투명한 직진성</b>을 보입니다`,
             );
@@ -373,7 +369,7 @@ const Test = ({}) => {
         currentDaewoon,
         currentAge,
         jijangganList,
-        hiddenStory, // [추가] 스토리텔링 HTML 문자열 반환
+        hiddenStory,
       };
     } catch (err) {
       console.error('사주 계산 전체 오류:', err);
@@ -381,7 +377,7 @@ const Test = ({}) => {
     }
   }, [inputDate, inputGender]);
 
-  // 스토리텔링 함수 (기존 유지)
+  // 스토리텔링 함수
   const getAnalysisStory = (iljuData, shinsalList, maxOhaeng, relations) => {
     const ohaengNames = {
       wood: '나무(목)',
@@ -393,29 +389,27 @@ const Test = ({}) => {
     const dominant = ohaengNames[maxOhaeng[0]];
 
     let story = ``;
-    // 한글 일주 이름('갑자')을 영어('gabja')로 변환
     const iljuEn = getRomanizedIlju(ilju);
-    const safeIlju = ilju ? getRomanizedIlju(ilju) : 'gapja'; // 일주가 없으면 갑자로 대체
-    const safeGender = inputGender ? inputGender.toLowerCase() : 'male'; // 성별 없으면 male로 대체
-
-    // 최종 경로 생성
+    const safeIlju = ilju ? getRomanizedIlju(ilju) : 'gapja';
+    const safeGender = inputGender ? inputGender.toLowerCase() : 'male';
     const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
 
-    story += `<div class="rounded-xl p-6 border border-blue-50 my-6 shadow-sm">`;
+    // 다크모드 클래스 추가
+    story += `<div class="rounded-xl p-6 border border-blue-50 dark:border-slate-700 my-6 shadow-sm dark:bg-slate-800/50">`;
     story += `<div class="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
                         <div class="flex items-center justify-center gap-2 mb-2 opacity-80">
-                          <div class="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
-                          <span class="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
+                          <div class="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-500"></div>
+                          <span class="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-300 uppercase drop-shadow-sm">
                             Who Am I?
                           </span>
-                          <div class="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                          <div class="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-500"></div>
                         </div>
-                        <div class="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                          <div class="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                        <div class="text-indigo-400 dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-1">
+                          <div class="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-1">
                             <div class="flex items-center justify-center mx-auto">
                               <img 
               src=${iljuImagePath} 
-              class="w-1/2 h-1/2"
+              class="w-1/2 h-auto"
             />
                             </div>
                             <div>Signature</div>
@@ -424,7 +418,7 @@ const Test = ({}) => {
                         <div class="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
                          ${iljuData.title[inputGender].title}
                         </div>
-                        <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
+                        <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed break-keep">
                           ${iljuData.title[inputGender].desc}
                         </div>
                       </div>`;
@@ -432,15 +426,15 @@ const Test = ({}) => {
     story += iljuData.desc[inputGender]
       ?.map(
         (item) =>
-          `<li class="flex items-start gap-3 text-stone-700">
-         <span class="shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+          `<li class="flex items-start gap-3 text-slate-700 dark:text-slate-300">
+         <span class="shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
          <span class="leading-relaxed tracking-wide text-[15px]">${item}</span>
        </li>`,
       )
       .join('');
     story += `</ul></div>`;
 
-    story += `<br/>사주 전체를 흐르는 기운을 보면 <span class="text-red-600 font-bold">${dominant}</span>의 에너지가 가장 강합니다. `;
+    story += `<br/>사주 전체를 흐르는 기운을 보면 <span class="text-red-600 dark:text-red-400 font-bold">${dominant}</span>의 에너지가 가장 강합니다. `;
     if (maxOhaeng[0] === 'wood')
       story += `이로 인해 성장하고자 하는 욕구가 강하고, 새로운 일을 시작하는 추진력이 돋보입니다. `;
     else if (maxOhaeng[0] === 'fire')
@@ -457,7 +451,7 @@ const Test = ({}) => {
       story += `삶의 흐름 속에서 나타나는 인간관계와 변화를 살펴보면 다음과 같습니다.<br/>`;
       const haps = relations.filter((r) => r.type === '합');
       if (haps.length > 0) {
-        story += `먼저 <span class="text-indigo-600 font-bold">합(合)</span>의 기운이 있습니다. `;
+        story += `먼저 <span class="text-indigo-600 dark:text-indigo-400 font-bold">합(合)</span>의 기운이 있습니다. `;
         haps.forEach((h) => {
           story += `${h.target}와는 ${h.name}을 이루어 ${h.desc}. `;
         });
@@ -465,14 +459,14 @@ const Test = ({}) => {
       const chungs = relations.filter((r) => r.type === '충');
       if (chungs.length > 0) {
         const intro = haps.length > 0 ? ` 또한 ` : ` `;
-        story += `${intro}<span class="text-amber-600 font-bold">충(沖)</span>의 기운도 함께 작용합니다. `;
+        story += `${intro}<span class="text-amber-600 dark:text-amber-400 font-bold">충(沖)</span>의 기운도 함께 작용합니다. `;
         chungs.forEach((c) => {
           story += `${c.target}와는 ${c.name}이 되어 ${c.desc}. `;
         });
       }
       story += `<br/><br/>`;
     } else {
-      story += `사주 내의 글자들이 서로 크게 부딪히거나 묶이지 않아, <span class="text-green-600 font-bold">평온하고 무난한 흐름</span>을 보입니다. 격렬한 파도보다는 잔잔한 강물처럼 안정적인 삶을 영위할 가능성이 높습니다. <br/><br/>`;
+      story += `사주 내의 글자들이 서로 크게 부딪히거나 묶이지 않아, <span class="text-green-600 dark:text-green-400 font-bold">평온하고 무난한 흐름</span>을 보입니다. 격렬한 파도보다는 잔잔한 강물처럼 안정적인 삶을 영위할 가능성이 높습니다. <br/><br/>`;
     }
 
     story += `마지막으로, 당신의 운명에 숨겨진 특별한 무기(신살)들에 대한 상세 분석입니다.<br/>`;
@@ -481,15 +475,15 @@ const Test = ({}) => {
     const others = shinsalList.filter((s) => s.name !== '천을귀인' && s.name !== '공망');
 
     if (gwiins.length > 0) {
-      story += `<br/>✨ <span class="bg-yellow-100 text-yellow-800 font-bold px-1 rounded">천을귀인</span>: `;
+      story += `<br/>✨ <span class="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 font-bold px-1 rounded">천을귀인</span>: `;
       story += gwiins.map((g) => g.desc).join(' 또한 ');
     }
     if (gongmangs.length > 0) {
-      story += `<br/>🌫 <span class="text-gray-500 font-bold">공망</span>: `;
+      story += `<br/>🌫 <span class="text-gray-500 dark:text-gray-400 font-bold">공망</span>: `;
       story += gongmangs.map((g) => g.desc).join(' 그리고 ');
     }
     if (others.length > 0) {
-      story += `<br/>🔑 <span class="text-indigo-700 font-bold">그 외 신살</span>: `;
+      story += `<br/>🔑 <span class="text-indigo-700 dark:text-indigo-400 font-bold">그 외 신살</span>: `;
       const otherSentences = others.map(
         (sal) => `<b>${sal.name}</b>이(가) 있어 ${sal.desc}하는 경향`,
       );
@@ -510,7 +504,7 @@ const Test = ({}) => {
       water: '물(水)',
     };
 
-    let story = `현재 당신은 <b>${currentDaewoon.startAge}세</b>부터 시작된 <span class="text-indigo-600 font-bold text-xl">'${currentDaewoon.name}'</span> 대운을 지나고 있습니다. (현재 나이: ${currentAge}세)<br/><br/>`;
+    let story = `현재 당신은 <b>${currentDaewoon.startAge}세</b>부터 시작된 <span class="text-indigo-600 dark:text-indigo-400 font-bold text-xl">'${currentDaewoon.name}'</span> 대운을 지나고 있습니다. (현재 나이: ${currentAge}세)<br/><br/>`;
     story += `이 시기는 천간의 <b>${ohaengKorean[currentDaewoon.ganOhaeng]}</b> 기운과 지지의 <b>${ohaengKorean[currentDaewoon.zhiOhaeng]}</b> 기운이 당신의 인생 배경이 되는 시기입니다. `;
 
     if (currentDaewoon.ganOhaeng === currentDaewoon.zhiOhaeng) {
@@ -526,7 +520,7 @@ const Test = ({}) => {
     } else {
       story += `기운이 서로 부딪히거나 제어하는 관계라, <b>변동성이 크고 다이내믹한 변화</b>를 겪을 수 있습니다. 이는 위기가 될 수도 있지만, 큰 도약을 위한 발판이 되기도 합니다.`;
     }
-    story += `<br/><br/>대운은 좋고 나쁨(길흉)보다는 <b>'내가 어떤 환경에 놓여있는가'</b>를 말해줍니다. 지금은 <span class="bg-indigo-50 text-indigo-700 font-bold px-1">${currentDaewoon.name}</span>이라는 계절 속에 있음을 인지하고, 그 흐름에 맞춰 나아가는 지혜가 필요합니다.`;
+    story += `<br/><br/>대운은 좋고 나쁨(길흉)보다는 <b>'내가 어떤 환경에 놓여있는가'</b>를 말해줍니다. 지금은 <span class="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold px-1">${currentDaewoon.name}</span>이라는 계절 속에 있음을 인지하고, 그 흐름에 맞춰 나아가는 지혜가 필요합니다.`;
     return story;
   };
 
@@ -539,20 +533,8 @@ const Test = ({}) => {
       water: 'bg-blue-600',
     })[type];
 
-  const getTextColor = (text) => {
-    const type = OHAENG_MAP[text];
-    return (
-      {
-        wood: 'text-green-600',
-        fire: 'text-red-600',
-        earth: 'text-yellow-600',
-        metal: 'text-slate-500',
-        water: 'text-blue-600',
-      }[type] || 'text-stone-500'
-    );
-  };
-
-  if (!sajuData) return <div className="p-10 text-center">생년월일을 입력해주세요.</div>;
+  if (!sajuData)
+    return <div className="p-10 text-center dark:text-gray-300">생년월일을 입력해주세요.</div>;
 
   const {
     pillars,
@@ -566,56 +548,45 @@ const Test = ({}) => {
     currentDaewoon,
     currentAge,
     jijangganList,
-    hiddenStory, // [추가]
+    hiddenStory,
   } = sajuData;
 
   const analysisStory = getAnalysisStory(myIljuData, myShinsal, maxOhaeng, relations);
   const daewoonStory = getDaewoonStory(currentDaewoon, currentAge);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 min-h-screen bg-stone-100 flex flex-col items-center">
-      {/* 1. 입력 폼 */}
-      <SajuInputForm
-        date={inputDate}
-        setDate={setInputDate}
-        gender={inputGender}
-        setGender={setInputGender}
-      />
-
-      <div className="w-full text-center mb-8 pt-8">
-        <p className="text-stone-500 text-sm tracking-widest mb-2">SAJU ANALYSIS</p>
-        <h1 className="text-3xl font-serif font-bold text-stone-800"> 운명 분석서</h1>
-      </div>
-
-      <div className="bg-white w-full rounded-sm shadow-xl overflow-hidden relative mb-8">
+    <div className="max-w-2xl mx-auto p-6 min-h-screen  flex flex-col items-center transition-colors">
+      <div className="bg-white dark:bg-slate-800 w-full rounded-sm shadow-xl overflow-hidden relative mb-8 transition-colors">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
         <div className="p-8 md:p-12">
           {/* 사주 기둥 */}
-          <div className="flex justify-center gap-4 mb-8 text-stone-400 text-sm border-b border-stone-100 pb-6">
+          <div className="flex justify-center gap-4 mb-8 text-slate-400 dark:text-slate-500 text-sm border-b border-slate-100 dark:border-slate-700 pb-6">
             <div className="flex flex-col items-center">
               <span>시</span>
-              <strong className="text-lg text-stone-700">{pillars.time}</strong>
+              <strong className="text-lg text-slate-700 dark:text-slate-300">{pillars.time}</strong>
             </div>
             <div className="flex flex-col items-center">
               <span>일</span>
-              <strong className="text-lg text-stone-900 border-b-2 border-indigo-500">
+              <strong className="text-lg text-slate-900 dark:text-white border-b-2 border-indigo-500">
                 {pillars.day}
               </strong>
             </div>
             <div className="flex flex-col items-center">
               <span>월</span>
-              <strong className="text-lg text-stone-700">{pillars.month}</strong>
+              <strong className="text-lg text-slate-700 dark:text-slate-300">
+                {pillars.month}
+              </strong>
             </div>
             <div className="flex flex-col items-center">
               <span>년</span>
-              <strong className="text-lg text-stone-700">{pillars.year}</strong>
+              <strong className="text-lg text-slate-700 dark:text-slate-300">{pillars.year}</strong>
             </div>
           </div>
 
           {/* 오행 그래프 */}
-          <div className="mb-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div className="flex w-full h-4 rounded-full overflow-hidden bg-slate-200">
+          <div className="mb-8 bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors">
+            <div className="flex w-full h-4 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
               {Object.entries(ohaengCount).map(([type, count]) => (
                 <div
                   key={type}
@@ -624,7 +595,7 @@ const Test = ({}) => {
                 />
               ))}
             </div>
-            <div className="flex justify-between mt-2 px-1 text-xs text-slate-500">
+            <div className="flex justify-between mt-2 px-1 text-xs text-slate-500 dark:text-slate-400">
               <span>목 {ohaengCount.wood}</span>
               <span>화 {ohaengCount.fire}</span>
               <span>토 {ohaengCount.earth}</span>
@@ -635,20 +606,21 @@ const Test = ({}) => {
 
           {/* 스토리텔링 본문 */}
           <div
-            className="prose prose-stone leading-loose text-lg text-stone-700 text-justify"
+            className="prose prose-stone dark:prose-invert leading-loose text-lg text-slate-700 dark:text-slate-300 text-justify"
             dangerouslySetInnerHTML={{ __html: analysisStory }}
           />
 
-          <div className="mt-10 pt-6 border-t border-stone-100 text-right">
-            <p className="text-sm text-stone-400 italic">당신의 잠재력을 믿으세요.</p>
+          <div className="mt-10 pt-6 border-t border-slate-100 dark:border-slate-700 text-right">
+            <p className="text-sm text-slate-400 dark:text-slate-500 italic">
+              당신의 잠재력을 믿으세요.
+            </p>
           </div>
         </div>
       </div>
       {/* 지장간 UI: 표(간단보기) + 스토리텔링(상세해석) */}
-      <div className="mb-10">
-        {/* [수정] 리스트 대신 '줄글' 스토리텔링 형식으로 변경 */}
-        <div className="bg-stone-50 p-6 rounded-lg border border-stone-100">
-          <h4 className="text-stone-600 font-bold text-xs mb-4 uppercase tracking-wider">
+      <div className="mb-10 w-full">
+        <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-slate-100 dark:border-slate-700 transition-colors">
+          <h4 className="text-slate-600 dark:text-slate-400 font-bold text-xs mb-4 uppercase tracking-wider">
             🔮 Hidden Story (심층 분석)
           </h4>
           <div dangerouslySetInnerHTML={{ __html: hiddenStory }} />
@@ -658,37 +630,41 @@ const Test = ({}) => {
         {/* 합충 카드 */}
         {relations.length > 0 && (
           <div>
-            <h3 className="text-stone-500 text-sm font-bold mb-3 px-2">
+            <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold mb-3 px-2">
               ⚡ 에너지의 화학 반응 (합/충)
             </h3>
             <div className="grid grid-cols-1 gap-3">
               {relations.map((rel, idx) => (
                 <div
                   key={idx}
-                  className={`p-4 rounded-lg border flex items-center justify-between ${
+                  className={`p-4 rounded-lg border flex items-center justify-between transition-colors ${
                     rel.type === '합'
-                      ? 'bg-indigo-50 border-indigo-100'
-                      : 'bg-amber-50 border-amber-100'
+                      ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800'
+                      : 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800'
                   }`}
                 >
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span
                         className={`font-bold ${
-                          rel.type === '합' ? 'text-indigo-700' : 'text-amber-700'
+                          rel.type === '합'
+                            ? 'text-indigo-700 dark:text-indigo-300'
+                            : 'text-amber-700 dark:text-amber-300'
                         }`}
                       >
                         {rel.name}
                       </span>
-                      <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-gray-200 text-gray-500">
+                      <span className="text-[10px] bg-white dark:bg-slate-700 px-2 py-0.5 rounded border border-gray-200 dark:border-slate-600 text-gray-500 dark:text-gray-300">
                         {rel.target}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600">{rel.desc}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{rel.desc}</p>
                   </div>
                   <span
                     className={`text-xl font-bold ${
-                      rel.type === '합' ? 'text-indigo-300' : 'text-amber-300'
+                      rel.type === '합'
+                        ? 'text-indigo-300 dark:text-indigo-500'
+                        : 'text-amber-300 dark:text-amber-500'
                     }`}
                   >
                     {rel.type}
@@ -702,33 +678,36 @@ const Test = ({}) => {
         {/* 신살 상세 카드 */}
         {myShinsal.length > 0 && (
           <div>
-            <h3 className="text-stone-500 text-sm font-bold mb-3 px-2">
+            <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold mb-3 px-2">
               🌟 나의 특별한 기운 (신살 & 공망)
             </h3>
             <div className="grid grid-cols-1 gap-3">
               {myShinsal.map((sal, idx) => {
                 const isNoble = sal.name === '천을귀인';
                 const isVoid = sal.name === '공망';
-                let cardStyle = 'bg-white border-stone-200';
-                let typeStyle = 'bg-stone-100 text-stone-500';
+                let cardStyle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700';
+                let typeStyle = 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400';
 
                 if (isNoble) {
-                  cardStyle = 'bg-yellow-50 border-yellow-200 ring-1 ring-yellow-200';
-                  typeStyle = 'bg-yellow-100 text-yellow-700 font-bold';
+                  cardStyle =
+                    'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-900/30 ring-1 ring-yellow-200 dark:ring-yellow-900/30';
+                  typeStyle =
+                    'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 font-bold';
                 } else if (isVoid) {
-                  cardStyle = 'bg-gray-50 border-gray-200 border-dashed';
-                  typeStyle = 'bg-gray-200 text-gray-500';
+                  cardStyle =
+                    'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 border-dashed';
+                  typeStyle = 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
                 }
 
                 return (
                   <div
                     key={idx}
-                    className={`p-4 rounded-lg shadow-sm border flex items-center justify-between ${cardStyle}`}
+                    className={`p-4 rounded-lg shadow-sm border flex items-center justify-between transition-colors ${cardStyle}`}
                   >
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span
-                          className={`font-bold ${isNoble ? 'text-yellow-800' : 'text-stone-800'}`}
+                          className={`font-bold ${isNoble ? 'text-yellow-800 dark:text-yellow-300' : 'text-slate-800 dark:text-slate-200'}`}
                         >
                           {sal.name}
                         </span>
@@ -736,7 +715,7 @@ const Test = ({}) => {
                           {sal.type}
                         </span>
                       </div>
-                      <p className="text-sm text-stone-600">{sal.desc}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{sal.desc}</p>
                     </div>
                   </div>
                 );
@@ -748,23 +727,23 @@ const Test = ({}) => {
         {/* 대운 분석 섹션 */}
         {daewoonList.length > 0 && (
           <div className="mt-8">
-            <h3 className="text-stone-500 text-sm font-bold mb-3 px-2 flex items-center justify-between">
+            <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold mb-3 px-2 flex items-center justify-between">
               <span>🌊 대운의 흐름 (10년마다 바뀌는 운)</span>
-              <span className="text-xs font-normal bg-stone-200 px-2 py-1 rounded text-stone-600">
+              <span className="text-xs font-normal bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-slate-600 dark:text-slate-300">
                 현재 {currentAge}세
               </span>
             </h3>
 
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-stone-200 overflow-x-auto">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-x-auto transition-colors">
               <div className="flex gap-2 min-w-max pb-2">
                 {daewoonList.map((dae, idx) => (
                   <div
                     key={idx}
-                    className={`flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg border 
+                    className={`flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg border transition-all
                       ${
                         dae.isCurrent
-                          ? 'bg-indigo-600 border-indigo-600 text-white shadow-md transform scale-105 transition-all'
-                          : 'bg-stone-50 border-stone-100 text-stone-400'
+                          ? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 text-white shadow-md transform scale-105'
+                          : 'bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600 text-slate-400 dark:text-slate-500'
                       }`}
                   >
                     <span className="text-xs mb-1 opacity-80">{dae.startAge}세</span>
@@ -778,23 +757,23 @@ const Test = ({}) => {
             </div>
 
             {currentDaewoon && (
-              <div className="mt-4 bg-indigo-50 p-6 rounded-lg border border-indigo-100">
+              <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-100 dark:border-indigo-900/50 transition-colors">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-lg">
+                  <div className="w-10 h-10 rounded-full bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-lg">
                     {currentDaewoon.name[0]}
                   </div>
                   <div>
-                    <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">
+                    <p className="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wider">
                       Current Season
                     </p>
-                    <h4 className="text-lg font-bold text-stone-800">
+                    <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200">
                       {currentDaewoon.name} 대운 ({currentDaewoon.startAge}~
                       {currentDaewoon.endAge || '...'}세)
                     </h4>
                   </div>
                 </div>
                 <div
-                  className="text-stone-700 leading-relaxed text-sm text-justify"
+                  className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm text-justify"
                   dangerouslySetInnerHTML={{ __html: daewoonStory }}
                 />
               </div>
