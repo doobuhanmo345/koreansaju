@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPillars } from './utils/sajuCalculator';
-import Test from './Test';
+import { ILJU_DATA } from './data/ilju_data';
+import { getRomanizedIlju } from './data/sajuInt';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import FourPillarVis from './component/FourPillarVis';
 import processSajuData from './sajuDataProcessor';
@@ -516,6 +517,20 @@ export default function App() {
   const yearEnergy = useConsumeEnergy();
   const dailyEnergy = useConsumeEnergy();
   // functions/index.js (부분 예시)
+  // 한글 일주 이름('갑자')을 영어('gabja')로 변환
+
+  const safeIlju = saju.sky1 ? getRomanizedIlju(saju.sky1 + saju.grd1) : 'gapja'; // 일주가 없으면 갑자로 대체
+  const safeGender = gender ? gender.toLowerCase() : 'male'; // 성별 없으면 male로 대체
+
+  // 최종 경로 생성
+  const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
+  console.log(iljuImagePath);
+  console.log(ILJU_DATA, saju.sky1 + saju.grd1);
+  const iljuData = ILJU_DATA[saju.sky1 + saju.grd1] || {
+    title: '갑자',
+    desc: '데이터 없음',
+    keywords: [],
+  };
 
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
@@ -573,8 +588,34 @@ export default function App() {
               setGender={setGender}
             />
           </div>
-
-          {user && saju?.sky1 && <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />}
+          {isSaved && (
+            <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
+              <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
+                <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
+                  Who Am I?
+                </span>
+                <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
+              </div>
+              <div className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                <div className="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                  <div className="flex items-center justify-center mx-auto">
+                    <img src={iljuImagePath} className="w-1/2 h-1/2" />
+                  </div>
+                  <div>Signature</div>
+                </div>
+              </div>
+              <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
+                {iljuData?.title[gender]?.title}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
+                {iljuData?.title[gender]?.desc}
+              </div>
+            </div>
+          )}
+          {!isSaved && user && saju?.sky1 && (
+            <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
+          )}
         </div>
       </div>
 
