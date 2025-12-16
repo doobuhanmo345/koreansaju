@@ -1,89 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Solar } from 'lunar-javascript';
-import { ILJU_INTERPRETATION, calculateShinsal } from './data/sajuInt';
+import { calculateShinsal, OHAENG_MAP, RELATION_RULES, GWIN_MAP } from './data/sajuInt';
 import { HANJA_MAP } from './data/constants';
-
-// --- 1. 합충(Chemistry) 데이터 ---
-const RELATION_RULES = {
-  자축: { type: '합', name: '자축합(土)', desc: '믿음직하고 끈끈한 결속력을 가집니다' },
-  인해: { type: '합', name: '인해합(木)', desc: '먼저 베풀고 화합하는 따뜻한 기운이 있습니다' },
-  묘술: { type: '합', name: '묘술합(火)', desc: '예술적 감각과 뜨거운 열정이 결합된 형태입니다' },
-  진유: { type: '합', name: '진유합(金)', desc: '의리와 원칙을 중요시하며 맺고 끊음이 확실합니다' },
-  사신: { type: '합', name: '사신합(水)', desc: '현실적인 지혜와 변화를 추구하는 성향이 강합니다' },
-  오미: { type: '합', name: '오미합(火)', desc: '화려함 속에 실속을 챙기는 조화로움이 있습니다' },
-  자오: {
-    type: '충',
-    name: '자오충',
-    desc: '물과 불이 만나 강한 에너지와 역동적인 변화를 만듭니다',
-  },
-  축미: {
-    type: '충',
-    name: '축미충',
-    desc: '끈기와 고집이 부딪히니 형제나 지인 간의 갈등을 조심해야 합니다',
-  },
-  인신: {
-    type: '충',
-    name: '인신충',
-    desc: '시작과 끝이 부딪히는 형상이라 이동수가 많고 매우 바쁩니다',
-  },
-  묘유: {
-    type: '충',
-    name: '묘유충',
-    desc: '환경의 변화가 잦고 예민해질 수 있으니 마음을 잘 다스려야 합니다',
-  },
-  진술: {
-    type: '충',
-    name: '진술충',
-    desc: '고독할 수 있으나 투쟁심과 개성이 매우 강하여 리더가 되기도 합니다',
-  },
-  사해: {
-    type: '충',
-    name: '사해충',
-    desc: '쓸데없는 잡념이 많을 수 있으나 해외나 원거리 이동을 통해 해소됩니다',
-  },
-};
-
-// --- 2. 천을귀인 매핑 ---
-const GWIN_MAP = {
-  갑: ['축', '미'],
-  무: ['축', '미'],
-  경: ['축', '미'],
-  을: ['자', '신'],
-  기: ['자', '신'],
-  병: ['해', '유'],
-  정: ['해', '유'],
-  신: ['인', '오'],
-  임: ['사', '묘'],
-  계: ['사', '묘'],
-};
-
-// 오행 매핑
-const OHAENG_MAP = {
-  갑: 'wood',
-  을: 'wood',
-  인: 'wood',
-  묘: 'wood',
-  병: 'fire',
-  정: 'fire',
-  사: 'fire',
-  오: 'fire',
-  무: 'earth',
-  기: 'earth',
-  진: 'earth',
-  술: 'earth',
-  축: 'earth',
-  미: 'earth',
-  경: 'metal',
-  신: 'metal',
-  유: 'metal',
-  임: 'water',
-  계: 'water',
-  해: 'water',
-  자: 'water',
-};
-
+import { ILJU_DATA } from './data/ilju_data';
 const Test = ({}) => {
-  //0000000
   const [inputDate, setInputDate] = useState('1990-12-05T10:00');
   const [inputGender, setInputGender] = useState('female');
   // [추가] 입력 폼 컴포넌트
@@ -135,7 +55,7 @@ const Test = ({}) => {
       </div>
     );
   };
-  //00000
+
   const sajuData = useMemo(() => {
     if (!inputDate || !inputDate.includes('T')) return null;
 
@@ -238,7 +158,7 @@ const Test = ({}) => {
       checkPair(branches.day, branches.time, '시지(자녀)');
       checkPair(branches.day, branches.year, '년지(조상)');
 
-      const myIljuData = ILJU_INTERPRETATION[ilju] || {
+      const myIljuData = ILJU_DATA[ilju] || {
         title: ilju,
         desc: '데이터 없음',
         keywords: [],
@@ -319,7 +239,7 @@ const Test = ({}) => {
       console.error('사주 계산 전체 오류:', err);
       return null;
     }
-  }, [inputDate]);
+  }, [inputDate, inputGender]);
 
   // 스토리텔링 함수
   const getAnalysisStory = (iljuData, shinsalList, maxOhaeng, relations) => {
@@ -332,10 +252,10 @@ const Test = ({}) => {
     };
     const dominant = ohaengNames[maxOhaeng[0]];
 
-    let story = `당신은 <span class="text-blue-600 font-bold">'${iljuData.title}'</span>의 형상으로 태어났습니다. `;
-    story += `${iljuData.desc} <br/><br/>`;
+    let story = `당신은 <span class="text-blue-600 font-bold">'${iljuData.title}'</span>의 형상으로 태어났습니다. <br/> `;
+    story += iljuData.desc[inputGender]?.map((item) => `&nbsp; ${item} `).join('');
 
-    story += `사주 전체를 흐르는 기운을 보면 <span class="text-red-600 font-bold">${dominant}</span>의 에너지가 가장 강합니다. `;
+    story += `<br/>사주 전체를 흐르는 기운을 보면 <span class="text-red-600 font-bold">${dominant}</span>의 에너지가 가장 강합니다. `;
     if (maxOhaeng[0] === 'wood')
       story += `이로 인해 성장하고자 하는 욕구가 강하고, 새로운 일을 시작하는 추진력이 돋보입니다. `;
     else if (maxOhaeng[0] === 'fire')
