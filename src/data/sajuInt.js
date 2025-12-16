@@ -129,6 +129,48 @@ const GOEGANG_LIST = ['무술', '경진', '경술', '임진', '임술'];
  * @param {Object} branches - { year: '자', month: '축', day: '인', time: '유' } (지지 글자만)
  * @param {string} dayMaster - 일간 (예: '병')
  */
+// 천간 (10개) 영문 매핑
+const STEMS_EN = {
+  갑: 'gap',
+  을: 'eul',
+  병: 'byeong',
+  정: 'jeong',
+  무: 'mu',
+  기: 'gi',
+  경: 'gyeong',
+  신: 'sin',
+  임: 'im',
+  계: 'gye',
+};
+
+// 지지 (12개) 영문 매핑
+const BRANCHES_EN = {
+  자: 'ja',
+  축: 'chuk',
+  인: 'in',
+  묘: 'myo',
+  진: 'jin',
+  사: 'sa',
+  오: 'o',
+  미: 'mi',
+  신: 'shin',
+  유: 'yu',
+  술: 'sul',
+  해: 'hae',
+};
+
+// [헬퍼 함수] 한글 일주(예: '갑자')를 받아서 영어(예: 'gabja')로 변환
+export const getRomanizedIlju = (korName) => {
+  if (!korName || korName.length < 2) return 'default';
+
+  const stem = korName[0]; // '갑'
+  const branch = korName[1]; // '자'
+
+  const enStem = STEMS_EN[stem] || '';
+  const enBranch = BRANCHES_EN[branch] || '';
+
+  return `${enStem}${enBranch}`; // 'gapja'
+};
 export const calculateShinsal = (pillars, branches, dayMaster) => {
   const result = []; // 발견된 신살을 담을 배열
 

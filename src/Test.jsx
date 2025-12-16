@@ -3,16 +3,80 @@ import { Solar } from 'lunar-javascript';
 import { calculateShinsal, OHAENG_MAP, RELATION_RULES, GWIN_MAP } from './data/sajuInt';
 import { HANJA_MAP } from './data/constants';
 import { ILJU_DATA } from './data/ilju_data';
+import { useSajuCalculator } from './hooks/useSajuCalculator';
+import FourPillarVis from './component/FourPillarVis';
+import { getRomanizedIlju } from './data/sajuInt';
+// [기존 유지] 지장간 데이터 맵
+
+const JIJANGGAN_MAP = {
+  자: { initial: '임', middle: null, main: '계' },
+  축: { initial: '계', middle: '신', main: '기' },
+  인: { initial: '무', middle: '병', main: '갑' },
+  묘: { initial: '갑', middle: null, main: '을' },
+  진: { initial: '을', middle: '계', main: '무' },
+  사: { initial: '무', middle: '경', main: '병' },
+  오: { initial: '병', middle: '기', main: '정' },
+  미: { initial: '정', middle: '을', main: '기' },
+  신: { initial: '무', middle: '임', main: '경' },
+  유: { initial: '경', middle: null, main: '신' },
+  술: { initial: '신', middle: '정', main: '무' },
+  해: { initial: '무', middle: '갑', main: '임' },
+};
+
+// [기존 유지] 십성(Ten Gods) 계산 헬퍼
+const getTenGodType = (masterOhaeng, targetOhaeng) => {
+  const relations = {
+    wood: { wood: '비겁', fire: '식상', earth: '재성', metal: '관성', water: '인성' },
+    fire: { wood: '인성', fire: '비겁', earth: '식상', metal: '재성', water: '관성' },
+    earth: { wood: '관성', fire: '인성', earth: '비겁', metal: '식상', water: '재성' },
+    metal: { wood: '재성', fire: '관성', earth: '인성', metal: '비겁', water: '식상' },
+    water: { wood: '식상', fire: '재성', earth: '관성', metal: '인성', water: '비겁' },
+  };
+  return relations[masterOhaeng]?.[targetOhaeng] || '비겁';
+};
+
+// [기존 유지] 십성별 해석 멘트 (문맥에 맞게 자연스럽게 녹이기 위해 키워드 활용)
+const TEN_GOD_DESC = {
+  비겁: {
+    name: '비겁',
+    initial: '타협하지 않는 주관과 뚝심을 익혔으며',
+    middle: '타인에게 지지 않으려는 승부욕',
+  },
+  식상: {
+    name: '식상',
+    initial: '형식에 얽매이지 않는 자유로운 호기심이 있으며',
+    middle: '남과 다르게 자신을 표현하고자 하는 본능',
+  },
+  재성: {
+    name: '재성',
+    initial: '현실을 냉철하게 파악하는 감각이 있으며',
+    middle: '확실한 결과와 실속을 챙기려는 실리적 욕망',
+  },
+  관성: {
+    name: '관성',
+    initial: '스스로를 절제하고 원칙을 지키려는 태도를 가지고 있으며',
+    middle: '명예를 중요시하고 흐트러짐 없이 자신을 통제하려는 의지',
+  },
+  인성: {
+    name: '인성',
+    initial: '상황을 깊이 생각하고 수용하며',
+    middle: '본질을 꿰뚫어 보고자 하는 깊은 통찰력과 직관',
+  },
+};
 const Test = ({}) => {
   const [inputDate, setInputDate] = useState('1990-12-05T10:00');
   const [inputGender, setInputGender] = useState('female');
-  // [추가] 입력 폼 컴포넌트
+  const isTimeUnknown = false;
+  const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
+  // 1. 데이터 병합 (기존 ILJU_DATA의 title을 koTitle의 객체로 덮어쓰기)
+
+  // [기존 유지] 입력 폼
   const SajuInputForm = ({ date, setDate, gender, setGender }) => {
     return (
       <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg border border-stone-200 p-6 mb-8">
         <h2 className="text-lg font-bold text-stone-700 mb-4 border-b pb-2">정보 입력</h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* 생년월일 입력 */}
           <div>
             <label className="block text-sm font-medium text-stone-500 mb-2">
               태어난 날짜와 시간 (양력)
@@ -24,8 +88,6 @@ const Test = ({}) => {
               className="w-full p-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-stone-700"
             />
           </div>
-
-          {/* 성별 선택 */}
           <div>
             <label className="block text-sm font-medium text-stone-500 mb-2">성별</label>
             <div className="flex gap-2">
@@ -86,7 +148,24 @@ const Test = ({}) => {
         const type = OHAENG_MAP[char];
         if (type) ohaengCount[type]++;
       });
-      const maxOhaeng = Object.entries(ohaengCount).reduce((a, b) => (a[1] >= b[1] ? a : b));
+
+      const dayMaster = allChars[4];
+      const dayMasterOhaeng = OHAENG_MAP[dayMaster];
+
+      const dayTypes = [OHAENG_MAP[allChars[4]], OHAENG_MAP[allChars[5]]];
+      const monthTypes = [OHAENG_MAP[allChars[2]], OHAENG_MAP[allChars[3]]];
+
+      const maxOhaeng = Object.entries(ohaengCount).reduce((a, b) => {
+        if (a[1] !== b[1]) {
+          return a[1] > b[1] ? a : b;
+        }
+        const getScore = (type) => {
+          if (dayTypes.includes(type)) return 2;
+          if (monthTypes.includes(type)) return 1;
+          return 0;
+        };
+        return getScore(a[0]) >= getScore(b[0]) ? a : b;
+      });
 
       const branches = {
         year: allChars[1],
@@ -100,13 +179,10 @@ const Test = ({}) => {
         day: allChars[4] + allChars[5],
         time: allChars[6] + allChars[7],
       };
-      const dayMaster = allChars[4];
+
       const ilju = pillars.day;
 
-      // 1. 기본 신살 계산
       let finalShinsal = calculateShinsal(pillars, branches, dayMaster);
-
-      // 2. 천을귀인 추가
       const nobleTargets = GWIN_MAP[dayMaster] || [];
       nobleTargets.forEach((target) => {
         Object.entries(branches).forEach(([pos, branch]) => {
@@ -126,10 +202,8 @@ const Test = ({}) => {
         });
       });
 
-      // 3. 공망 추가
       const gongmangHanja = lunar.getDayXunKong();
       const gongmangTargets = gongmangHanja.split('').map((h) => HANJA_MAP[h]);
-
       Object.entries(branches).forEach(([pos, branch]) => {
         if (pos === 'day') return;
         if (gongmangTargets.includes(branch)) {
@@ -142,12 +216,10 @@ const Test = ({}) => {
         }
       });
 
-      // 중복 제거
       finalShinsal = [
         ...new Map(finalShinsal.map((item) => [item.name + item.desc, item])).values(),
       ];
 
-      // 4. 합충 계산
       const relations = [];
       const checkPair = (b1, b2, targetName) => {
         const key = [b1, b2].sort().join('');
@@ -164,21 +236,88 @@ const Test = ({}) => {
         keywords: [],
       };
 
-      // --- 5. [수정] 대운(DaYun) 계산 (안전하게 처리) ---
+      const jijangganList = {
+        time: { branch: branches.time, ...JIJANGGAN_MAP[branches.time] },
+        day: { branch: branches.day, ...JIJANGGAN_MAP[branches.day] },
+        month: { branch: branches.month, ...JIJANGGAN_MAP[branches.month] },
+        year: { branch: branches.year, ...JIJANGGAN_MAP[branches.year] },
+      };
+
+      // --- [수정] 지장간 스토리텔링 생성 로직 ---
+      const getHiddenStory = () => {
+        const order = [
+          {
+            key: 'year',
+            title: '🌱 초년과 뿌리',
+            context: '당신은 어린시절 경험과 가족의 영향으로',
+          },
+          {
+            key: 'month',
+            title: '🏢 사회적 환경',
+            context: '당신의 사회적 모습 이면에는',
+          },
+          {
+            key: 'day',
+            title: '🏠 본심과 속마음',
+            context: '당신이 배우자를 대할 때에는',
+          },
+          {
+            key: 'time',
+            title: '🌇 말년과 비밀',
+            context: '나이가 들수록',
+          },
+        ];
+
+        let fullStory = '';
+
+        order.forEach((section) => {
+          const data = jijangganList[section.key];
+          let sectionStory = `<div class="mb-6 last:mb-0"><h4 class="font-bold text-stone-700 mb-1">${section.title}</h4>`;
+          sectionStory += `<p class="text-sm text-stone-600 leading-relaxed text-justify">`;
+          sectionStory += `${section.context} `;
+
+          const parts = [];
+
+          // 여기(Initial) 분석
+          if (data.initial) {
+            const initialOhaeng = OHAENG_MAP[data.initial];
+            const tenGod = getTenGodType(dayMasterOhaeng, initialOhaeng);
+            // 예: "현실을 냉철하게 파악하는 감각이 바탕에 깔려 있고"
+            parts.push(`<b>${TEN_GOD_DESC[tenGod].initial}</b>`);
+          }
+
+          // 중기(Middle) 분석
+          // 중기(Middle) - 핵심/잠재력
+          if (data.middle) {
+            const middleOhaeng = OHAENG_MAP[data.middle];
+            const tenGod = getTenGodType(dayMasterOhaeng, middleOhaeng);
+            // 예: "확실한 결과와 실속을 챙기려는 실리적인 욕망"
+            parts.push(`그 내면에는 <b>${TEN_GOD_DESC[tenGod].middle}</b>이(가) 있습니다`);
+          } else {
+            // 중기가 없는 경우 (자, 묘, 유 등 왕지)
+            parts.push(
+              `숨겨진 다른 마음 없이, 겉으로 드러난 기운이 곧 본심인 <b>솔직하고 투명한 직진성</b>을 보입니다`,
+            );
+          }
+
+          sectionStory += parts.join(', ');
+          sectionStory += `.</p></div>`;
+          fullStory += sectionStory;
+        });
+
+        return fullStory;
+      };
+
+      const hiddenStory = getHiddenStory();
+
       const daewoonList = [];
       let currentDaewoon = null;
       let currentAge = 0;
 
       try {
         const gender = inputGender === 'male' ? 1 : 0;
-
         const yun = eightChar.getYun(gender);
-
-        // **[중요] 함수명 getDaYun() (대소문자 주의)**
-        // 라이브러리 버전에 따라 getDaYun()이 배열을 반환합니다.
         const daewoonRaw = yun.getDaYun();
-
-        // 한국식 나이(세는 나이) 혹은 만 나이 계산
         currentAge = new Date().getFullYear() - solar.getYear() + 1;
 
         if (daewoonRaw && Array.isArray(daewoonRaw)) {
@@ -205,7 +344,6 @@ const Test = ({}) => {
               desc: `${ganKor}(${ganOhaeng}) / ${zhiKor}(${zhiOhaeng})`,
             };
 
-            // 다음 대운 시작 나이
             const nextDy = daewoonRaw[i + 1];
             const nextStartAge = nextDy ? nextDy.getStartAge() : 999;
 
@@ -234,6 +372,8 @@ const Test = ({}) => {
         daewoonList,
         currentDaewoon,
         currentAge,
+        jijangganList,
+        hiddenStory, // [추가] 스토리텔링 HTML 문자열 반환
       };
     } catch (err) {
       console.error('사주 계산 전체 오류:', err);
@@ -241,7 +381,7 @@ const Test = ({}) => {
     }
   }, [inputDate, inputGender]);
 
-  // 스토리텔링 함수
+  // 스토리텔링 함수 (기존 유지)
   const getAnalysisStory = (iljuData, shinsalList, maxOhaeng, relations) => {
     const ohaengNames = {
       wood: '나무(목)',
@@ -252,8 +392,53 @@ const Test = ({}) => {
     };
     const dominant = ohaengNames[maxOhaeng[0]];
 
-    let story = `당신은 <span class="text-blue-600 font-bold">'${iljuData.title}'</span>의 형상으로 태어났습니다. <br/> `;
-    story += iljuData.desc[inputGender]?.map((item) => `&nbsp; ${item} `).join('');
+    let story = ``;
+    // 한글 일주 이름('갑자')을 영어('gabja')로 변환
+    const iljuEn = getRomanizedIlju(ilju);
+    const safeIlju = ilju ? getRomanizedIlju(ilju) : 'gapja'; // 일주가 없으면 갑자로 대체
+    const safeGender = inputGender ? inputGender.toLowerCase() : 'male'; // 성별 없으면 male로 대체
+
+    // 최종 경로 생성
+    const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
+
+    story += `<div class="rounded-xl p-6 border border-blue-50 my-6 shadow-sm">`;
+    story += `<div class="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
+                        <div class="flex items-center justify-center gap-2 mb-2 opacity-80">
+                          <div class="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                          <span class="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
+                            Who Am I?
+                          </span>
+                          <div class="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                        </div>
+                        <div class="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                          <div class="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
+                            <div class="flex items-center justify-center mx-auto">
+                              <img 
+              src=${iljuImagePath} 
+              class="w-1/2 h-1/2"
+            />
+                            </div>
+                            <div>Signature</div>
+                          </div>
+                        </div>
+                        <div class="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
+                         ${iljuData.title[inputGender].title}
+                        </div>
+                        <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
+                          ${iljuData.title[inputGender].desc}
+                        </div>
+                      </div>`;
+    story += `<ul class="space-y-3">`;
+    story += iljuData.desc[inputGender]
+      ?.map(
+        (item) =>
+          `<li class="flex items-start gap-3 text-stone-700">
+         <span class="shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+         <span class="leading-relaxed tracking-wide text-[15px]">${item}</span>
+       </li>`,
+      )
+      .join('');
+    story += `</ul></div>`;
 
     story += `<br/>사주 전체를 흐르는 기운을 보면 <span class="text-red-600 font-bold">${dominant}</span>의 에너지가 가장 강합니다. `;
     if (maxOhaeng[0] === 'wood')
@@ -317,7 +502,6 @@ const Test = ({}) => {
 
   const getDaewoonStory = (currentDaewoon, currentAge) => {
     if (!currentDaewoon) return '현재 대운 정보를 계산할 수 없습니다.';
-
     const ohaengKorean = {
       wood: '나무(木)',
       fire: '불(火)',
@@ -327,7 +511,6 @@ const Test = ({}) => {
     };
 
     let story = `현재 당신은 <b>${currentDaewoon.startAge}세</b>부터 시작된 <span class="text-indigo-600 font-bold text-xl">'${currentDaewoon.name}'</span> 대운을 지나고 있습니다. (현재 나이: ${currentAge}세)<br/><br/>`;
-
     story += `이 시기는 천간의 <b>${ohaengKorean[currentDaewoon.ganOhaeng]}</b> 기운과 지지의 <b>${ohaengKorean[currentDaewoon.zhiOhaeng]}</b> 기운이 당신의 인생 배경이 되는 시기입니다. `;
 
     if (currentDaewoon.ganOhaeng === currentDaewoon.zhiOhaeng) {
@@ -343,9 +526,7 @@ const Test = ({}) => {
     } else {
       story += `기운이 서로 부딪히거나 제어하는 관계라, <b>변동성이 크고 다이내믹한 변화</b>를 겪을 수 있습니다. 이는 위기가 될 수도 있지만, 큰 도약을 위한 발판이 되기도 합니다.`;
     }
-
     story += `<br/><br/>대운은 좋고 나쁨(길흉)보다는 <b>'내가 어떤 환경에 놓여있는가'</b>를 말해줍니다. 지금은 <span class="bg-indigo-50 text-indigo-700 font-bold px-1">${currentDaewoon.name}</span>이라는 계절 속에 있음을 인지하고, 그 흐름에 맞춰 나아가는 지혜가 필요합니다.`;
-
     return story;
   };
 
@@ -357,6 +538,19 @@ const Test = ({}) => {
       metal: 'bg-slate-400',
       water: 'bg-blue-600',
     })[type];
+
+  const getTextColor = (text) => {
+    const type = OHAENG_MAP[text];
+    return (
+      {
+        wood: 'text-green-600',
+        fire: 'text-red-600',
+        earth: 'text-yellow-600',
+        metal: 'text-slate-500',
+        water: 'text-blue-600',
+      }[type] || 'text-stone-500'
+    );
+  };
 
   if (!sajuData) return <div className="p-10 text-center">생년월일을 입력해주세요.</div>;
 
@@ -371,28 +565,31 @@ const Test = ({}) => {
     daewoonList,
     currentDaewoon,
     currentAge,
+    jijangganList,
+    hiddenStory, // [추가]
   } = sajuData;
+
   const analysisStory = getAnalysisStory(myIljuData, myShinsal, maxOhaeng, relations);
   const daewoonStory = getDaewoonStory(currentDaewoon, currentAge);
 
   return (
     <div className="max-w-2xl mx-auto p-6 min-h-screen bg-stone-100 flex flex-col items-center">
-      {/* 1. 입력 폼 컴포넌트 삽입 */}
+      {/* 1. 입력 폼 */}
       <SajuInputForm
         date={inputDate}
         setDate={setInputDate}
         gender={inputGender}
         setGender={setInputGender}
       />
-      {/* 1. 입력 폼 컴포넌트 삽입 */}
+
       <div className="w-full text-center mb-8 pt-8">
         <p className="text-stone-500 text-sm tracking-widest mb-2">SAJU ANALYSIS</p>
-        <h1 className="text-3xl font-serif font-bold text-stone-800">{ilju}일주 운명 분석서</h1>
+        <h1 className="text-3xl font-serif font-bold text-stone-800"> 운명 분석서</h1>
       </div>
 
       <div className="bg-white w-full rounded-sm shadow-xl overflow-hidden relative mb-8">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-
+        <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
         <div className="p-8 md:p-12">
           {/* 사주 기둥 */}
           <div className="flex justify-center gap-4 mb-8 text-stone-400 text-sm border-b border-stone-100 pb-6">
@@ -447,7 +644,16 @@ const Test = ({}) => {
           </div>
         </div>
       </div>
-
+      {/* 지장간 UI: 표(간단보기) + 스토리텔링(상세해석) */}
+      <div className="mb-10">
+        {/* [수정] 리스트 대신 '줄글' 스토리텔링 형식으로 변경 */}
+        <div className="bg-stone-50 p-6 rounded-lg border border-stone-100">
+          <h4 className="text-stone-600 font-bold text-xs mb-4 uppercase tracking-wider">
+            🔮 Hidden Story (심층 분석)
+          </h4>
+          <div dangerouslySetInnerHTML={{ __html: hiddenStory }} />
+        </div>
+      </div>
       <div className="w-full space-y-6">
         {/* 합충 카드 */}
         {relations.length > 0 && (
@@ -459,12 +665,18 @@ const Test = ({}) => {
               {relations.map((rel, idx) => (
                 <div
                   key={idx}
-                  className={`p-4 rounded-lg border flex items-center justify-between ${rel.type === '합' ? 'bg-indigo-50 border-indigo-100' : 'bg-amber-50 border-amber-100'}`}
+                  className={`p-4 rounded-lg border flex items-center justify-between ${
+                    rel.type === '합'
+                      ? 'bg-indigo-50 border-indigo-100'
+                      : 'bg-amber-50 border-amber-100'
+                  }`}
                 >
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className={`font-bold ${rel.type === '합' ? 'text-indigo-700' : 'text-amber-700'}`}
+                        className={`font-bold ${
+                          rel.type === '합' ? 'text-indigo-700' : 'text-amber-700'
+                        }`}
                       >
                         {rel.name}
                       </span>
@@ -475,7 +687,9 @@ const Test = ({}) => {
                     <p className="text-sm text-gray-600">{rel.desc}</p>
                   </div>
                   <span
-                    className={`text-xl font-bold ${rel.type === '합' ? 'text-indigo-300' : 'text-amber-300'}`}
+                    className={`text-xl font-bold ${
+                      rel.type === '합' ? 'text-indigo-300' : 'text-amber-300'
+                    }`}
                   >
                     {rel.type}
                   </span>
