@@ -601,10 +601,12 @@ export default function ResultModal({
                     </button>
                   </div>
                   {/* Same Vibe List */}
+                  {}
+
                   {resultType === 'main' &&
                     iljuNameList?.[`${saju?.sky1}${saju?.grd1}`] &&
                     language === 'ko' && (
-                      <div className="mt-4 pt-4 border-t border-indigo-100 dark:border-indigo-900/30">
+                      <div className="p-3 border-t border-indigo-100 dark:border-indigo-900/30">
                         <div className="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-wider mb-2">
                           Same Vibe
                         </div>

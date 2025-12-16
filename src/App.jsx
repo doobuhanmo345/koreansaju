@@ -349,11 +349,6 @@ export default function App() {
         setLoadingType(null);
         return alert(UI_TEXT.limitReached[language]);
       }
-      // const currentSajuKey = JSON.stringify(saju);
-      // const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuKey}`;
-      // const strictPrompt = STRICT_INSTRUCTION[language];
-      // const fullPrompt = `${strictPrompt}\n${DEFAULT_INSTRUCTION[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
-      // const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = editCount + 1;
 
       await setDoc(
@@ -485,8 +480,8 @@ export default function App() {
   const isMainDone =
     dbUser?.ZApiAnalysis &&
     dbUser.ZApiAnalysis.language === language &&
-    dbUser.ZAiAnalysis.gender === gender &&
-    checkSajuMatch(dbUser.ZAiAnalysis.saju);
+    dbUser.ZApiAnalysis.gender === gender &&
+    checkSajuMatch(dbUser.ZApiAnalysis.saju);
 
   const isYearDone =
     dbUser?.ZLastNewYear &&

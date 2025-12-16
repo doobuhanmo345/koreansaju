@@ -433,7 +433,7 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
       )
       .join('');
     story += `</ul></div>`;
-
+    story += `<div class="leading-relaxed tracking-wide text-[15px]">`;
     story += `<br/>사주 전체를 흐르는 기운을 보면 <span class="text-red-600 dark:text-red-400 font-bold">${dominant}</span>의 에너지가 가장 강합니다. `;
     if (maxOhaeng[0] === 'wood')
       story += `이로 인해 성장하고자 하는 욕구가 강하고, 새로운 일을 시작하는 추진력이 돋보입니다. `;
@@ -489,6 +489,7 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
       );
       story += otherSentences.join(', ');
       story += `이 나타납니다. 이러한 기운들이 어우러져 당신만의 고유한 매력을 형성하고 있습니다.`;
+      story += `</div>`;
     }
 
     return story;
