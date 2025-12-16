@@ -558,8 +558,14 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
     <div className="max-w-2xl mx-auto p-6 min-h-screen  flex flex-col items-center transition-colors">
       <div className="bg-white dark:bg-slate-800 w-full rounded-sm shadow-xl overflow-hidden relative mb-8 transition-colors">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-        <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
-        <div className="p-8 md:p-12">
+        <div className="w-full overflow-x-auto mt-2">
+          {/* FourPillarVis가 찌그러지지 않도록 최소 너비 등을 컴포넌트 내부나 래퍼에 주어야 함 */}
+          <div className="min-w-[320px] md:min-w-0">
+            <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
+          </div>
+        </div>
+
+        <div className="p-2 md:p-12">
           {/* 사주 기둥 */}
           <div className="flex justify-center gap-4 mb-8 text-slate-400 dark:text-slate-500 text-sm border-b border-slate-100 dark:border-slate-700 pb-6">
             <div className="flex flex-col items-center">
