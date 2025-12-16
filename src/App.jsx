@@ -337,6 +337,7 @@ export default function App() {
         const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
 
         if (isLangMatch && isSajuMatch && isGenderMatch) {
+          setAiResult(result);
           openModal();
           setLoading(false);
           setLoadingType(null);

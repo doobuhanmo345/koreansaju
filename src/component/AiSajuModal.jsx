@@ -12,7 +12,7 @@ import sajaProfile from '../assets/sajaProfile.png';
 import { useLanguage } from '../context/useLanguageContext';
 import { useAuthContext } from '../context/useAuthContext';
 import { useShareActions } from '../hooks/useShareAction';
-import Test from '../Test';
+import BasicAna from './BasicAna';
 
 export default function ResultModal({
   isOpen,
@@ -525,7 +525,7 @@ export default function ResultModal({
                         </div>
                       </div>
 
-                      <Test
+                      <BasicAna
                         inputGender={gender}
                         inputDate={inputDate}
                         isTimeUnknown={isTimeUnknown}
