@@ -156,10 +156,6 @@ export default function App() {
   // 🔹 [복구] 공유용 텍스트 정제 함수
 
   const handleEditMode = () => {
-    if (isLocked) {
-      alert(UI_TEXT.limitReached[language]);
-      return;
-    }
     setIsSaved(false);
   };
 
@@ -538,11 +534,7 @@ export default function App() {
             </div>
 
             <div className="absolute top-2 right-2">
-              {isLocked ? (
-                <span className="text-[10px] text-red-500 font-bold px-2">
-                  {UI_TEXT.lockedMsg[language]}
-                </span>
-              ) : isSaved ? (
+              {isSaved ? (
                 <button
                   onClick={handleEditMode}
                   className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-full transition-all"

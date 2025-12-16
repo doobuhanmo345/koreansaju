@@ -52,13 +52,17 @@ export default function LoginStatus({ MAX_EDIT_COUNT }) {
                     <span className="text-[12px] font-bold text-amber-600/70 dark:text-amber-500 uppercase tracking-tighter mb-[1px]">
                       Daily Credit
                     </span>
-
                     {/* 2. 숫자 (3/5) */}
                     <span className="text-md font-black text-gray-700 dark:text-gray-200 font-mono">
                       {MAX_EDIT_COUNT - editCount}
                       <span className="mx-0.5">/</span>
                       {MAX_EDIT_COUNT}
                     </span>
+                    {MAX_EDIT_COUNT - editCount === 0 && (
+                      <span className="text-[10px] text-red-500 font-bold px-2">
+                        {UI_TEXT.lockedMsg[language]}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div>
