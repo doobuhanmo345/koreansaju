@@ -23,7 +23,9 @@ export default function ModifyBd({
 
       <div className="gap-1.5 flex items-center justify-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
         <CalendarDaysIcon className="w-4 h-4 text-indigo-400" />
-        <span className="font-mono tracking-wide">{inputDate.replace('T', ' ')}</span>
+        <span className="font-mono tracking-wide">
+          {isTimeUnknown ? <>{inputDate.split('T')[0]}</> : <>{inputDate.replace('T', ' ')}</>}
+        </span>
 
         {gender === 'male' ? '👨' : '👩'}
         {isTimeUnknown && (

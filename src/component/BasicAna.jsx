@@ -19,10 +19,8 @@ import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import FourPillarVis from '../component/FourPillarVis';
 import { useLanguage } from '../context/useLanguageContext';
 import { getEng } from '../utils/helpers';
-const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
+const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
   const { language } = useLanguage();
-
-  const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
 
   const sajuData = useMemo(() => {
     if (!inputDate || !inputDate.includes('T')) return null;
@@ -38,14 +36,14 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
       const getKor = (fn) => HANJA_MAP[fn] || '';
 
       const allChars = [
-        getKor(eightChar.getYearGan()),
-        getKor(eightChar.getYearZhi()),
-        getKor(eightChar.getMonthGan()),
-        getKor(eightChar.getMonthZhi()),
-        getKor(eightChar.getDayGan()),
-        getKor(eightChar.getDayZhi()),
-        getKor(eightChar.getTimeGan()),
-        getKor(eightChar.getTimeZhi()),
+        saju.sky3,
+        saju.grd3,
+        saju.sky2,
+        saju.grd2,
+        saju.sky1,
+        saju.grd1,
+        saju.sky0,
+        saju.grd0,
       ];
 
       // 오행 계산
@@ -452,7 +450,7 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
       console.error('사주 계산 전체 오류:', err);
       return null;
     }
-  }, [inputDate, inputGender]);
+  }, [saju, inputGender]);
 
   // 스토리텔링 함수
   const getAnalysisStory = (iljuData, shinsalList, maxOhaeng, relations) => {
@@ -720,7 +718,13 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
           <div className="flex flex-col gap-1 p-3">
             <div className="gap-1.5 flex items-center justify-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
               <CalendarDaysIcon className="w-4 h-4 text-indigo-400" />
-              <span className="font-mono tracking-wide">{inputDate.replace('T', ' ')}</span>
+              <span className="font-mono tracking-wide">
+                {isTimeUnknown ? (
+                  <>{inputDate.split('T')[0]}</>
+                ) : (
+                  <>{inputDate.replace('T', ' ')}</>
+                )}
+              </span>
 
               {inputGender === 'male' ? '👨' : '👩'}
               {isTimeUnknown && (
@@ -796,7 +800,7 @@ const BasicAna = ({ inputDate, inputGender, isTimeUnknown }) => {
           {Object.entries(ohaengCount).map(([type, count]) => (
             <div
               key={type}
-              style={{ width: `${(count / 8) * 100}%` }}
+              style={{ width: `${(count / (isTimeUnknown ? 6 : 8)) * 100}%` }}
               className={getBarColor(type)}
             />
           ))}

@@ -526,6 +526,7 @@ export default function ResultModal({
                       </div>
 
                       <BasicAna
+                        saju={saju}
                         inputGender={gender}
                         inputDate={inputDate}
                         isTimeUnknown={isTimeUnknown}
