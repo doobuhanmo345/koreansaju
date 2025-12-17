@@ -94,10 +94,8 @@ export default function ModifyBd({
           </button>
         </div>
       </div>
-
       {/* 구분선 */}
       <div className="border-t border-dashed border-indigo-100 dark:border-indigo-800 w-full"></div>
-
       {/* 3. 사주 명식 (변환값) - 가장 중요하게 강조 */}
       {saju?.sky1 && (
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">

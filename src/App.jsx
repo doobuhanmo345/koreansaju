@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
+
 import { getPillars } from './utils/sajuCalculator';
-import { ILJU_DATA } from './data/ilju_data';
+
 import { getRomanizedIlju } from './data/sajuInt';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import FourPillarVis from './component/FourPillarVis';
@@ -582,10 +584,18 @@ export default function App() {
                 </div>
               </div>
               <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
-                {iljuData?.title[gender]?.title}
+                {language === 'ko' ? (
+                  <>{ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.title}</>
+                ) : (
+                  <>{ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.title}</>
+                )}
               </div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
-                {iljuData?.title[gender]?.desc}
+                {language === 'ko' ? (
+                  <>{ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}</>
+                ) : (
+                  <>{ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}</>
+                )}
               </div>
             </div>
           )}
