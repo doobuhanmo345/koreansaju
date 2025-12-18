@@ -13,6 +13,14 @@ export const SAMHAP_MAP = {
   미: ['목', '사', '자', '미'], // 해묘미 목국
 };
 
+export const ohaengKorean = {
+    wood: '나무(木)',
+    fire: '불(火)',
+    earth: '흙(土)',
+    metal: '쇠(金)',
+    water: '물(水)',
+  };
+
 // 백호살 목록
 export const BAEKHO_LIST = ['갑진', '을미', '병술', '정축', '무진', '임술', '계축'];
 

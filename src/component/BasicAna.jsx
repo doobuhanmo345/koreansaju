@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Solar } from 'lunar-javascript';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 import {
@@ -11,11 +11,12 @@ import {
   JIJANGGAN_MAP,
   getRomanizedIlju,
   getTenGodType,
+  ohaengKorean,
 } from '../data/sajuInt';
 import { ENG_MAP, UI_TEXT } from '../data/constants';
 import { HANJA_MAP } from '../data/constants';
 import { ILJU_DATA, ILJU_DATA_EN } from '../data/ilju_data';
-import { useSajuCalculator } from '../hooks/useSajuCalculator';
+
 import FourPillarVis from '../component/FourPillarVis';
 import { useLanguage } from '../context/useLanguageContext';
 import { getEng } from '../utils/helpers';
@@ -627,58 +628,117 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
     return story;
   };
   const isEn = language === 'en';
-  const getDaewoonStory = (currentDaewoon, currentAge, language) => {
-    if (!currentDaewoon) {
-      return isEn
-        ? 'Current Daewoon information cannot be calculated.'
-        : '현재 대운 정보를 계산할 수 없습니다.';
-    }
+  const getDaewoonStory = (selectedDae, currentAge, language) => {
+    const isEn = language === 'en';
+    if (!selectedDae || !selectedDae.name) return '';
 
-    const ohaengNames = {
-      wood: isEn ? 'Wood (木)' : '나무(木)',
-      fire: isEn ? 'Fire (火)' : '불(火)',
-      earth: isEn ? 'Earth (土)' : '흙(土)',
-      metal: isEn ? 'Metal (金)' : '쇠(金)',
-      water: isEn ? 'Water (水)' : '물(水)',
+    const gan = selectedDae.ganOhaeng;
+    const zhi = selectedDae.zhiOhaeng;
+    const combo = `${gan}_${zhi}`;
+
+    // 1. 오행별 상극 상황 세분화 (부제와 내용의 일치)
+    const getClashDetail = () => {
+      const clashMap = {
+        water_fire: {
+          subtitle: isEn ? 'Conflict of Wisdom and Passion' : '지혜와 열정의 충돌',
+          content: isEn
+            ? "The heaven's water (Wisdom) meets the earth's fire (Ambition). You may feel a gap between your cool analytical thoughts and your burning social desires. This decade is about finding the 'Steam'—the energy created when fire and water balance each other to drive powerful transformation."
+            : '하늘의 물(지혜)과 땅의 불(열정)이 만났습니다. 머리는 차갑게 이성을 말하지만 가슴은 뜨겁게 사회적 발현을 갈망하는 시기입니다. 이 상충하는 두 기운을 조화시킨다면, 물이 끓어 증기가 되듯 폭발적인 추진력을 얻게 될 것입니다.',
+        },
+        fire_metal: {
+          subtitle: isEn ? 'Refining the Inner Value' : '내실을 다지는 제련의 시간',
+          content: isEn
+            ? 'The fire of expansion meets the metal of results. Your raw talents are being tested in a furnace of high social pressure. It is a period of intense discipline, eventually turning you into a highly valuable expert in your field.'
+            : '확산하려는 불과 결실을 보려는 금이 만났습니다. 본인의 거친 재능이 사회적 압박이라는 용광로 속에서 단련되는 과정입니다. 다소 고될 수 있으나, 이 과정을 거치면 누구도 대체할 수 없는 순도 높은 전문성을 갖추게 됩니다.',
+        },
+        metal_wood: {
+          subtitle: isEn ? 'Decisive Transformation' : '결단과 새로운 질서',
+          content: isEn
+            ? 'The sharp metal trims the growing wood. You are forced to cut away unnecessary branches and focus your life energy on one single direction. A painful but necessary restructuring of your life path is expected.'
+            : '예리한 금의 기운이 자라나는 나무를 다듬습니다. 방만했던 활동을 정리하고 하나의 목표에 집중해야 하는 시기입니다. 불필요한 인연이나 습관을 잘라내는 결단이 필요하며, 이를 통해 인생의 새로운 질서가 잡힙니다.',
+        },
+        // ... 필요시 다른 상극 조합 추가
+      };
+
+      // 기본값 (상극이지만 구체적 정의가 없을 때)
+      const defaultClash = {
+        subtitle: isEn ? 'Dynamic Evolution' : '역동적인 변화와 진화',
+        content: isEn
+          ? "Two different energies collide to spark change. It's a decade of adaptation where your growth is accelerated by the friction between your ideals and your environment."
+          : '서로 다른 두 기운이 부딪히며 변화의 불꽃을 일으킵니다. 이상과 현실 사이의 마찰이 오히려 당신을 성장시키는 자극제가 되며, 적응력을 키워 더 큰 세상으로 나아가는 발판이 됩니다.',
+      };
+
+      return clashMap[combo] || clashMap[`${zhi}_${gan}`] || defaultClash;
     };
 
-    let story = isEn
-      ? `You are currently in the <span class="text-indigo-600 dark:text-indigo-400 font-bold text-xl">'${ENG_MAP[currentDaewoon.name[0]]}${ENG_MAP[currentDaewoon.name[1]]}'</span> Daewoon, which began at the age of <b>${currentDaewoon.startAge}</b>. (Current Age: ${currentAge})<br/><br/>`
-      : `현재 당신은 <b>${currentDaewoon.startAge}세</b>부터 시작된 <span class="text-indigo-600 dark:text-indigo-400 font-bold text-xl">'${currentDaewoon.name}'</span> 대운을 지나고 있습니다. (현재 나이: ${currentAge}세)<br/><br/>`;
+    // 2. 상생/비슷한 기운에 대한 정의
+    const getHarmoniousDetail = () => {
+      if (gan === zhi)
+        return {
+          subtitle: isEn ? 'Peak Concentration' : '집중된 에너지의 정점',
+          content: isEn
+            ? 'Your will and environment are perfectly aligned. Push forward with absolute confidence.'
+            : '내면의 의지와 환경이 일치합니다. 타협 없는 추진력으로 본인의 영역을 확실히 구축하십시오.',
+        };
+      return {
+        subtitle: isEn ? 'Natural Progression' : '순조로운 흐름과 지원',
+        content: isEn
+          ? 'Resources flow to you naturally. Use this supportive cycle to expand your foundation.'
+          : '주변의 도움과 자원이 자연스럽게 흐릅니다. 이 순풍을 이용해 당신의 기반을 넓히고 내실을 기하세요.',
+      };
+    };
 
-    story += isEn
-      ? `In this period, the energy of <b>${ohaengNames[currentDaewoon.ganOhaeng]}</b> from the Heaven Pillar and <b>${ohaengNames[currentDaewoon.zhiOhaeng]}</b> from the Earth Pillar form the background of your life path. `
-      : `이 시기는 천간의 <b>${ohaengNames[currentDaewoon.ganOhaeng]}</b> 기운과 지지의 <b>${ohaengNames[currentDaewoon.zhiOhaeng]}</b> 기운이 당신의 인생 배경이 되는 시기입니다. `;
+    // 3. 최종 스토리 조립 (중복 제목 제거)
+    const isClash = !(
+      {
+        water_wood: 1,
+        wood_fire: 1,
+        fire_earth: 1,
+        earth_metal: 1,
+        metal_water: 1,
+        wood_water: 1,
+        fire_wood: 1,
+        earth_fire: 1,
+        metal_earth: 1,
+        water_metal: 1,
+      }[combo] || gan === zhi
+    );
+    const detail = isClash ? getClashDetail() : getHarmoniousDetail();
 
-    // 로직 판별 및 스토리 추가
-    if (currentDaewoon.ganOhaeng === currentDaewoon.zhiOhaeng) {
-      story += isEn
-        ? `As both pillars consist of the same element, <b>the characteristics of this energy will manifest very powerfully over these 10 years</b>. You may experience clear goals and a strong concentration of energy in one direction.`
-        : `위아래가 같은 오행으로 이루어져 있어, <b>해당 기운의 특성이 매우 강력하게 드러나는 10년</b>입니다. 목표가 명확해지고 한 방향으로 에너지가 쏠리는 경험을 할 수 있습니다.`;
-    } else if (
-      (currentDaewoon.ganOhaeng === 'water' && currentDaewoon.zhiOhaeng === 'wood') ||
-      (currentDaewoon.ganOhaeng === 'wood' && currentDaewoon.zhiOhaeng === 'fire') ||
-      (currentDaewoon.ganOhaeng === 'fire' && currentDaewoon.zhiOhaeng === 'earth') ||
-      (currentDaewoon.ganOhaeng === 'earth' && currentDaewoon.zhiOhaeng === 'metal') ||
-      (currentDaewoon.ganOhaeng === 'metal' && currentDaewoon.zhiOhaeng === 'water')
-    ) {
-      story += isEn
-        ? `This is a flow of 'Mutual Generation' where energy circulates smoothly, making it a <b>period where things progress relatively well and results are achieved naturally</b>.`
-        : `기운이 순환하는 '상생'의 흐름이라, <b>일의 진행이 비교적 순조롭고 결과물이 자연스럽게 맺어지는 시기</b>입니다.`;
-    } else {
-      story += isEn
-        ? `Since the energies are in a controlling or clashing relationship, you may experience <b>high volatility and dynamic changes</b>. This can be a challenge, but it also serves as a stepping stone for a great leap forward.`
-        : `기운이 서로 부딪히거나 제어하는 관계라, <b>변동성이 크고 다이내믹한 변화</b>를 겪을 수 있습니다. 이는 위기가 될 수도 있지만, 큰 도약을 위한 발판이 되기도 합니다.`;
-    }
+    let story = `<div class="py-2 space-y-5 text-slate-700 dark:text-slate-300">`;
 
-    story += `<br/><br/>`;
-    story += isEn
-      ? `Daewoon tells us more about <b>'what kind of environment I am placed in'</b> rather than simple good or bad luck. Recognizing that you are in the season of <span class="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold px-1">${ENG_MAP[currentDaewoon.name[0]]}${ENG_MAP[currentDaewoon.name[1]]}</span>, you need the wisdom to move in harmony with that flow.`
-      : `대운은 좋고 나쁨(길흉)보다는 <b>'내가 어떤 환경에 놓여있는가'</b>를 말해줍니다. 지금은 <span class="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold px-1">${currentDaewoon.name}</span>이라는 계절 속에 있음을 인지하고, 그 흐름에 맞춰 나아가는 지혜가 필요합니다.`;
+    // [본문 서술형 구성]
+    story += `
+    <div class="space-y-3 leading-relaxed">
+      <div class="inline-block px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-full mb-1">
+        ${detail.subtitle}
+      </div>
+      
+      <p class="text-[15px]">
+        ${
+          isEn
+            ? `Starting from age <b>${selectedDae.startAge}</b>, your life enters a period of profound transition. `
+            : `<b>${selectedDae.startAge}세</b>부터 시작된 이 시기는 당신의 인생에서 매우 독특한 에너지의 조화를 경험하는 구간입니다.`
+        }
+      </p>
+
+      <p class="text-[15px] text-justify">
+        ${detail.content}
+      </p>
+
+      <p class="text-sm opacity-80 pt-2 border-t border-slate-100 dark:border-slate-800">
+        ${
+          isEn
+            ? `This environment, where the energy of <b>${gan}</b> (Heaven) and <b>${zhi}</b> (Earth) interact, will be the backdrop of your journey for the next 10 years.`
+            : `천간의 <b>${ohaengKorean[gan]}</b> 기운과 지지의 <b>${ohaengKorean[zhi]}</b> 기운이 만나 형성된 이 환경은 앞으로 당신이 나아갈 길의 소중한 밑거름이 될 것입니다.`
+        }
+        }
+      </p>
+    </div>
+  </div>`;
 
     return story;
   };
-
   const getBarColor = (type) =>
     ({
       wood: 'bg-green-500',
@@ -708,6 +768,19 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
 
   const analysisStory = getAnalysisStory(myIljuData, myShinsal, maxOhaeng, relations);
   const daewoonStory = getDaewoonStory(currentDaewoon, currentAge);
+  // 기본값은 현재 대운(dae.isCurrent)으로 설정
+  const [selectedDae, setSelectedDae] = useState(null);
+
+  // 데이터가 로드될 때 현재 대운을 기본 선택값으로 세팅
+  useEffect(() => {
+    const current = daewoonList.find((d) => d.isCurrent);
+    if (current) setSelectedDae(current);
+  }, [daewoonList]);
+
+  // 클릭 핸들러
+  const handleDaeClick = (dae) => {
+    setSelectedDae(dae);
+  };
   const t = (char) => (language === 'en' ? getEng(char) : char);
   return (
     <div className="max-w-2xl mx-auto min-h-screen  flex flex-col items-center transition-colors">
@@ -950,82 +1023,95 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
         {daewoonList.length > 0 && (
           <div className="mt-8">
             <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold mb-3 px-2 flex items-center justify-between">
-              <span>
-                {language === 'en'
-                  ? '🌊 Flow of Daewoon (Changes Every 10 Years)'
-                  : '🌊 대운의 흐름 (10년마다 바뀌는 운)'}
-              </span>
-              <span className="text-xs font-normal bg-slate-200 dark: dark:bg-slate-700 px-2 py-1 rounded text-slate-600 dark:text-slate-300">
+              <span>{language === 'en' ? '🌊 Flow of Daewoon' : '🌊 대운의 흐름'}</span>
+              <span className="text-xs font-normal bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-slate-600 dark:text-slate-300">
                 {language === 'en' ? `Age ${currentAge}` : `현재 ${currentAge}세`}
               </span>
             </h3>
 
             <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-x-auto transition-colors">
               <div className="flex gap-2 min-w-max pb-2">
-                {daewoonList.map((dae, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg border transition-all
-      ${
-        dae.isCurrent
-          ? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 text-white shadow-md transform scale-105'
-          : 'bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600 text-slate-400 dark:text-slate-500'
-      }`}
-                  >
-                    {/* 나이 표시 부분 수정 */}
-                    <span className="text-xs mb-1 opacity-80">
-                      {language === 'en' ? `Age ${dae.startAge}` : `${dae.startAge}세`}
-                    </span>
+                {daewoonList
+                  // 1. name이 존재하고(undefined 방지), 글자 수가 2자인 정상 데이터만 필터링
+                  .filter((dae) => dae.name && dae.name.length >= 2)
+                  .map((dae, idx) => {
+                    const isSelected = selectedDae
+                      ? selectedDae.startAge === dae.startAge
+                      : dae.isCurrent;
 
-                    <span className="font-bold text-lg">
-                      {language === 'en'
-                        ? dae.name &&
-                          dae.name[0] &&
-                          dae.name[1] &&
-                          ENG_MAP[dae.name[0]] &&
-                          ENG_MAP[dae.name[1]]
-                          ? `${ENG_MAP[dae.name[0]]} ${ENG_MAP[dae.name[1]]}`
-                          : ''
-                        : dae.name || ''}
-                    </span>
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => handleDaeClick(dae)}
+                        className={`flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg border cursor-pointer transition-all
+            ${
+              isSelected
+                ? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 text-white shadow-md transform scale-105'
+                : 'bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-indigo-300'
+            }`}
+                      >
+                        {/* 나이 표시 */}
+                        <span className="text-xs mb-1 opacity-80">
+                          {language === 'en' ? `Age ${dae.startAge}` : `${dae.startAge}세`}
+                        </span>
 
-                    {dae.isCurrent && (
-                      <span className="text-[10px] mt-1 bg-white/20 px-1 rounded">
-                        {language === 'en' ? 'NOW' : '현재'}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                        {/* 이름 표시 (안전한 렌더링) */}
+                        <span className="font-bold text-lg">
+                          {language === 'en'
+                            ? ENG_MAP[dae.name[0]] && ENG_MAP[dae.name[1]]
+                              ? `${ENG_MAP[dae.name[0]]} ${ENG_MAP[dae.name[1]]}`
+                              : dae.name // 영어 맵에 없으면 한글이라도 표시
+                            : dae.name}
+                        </span>
+
+                        {dae.isCurrent && (
+                          <span
+                            className={`text-[10px] mt-1 px-1 rounded ${isSelected ? 'bg-white/20' : 'bg-indigo-100 text-indigo-600'}`}
+                          >
+                            {language === 'en' ? 'NOW' : '현재'}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
-            {currentDaewoon && (
-              <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-100 dark:border-indigo-900/50 transition-colors">
+            {/* 상세 분석 카드 (선택된 selectedDae 기준으로 렌더링) */}
+            {selectedDae && (
+              <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-100 dark:border-indigo-900/50 transition-colors animate-in fade-in slide-in-from-top-2">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-lg">
-                    {currentDaewoon.name[0]}
+                    {selectedDae.name[0]}
                   </div>
                   <div>
                     <p className="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wider">
-                      Current Season
+                      {selectedDae.isCurrent
+                        ? language === 'en'
+                          ? 'Current Season'
+                          : '현재 대운'
+                        : language === 'en'
+                          ? 'Selected Season'
+                          : '선택된 대운'}
                     </p>
                     <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200">
                       {language === 'en' ? (
                         <>
-                          {ENG_MAP[currentDaewoon.name[0]]}
-                          {ENG_MAP[currentDaewoon.name[1]]}
+                          {ENG_MAP[selectedDae.name[0]]} {ENG_MAP[selectedDae.name[1]]}
                         </>
                       ) : (
-                        <>{currentDaewoon.name}</>
+                        <>{selectedDae.name}</>
                       )}{' '}
-                      {language === 'en' ? 'Period' : '대운'} ({currentDaewoon.startAge} ~{' '}
-                      {currentDaewoon.endAge || '...'} {language === 'en' ? 'Age' : '세'})
+                      {language === 'en' ? 'Period' : '대운'} ({selectedDae.startAge} ~{' '}
+                      {selectedDae.endAge || '...'} {language === 'en' ? 'Age' : '세'})
                     </h4>
                   </div>
                 </div>
                 <div
                   className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm text-justify"
-                  dangerouslySetInnerHTML={{ __html: daewoonStory }}
+                  dangerouslySetInnerHTML={{
+                    __html: getDaewoonStory(selectedDae, currentAge, language),
+                  }} // 함수 호출 시 선택된 대운 전달
                 />
               </div>
             )}
