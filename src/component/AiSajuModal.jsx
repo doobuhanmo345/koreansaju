@@ -1,5 +1,5 @@
 import { aiSajuStyle, IljuExp } from '../data/aiResultConstants';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeftIcon, ShareIcon, SparklesIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { doc, getDoc, setDoc, arrayUnion, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // firebase db import 필요
@@ -320,6 +320,32 @@ export default function ResultModal({
       setQLoading(false);
     }
   };
+  //스크롤 맨 밑일 때
+  const [isBottom, setIsBottom] = useState(false);
+  const scrollElRef = useRef(null);
+
+  const setScrollNode = useCallback((node) => {
+    // 기존 리스너 제거
+    if (scrollElRef.current?.__onScroll) {
+      scrollElRef.current.removeEventListener('scroll', scrollElRef.current.__onScroll);
+      delete scrollElRef.current.__onScroll;
+    }
+
+    scrollElRef.current = node;
+    if (!node) return;
+
+    const offset = 24;
+    const onScroll = () => {
+      const reached = node.scrollTop + node.clientHeight >= node.scrollHeight - offset;
+      setIsBottom(reached);
+    };
+
+    node.__onScroll = onScroll;
+    node.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // 초기 1회
+  }, []);
+
+  console.log(isBottom);
 
   // 모달 렌더링 시작
   if (!isOpen) return null;
@@ -376,14 +402,6 @@ export default function ResultModal({
             </span>
           </div>
           <div className="flex gap-2">
-            {viewMode === 'result' && (
-              <button
-                onClick={handleCopyResult}
-                className="px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-xs"
-              >
-                {isCopied ? UI_TEXT.copiedBtn[language] : UI_TEXT.copyBtn[language]}
-              </button>
-            )}
             <button onClick={onClose} className="p-2 bg-gray-100 dark:bg-slate-700 rounded-full">
               ✕
             </button>
@@ -508,7 +526,7 @@ export default function ResultModal({
             {/* VIEW MODE: RESULT */}
             {viewMode === 'result' && (
               <>
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6" ref={setScrollNode}>
                   {resultType === 'main' && (
                     <>
                       <div className="text-center mb-8 mt-2 animate-fade-in-up">
@@ -588,19 +606,6 @@ export default function ResultModal({
                     </div>
                   )}
 
-                  <div className="mt-8 flex justify-center">
-                    <button
-                      onClick={() => handleShareResult(pureHtml)}
-                      className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-bold shadow-lg transition-all hover:scale-105"
-                    >
-                      <ShareIcon className="w-5 h-5" />
-                      <span>
-                        {language === 'en'
-                          ? 'Share & Invite Friends'
-                          : '결과 공유하고 친구에게 추천하기'}
-                      </span>
-                    </button>
-                  </div>
                   {/* Same Vibe List */}
                   {}
 
@@ -636,9 +641,17 @@ export default function ResultModal({
                   </button>
                   <button
                     onClick={() => handleSetViewMode('chat')}
-                    className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md text-sm font-bold flex items-center gap-2 transition-all active:scale-95"
+                    className={`
+                px-5 py-2.5 text-sm font-bold flex items-center gap-2
+                rounded-xl shadow-md transition-all active:scale-95
+                bg-indigo-600 hover:bg-indigo-700 text-white
+                ${isBottom ? 'animate-pulse ring-2 ring-indigo-300 shadow-lg scale-105' : ''}
+              `}
                   >
-                    <span>💬</span> {language === 'ko' ? '추가 질문하기' : 'Ask a Question'}
+                    <span className={isBottom ? 'animate-bounce' : ''}>💬</span>
+                    <span className={isBottom ? 'animate-bounce' : ''}>
+                      {language === 'ko' ? '추가 질문하기' : 'Ask a Question'}
+                    </span>
                   </button>
                 </div>
               </>

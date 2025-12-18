@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Solar } from 'lunar-javascript';
+import domtoimage from 'dom-to-image-more';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 import {
   GOEGANG_LIST,
@@ -16,12 +17,72 @@ import {
 import { ENG_MAP, UI_TEXT } from '../data/constants';
 import { HANJA_MAP } from '../data/constants';
 import { ILJU_DATA, ILJU_DATA_EN } from '../data/ilju_data';
-
+import html2canvas from 'html2canvas';
 import FourPillarVis from '../component/FourPillarVis';
 import { useLanguage } from '../context/useLanguageContext';
 import { getEng } from '../utils/helpers';
-const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
+const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMode }) => {
   const { language } = useLanguage();
+  const handleShare = async () => {
+    const el = document.getElementById('share-card');
+    if (!el) {
+      alert('share-card를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 1️⃣ 현재 visibility 상태 저장
+    const prevVisibility = el.style.visibility;
+
+    try {
+      // 2️⃣ 잠깐 보이게 전환
+      el.style.visibility = 'visible';
+
+      // 3️⃣ 이미지 / 폰트 로딩 대기
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }),
+        ),
+      );
+
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+
+      // 4️⃣ 캡쳐
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+
+      // 5️⃣ 이미지 저장
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1));
+
+      if (!blob) throw new Error('canvas toBlob 실패');
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'share-card.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert('캡쳐 실패: 이미지 CORS 또는 렌더링 문제');
+    } finally {
+      // 6️⃣ 다시 숨김 복구
+      el.style.visibility = prevVisibility || 'hidden';
+    }
+  };
 
   const sajuData = useMemo(() => {
     if (!inputDate || !inputDate.includes('T')) return null;
@@ -452,7 +513,9 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
       return null;
     }
   }, [saju, inputGender]);
-
+  const safeIlju = saju.sky1 + saju.grd1 ? getRomanizedIlju(saju.sky1 + saju.grd1) : 'gapja';
+  const safeGender = inputGender ? inputGender.toLowerCase() : 'male';
+  const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
   // 스토리텔링 함수
   const getAnalysisStory = (iljuData, shinsalList, maxOhaeng, relations) => {
     const ohaengNames = {
@@ -469,7 +532,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
     // 다크모드 클래스 추가
     story += `<div class="rounded-xl p-6 border border-blue-50 dark:border-slate-700  shadow-sm dark:bg-slate-800/50">`;
 
-    story += `<div id="share-card" class="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
+    story += `<div class="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
                         <div class="flex items-center justify-center gap-2 mb-2 opacity-80">
                           <div class="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-500"></div>
                           <span class="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-300 uppercase drop-shadow-sm">
@@ -868,7 +931,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
         </div>
       </div>
       {/* 오행 그래프 */}
-      <div className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 transition-colors">
+      <div className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-300 dark:border-slate-700 transition-colors">
         <div className="flex w-full h-4 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
           {Object.entries(ohaengCount).map(([type, count]) => (
             <div
@@ -878,6 +941,94 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
             />
           ))}
         </div>
+
+        {/* sronly처리할 것 */}
+        <div className=" flex absolute justify-center w-full py-4" style={{ visibility: 'hidden' }}>
+          <div
+            id="share-card"
+            style={{
+              width: '350px',
+              padding: '25px 20px',
+              textAlign: 'center',
+              borderRadius: '16px',
+              border: '2px solid #6366f1',
+              backgroundColor: '#edf0ff',
+              boxSizing: 'border-box',
+              position: 'relative', // 위치 고정
+            }}
+          >
+            {/* 상단 라인 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ height: '1px', width: '24px', backgroundColor: '#818cf8' }}></div>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  letterSpacing: '0.3em',
+                  color: '#6366f1',
+                }}
+              >
+                WHO AM I?
+              </span>
+              <div style={{ height: '1px', width: '24px', backgroundColor: '#818cf8' }}></div>
+            </div>
+
+            {/* 이미지: 이 방식이 안 짤리고 제일 잘 나옵니다 */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+              <img
+                src={iljuImagePath}
+                alt="signature"
+                crossOrigin="anonymous"
+                style={{ width: '160px', height: 'auto', display: 'block' }}
+              />
+            </div>
+
+            <div
+              style={{
+                color: '#6366f1',
+                fontSize: '10px',
+                fontWeight: '900',
+                letterSpacing: '0.2em',
+                marginBottom: '12px',
+              }}
+            >
+              SIGNATURE
+            </div>
+
+            {/* 텍스트 영역 */}
+            <div
+              style={{ fontSize: '20px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}
+            >
+              {language === 'ko'
+                ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[inputGender]?.title
+                : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[inputGender]?.title}
+            </div>
+
+            <div
+              style={{
+                fontSize: '13px',
+                color: '#374151',
+                fontWeight: '500',
+                lineHeight: '1.6',
+                padding: '0 4px',
+                wordBreak: 'keep-all',
+              }}
+            >
+              {language === 'ko'
+                ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[inputGender]?.desc
+                : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[inputGender]?.desc}
+            </div>
+          </div>
+        </div>
+
         <div className="flex justify-between mt-2 px-1 text-xs text-slate-500 dark:text-slate-400">
           <span>
             {language === 'ko' ? '목' : 'wood'}
@@ -1118,6 +1269,12 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown }) => {
           </div>
         )}
       </div>
+      <button
+        onClick={handleShare}
+        className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+      >
+        {language === 'en' ? 'Share My Signature' : '나의 결과 저장하기'}
+      </button>
     </div>
   );
 };
