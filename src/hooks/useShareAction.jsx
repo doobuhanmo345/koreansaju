@@ -37,8 +37,35 @@ export function useShareActions(aiResult) {
     const cleanText = getCleanText(aiResult);
 
     const shareData = {
-      title: 'Sajucha',
+      title: 'Saza Saju',
       text: `[AI 사주 분석]\n\n${cleanText}`, // 제목 + 내용
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      // 모바일 공유
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('공유 실패:', err);
+      }
+    } else {
+      // PC 등 미지원 시 클립보드 복사
+      try {
+        const copyText = `${shareData.text}\n\n🔗 바로가기: ${shareData.url}`;
+        await navigator.clipboard.writeText(copyText);
+        alert('결과 내용이 복사되었습니다.');
+      } catch (err) {
+        console.error('URL 복사 실패:', err);
+      }
+    }
+  }, [aiResult]);
+  const handleShareLink = useCallback(async () => {
+    // 🚨 수정됨: 공유할 때도 태그 없는 깔끔한 텍스트 사용
+
+    const shareData = {
+      title: 'Saza Saju',
+      text: `[AI 사주 분석]`, // 제목 + 내용
       url: window.location.href,
     };
 
@@ -62,5 +89,5 @@ export function useShareActions(aiResult) {
   }, [aiResult]);
 
   // 리턴값 구조 유지
-  return { isCopied, handleCopyResult, handleShare };
+  return { isCopied, handleCopyResult, handleShare, handleShareLink };
 }

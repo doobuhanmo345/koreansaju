@@ -34,103 +34,12 @@ export default function ResultModal({
   const [chatList, setChatList] = useState([]);
   const [customQuestion, setCustomQuestion] = useState('');
   const [qLoading, setQLoading] = useState(false);
-  const { isCopied, handleCopyResult, handleShare } = useShareActions(aiResult);
+  const { handleShareLink } = useShareActions(aiResult);
   const chatEndRef = useRef(null);
   const { language } = useLanguage();
   const { user } = useAuthContext();
   // --- Helpers ---
   const t = (char) => (language === 'en' ? getEng(char) : char);
-
-  const handleShareResult = async (resultText) => {
-    try {
-      // 0. 내용 확인
-      if (!resultText || resultText.trim() === '') {
-        return alert('공유할 분석 결과가 없습니다.');
-      }
-
-      // --- 🎯 새로 추가된 Firestore 카운팅 로직 시작 🎯 ---
-
-      // 현재 날짜를 YYYY-MM-DD 형식 (예: '2025-12-12')으로 가져옵니다.
-      const today = new Date().toLocaleDateString('en-CA');
-
-      // 데이터베이스 필드 경로를 동적으로 구성합니다. (예: '2025-12-12.premium_analysis')
-      const fieldPath = `shared.${today}.${resultType}`;
-
-      if (user && db && resultType) {
-        try {
-          const userRef = doc(db, 'users', user.uid);
-
-          // updateDoc과 increment를 사용하여 원자적으로 카운트를 1 증가시킵니다.
-          // 해당 필드가 없으면 자동으로 1로 생성됩니다.
-          await updateDoc(userRef, {
-            [fieldPath]: increment(1),
-          });
-
-          console.log(`[${today}] ${resultType} 공유 카운트 +1 성공`);
-        } catch (e) {
-          console.error('Firestore 카운트 업데이트 실패:', e);
-          // 카운트 실패는 공유 흐름을 중단시키지 않습니다.
-        }
-      } else {
-        console.warn('사용자 정보, DB 또는 resultType이 없어 카운트 업데이트를 건너뜜.');
-      }
-
-      // --- 🎯 새로 추가된 Firestore 카운팅 로직 끝 🎯 ---
-
-      let plainText = resultText;
-
-      // 1. HTML 태그 제거 로직 (안전장치 포함)
-      const hasHtmlTags = /<[a-z][\s\S]*>/i.test(resultText);
-      if (hasHtmlTags) {
-        try {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = resultText;
-          const extractedText = tempDiv.textContent || tempDiv.innerText || '';
-          if (extractedText.trim().length > 0) {
-            plainText = extractedText;
-          }
-        } catch (e) {
-          console.error('HTML 파싱 에러, 원본 사용', e);
-          plainText = resultText;
-        }
-      }
-
-      // 2. 텍스트 정리
-      plainText = plainText
-        .replace(/(\s*\n\s*){2,}/g, '\n\n') // 2줄 이상 빈 줄을 한 줄로
-        .replace(/ {2,}/g, ' ') // 2칸 이상 공백을 한 칸으로
-        .trim(); // 앞뒤 공백 제거
-
-      // 3. 🔗 주소를 텍스트 뒤에 아예 합쳐버림 (공유 텍스트 생성)
-      const currentUrl = window.location.href;
-      const shareTitle =
-        language === 'ko'
-          ? '🦁사자사주가 보는 천기누설 맞춤 사주해석🦁'
-          : '🦁Saza Analysis Result🦁';
-      const finalShareText = `${shareTitle}\n🔗${currentUrl}\n\n${plainText}`;
-
-      // 4. 공유 실행
-      if (navigator.share) {
-        await navigator.share({
-          title: language === 'ko' ? '사자(Saza) 사주 분석' : 'Saza Analysis Result',
-          text: finalShareText, // url 속성 대신 text에 모두 합친 내용을 사용
-        });
-      } else {
-        // PC 환경: 클립보드 복사
-        await navigator.clipboard.writeText(finalShareText);
-        alert(
-          language === 'ko'
-            ? '결과와 주소가 클립보드에 복사되었습니다.'
-            : 'Result and link copied to clipboard!',
-        );
-      }
-    } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('공유 실패:', error);
-        alert('공유하기를 실패했습니다.');
-      }
-    }
-  };
 
   // 모달이 열릴 때마다 'result' 모드로 초기화
   useEffect(() => {
@@ -207,8 +116,6 @@ export default function ResultModal({
 
       if (currentSajuKey) {
         try {
-          // DB에서 사용자 데이터 가져오기 (userData가 props로 없으므로 직접 fetch or props로 받을 수도 있음)
-          // 여기서는 최신 데이터를 위해 fetch 권장
           const userDocRef = doc(db, 'users', user.uid);
           const userSnap = await getDoc(userDocRef);
           const data = userSnap.exists() ? userSnap.data() : {};
@@ -344,8 +251,6 @@ export default function ResultModal({
     node.addEventListener('scroll', onScroll, { passive: true });
     onScroll(); // 초기 1회
   }, []);
-
-  console.log(isBottom);
 
   // 모달 렌더링 시작
   if (!isOpen) return null;
@@ -633,7 +538,7 @@ export default function ResultModal({
                 {/* Bottom Action Bar */}
                 <div className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-slate-900/50 flex justify-between items-center flex-shrink-0">
                   <button
-                    onClick={handleShare}
+                    onClick={handleShareLink}
                     className="px-5 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm text-sm font-bold text-gray-600 dark:text-gray-200 hover:bg-gray-50 flex gap-2"
                   >
                     <ShareIcon className="w-5 h-5" />

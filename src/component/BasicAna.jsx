@@ -1,6 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Solar } from 'lunar-javascript';
-import domtoimage from 'dom-to-image-more';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 import {
   GOEGANG_LIST,
@@ -23,8 +22,9 @@ import { useLanguage } from '../context/useLanguageContext';
 import { getEng } from '../utils/helpers';
 const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMode }) => {
   const { language } = useLanguage();
-  const handleShare = async () => {
-    const el = document.getElementById('share-card');
+
+  const handleShareImg = async (id) => {
+    const el = document.getElementById(id);
     if (!el) {
       alert('share-card를 찾을 수 없습니다.');
       return;
@@ -1270,7 +1270,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         )}
       </div>
       <button
-        onClick={handleShare}
+        onClick={() => handleShareImg('share-card')}
         className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
       >
         {language === 'en' ? 'Share My Signature' : '나의 결과 저장하기'}
