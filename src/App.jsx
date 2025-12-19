@@ -1,24 +1,39 @@
+// 1. React Core
 import { useState, useEffect } from 'react';
-import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
-import { useConsumeEnergy } from './hooks/useConsumingEnergy';
-import { getPillars } from './utils/sajuCalculator';
-import { getRomanizedIlju } from './data/sajuInt';
-import { useSajuCalculator } from './hooks/useSajuCalculator';
-import FourPillarVis from './component/FourPillarVis';
-import processSajuData from './sajuDataProcessor';
+
+// 2. External Libraries (Firebase, Icons)
+import { doc, setDoc } from 'firebase/firestore';
 import {
   UserCircleIcon,
   PencilSquareIcon,
   XMarkIcon,
-  HeartIcon,
 } from '@heroicons/react/24/outline';
-import { doc, setDoc } from 'firebase/firestore';
-import { useModal } from './hooks/useModal';
+import { SunIcon, HeartIcon } from '@heroicons/react/24/solid';
+import { FaHorseHead } from 'react-icons/fa';
+import { GiCrystalBall } from 'react-icons/gi';
+
+// 3. Internal Config & API
 import { db } from './lib/firebase';
+import { fetchGeminiAnalysis } from './api/gemini';
+
+// 4. Contexts
 import { useAuthContext } from './context/useAuthContext';
 import { useTheme } from './context/useThemeContext';
 import { useLanguage } from './context/useLanguageContext';
-import { fetchGeminiAnalysis } from './api/gemini';
+import { useUsageLimit } from './context/useUsageLimit';
+
+// 5. Custom Hooks
+import { useConsumeEnergy } from './hooks/useConsumingEnergy';
+import { useSajuCalculator } from './hooks/useSajuCalculator';
+import { useModal } from './hooks/useModal';
+
+// 6. Utils & Helpers
+import { getPillars } from './utils/sajuCalculator';
+import processSajuData from './sajuDataProcessor';
+
+// 7. Data & Constants
+import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
+import { getRomanizedIlju } from './data/sajuInt';
 import { UI_TEXT, BD_EDIT_UI, langPrompt, hanja } from './data/constants';
 import {
   STRICT_INSTRUCTION,
@@ -26,19 +41,16 @@ import {
   DAILY_FORTUNE_PROMPT,
   NEW_YEAR_FORTUNE_PROMPT,
 } from './data/aiResultConstants';
+
+// 8. Components (UI & Features)
+import NavBar from './component/Navbar';
+import LoginStatus from './component/LoginStatus';
+import FourPillarVis from './component/FourPillarVis';
 import AiSajuModal from './component/AiSajuModal';
 import SajuBlur from './component/SajuBlur';
 import AnalysisButton from './ui/AnalysisButton';
-import NavBar from './component/Navbar';
-
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
-import LoginStatus from './component/LoginStatus';
-import { FaHorseHead } from 'react-icons/fa';
-import { SunIcon } from '@heroicons/react/24/solid';
-import { GiCrystalBall } from 'react-icons/gi';
-import { useUsageLimit } from './context/useUsageLimit';
-
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
