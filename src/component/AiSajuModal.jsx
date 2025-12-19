@@ -436,7 +436,7 @@ export default function ResultModal({
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6" ref={setScrollNode}>
                   {resultType === 'compati' && (
                     <>
-                      <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                      <div className="text-center mb-2 mt-2 animate-fade-in-up">
                         <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
                           Cosmic Compatibility
                         </p>
