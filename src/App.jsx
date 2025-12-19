@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
-
+import { useConsumeEnergy } from './hooks/useConsumingEnergy';
 import { getPillars } from './utils/sajuCalculator';
-
 import { getRomanizedIlju } from './data/sajuInt';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import FourPillarVis from './component/FourPillarVis';
@@ -150,16 +149,6 @@ export default function App() {
   // --- Handlers ---
 
   // 🔹 [복구] 에너지 소모 애니메이션 훅
-  const useConsumeEnergy = () => {
-    const [isConsuming, setIsConsuming] = useState(false);
-    const triggerConsume = async (actionFn) => {
-      setIsConsuming(true);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      await actionFn();
-      setIsConsuming(false);
-    };
-    return { isConsuming, triggerConsume };
-  };
 
   // 🔹 [복구] 공유용 텍스트 정제 함수
 

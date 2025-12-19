@@ -1,28 +1,41 @@
-import { db } from '../lib/firebase';
-import { CalendarDaysIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
-import { LinkIcon } from '@heroicons/react/24/solid';
-import { UI_TEXT } from '../data/constants';
-import { useLanguage } from '../context/useLanguageContext';
+// 1. React Core
 import { useEffect, useState } from 'react';
-import ModifyBd from '../ui/ModifyBd';
-import { useAuthContext } from '../context/useAuthContext';
+
+// 2. External Libraries (Firebase, Icons)
 import { doc, setDoc } from 'firebase/firestore';
-import { useUsageLimit } from '../context/useUsageLimit';
-import Step from '../ui/Step'; // AnalysisStepper
-import { getEng } from '../utils/helpers';
 import {
+  CalendarDaysIcon,
+  PencilSquareIcon,
   HeartIcon,
   SparklesIcon,
   HomeModernIcon,
   BriefcaseIcon,
   FaceSmileIcon,
   UserGroupIcon,
+  UsersIcon,
 } from '@heroicons/react/24/outline';
-import { UserIcon } from '@heroicons/react/24/solid'; // 아이콘 추가 필요
+import { LinkIcon, UserIcon } from '@heroicons/react/24/solid';
 
+// 3. Internal Config, Libs, Utils, API
+import { db } from '../lib/firebase';
 import { fetchGeminiAnalysis } from '../api/gemini';
-import { langPrompt, hanja } from '../data/constants';
+import { getEng } from '../utils/helpers';
+import { UI_TEXT, langPrompt, hanja } from '../data/constants';
+
+// 4. Contexts
+import { useAuthContext } from '../context/useAuthContext';
+import { useLanguage } from '../context/useLanguageContext';
+import { useUsageLimit } from '../context/useUsageLimit';
+
+// 5. Custom Hooks
+import { useConsumeEnergy } from '../hooks/useConsumingEnergy';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
+
+// 6. UI Components
+import Step from '../ui/Step';
+import ModifyBd from '../ui/ModifyBd';
+import EnergyBadge from '../ui/EnergyBadge';
+import LoadingBar from '../ui/LoadingBar';
 export default function Compatibility({
   saju,
   inputDate,
@@ -32,6 +45,9 @@ export default function Compatibility({
   aiResult,
   setAiResult,
 }) {
+  function classNames(...classes) {
+    return classes.filter(Boolean).join(' ');
+  }
   const RELATION_TYPES = [
     {
       id: 'lover',
@@ -65,6 +81,17 @@ export default function Compatibility({
       bg: 'bg-purple-50',
       border: 'border-purple-200',
       activeBorder: 'border-purple-500 ring-purple-200',
+    },
+    {
+      id: 'family',
+      label: '부모 / 자식',
+      sub: 'Parent / Child',
+      desc: '서로를 이끌어주는 소중한 혈연',
+      icon: UsersIcon, // 상단에서 import 필요
+      color: 'text-orange-500',
+      bg: 'bg-orange-50',
+      border: 'border-orange-200',
+      activeBorder: 'border-orange-500 ring-orange-200',
     },
     {
       id: 'business',
@@ -104,17 +131,21 @@ export default function Compatibility({
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
-  const { editCount, MAX_EDIT_COUNT, MAX_LIMIT } = useUsageLimit();
+  const { editCount, MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
 
   // --- States ---
   const [step, setStep] = useState(1);
   const totalStep = 4;
   const [selectedRel, setSelectedRel] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [isCachedLoading, setIsCachedLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   // 상대방 정보 State
   const [gender2, setGender2] = useState('male');
   const [isTimeUnknown2, setIsTimeUnkown2] = useState(false);
   const [isSaved2, setIsSaved] = useState(false);
+  const compaEnergy2 = useConsumeEnergy();
   const [inputDate2, setInputDate2] = useState(() => {
     try {
       const now = new Date();
@@ -126,7 +157,25 @@ export default function Compatibility({
   });
 
   const saju2 = useSajuCalculator(inputDate2, isTimeUnknown2).saju;
-
+  // --- 3. 로딩바 Effect ---
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setProgress(0);
+      interval = setInterval(
+        () => {
+          setProgress((prev) => {
+            if (prev >= 99) return 99;
+            return prev + (isCachedLoading ? 25 : 1);
+          });
+        },
+        isCachedLoading ? 50 : 232,
+      );
+    } else {
+      setProgress(100);
+    }
+    return () => clearInterval(interval);
+  }, [loading, isCachedLoading]);
   // 🟢 [초기화] 모달 열릴 때마다 Step 1로 리셋
   useEffect(() => {
     if (isOpen) {
@@ -255,6 +304,7 @@ export default function Compatibility({
         ${langPrompt(language)}
         ${hanja(language)}
       `;
+      const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = currentCount + 1;
@@ -300,6 +350,23 @@ export default function Compatibility({
       setLoading(false);
     }
   };
+  const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
+  const isDisabled = (loading && !compaEnergy2.isConsuming) || !user || loading;
+  const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
+
+  const checkSajuEqual = (source, target) => {
+    if (!source || !target) return false;
+    // 8개 키 중 하나라도 값이 다르면 false 리턴
+    return SAJU_KEYS.every((key) => source[key] === target[key]);
+  };
+  const isAnalysisDone =
+    userData?.ZCompatiAnalysis &&
+    userData.ZCompatiAnalysis.language === language &&
+    userData.ZCompatiAnalysis.gender === gender &&
+    userData.ZCompatiAnalysis.relationship === selectedRel &&
+    checkSajuEqual(userData.ZCompatiAnalysis.saju, saju) &&
+    checkSajuEqual(userData.ZCompatiAnalysis.saju2, saju2);
+
   return (
     <>
       {/* 상단 단계 표시바 (Stepper) */}
@@ -640,18 +707,61 @@ export default function Compatibility({
                 </div>
               </div>
             </div>
+            <div className="my-5 flex justify-center">
+              {loading && (
+                <LoadingBar
+                  progress={progress}
+                  loadingType={'compati'}
+                  isCachedLoading={isCachedLoading}
+                />
+              )}
+            </div>
 
             {/* 4. 최종 분석 버튼 */}
-            <div className="mt-10 flex justify-center">
+            <div className=" flex justify-center">
               <button
-                onClick={handleMatch}
-                className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transform hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                onClick={() => compaEnergy2.triggerConsume(handleMatch)}
+                disabled={loading && !compaEnergy2.isConsuming}
+                className={classNames(
+                  'w-full sm:w-auto px-10 py-4 bg-gradient-to-r  font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+                  isDisabled
+                    ? DISABLED_STYLE
+                    : ' bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200  hover:-translate-y-1',
+                )}
               >
                 <SparklesIcon className="w-5 h-5 animate-pulse" />
                 <span>궁합 분석 시작하기</span>
+                {!isAnalysisDone && !user && (
+                  <div className="mt-1 relative z-10">
+                    <LockClosedIcon className="w-4 h-4 text-amber-500" />
+                  </div>
+                )}
+                {!isAnalysisDone && !!user && (
+                  <div className="mt-1 relative w-10">
+                    <EnergyBadge
+                      active={user}
+                      consuming={compaEnergy2.isConsuming}
+                      loading={loading && !compaEnergy2.isConsuming}
+                    />
+                  </div>
+                )}
+                {isAnalysisDone && !loading && (
+                  <div
+                    className={classNames(
+                      'mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10',
+                      isLocked
+                        ? 'border-gray-500/50 bg-gray-400/40' // 잠겼을 때 (어둡고 회색)
+                        : 'border-white/30 bg-white/20', // 열렸을 때 (밝고 투명)
+                    )}
+                  >
+                    <span className="text-[9px] font-bold text-white tracking-wide uppercase">
+                      Free
+                    </span>
+                    {/* <TicketIcon className="w-3 h-3 text-white" /> */}
+                  </div>
+                )}
               </button>
             </div>
-            {loading ? '로딩중' : ''}
           </div>
         </>
       )}

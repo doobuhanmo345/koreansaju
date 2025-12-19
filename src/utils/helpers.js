@@ -119,7 +119,21 @@ export const getLoadingText = (progress, lang, type = 'main') => {
       return 'Writing personalized advice for your day.';
     }
   }
-
+  if (type === 'compati') {
+    if (lang === 'ko') {
+      if (progress < 20) return '두 사람의 생년월일시, 운명의 코드를 대조하고 있습니다.';
+      if (progress < 40) return '서로의 오행(Five Elements)이 상생하는지 상극인지 분석 중...';
+      if (progress < 60) return '겉으로 보이는 성격 차이와 숨겨진 속마음의 조화 확인...';
+      if (progress < 80) return '두 분이 함께할 때 생겨나는 특별한 시너지와 인연의 깊이 계산...';
+      return '두 사람의 관계를 위한 현실적인 궁합 리포트를 완성하고 있습니다.';
+    } else {
+      if (progress < 20) return 'Retrieving the celestial blueprints of both individuals...';
+      if (progress < 40) return 'Analyzing the harmony of Yin-Yang and Five Elements...';
+      if (progress < 60) return 'Checking the chemistry between your personalities and values...';
+      if (progress < 80) return 'Calculating the depth of your connection and future synergy...';
+      return 'Finalizing the compatibility report for your relationship!';
+    }
+  }
   // 3️⃣ 기본(메인) 사주 분석 로딩 멘트 (기존 유지)
   if (lang === 'ko') {
     if (progress < 10) return '의뢰인의 사주 명식(命式)을 정밀 스캔하고 있습니다.';
