@@ -5,8 +5,9 @@ import { useState, useEffect } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { SunIcon, HeartIcon } from '@heroicons/react/24/solid';
-import { FaHorseHead } from 'react-icons/fa';
+import { FaHorseHead, FaDownload } from 'react-icons/fa';
 import { GiCrystalBall } from 'react-icons/gi';
+import html2canvas from 'html2canvas';
 
 // 3. Internal Config & API
 import { db } from './lib/firebase';
@@ -532,17 +533,170 @@ export default function App() {
 
   // 최종 경로 생성
   const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
+  const handleShareImg = async (id) => {
+    const el = document.getElementById(id);
+    if (!el) {
+      alert('share-card를 찾을 수 없습니다.');
+      return;
+    }
 
-  const iljuData = ILJU_DATA[saju.sky1 + saju.grd1] || {
-    title: '갑자',
-    desc: '데이터 없음',
-    keywords: [],
+    // 1️⃣ 현재 스타일 저장 (복구를 위해)
+    const originalStyle = {
+      position: el.style.position,
+      left: el.style.left,
+      top: el.style.top,
+      visibility: el.style.visibility,
+    };
+
+    try {
+      // 2️⃣ 화면 밖으로 보내버린 후 보이게 설정 (핵심!)
+      // fixed로 설정하여 스크롤 위치와 상관없이 화면 밖(-9999px)으로 보냅니다.
+      el.style.position = 'fixed';
+      el.style.left = '-9999px';
+      el.style.top = '-9999px';
+      el.style.visibility = 'visible'; // 이제 보여도 사용자는 볼 수 없습니다.
+
+      // 3️⃣ 이미지 / 폰트 로딩 대기
+      const imgs = Array.from(el.querySelectorAll('img'));
+      await Promise.all(
+        imgs.map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }),
+        ),
+      );
+
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+
+      // 4️⃣ 캡쳐 (html2canvas)
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null, // 투명 배경이 필요하면 null, 아니면 '#ffffff'
+        logging: false,
+        // x, y, scrollX, scrollY 옵션은 기본적으로 요소를 따라가므로
+        // 화면 밖에 있어도 html2canvas가 알아서 찾아가서 찍습니다.
+      });
+
+      // 5️⃣ 이미지 저장
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1));
+
+      if (!blob) throw new Error('canvas toBlob 실패');
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'share-card.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert('캡쳐 실패: 이미지 CORS 또는 렌더링 문제');
+    } finally {
+      // 6️⃣ 원래 스타일로 완벽 복구
+      el.style.position = originalStyle.position;
+      el.style.left = originalStyle.left;
+      el.style.top = originalStyle.top;
+      el.style.visibility = originalStyle.visibility || 'hidden';
+    }
   };
 
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      {/* <Test inputDate={inputDate} inputGender={gender} /> */}
       <NavBar />
+      {/* sronly처리할 것 */}
+      <div className=" flex absolute justify-center w-full py-4" style={{ visibility: 'hidden' }}>
+        <div
+          id="share-card"
+          style={{
+            width: '350px',
+            padding: '25px 20px',
+            textAlign: 'center',
+            borderRadius: '16px',
+            border: '2px solid #6366f1',
+            backgroundColor: '#edf0ff',
+            boxSizing: 'border-box',
+            position: 'relative', // 위치 고정
+          }}
+        >
+          {/* 상단 라인 */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              marginBottom: '16px',
+            }}
+          >
+            <div style={{ height: '1px', width: '24px', backgroundColor: '#818cf8' }}></div>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 'bold',
+                letterSpacing: '0.3em',
+                color: '#6366f1',
+              }}
+            >
+              WHO AM I?
+            </span>
+            <div style={{ height: '1px', width: '24px', backgroundColor: '#818cf8' }}></div>
+          </div>
+
+          {/* 이미지: 이 방식이 안 짤리고 제일 잘 나옵니다 */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+            <img
+              src={iljuImagePath}
+              alt="signature"
+              crossOrigin="anonymous"
+              style={{ width: '160px', height: 'auto', display: 'block' }}
+            />
+          </div>
+
+          <div
+            style={{
+              color: '#6366f1',
+              fontSize: '10px',
+              fontWeight: '900',
+              letterSpacing: '0.2em',
+              marginBottom: '12px',
+            }}
+          >
+            SIGNATURE
+          </div>
+
+          {/* 텍스트 영역 */}
+          <div
+            style={{ fontSize: '20px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}
+          >
+            {language === 'ko'
+              ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.title
+              : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.title}
+          </div>
+
+          <div
+            style={{
+              fontSize: '13px',
+              color: '#374151',
+              fontWeight: '500',
+              lineHeight: '1.6',
+              padding: '0 4px',
+              wordBreak: 'keep-all',
+            }}
+          >
+            {language === 'ko'
+              ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.desc
+              : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}
+          </div>
+        </div>
+      </div>
       {/* 로그인이 안되어 있을 때는 LOGIN STATUS보이지 않음 */}
       {!!user && <LoginStatus MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
 
@@ -592,7 +746,13 @@ export default function App() {
             />
           </div>
           {isSaved && (
-            <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm">
+            <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm relative">
+              <button
+                onClick={() => handleShareImg('share-card')}
+                className="absolute top-3 right-3"
+              >
+                <FaDownload className="h-3 w-3 text-indigo-700/50 hover:text-indigo-700/80" />
+              </button>
               <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
                 <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
                 <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
