@@ -23,7 +23,7 @@ export const UI_TEXT = {
     en: 'Do you want to save?',
   },
   saveSuccess: {
-    ko: '저장되었습니다! 이제 사주를 볼 수 있습니다.',
+    ko: '저장되었습니다! ',
     en: 'Saved successfully! You Decoding is availiable.',
   },
   saveFail: { ko: '저장에 실패했습니다.', en: 'Failed to save.' },
@@ -305,7 +305,7 @@ export const SAJU_DATA = {
     },
     {
       id: 11,
-      sub: { sky: ['', '', ''], grd: [['', '', '', '']] },
+      sub: { sky: ['?', '', ''], grd: [['?', '', '', '']] },
       relation: { 인수: [11, 11], 식상: [11, 11], 관성: [11, 11], 재성: [11, 11] },
     },
   ],

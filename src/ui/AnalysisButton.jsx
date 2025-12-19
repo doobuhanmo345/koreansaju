@@ -9,7 +9,6 @@ export default function AnalysisButton({
   handleAnalysis, //handleDailyAnalysis 함수
   loading,
   loadingType,
-
   isSaved,
   isLocked,
   isAnalysisDone, //isDailyDone, isMainDone, isYearlyDone
@@ -29,9 +28,10 @@ export default function AnalysisButton({
   const { language } = useLanguage();
   const BUTTON_THEMES = {
     sky: 'bg-gradient-to-br from-blue-500 dark:to-sky-600 to-sky-300 shadow-[0_8px_20px_-6px_rgba(14,165,233,0.5)] border-sky-700/30',
-    blue: 'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300  shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] border-amber-700/30',
+    blue: 'bg-gradient-to-br from-indigo-500 dark:to-blue-600 to-blue-300 shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] border-amber-700/30',
     indigo:
-      'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300  shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] border-purple-700/30',
+      'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] border-purple-700/30',
+    pink: 'bg-gradient-to-br from-rose-400 dark:to-rose-600 to-rose-300 shadow-[0_8px_20px_-6px_rgba(244,114,182,0.38)] border-rose-700/25',
   };
 
   // 구조 및 동작 (공통)

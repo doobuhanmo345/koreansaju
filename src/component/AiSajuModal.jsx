@@ -13,6 +13,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import { useAuthContext } from '../context/useAuthContext';
 import { useShareActions } from '../hooks/useShareAction';
 import BasicAna from './BasicAna';
+import Compatibility from './Compatibility';
 
 export default function ResultModal({
   isOpen,
@@ -28,6 +29,7 @@ export default function ResultModal({
   isTimeUnknown,
   resultType,
   aiResult,
+  setAiResult
 }) {
   // --- Local States (App에서 가져옴) ---
   const [viewMode, setViewMode] = useState('result');
@@ -188,7 +190,8 @@ export default function ResultModal({
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
       const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 2025년은 을사년, 2026년은 병오년.`;
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}`;
+      const defualtPrompt = ``;
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${defaultprompt}`;
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -432,6 +435,32 @@ export default function ResultModal({
             {viewMode === 'result' && (
               <>
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6" ref={setScrollNode}>
+                  {resultType === 'compati' && (
+                    <>
+                      <div className="text-center mb-8 mt-2 animate-fade-in-up">
+                        <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                          Cosmic Compatibility
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                          {language === 'ko' ? '궁합 정밀 분석' : 'Destiny Synergy'}
+                        </h1>
+                        <div className="flex justify-center gap-2 mt-4 opacity-50">
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
+                        </div>
+                      </div>
+                      <Compatibility
+                        aiResult={aiResult}
+                        setAiResult={setAiResult}
+                        saju={saju}
+                        inputDate={inputDate}
+                        gender={gender}
+                        isTimeUnknown={isTimeUnknown}
+                        isOpen={isOpen}
+                      />
+                    </>
+                  )}
                   {resultType === 'main' && (
                     <>
                       <div className="text-center mb-8 mt-2 animate-fade-in-up">

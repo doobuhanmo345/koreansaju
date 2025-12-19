@@ -7,7 +7,12 @@ import { getRomanizedIlju } from './data/sajuInt';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import FourPillarVis from './component/FourPillarVis';
 import processSajuData from './sajuDataProcessor';
-import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  UserCircleIcon,
+  PencilSquareIcon,
+  XMarkIcon,
+  HeartIcon,
+} from '@heroicons/react/24/outline';
 import { doc, setDoc } from 'firebase/firestore';
 import { useModal } from './hooks/useModal';
 import { db } from './lib/firebase';
@@ -33,12 +38,19 @@ import LoginStatus from './component/LoginStatus';
 import { FaHorseHead } from 'react-icons/fa';
 import { SunIcon } from '@heroicons/react/24/solid';
 import { GiCrystalBall } from 'react-icons/gi';
-import { PiCurrencyDollarSimple } from 'react-icons/pi';
+import { useUsageLimit } from './context/useUsageLimit';
 
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
-
+  const {
+    editCount,
+    setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)
+    MAX_EDIT_COUNT,
+    isLocked,
+    incrementUsage,
+    checkLimit,
+  } = useUsageLimit();
   const { theme } = useTheme();
   const { language } = useLanguage();
 
@@ -48,11 +60,7 @@ export default function App() {
 
   // 저장/수정 상태
   const [isSaved, setIsSaved] = useState(false);
-  const [editCount, setEditCount] = useState(0);
-  let MAX_EDIT_COUNT = 3;
-  if (user?.uid === 'PQs3NGG6zqPqyiEeLVFYZkQvOHu1') {
-    MAX_EDIT_COUNT = 20;
-  }
+
   // 결과 상태
   const [resultType, setResultType] = useState(null); // 'main', 'year', 'daily'
   const [aiResult, setAiResult] = useState('');
@@ -60,8 +68,6 @@ export default function App() {
 
   // 모달 상태
   const { isModalOpen, openModal, closeModal } = useModal();
-
-  const isLocked = editCount >= MAX_EDIT_COUNT;
 
   // 로딩 상태
   const [loading, setLoading] = useState(false);
@@ -312,7 +318,25 @@ export default function App() {
       setLoadingType(null);
     }
   };
+  const handleCompaAnalysis = async () => {
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
+    setLoading(true);
+    setLoadingType('compati');
+    setResultType('compati');
 
+    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+    let isMatch = false;
+
+    try {
+      openModal();
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+      setLoadingType(null);
+    }
+  };
   const handleAiAnalysis = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
@@ -354,13 +378,13 @@ export default function App() {
         {
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
+          dailyUsage: {
+            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
+          },
           ZApiAnalysis: {
             saju: saju,
             language: language,
             gender: gender,
-          },
-          dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
           },
         },
         { merge: true },
@@ -499,6 +523,7 @@ export default function App() {
   const mainEnergy = useConsumeEnergy();
   const yearEnergy = useConsumeEnergy();
   const dailyEnergy = useConsumeEnergy();
+  const compaEnergy = useConsumeEnergy();
   // functions/index.js (부분 예시)
   // 한글 일주 이름('갑자')을 영어('gabja')로 변환
 
@@ -668,6 +693,24 @@ export default function App() {
             colorType={'sky'}
           />
         </div>
+        <div className="flex justify-between gap-3 my-2">
+          <AnalysisButton
+            energy={compaEnergy}
+            handleAnalysis={handleCompaAnalysis}
+            loading={loading}
+            loadingType={loadingType}
+            isSaved={isSaved}
+            isLocked={isLocked}
+            isAnalysisDone={false} // 개발용
+            icon={<HeartIcon className="w-8 h-8 text-pink-800  " />}
+            buttonType={'Compati'}
+            textKo="궁합"
+            TextEn="Compatibility"
+            subTextKo="두 사람의 인연과 조화"
+            subTextEn="Your Connection & Harmony"
+            colorType={'pink'}
+          />
+        </div>
       </div>
 
       {/* 🟢 분리된 모달 컴포넌트 사용 */}
@@ -685,6 +728,7 @@ export default function App() {
         isTimeUnknown={isTimeUnknown}
         resultType={resultType}
         aiResult={aiResult}
+        setAiResult={setAiResult}
       />
     </div>
   );

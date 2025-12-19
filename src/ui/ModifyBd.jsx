@@ -94,6 +94,7 @@ export default function ModifyBd({
           >
             {BD_EDIT_UI.complete[language]}
           </button>
+          
         </div>
       </div>
       {/* 구분선 */}
