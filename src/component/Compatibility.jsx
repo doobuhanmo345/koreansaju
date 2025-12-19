@@ -304,9 +304,8 @@ export default function Compatibility({
         ${langPrompt(language)}
         ${hanja(language)}
       `;
-      const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
-
       const result = await fetchGeminiAnalysis(fullPrompt);
+
       const newCount = currentCount + 1;
 
       // ---------------------------------------------------------
@@ -398,7 +397,7 @@ export default function Compatibility({
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {RELATION_TYPES.map((type) => {
                 const isSelected = selectedRel === type.id;
                 const Icon = type.icon;
@@ -637,7 +636,7 @@ export default function Compatibility({
             </div>
 
             {/* 3. 정보 매치업 카드 (나 vs 상대방) */}
-            <div className="flex flex-col md:flex-row gap-4 items-stretch justify-center relative">
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center relative">
               {/* [ME] 카드 (Indigo) */}
               <div className="flex-1 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900 shadow-sm flex flex-col items-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>
@@ -789,7 +788,7 @@ export default function Compatibility({
               </div>
 
               {/* ② 매치업 카드 (Me vs Target) */}
-              <div className="flex flex-row sm:flex-col items-stretch gap-4 md:gap-0">
+              <div className="flex flex-col sm:flex-row items-stretch gap-4 md:gap-0">
                 {/* [LEFT] ME */}
                 <div className="flex-1 flex flex-col items-center md:items-end md:pr-8 text-center md:text-right">
                   <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded mb-2">

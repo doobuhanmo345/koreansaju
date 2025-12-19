@@ -3,12 +3,13 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
-    screens: {
-      // 'max-' 접두사를 붙여 최대 너비 브레이크포인트를 정의합니다.
-      'max-xs': { max: '449px' }, // 449px 이하일 때 적용
-      // sm, md, lg 등 기존 브레이크포인트는 여기에 정의되지 않도록 주의해야 합니다.
+    // ❌ 여기에 screens가 있으면 기본 설정(sm, md 등)이 다 사라집니다!
+    extend: {
+      // ✅ extend 안에 넣어야 기본 설정 + 커스텀 설정이 합쳐집니다.
+      screens: {
+        'max-xs': { max: '449px' }, // 449px 이하일 때 적용
+      },
     },
-    extend: {},
   },
   plugins: [],
 };
