@@ -54,6 +54,7 @@ export default function Compatibility({
       label: '연인',
       sub: 'Lover',
       desc: '깊은 사랑을 나누는 사이',
+      descEn: 'A relationship sharing deep love', // 🇺🇸 추가됨
       icon: HeartIcon,
       color: 'text-rose-500',
       bg: 'bg-rose-50',
@@ -65,6 +66,7 @@ export default function Compatibility({
       label: '썸 / 짝사랑',
       sub: 'Crush / Some',
       desc: '설렘이 시작되는 단계',
+      descEn: 'The beginning of heart-fluttering excitement', // 🇺🇸 추가됨
       icon: SparklesIcon,
       color: 'text-pink-400',
       bg: 'bg-pink-50',
@@ -76,6 +78,7 @@ export default function Compatibility({
       label: '부부',
       sub: 'Spouse',
       desc: '평생을 함께하는 동반자',
+      descEn: 'A lifelong partner walking together', // 🇺🇸 추가됨
       icon: HomeModernIcon,
       color: 'text-purple-500',
       bg: 'bg-purple-50',
@@ -87,7 +90,8 @@ export default function Compatibility({
       label: '부모 / 자식',
       sub: 'Parent / Child',
       desc: '서로를 이끌어주는 소중한 혈연',
-      icon: UsersIcon, // 상단에서 import 필요
+      descEn: 'Precious blood ties guiding each other', // 🇺🇸 추가됨
+      icon: UsersIcon,
       color: 'text-orange-500',
       bg: 'bg-orange-50',
       border: 'border-orange-200',
@@ -98,6 +102,7 @@ export default function Compatibility({
       label: '사업 파트너',
       sub: 'Business',
       desc: '성공을 위한 비즈니스 관계',
+      descEn: 'Strategic partnership for success', // 🇺🇸 추가됨
       icon: BriefcaseIcon,
       color: 'text-slate-600',
       bg: 'bg-slate-50',
@@ -109,6 +114,7 @@ export default function Compatibility({
       label: '친구 / 동료',
       sub: 'Friend',
       desc: '격의 없이 편안한 사이',
+      descEn: 'Comfortable relationship without barriers', // 🇺🇸 추가됨
       icon: FaceSmileIcon,
       color: 'text-emerald-500',
       bg: 'bg-emerald-50',
@@ -120,6 +126,7 @@ export default function Compatibility({
       label: '기타',
       sub: 'Others',
       desc: '그 외의 다양한 관계',
+      descEn: 'Various other types of connections', // 🇺🇸 추가됨
       icon: UserGroupIcon,
       color: 'text-indigo-400',
       bg: 'bg-indigo-50',
@@ -127,7 +134,6 @@ export default function Compatibility({
       activeBorder: 'border-indigo-500 ring-indigo-200',
     },
   ];
-
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
@@ -377,7 +383,9 @@ export default function Compatibility({
             ? 'Select Relationship'
             : step === 2
               ? 'Enter Birth Details'
-              : 'Analysis Result'
+              : step === 3
+                ? 'Confirm Data'
+                : 'Analysis Result'
         }
         onBack={handleBack}
       />
@@ -386,14 +394,20 @@ export default function Compatibility({
       {/* 🟢 STEP 1: 관계 선택 (Relationship) */}
       {/* ================================================= */}
       {step === 1 && (
+        // const { language } = useLanguage(); // 상단에 선언되어 있어야 함
+
         <div className="w-full max-w-3xl mx-auto px-1 animate-fadeIn">
           <div className="flex flex-col gap-6">
             <div className="text-center mb-2">
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                두 분은 어떤 사이인가요?
+                {/* 1. 제목 번역 */}
+                {language === 'en' ? 'What is the relationship?' : '두 분은 어떤 사이인가요?'}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                관계에 따라 중점적으로 분석할 포인트가 달라집니다.
+                {/* 2. 부제목 번역 */}
+                {language === 'en'
+                  ? 'Analysis points vary based on the relationship.'
+                  : '관계에 따라 중점적으로 분석할 포인트가 달라집니다.'}
               </p>
             </div>
 
@@ -401,18 +415,23 @@ export default function Compatibility({
               {RELATION_TYPES.map((type) => {
                 const isSelected = selectedRel === type.id;
                 const Icon = type.icon;
+
+                // 3. 카드 내부 텍스트 변수 처리
+                const labelText = language === 'en' ? type.sub : type.label; // 영어일 땐 sub(Lover) 사용
+                const descText = language === 'en' ? type.descEn : type.desc; // 영어일 땐 descEn 사용
+
                 return (
                   <button
                     key={type.id}
                     onClick={() => setSelectedRel(type.id)}
                     className={`
-                      relative flex flex-col items-start p-5 rounded-2xl border-2 transition-all duration-200 text-left group
-                      ${
-                        isSelected
-                          ? `${type.activeBorder} ${type.bg} ring-4 ring-opacity-30`
-                          : `border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-100 dark:hover:border-slate-600 hover:shadow-md`
-                      }
-                    `}
+              relative flex flex-col items-start p-5 rounded-2xl border-2 transition-all duration-200 text-left group
+              ${
+                isSelected
+                  ? `${type.activeBorder} ${type.bg} ring-4 ring-opacity-30`
+                  : `border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-100 dark:hover:border-slate-600 hover:shadow-md`
+              }
+            `}
                   >
                     <div className="flex items-center justify-between w-full mb-3">
                       <div
@@ -429,18 +448,25 @@ export default function Compatibility({
                         <span
                           className={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-200'}`}
                         >
-                          {type.label}
+                          {/* 라벨 출력 */}
+                          {labelText}
                         </span>
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'opacity-70' : 'text-slate-400'}`}
-                        >
-                          {type.sub}
-                        </span>
+
+                        {/* 영어 모드가 아닐 때만 sub(영어이름)을 작게 표시하거나, 영어 모드일 땐 숨길 수도 있음. 
+                    여기서는 영어 모드일 땐 subText를 숨겨서 깔끔하게 처리 */}
+                        {language !== 'en' && (
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'opacity-70' : 'text-slate-400'}`}
+                          >
+                            {type.sub}
+                          </span>
+                        )}
                       </div>
                       <p
                         className={`text-xs ${isSelected ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'}`}
                       >
-                        {type.desc}
+                        {/* 설명 출력 */}
+                        {descText}
                       </p>
                     </div>
                   </button>
@@ -453,15 +479,16 @@ export default function Compatibility({
                 disabled={!selectedRel}
                 onClick={handleRelationshipNext}
                 className={`
-                  px-8 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all shadow-lg
-                  ${
-                    selectedRel
-                      ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-200 dark:shadow-none translate-y-0'
-                      : 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed shadow-none'
-                  }
-                `}
+          px-8 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all shadow-lg
+          ${
+            selectedRel
+              ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-200 dark:shadow-none translate-y-0'
+              : 'bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed shadow-none'
+          }
+        `}
               >
-                다음 단계로 (Next)
+                {/* 4. 버튼 텍스트 번역 */}
+                {language === 'en' ? 'Next Step' : '다음 단계로 (Next)'}
               </button>
             </div>
           </div>
@@ -594,29 +621,52 @@ export default function Compatibility({
             {/* 1. 타이틀 & 안내 문구 */}
             <div className="text-center mb-8">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-                정보가 맞나요?
+                {language === 'en' ? 'Is the information correct?' : '정보가 맞나요?'}
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-sm">
-                입력하신 정보를 바탕으로 정밀 분석을 시작합니다.
-                <br />
-                수정이 필요하면 이전 단계로 돌아가주세요.
+                {language === 'en' ? (
+                  <>
+                    Precise analysis will begin based on this information.
+                    <br />
+                    Please go back if you need to make changes.
+                  </>
+                ) : (
+                  <>
+                    입력하신 정보를 바탕으로 정밀 분석을 시작합니다.
+                    <br />
+                    수정이 필요하면 이전 단계로 돌아가주세요.
+                  </>
+                )}
               </p>
             </div>
 
             {/* 2. 선택한 관계 표시 (배지 형태) */}
             <div className="flex justify-center mb-8">
               {(() => {
+                // 선택된 관계 데이터 찾기
                 const relData = RELATION_TYPES.find((r) => r.id === selectedRel);
                 const RelIcon = relData?.icon || UserGroupIcon;
+
+                // 언어에 따른 텍스트 설정 (영어면 sub, 한국어면 label)
+                const relLabel = relData
+                  ? language === 'en'
+                    ? relData.sub
+                    : relData.label
+                  : language === 'en'
+                    ? 'Not Selected'
+                    : '선택 안함';
+
                 return (
                   <div
                     className={`
-                  flex items-center gap-3 px-6 py-3 rounded-2xl border-2 shadow-sm
-                  ${relData?.bg} ${relData?.border} dark:bg-slate-800 dark:border-slate-700
-                `}
+              flex items-center gap-3 px-6 py-3 rounded-2xl border-2 shadow-sm
+              ${relData?.bg || 'bg-slate-50'} 
+              ${relData?.border || 'border-slate-200'} 
+              dark:bg-slate-800 dark:border-slate-700
+            `}
                   >
                     <div
-                      className={`p-2 rounded-full bg-white dark:bg-slate-900 shadow-sm ${relData?.color}`}
+                      className={`p-2 rounded-full bg-white dark:bg-slate-900 shadow-sm ${relData?.color || 'text-slate-400'}`}
                     >
                       <RelIcon className="w-6 h-6" />
                     </div>
@@ -625,9 +675,13 @@ export default function Compatibility({
                         RELATIONSHIP
                       </span>
                       <span
-                        className={`text-lg font-bold ${relData?.color ? relData.color.replace('text-', 'text-slate-700 dark:text-') : ''}`}
+                        className={`text-lg font-bold ${
+                          relData?.color
+                            ? relData.color.replace('text-', 'text-slate-700 dark:text-')
+                            : 'text-slate-700 dark:text-slate-200'
+                        }`}
                       >
-                        {relData?.label || '선택 안함'}
+                        {relLabel}
                       </span>
                     </div>
                   </div>
@@ -650,16 +704,32 @@ export default function Compatibility({
                     {inputDate.split('T')[0]}
                   </div>
                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-center gap-2">
-                    <span>{gender === 'male' ? '남성 👨' : '여성 👩'}</span>
+                    <span>
+                      {gender === 'male'
+                        ? language === 'en'
+                          ? 'Male 👨'
+                          : '남성 👨'
+                        : language === 'en'
+                          ? 'Female 👩'
+                          : '여성 👩'}
+                    </span>
                     <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                    <span>{isTimeUnknown ? '시간 모름' : inputDate.split('T')[1]}</span>
+                    <span>
+                      {isTimeUnknown
+                        ? language === 'en'
+                          ? 'Time Unknown'
+                          : '시간 모름'
+                        : inputDate.split('T')[1]}
+                    </span>
                   </div>
                 </div>
 
                 {/* 사주 간략 보기 */}
                 <div className="flex gap-3 opacity-80">
                   <div className="flex flex-col items-center p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                    <span className="text-xs text-slate-400 mb-1">일주</span>
+                    <span className="text-xs text-slate-400 mb-1">
+                      {language === 'en' ? 'Day Pillar' : '일주'}
+                    </span>
                     <span className="font-bold text-indigo-600 dark:text-indigo-300">
                       {t(saju.sky1)}
                       {t(saju.grd1)}
@@ -688,24 +758,41 @@ export default function Compatibility({
                     {inputDate2.split('T')[0]}
                   </div>
                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-center gap-2">
-                    <span>{gender2 === 'male' ? '남성 👨' : '여성 👩'}</span>
+                    <span>
+                      {gender2 === 'male'
+                        ? language === 'en'
+                          ? 'Male 👨'
+                          : '남성 👨'
+                        : language === 'en'
+                          ? 'Female 👩'
+                          : '여성 👩'}
+                    </span>
                     <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                    <span>{isTimeUnknown2 ? '시간 모름' : inputDate2.split('T')[1]}</span>
+                    <span>
+                      {isTimeUnknown2
+                        ? language === 'en'
+                          ? 'Time Unknown'
+                          : '시간 모름'
+                        : inputDate2.split('T')[1]}
+                    </span>
                   </div>
                 </div>
 
                 {/* 사주 간략 보기 (상대방) */}
                 <div className="flex gap-3 opacity-80">
                   <div className="flex flex-col items-center p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                    <span className="text-xs text-slate-400 mb-1">일주</span>
+                    <span className="text-xs text-slate-400 mb-1">
+                      {language === 'en' ? 'Day Pillar' : '일주'}
+                    </span>
                     <span className="font-bold text-emerald-600 dark:text-emerald-300">
-                      {/* saju2가 계산되어 있다면 표시, 아니면 로딩/대기 */}
                       {saju2?.sky1 ? `${t(saju2.sky1)}${t(saju2.grd1)}` : '-'}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* 로딩 바 */}
             <div className="my-5 flex justify-center">
               {loading && (
                 <LoadingBar
@@ -717,24 +804,28 @@ export default function Compatibility({
             </div>
 
             {/* 4. 최종 분석 버튼 */}
-            <div className=" flex justify-center">
+            <div className="flex justify-center">
               <button
                 onClick={() => compaEnergy2.triggerConsume(handleMatch)}
                 disabled={loading && !compaEnergy2.isConsuming}
                 className={classNames(
-                  'w-full sm:w-auto px-10 py-4 bg-gradient-to-r  font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+                  'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
                   isDisabled
                     ? DISABLED_STYLE
-                    : ' bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200  hover:-translate-y-1',
+                    : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
                 )}
               >
                 <SparklesIcon className="w-5 h-5 animate-pulse" />
-                <span>궁합 분석 시작하기</span>
+                <span>
+                  {language === 'en' ? 'Start Compatibility Analysis' : '궁합 분석 시작하기'}
+                </span>
+
                 {!isAnalysisDone && !user && (
                   <div className="mt-1 relative z-10">
                     <LockClosedIcon className="w-4 h-4 text-amber-500" />
                   </div>
                 )}
+
                 {!isAnalysisDone && !!user && (
                   <div className="mt-1 relative w-10">
                     <EnergyBadge
@@ -744,19 +835,19 @@ export default function Compatibility({
                     />
                   </div>
                 )}
+
                 {isAnalysisDone && !loading && (
                   <div
                     className={classNames(
                       'mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10',
                       isLocked
-                        ? 'border-gray-500/50 bg-gray-400/40' // 잠겼을 때 (어둡고 회색)
-                        : 'border-white/30 bg-white/20', // 열렸을 때 (밝고 투명)
+                        ? 'border-gray-500/50 bg-gray-400/40' // 잠겼을 때
+                        : 'border-white/30 bg-white/20', // 열렸을 때
                     )}
                   >
                     <span className="text-[9px] font-bold text-white tracking-wide uppercase">
                       Free
                     </span>
-                    {/* <TicketIcon className="w-3 h-3 text-white" /> */}
                   </div>
                 )}
               </button>
@@ -782,7 +873,11 @@ export default function Compatibility({
                     RELATIONSHIP
                   </span>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                    {RELATION_TYPES.find((r) => r.id === selectedRel)?.label || selectedRel}
+                    {(() => {
+                      const r = RELATION_TYPES.find((t) => t.id === selectedRel);
+                      if (!r) return selectedRel;
+                      return language === 'en' ? r.sub : r.label;
+                    })()}
                   </span>
                 </div>
               </div>
@@ -801,13 +896,22 @@ export default function Compatibility({
                       {inputDate.split('T')[0]}
                     </span>
                     <span className="text-sm text-slate-500">
-                      {gender === 'male' ? '남성' : '여성'} {gender === 'male' ? '👨' : '👩'}
+                      {gender === 'male'
+                        ? language === 'en'
+                          ? 'Male'
+                          : '남성'
+                        : language === 'en'
+                          ? 'Female'
+                          : '여성'}{' '}
+                      {gender === 'male' ? '👨' : '👩'}
                     </span>
                   </div>
 
                   {/* 사주 간략 (일주 강조) */}
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-slate-400 text-xs">본원(일주):</span>
+                    <span className="text-slate-400 text-xs">
+                      {language === 'en' ? 'Day Pillar:' : '본원(일주):'}
+                    </span>
                     <div className="flex flex-col leading-none border border-indigo-200 rounded p-1 bg-indigo-50/50 dark:bg-slate-700 dark:border-slate-600">
                       <span className="font-bold text-indigo-700 dark:text-indigo-300">
                         {t(saju.sky1)}
@@ -816,10 +920,6 @@ export default function Compatibility({
                         {t(saju.grd1)}
                       </span>
                     </div>
-                    {/* (옵션) 전체 사주를 작게 보여주려면 아래 주석 해제 */}
-                    {/* <span className="text-xs text-slate-400 tracking-widest">
-                  {t(saju.sky3)}{t(saju.grd3)} {t(saju.sky2)}{t(saju.grd2)} ...
-                </span> */}
                   </div>
                 </div>
 
@@ -843,7 +943,14 @@ export default function Compatibility({
                       {inputDate2.split('T')[0]}
                     </span>
                     <span className="text-sm text-slate-500">
-                      {gender2 === 'male' ? '남성' : '여성'} {gender2 === 'male' ? '👨' : '👩'}
+                      {gender2 === 'male'
+                        ? language === 'en'
+                          ? 'Male'
+                          : '남성'
+                        : language === 'en'
+                          ? 'Female'
+                          : '여성'}{' '}
+                      {gender2 === 'male' ? '👨' : '👩'}
                     </span>
                   </div>
 
@@ -857,7 +964,9 @@ export default function Compatibility({
                         {t(saju2.grd1)}
                       </span>
                     </div>
-                    <span className="text-slate-400 text-xs">:본원(일주)</span>
+                    <span className="text-slate-400 text-xs">
+                      {language === 'en' ? ':Day Pillar' : ':본원(일주)'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -871,7 +980,7 @@ export default function Compatibility({
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
               <SparklesIcon className="w-5 h-5 text-indigo-500" />
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">
-                AI 상세 분석 결과
+                {language === 'en' ? 'AI Detailed Analysis' : 'AI 상세 분석 결과'}
               </h3>
             </div>
 
@@ -887,7 +996,7 @@ export default function Compatibility({
               onClick={() => setStep(1)}
               className="text-sm text-slate-400 hover:text-indigo-500 underline underline-offset-4 transition-colors"
             >
-              다른 궁합 보러가기
+              {language === 'en' ? 'Check Another Match' : '다른 궁합 보러가기'}
             </button>
           </div>
         </div>
