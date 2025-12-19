@@ -3,11 +3,7 @@ import { useState, useEffect } from 'react';
 
 // 2. External Libraries (Firebase, Icons)
 import { doc, setDoc } from 'firebase/firestore';
-import {
-  UserCircleIcon,
-  PencilSquareIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { SunIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { FaHorseHead } from 'react-icons/fa';
 import { GiCrystalBall } from 'react-icons/gi';
@@ -344,6 +340,7 @@ export default function App() {
     setLoading(true);
     setLoadingType('main');
     setResultType('main');
+    setAiResult('');
 
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
     let isMatch = false;
@@ -360,6 +357,7 @@ export default function App() {
         const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
 
         if (isLangMatch && isSajuMatch && isGenderMatch) {
+          setAiResult('yoo');
           openModal();
           setLoading(false);
           setLoadingType(null);
@@ -392,6 +390,7 @@ export default function App() {
       );
 
       setEditCount(newCount);
+      setAiResult('yoo');
       openModal();
     } catch (e) {
       alert(`Error: ${e.message}`);
@@ -704,7 +703,7 @@ export default function App() {
             icon={<HeartIcon className="w-8 h-8 text-pink-800  " />}
             buttonType={'Compati'}
             textKo="궁합"
-            TextEn="Compatibility"
+            TextEn="Chemistry"
             subTextKo="두 사람의 인연과 조화"
             subTextEn="Your Connection & Harmony"
             colorType={'pink'}

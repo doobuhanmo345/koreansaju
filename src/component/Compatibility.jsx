@@ -184,10 +184,11 @@ export default function Compatibility({
   }, [loading, isCachedLoading]);
   // 🟢 [초기화] 모달 열릴 때마다 Step 1로 리셋
   useEffect(() => {
-    if (isOpen) {
-      setStep(1);
+    setStep(1);
+    if (step === 1) {
+      setAiResult('');
     }
-  }, [isOpen]);
+  }, []);
 
   // --- Handlers ---
 
@@ -446,7 +447,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                     <div>
                       <div className="flex items-baseline gap-1.5 mb-0.5">
                         <span
-                          className={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-200'}`}
+                          classzName={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-200'}`}
                         >
                           {/* 라벨 출력 */}
                           {labelText}
@@ -816,9 +817,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                 )}
               >
                 <SparklesIcon className="w-5 h-5 animate-pulse" />
-                <span>
-                  {language === 'en' ? 'Start Compatibility Analysis' : '궁합 분석 시작하기'}
-                </span>
+                <span>{language === 'en' ? 'Start Chemistry Analysis' : '궁합 분석 시작하기'}</span>
 
                 {!isAnalysisDone && !user && (
                   <div className="mt-1 relative z-10">

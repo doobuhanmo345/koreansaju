@@ -438,7 +438,7 @@ export default function ResultModal({
                     <>
                       <div className="text-center mb-2 mt-2 animate-fade-in-up">
                         <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
-                          Cosmic Compatibility
+                          Cosmic Chemistry
                         </p>
                         <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
                           {language === 'ko' ? '궁합 정밀 분석' : 'Destiny Synergy'}
@@ -572,20 +572,24 @@ export default function ResultModal({
                     <ShareIcon className="w-5 h-5" />
                     {UI_TEXT.shareBtn[language]}
                   </button>
-                  <button
-                    onClick={() => handleSetViewMode('chat')}
-                    className={`
+                  {aiResult ? (
+                    <button
+                      onClick={() => handleSetViewMode('chat')}
+                      className={`
                 px-5 py-2.5 text-sm font-bold flex items-center gap-2
                 rounded-xl shadow-md transition-all active:scale-95
                 bg-indigo-600 hover:bg-indigo-700 text-white
                 ${isBottom ? 'animate-pulse ring-2 ring-indigo-300 shadow-lg scale-105' : ''}
               `}
-                  >
-                    <span className={isBottom ? 'animate-bounce' : ''}>💬</span>
-                    <span className={isBottom ? 'animate-bounce' : ''}>
-                      {language === 'ko' ? '추가 질문하기' : 'Ask a Question'}
-                    </span>
-                  </button>
+                    >
+                      <span className={isBottom ? 'animate-bounce' : ''}>💬</span>
+                      <span className={isBottom ? 'animate-bounce' : ''}>
+                        {language === 'ko' ? '추가 질문하기' : 'Ask a Question'}
+                      </span>
+                    </button>
+                  ) : (
+                    ''
+                  )}
                 </div>
               </>
             )}
