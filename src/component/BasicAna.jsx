@@ -138,6 +138,12 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         day: allChars[5],
         time: allChars[7],
       };
+      const stems = {
+        year: allChars[0],
+        month: allChars[2],
+        day: allChars[4],
+        time: allChars[6],
+      };
       const pillars = {
         year: allChars[0] + allChars[1],
         month: allChars[2] + allChars[3],
@@ -297,10 +303,20 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
       ];
 
       const relations = [];
+
       const checkPair = (b1, b2, targetName) => {
-        const key = [b1, b2].sort().join('');
-        const rule = RELATION_RULES[key];
-        if (rule) relations.push({ ...rule, target: targetName });
+        // 1. 두 가지 키 조합 생성 (순서 무관하게 찾기 위함)
+        const key1 = [b1, b2].join(''); // 예: 갑기
+        const key2 = [b2, b1].join(''); // 예: 기갑
+
+        // 2. 딕셔너리 조회 (OR 연산자 사용)
+        // key1에 정의된게 있으면 그걸 쓰고, 없으면 key2를 찾아봅니다.
+        const rule = RELATION_RULES[key1] || RELATION_RULES[key2];
+
+        // 3. 룰이 존재하면 배열에 '한 번만' 추가
+        if (rule) {
+          relations.push({ ...rule, target: targetName });
+        }
       };
 
       checkPair(
@@ -320,6 +336,11 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         branches.year,
         language === 'ko' ? '년지(조상)' : 'Year Branch (Ancestors)',
       );
+      checkPair(stems.day, stems.month, language === 'ko' ? '월간(사회)' : 'Month Stem (Society)');
+
+      checkPair(stems.day, stems.time, language === 'ko' ? '시간(자녀)' : 'Time Stem (Children)');
+
+      checkPair(stems.day, stems.year, language === 'ko' ? '년간(조상)' : 'Year Stem (Ancestors)');
 
       const myIljuData =
         language === 'ko'
@@ -617,7 +638,6 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
 
     story += isEn ? ohaengDescriptions[maxOhaeng[0]].en : ohaengDescriptions[maxOhaeng[0]].ko;
     story += `<br/><br/>`;
-
     // 3. 관계(Relations: 합/충) 분석
     if (relations.length > 0) {
       // 1. 언어 설정 ('ko' or 'en')
@@ -628,7 +648,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         target: r.target, // 원래 객체에 있던 대상(예: 'Year Pillar') 유지
         ...(r[lang] || {}), // 언어에 맞는 데이터(name, desc, type) 덮어쓰기
       }));
-      console.log(mappedRelations);
+
       // 3. 문구 시작
       story += isEn
         ? `Examining the relationships and changes in your life flow:<br/>`
@@ -636,7 +656,9 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
 
       // 4. 합(Harmony) 처리
       // 데이터에 '합', '육합', 'Harmony' 중 하나라도 있으면 통과
-      const haps = mappedRelations.filter((r) => ['합', '육합', 'Harmony'].includes(r.type));
+      const haps = mappedRelations.filter((r) =>
+        ['천간합', '합', '육합', 'Harmony'].includes(r.type),
+      );
 
       if (haps.length > 0) {
         story += isEn
@@ -860,7 +882,6 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
     daewoonList,
     currentDaewoon,
     currentAge,
-
     hiddenStory,
   } = sajuData;
 
@@ -1108,7 +1129,10 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         {relations.length > 0 && (
           <div>
             <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold mb-3 px-2">
-              ⚡ 에너지의 화학 반응 (합/충)
+              ⚡{' '}
+              {language === 'en'
+                ? 'Energy Chemistry (Harmony & Clash)'
+                : '에너지의 화학 반응 (합/충)'}
             </h3>
             <div className="grid grid-cols-1 gap-3">
               {relations.map((rel, idx) => (

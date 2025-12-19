@@ -14,12 +14,12 @@ export const SAMHAP_MAP = {
 };
 
 export const ohaengKorean = {
-    wood: '나무(木)',
-    fire: '불(火)',
-    earth: '흙(土)',
-    metal: '쇠(金)',
-    water: '물(水)',
-  };
+  wood: '나무(木)',
+  fire: '불(火)',
+  earth: '흙(土)',
+  metal: '쇠(金)',
+  water: '물(水)',
+};
 
 // 백호살 목록
 export const BAEKHO_LIST = ['갑진', '을미', '병술', '정축', '무진', '임술', '계축'];
@@ -101,7 +101,6 @@ export const getRomanizedIlju = (korName) => {
 
   return `${enStem}${enBranch}`; // 'gapja'
 };
-
 
 // --- 1. 합충(Chemistry) 데이터 ---
 export const RELATION_RULES = {
@@ -254,6 +253,120 @@ export const RELATION_RULES = {
       type: 'Clash',
       name: 'Sa-Hae Clash',
       desc: 'Mental restlessness, often resolved through travel or moving far away.',
+    },
+  }, // =================================================
+  // 🔵 천간합 (Heavenly Stems Harmony) - 정신적 결합
+  // =================================================
+  갑기: {
+    ko: {
+      type: '합',
+      name: '갑기합(土)',
+      desc: '중정지합(中正之合): 분수에 맞게 행동하며 타인의 신뢰를 얻습니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Gap-Gi Harmony (Earth)',
+      desc: 'Harmony of Honor: Gains trust by acting with propriety and integrity.',
+    },
+  },
+  을경: {
+    ko: {
+      type: '합',
+      name: '을경합(金)',
+      desc: '인의지합(仁義之合): 강단이 있고 의리를 중요하게 생각합니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Eul-Gyeong Harmony (Metal)',
+      desc: 'Harmony of Righteousness: Values loyalty and decisive action.',
+    },
+  },
+  병신: {
+    ko: {
+      type: '합',
+      name: '병신합(水)',
+      desc: '위제지합(威制之合): 겉은 화려하나 속은 냉철하고 지혜롭습니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Byeong-Sin Harmony (Water)',
+      desc: 'Harmony of Authority: Brilliant on the outside, cool and wise on the inside.',
+    },
+  },
+  정임: {
+    ko: {
+      type: '합',
+      name: '정임합(木)',
+      desc: '인수지합(仁壽之合): 감수성이 풍부하고 다정다감하여 인기가 많습니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Jeong-Im Harmony (Wood)',
+      desc: 'Harmony of Benevolence: Sensitive and affectionate, often popular with others.',
+    },
+  },
+  무계: {
+    ko: {
+      type: '합',
+      name: '무계합(火)',
+      desc: '무정지합(無情之合): 두뇌 회전이 빠르고 외모나 겉모습에 신경을 씁니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Mu-Gye Harmony (Fire)',
+      desc: 'Harmony of Pragmatism: Quick-witted and attentive to appearances.',
+    },
+  },
+
+  // =================================================
+  // 🟠 천간충 (Heavenly Stems Clash) - 정신적 갈등
+  // =================================================
+  갑경: {
+    ko: {
+      type: '충',
+      name: '갑경충',
+      desc: '새로운 시작과 결실이 부딪히니 두통이나 신경성 질환을 주의해야 합니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Gap-Gyeong Clash',
+      desc: 'Clash of Start and Finish: Be mindful of stress-related headaches or nerve issues.',
+    },
+  },
+  을신: {
+    ko: {
+      type: '충',
+      name: '을신충',
+      desc: '날카로운 칼이 꽃을 베는 형국이라 예민하고 주변 관계가 끊어질 수 있습니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Eul-Sin Clash',
+      desc: 'Scissors cutting a flower: High sensitivity and potential severing of relationships.',
+    },
+  },
+  병임: {
+    ko: {
+      type: '충',
+      name: '병임충',
+      desc: '태양과 강물이 만나니 수화상전(水火相戰)으로 감정 기복이 심할 수 있습니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Byeong-Im Clash',
+      desc: 'Fire and Water battle: Likely to experience intense emotional mood swings.',
+    },
+  },
+  정계: {
+    ko: {
+      type: '충',
+      name: '정계충',
+      desc: '촛불이 비를 만난 격이라 내면의 갈등과 심리적 불안을 겪기 쉽습니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Jeong-Gye Clash',
+      desc: 'Candle meeting Rain: Prone to internal conflict and psychological anxiety.',
     },
   },
 };
