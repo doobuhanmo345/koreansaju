@@ -629,7 +629,7 @@ export default function App() {
           />
         )}
 
-        <div className="flex justify-between gap-3 h-32">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-[250px] md:h-[130px]">
           <AnalysisButton
             energy={mainEnergy}
             handleAnalysis={handleAiAnalysis}
@@ -681,8 +681,6 @@ export default function App() {
             subTextEn={'Daily Guide'}
             colorType={'sky'}
           />
-        </div>
-        <div className="flex justify-between gap-3 my-2">
           <AnalysisButton
             energy={compaEnergy}
             handleAnalysis={handleCompaAnalysis}
