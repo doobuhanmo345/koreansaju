@@ -14,7 +14,7 @@ import { useAuthContext } from '../context/useAuthContext';
 import { useShareActions } from '../hooks/useShareAction';
 import BasicAna from './BasicAna';
 import Compatibility from './Compatibility';
-
+import { SAZA_DEF_PROMPT } from '../data/aiResultConstants';
 export default function ResultModal({
   isOpen,
   onClose,
@@ -29,7 +29,7 @@ export default function ResultModal({
   isTimeUnknown,
   resultType,
   aiResult,
-  setAiResult
+  setAiResult,
 }) {
   // --- Local States (App에서 가져옴) ---
   const [viewMode, setViewMode] = useState('result');
@@ -189,9 +189,8 @@ export default function ResultModal({
     try {
       const currentSajuJson = JSON.stringify(saju);
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
-      const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 2025년은 을사년, 2026년은 병오년.`;
-      const defualtPrompt = ``;
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${defaultprompt}`;
+      const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 2025년은 을사년, 2026년은 병오년. `;
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${SAZA_DEF_PROMPT[language]}`;
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
