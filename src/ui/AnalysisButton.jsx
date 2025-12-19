@@ -32,6 +32,7 @@ export default function AnalysisButton({
     indigo:
       'bg-gradient-to-br from-violet-500 dark:to-indigo-600 to-indigo-300 shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)] border-purple-700/30',
     pink: 'bg-gradient-to-br from-rose-400 dark:to-rose-600 to-rose-300 shadow-[0_8px_20px_-6px_rgba(244,114,182,0.38)] border-rose-700/25',
+    gold: 'bg-gradient-to-br from-orange-200 via-yellow-400 dark:to-amber-700 to-orange-300 shadow-[0_8px_20px_-6px_rgba(150,120,70,0.25)] border-amber-800/20',
   };
 
   // 구조 및 동작 (공통)

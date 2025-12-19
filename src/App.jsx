@@ -7,6 +7,7 @@ import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24
 import { SunIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { FaHorseHead, FaDownload } from 'react-icons/fa';
 import { GiCrystalBall } from 'react-icons/gi';
+import { GiGoldBar } from 'react-icons/gi';
 import html2canvas from 'html2canvas';
 
 // 3. Internal Config & API
@@ -335,6 +336,25 @@ export default function App() {
       setLoadingType(null);
     }
   };
+  const handleWealthAnalysis = async () => {
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
+    setLoading(true);
+    setLoadingType('wealth');
+    setResultType('wealth');
+
+    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+    let isMatch = false;
+
+    try {
+      openModal();
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+      setLoadingType(null);
+    }
+  };
   const handleAiAnalysis = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
@@ -525,6 +545,7 @@ export default function App() {
   const yearEnergy = useConsumeEnergy();
   const dailyEnergy = useConsumeEnergy();
   const compaEnergy = useConsumeEnergy();
+  const wealthEnergy = useConsumeEnergy();
   // functions/index.js (부분 예시)
   // 한글 일주 이름('갑자')을 영어('gabja')로 변환
 
@@ -867,6 +888,22 @@ export default function App() {
             subTextKo="두 사람의 인연과 조화"
             subTextEn="Your Connection & Harmony"
             colorType={'pink'}
+          />
+          <AnalysisButton
+            energy={wealthEnergy}
+            handleAnalysis={handleWealthAnalysis}
+            loading={loading}
+            loadingType={loadingType}
+            isSaved={isSaved}
+            isLocked={isLocked}
+            isAnalysisDone={false} // 개발용
+            icon={<GiGoldBar className="w-8 h-8 text-amber-800  " />}
+            buttonType={'wealth'}
+            textKo="재물운"
+            TextEn="Wealth"
+            subTextKo="풍요로운 부의 흐름" // 문맥에 맞게 수정
+            subTextEn="Prosperity & Financial Luck"
+            colorType={'gold'} // 'pink'에서 'gold' 또는 'yellow'로 변경
           />
         </div>
       </div>
