@@ -298,7 +298,7 @@ export default function Compatibility({
         
         Analyze the compatibility (Gunghap) between two people.
         Relationship Type: "${relationLabel} (${selectedRel})".
-
+sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pillar, sky0+grd0 : hour pillar
         [Person 1 (Me)]
         Gender: ${gender}
         Saju Chart: ${mySajuStr}
