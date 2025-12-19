@@ -108,6 +108,7 @@ export default function Wealth({
         label: '나의 타고난 부의 그릇은?',
         labelEn: 'My innate wealth capacity?',
         desc: '얼마나 벌 수 있는지, 언제 부자가 되는지',
+        descEn: 'Potential wealth volume and timing of financial success.',
         prompt: 'Focus on the total volume of wealth and the peak period of life.',
       },
       {
@@ -115,6 +116,7 @@ export default function Wealth({
         label: '월급 관리형 vs 사업 투자형',
         labelEn: 'Salary Manager vs. Business Investor',
         desc: '안정적인 직장이 맞는지, 내 일이 맞는지',
+        descEn: 'Suitability for a stable career vs. running your own business.',
         prompt: 'Analyze whether a stable salary or business income suits this person better.',
       },
       {
@@ -122,17 +124,19 @@ export default function Wealth({
         label: '돈이 모이지 않고 새는 이유',
         labelEn: "Why money leaks and doesn't accumulate",
         desc: '재물 창고(재고)와 소비 성향 분석',
+        descEn: 'Analysis of wealth retention capacity and spending habits.',
         prompt: 'Analyze financial leakage (Gyeop-jae) and spending habits.',
       },
     ],
 
-    // 2. 올해/내년 흐름 (2025년 12월 기준이므로 내년은 2026년)
+    // 2. 올해/내년 흐름
     timing: [
       {
         id: 'now',
         label: '당장 이번 달과 다음 달 운세',
         labelEn: 'Luck for this and next month',
         desc: '단기적인 자금 융통과 흐름',
+        descEn: 'Short-term cash flow and liquidity analysis.',
         prompt: 'Analyze the financial flow for the current month and the next month specifically.',
       },
       {
@@ -140,6 +144,7 @@ export default function Wealth({
         label: '다가오는 2026년 재물운',
         labelEn: 'Financial luck for 2026',
         desc: '내년의 전체적인 총운과 승부처',
+        descEn: 'Overall fortune and key opportunities for the upcoming year.',
         prompt: 'Predict the overall financial fortune and key opportunities for the year 2026.',
       },
       {
@@ -147,6 +152,7 @@ export default function Wealth({
         label: '언제 조심해야 할까요? (손재수)',
         labelEn: 'When to be cautious (Financial Loss)',
         desc: '돈이 나가는 시기와 피해야 할 행동',
+        descEn: 'Periods of financial loss and actions to avoid.',
         prompt: 'Identify months or periods with high risk of financial loss (Son-jae-su).',
       },
     ],
@@ -158,6 +164,7 @@ export default function Wealth({
         label: '주식 / 코인 (공격적 투자)',
         labelEn: 'Stocks / Crypto (Aggressive)',
         desc: '변동성이 큰 시장에서의 승률',
+        descEn: 'Success rate in high-volatility markets.',
         prompt: 'Analyze suitability for high-risk, high-return investments like stocks or crypto.',
       },
       {
@@ -165,6 +172,7 @@ export default function Wealth({
         label: '부동산 / 청약 (문서운)',
         labelEn: 'Real Estate (Document Luck)',
         desc: '집을 사도 되는지, 이사 운이 있는지',
+        descEn: 'Buying property and luck regarding moving.',
         prompt: 'Analyze luck related to real estate, property documents, and moving.',
       },
       {
@@ -172,6 +180,7 @@ export default function Wealth({
         label: '예적금 / 안전 자산',
         labelEn: 'Savings / Safe Assets',
         desc: '지키는 것이 중요한 시기인지 확인',
+        descEn: 'Check if asset protection is prioritized over investment.',
         prompt: 'Check if conservative asset management (savings) is better than investing now.',
       },
     ],
@@ -183,6 +192,7 @@ export default function Wealth({
         label: '내 사업을 시작해도 될까요?',
         labelEn: 'Should I start a business?',
         desc: '창업 시기와 성공 가능성',
+        descEn: 'Optimal timing for starting up and success potential.',
         prompt: 'Analyze the timing and potential success for starting a new business.',
       },
       {
@@ -190,6 +200,7 @@ export default function Wealth({
         label: '동업 vs 독자 생존',
         labelEn: 'Partnership vs. Solo',
         desc: '누구와 함께하는 게 좋은지, 혼자가 좋은지',
+        descEn: 'Pros and cons of partnership vs. going solo.',
         prompt: 'Analyze whether partnership is beneficial or if they should work alone.',
       },
       {
@@ -197,6 +208,7 @@ export default function Wealth({
         label: '나에게 맞는 업종/아이템',
         labelEn: 'Suitable Industry/Item',
         desc: '물장사, 금속, 교육 등 오행 기반 추천',
+        descEn: 'Industry recommendations based on your Five Elements.',
         prompt:
           'Recommend suitable business industries based on their favorable elements (Yong-sin).',
       },
@@ -351,7 +363,7 @@ export default function Wealth({
         Analyze the **Financial Destiny (Wealth Luck)** for this person based on the Saju (Four Pillars of Destiny) chart provided below.
 
         [Input Data]
-        - Question Type: "${qLabel}", "${selectedSubQ}"
+        - Question Type: "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}"
         - Gender: ${gender}
         - Saju Chart: ${mySajuStr}
         (Key Structure: sky3/grd3=Year(Ancestors), sky2/grd2=Month(Career/Society), sky1/grd1=Day(Me), sky0/grd0=Hour(Children/Result))
@@ -366,6 +378,7 @@ export default function Wealth({
         
         Write in a professional, insightful, and encouraging tone. Use Markdown for clarity.
       `;
+      console.log(fullPrompt);
 
       const result = await fetchGeminiAnalysis(fullPrompt);
 
@@ -572,7 +585,7 @@ export default function Wealth({
 
                 // 텍스트 변수 처리
                 const labelText = language === 'en' ? sub.labelEn : sub.label;
-                const descText = sub.desc; // 설명은 한글/영어 분기 필요 시 데이터 구조에 맞게 수정
+                const descText = language === 'en' ? sub.descEn : sub.desc;
 
                 return (
                   <button
