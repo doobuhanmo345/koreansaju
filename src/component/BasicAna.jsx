@@ -22,8 +22,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import { getEng } from '../utils/helpers';
 const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMode }) => {
   const { language } = useLanguage();
-
-  const handleShareImg = async (id) => {
+  const handleShare = async (id) => {
     const el = document.getElementById(id);
     if (!el) {
       alert('share-card를 찾을 수 없습니다.');
@@ -303,9 +302,24 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         const rule = RELATION_RULES[key];
         if (rule) relations.push({ ...rule, target: targetName });
       };
-      checkPair(branches.day, branches.month, '월지(사회)');
-      checkPair(branches.day, branches.time, '시지(자녀)');
-      checkPair(branches.day, branches.year, '년지(조상)');
+
+      checkPair(
+        branches.day,
+        branches.month,
+        language === 'ko' ? '월지(사회)' : 'Month Branch (Society)',
+      );
+
+      checkPair(
+        branches.day,
+        branches.time,
+        language === 'ko' ? '시지(자녀)' : 'Time Branch (Children)',
+      );
+
+      checkPair(
+        branches.day,
+        branches.year,
+        language === 'ko' ? '년지(조상)' : 'Year Branch (Ancestors)',
+      );
 
       const myIljuData =
         language === 'ko'
@@ -606,36 +620,57 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
 
     // 3. 관계(Relations: 합/충) 분석
     if (relations.length > 0) {
+      // 1. 언어 설정 ('ko' or 'en')
+      const lang = isEn ? 'en' : 'ko';
+
+      // 2. 데이터 매핑 (target 정보와 언어별 데이터를 합칩니다)
+      const mappedRelations = relations.map((r) => ({
+        target: r.target, // 원래 객체에 있던 대상(예: 'Year Pillar') 유지
+        ...(r[lang] || {}), // 언어에 맞는 데이터(name, desc, type) 덮어쓰기
+      }));
+      console.log(mappedRelations);
+      // 3. 문구 시작
       story += isEn
         ? `Examining the relationships and changes in your life flow:<br/>`
         : `삶의 흐름 속에서 나타나는 인간관계와 변화를 살펴보면 다음과 같습니다.<br/>`;
 
-      const haps = relations.filter((r) => r.type === '합');
+      // 4. 합(Harmony) 처리
+      // 데이터에 '합', '육합', 'Harmony' 중 하나라도 있으면 통과
+      const haps = mappedRelations.filter((r) => ['합', '육합', 'Harmony'].includes(r.type));
+
       if (haps.length > 0) {
         story += isEn
           ? `First, there is the energy of <span class="text-indigo-600 dark:text-indigo-400 font-bold">Harmony (Hap)</span>. `
           : `먼저 <span class="text-indigo-600 dark:text-indigo-400 font-bold">합(合)</span>의 기운이 있습니다. `;
+
         haps.forEach((h) => {
           story += isEn
-            ? `With ${h.target}, you form ${h.name}, which means ${h.desc}. `
-            : `${h.target}와는 ${h.name}을 이루어 ${h.desc}. `;
+            ? `With ${h.target}, you form ${h.name}, which means ${h.desc} `
+            : `${h.target}와는 ${h.name}을 이루어 ${h.desc} `;
         });
       }
 
-      const chungs = relations.filter((r) => r.type === '충');
+      // 5. 충(Clash) 처리
+      // 데이터에 '충', '육충', 'Clash' 중 하나라도 있으면 통과
+      const chungs = mappedRelations.filter((r) => ['충', '육충', 'Clash'].includes(r.type));
+
       if (chungs.length > 0) {
         const intro = isEn
           ? haps.length > 0
             ? ` Additionally, `
-            : ` `
+            : ``
           : haps.length > 0
             ? ` 또한 `
-            : ` `;
-        story += `${intro}<span class="text-amber-600 dark:text-amber-400 font-bold">${isEn ? 'Conflict (Chung)' : '충(沖)'}</span>${isEn ? ' energy is also at play. ' : '의 기운도 함께 작용합니다. '}`;
+            : ``;
+
+        story += `${intro}<span class="text-amber-600 dark:text-amber-400 font-bold">${
+          isEn ? 'Conflict (Chung)' : '충(沖)'
+        }</span>${isEn ? ' energy is also at play. ' : '의 기운도 함께 작용합니다. '}`;
+
         chungs.forEach((c) => {
           story += isEn
-            ? `With ${c.target}, it becomes ${c.name}, leading to ${c.desc}. `
-            : `${c.target}와는 ${c.name}이 되어 ${c.desc}. `;
+            ? `With ${c.target}, it becomes ${c.name}, leading to ${c.desc} `
+            : `${c.target}와는 ${c.name}이 되어 ${c.desc} `;
         });
       }
       story += `<br/><br/>`;
@@ -1094,7 +1129,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
                             : 'text-amber-700 dark:text-amber-300'
                         }`}
                       >
-                        {rel.name}
+                        {rel[language].name}
                       </span>
                       <span className="text-[10px] bg-white dark:bg-slate-700 px-2 py-0.5 rounded border border-gray-200 dark:border-slate-600 text-gray-500 dark:text-gray-300">
                         {rel.target}
@@ -1109,7 +1144,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
                         : 'text-amber-300 dark:text-amber-500'
                     }`}
                   >
-                    {rel.type}
+                    {rel[language].type}
                   </span>
                 </div>
               ))}
@@ -1270,7 +1305,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         )}
       </div>
       <button
-        onClick={() => handleShareImg('share-card')}
+        onClick={() => handleShare('share-card')}
         className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
       >
         {language === 'en' ? 'Share My Signature' : '나의 결과 저장하기'}

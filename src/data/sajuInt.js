@@ -105,44 +105,158 @@ export const getRomanizedIlju = (korName) => {
 
 // --- 1. 합충(Chemistry) 데이터 ---
 export const RELATION_RULES = {
-  자축: { type: '합', name: '자축합(土)', desc: '믿음직하고 끈끈한 결속력을 가집니다' },
-  인해: { type: '합', name: '인해합(木)', desc: '먼저 베풀고 화합하는 따뜻한 기운이 있습니다' },
-  묘술: { type: '합', name: '묘술합(火)', desc: '예술적 감각과 뜨거운 열정이 결합된 형태입니다' },
-  진유: { type: '합', name: '진유합(金)', desc: '의리와 원칙을 중요시하며 맺고 끊음이 확실합니다' },
-  사신: { type: '합', name: '사신합(水)', desc: '현실적인 지혜와 변화를 추구하는 성향이 강합니다' },
-  오미: { type: '합', name: '오미합(火)', desc: '화려함 속에 실속을 챙기는 조화로움이 있습니다' },
+  // =================================================
+  // 🟢 육합 (Six Harmonies) - 조화와 결속
+  // =================================================
+  자축: {
+    ko: {
+      type: '육합',
+      name: '자축합(土)',
+      desc: '믿음직하고 끈끈한 결속력을 가집니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Ja-Chuk Harmony (Earth)',
+      desc: 'A bond of deep trust and strong cohesion.',
+    },
+  },
+  인해: {
+    ko: {
+      type: '육합',
+      name: '인해합(木)',
+      desc: '먼저 베풀고 화합하는 따뜻한 기운이 있습니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'In-Hae Harmony (Wood)',
+      desc: 'Warm energy formed by generosity and unity.',
+    },
+  },
+  묘술: {
+    ko: {
+      type: '육합',
+      name: '묘술합(火)',
+      desc: '예술적 감각과 뜨거운 열정이 결합된 형태입니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Myo-Sul Harmony (Fire)',
+      desc: 'A fusion of artistic sense and burning passion.',
+    },
+  },
+  진유: {
+    ko: {
+      type: '육합',
+      name: '진유합(金)',
+      desc: '의리와 원칙을 중요시하며 맺고 끊음이 확실합니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Jin-Yu Harmony (Metal)',
+      desc: 'Values loyalty and principles with clear boundaries.',
+    },
+  },
+  사신: {
+    ko: {
+      type: '육합',
+      name: '사신합(水)',
+      desc: '현실적인 지혜와 변화를 추구하는 성향이 강합니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'Sa-Shin Harmony (Water)',
+      desc: 'Pursues practical wisdom and dynamic change.',
+    },
+  },
+  오미: {
+    ko: {
+      type: '육합',
+      name: '오미합(火)',
+      desc: '화려함 속에 실속을 챙기는 조화로움이 있습니다.',
+    },
+    en: {
+      type: 'Harmony',
+      name: 'O-Mi Harmony (Fire)',
+      desc: 'Harmony that seeks substance amidst brilliance.',
+    },
+  },
+
+  // =================================================
+  // 🔴 육충 (Six Clashes) - 충돌과 변화
+  // =================================================
   자오: {
-    type: '충',
-    name: '자오충',
-    desc: '물과 불이 만나 강한 에너지와 역동적인 변화를 만듭니다',
+    ko: {
+      type: '육충',
+      name: '자오충',
+      desc: '물과 불이 만나 강한 에너지와 역동적인 변화를 만듭니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Ja-O Clash',
+      desc: 'Water and Fire collide, creating intense energy and dynamic change.',
+    },
   },
   축미: {
-    type: '충',
-    name: '축미충',
-    desc: '끈기와 고집이 부딪히니 형제나 지인 간의 갈등을 조심해야 합니다',
+    ko: {
+      type: '육충',
+      name: '축미충',
+      desc: '끈기와 고집이 부딪히니 형제나 지인 간의 갈등을 조심해야 합니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Chuk-Mi Clash',
+      desc: 'A clash of stubbornness; be mindful of conflicts in close relationships.',
+    },
   },
   인신: {
-    type: '충',
-    name: '인신충',
-    desc: '시작과 끝이 부딪히는 형상이라 이동수가 많고 매우 바쁩니다',
+    ko: {
+      type: '육충',
+      name: '인신충',
+      desc: '시작과 끝이 부딪히는 형상이라 이동수가 많고 매우 바쁩니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'In-Shin Clash',
+      desc: 'Beginnings and endings clash, leading to a busy life with frequent movement.',
+    },
   },
   묘유: {
-    type: '충',
-    name: '묘유충',
-    desc: '환경의 변화가 잦고 예민해질 수 있으니 마음을 잘 다스려야 합니다',
+    ko: {
+      type: '육충',
+      name: '묘유충',
+      desc: '환경의 변화가 잦고 예민해질 수 있으니 마음을 잘 다스려야 합니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Myo-Yu Clash',
+      desc: 'Frequent environmental changes and sensitivity; requires emotional mind control.',
+    },
   },
   진술: {
-    type: '충',
-    name: '진술충',
-    desc: '고독할 수 있으나 투쟁심과 개성이 매우 강하여 리더가 되기도 합니다',
+    ko: {
+      type: '육충',
+      name: '진술충',
+      desc: '고독할 수 있으나 투쟁심과 개성이 매우 강하여 리더가 되기도 합니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Jin-Sul Clash',
+      desc: 'Can be solitary but possesses a strong fighting spirit and unique leadership qualities.',
+    },
   },
   사해: {
-    type: '충',
-    name: '사해충',
-    desc: '쓸데없는 잡념이 많을 수 있으나 해외나 원거리 이동을 통해 해소됩니다',
+    ko: {
+      type: '육충',
+      name: '사해충',
+      desc: '쓸데없는 잡념이 많을 수 있으나 해외나 원거리 이동을 통해 해소됩니다.',
+    },
+    en: {
+      type: 'Clash',
+      name: 'Sa-Hae Clash',
+      desc: 'Mental restlessness, often resolved through travel or moving far away.',
+    },
   },
 };
-
 // --- 2. 천을귀인 매핑 ---
 export const GWIN_MAP = {
   갑: ['축', '미'],
