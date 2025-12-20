@@ -213,11 +213,11 @@ export default function Compatibility({
       return;
     }
     setAiResult('');
-    if (window.confirm(UI_TEXT.saveConfirm[language])) {
+    if (true) {
       try {
         setStep(3); // 결과 화면으로 이동
         setIsSaved(true);
-        alert(UI_TEXT.saveSuccess[language]);
+        // alert(UI_TEXT.saveSuccess[language]);
       } catch (error) {
         console.error(error);
         alert(UI_TEXT.saveFail[language]);

@@ -929,7 +929,7 @@ export default function App() {
           <AnalysisButton
             energy={cookieEnergy}
             handleAnalysis={handleFortuneCookie}
-            loading={false}
+            loading={loading}
             loadingType={loadingType}
             isSaved={isSaved}
             isLocked={isLocked}

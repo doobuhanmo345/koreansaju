@@ -4,7 +4,7 @@ export default function SajuBlur({ MAX_EDIT_COUNT }) {
   const { login } = useAuthContext();
   const { language } = useLanguage();
   return (
-    <div className="absolute inset-x-0 h-[615px] z-10 backdrop-blur-sm flex justify-center items-center">
+    <div className="absolute -top-10 inset-x-0 h-[550px] z-10 backdrop-blur-sm flex justify-center items-center">
       <div className="relative w-[260px]">
         <div className="absolute -top-[150px] w-full p-4 bg-gray-300/15 dark:bg-white/15 backdrop-blur-lg rounded-xl shadow-2xl dark:shadow-black/20 shadow-black/40 flex flex-col items-center justify-center space-y-4 mx-auto border border-gray-300/30 dark:border-gray-700/40">
           {language === 'en' ? (
