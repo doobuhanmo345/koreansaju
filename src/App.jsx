@@ -9,6 +9,7 @@ import { FaHorseHead, FaDownload } from 'react-icons/fa';
 import { GiCrystalBall } from 'react-icons/gi';
 import { GiGoldBar } from 'react-icons/gi';
 import html2canvas from 'html2canvas';
+import { TbCookieFilled } from 'react-icons/tb';
 
 // 3. Internal Config & API
 import { db } from './lib/firebase';
@@ -355,6 +356,25 @@ export default function App() {
       setLoadingType(null);
     }
   };
+  const handleFortuneCookie = async () => {
+    if (!user) return alert(UI_TEXT.loginReq[language]);
+
+    setLoading(true);
+    setLoadingType('fCookie');
+    setResultType('fCookie');
+
+    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+    let isMatch = false;
+
+    try {
+      openModal();
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+      setLoadingType(null);
+    }
+  };
   const handleAiAnalysis = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
@@ -539,6 +559,7 @@ export default function App() {
     dbUser.ZLastDaily.language === language &&
     dbUser.ZLastDaily.gender === gender &&
     checkSajuMatch(dbUser.ZLastDaily.saju);
+  const isCookieDone = dbUser?.ZCookie && dbUser.ZCookie.today === todayStr;
 
   // 에너지 훅 인스턴스 생성
   const mainEnergy = useConsumeEnergy();
@@ -546,6 +567,7 @@ export default function App() {
   const dailyEnergy = useConsumeEnergy();
   const compaEnergy = useConsumeEnergy();
   const wealthEnergy = useConsumeEnergy();
+  const cookieEnergy = useConsumeEnergy();
   // functions/index.js (부분 예시)
   // 한글 일주 이름('갑자')을 영어('gabja')로 변환
 
@@ -821,7 +843,7 @@ export default function App() {
           />
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 h-[250px] md:h-[130px]">
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 h-[250px] md:h-[130px]">
           <AnalysisButton
             energy={mainEnergy}
             handleAnalysis={handleAiAnalysis}
@@ -904,6 +926,25 @@ export default function App() {
             subTextKo="풍요로운 부의 흐름" // 문맥에 맞게 수정
             subTextEn="Prosperity & Financial Luck"
             colorType={'gold'} // 'pink'에서 'gold' 또는 'yellow'로 변경
+          />
+          <AnalysisButton
+            energy={cookieEnergy}
+            handleAnalysis={handleFortuneCookie}
+            loading={false}
+            loadingType={loadingType}
+            isSaved={isSaved}
+            isLocked={isLocked}
+            isAnalysisDone={isCookieDone} // 개발용
+            icon={<TbCookieFilled className="w-8 h-8 text-amber-800  " />}
+            buttonType={'fCookie'}
+            textKo="포춘쿠키"
+            TextEn="Fortune Cookie"
+            subTextKo="매일 확인하고 매일 추가 크레딧" // 문맥에 맞게 수정
+            subTextEn="Get Extra Credit!"
+            goldBadge={true}
+            colorType={'green'} // 'pink'에서 'gold' 또는 'yellow'로 변경
+            cost={`+1`}
+            textFree="Claimed"
           />
         </div>
       </div>

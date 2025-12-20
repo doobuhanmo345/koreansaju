@@ -2,7 +2,7 @@
 import React from 'react';
 import { BoltIcon } from '@heroicons/react/24/solid'; // 💥 아이콘 import 필수!
 
-const EnergyBadge = ({ active = true, consuming = false, loading = false, cost = -1 }) => {
+const EnergyBadge = ({ active = true, consuming = false, loading = false, cost }) => {
   return (
     <div
       className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md transition-all duration-300 ease-out transform ${

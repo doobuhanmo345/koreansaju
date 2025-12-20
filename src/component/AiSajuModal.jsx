@@ -15,6 +15,7 @@ import { useShareActions } from '../hooks/useShareAction';
 import BasicAna from './BasicAna';
 import Compatibility from './Compatibility';
 import Wealth from './Wealth';
+import FortuneCookie from './FortuneCookie';
 import { SAZA_DEF_PROMPT } from '../data/aiResultConstants';
 export default function ResultModal({
   isOpen,
@@ -495,6 +496,26 @@ export default function ResultModal({
             {viewMode === 'result' && (
               <>
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6" ref={setScrollNode}>
+                  {resultType === 'fCookie' && (
+                    <>
+                       
+                      <div className="text-center mb-2 mt-2 animate-fade-in-up">
+                        <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
+                          get Extra Credit
+                        </p>
+                        <h1 className="text-3xl sm:text-4xl font-extrabold font-serif text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 dark:from-indigo-300 dark:via-violet-300 dark:to-indigo-300 drop-shadow-sm">
+                          {language === 'ko' ? '포춘쿠키' : 'Fortune Cookie'}
+                        </h1>
+
+                        <div className="flex justify-center gap-2 mt-4 opacity-50">
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>               
+                                    <div className="w-1 h-1 rounded-full bg-indigo-400"></div>     
+                          <div className="w-1 h-1 rounded-full bg-indigo-400"></div>               
+                        </div>
+                      </div>
+                      <FortuneCookie setAiResult={setAiResult} />
+                    </>
+                  )}
                   {resultType === 'wealth' && (
                     <>
                        

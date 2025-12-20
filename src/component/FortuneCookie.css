@@ -1,0 +1,147 @@
+.fortune-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.instruction {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.cookies-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* 쿠키 사이 간격 */
+}
+
+.cookie-item {
+  font-size: 50px;
+  cursor: pointer;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.cookie-item:hover {
+  transform: scale(1.1);
+}
+
+/* 선택되지 않은 나머지 쿠키들은 흐리게 처리 */
+.cookie-item.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* 흔들리는 애니메이션 */
+.shaking {
+  animation: shake 0.5s infinite;
+  cursor: wait;
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+  25% {
+    transform: translate(-2px, -2px) rotate(-5deg);
+  }
+  50% {
+    transform: translate(2px, 2px) rotate(5deg);
+  }
+  75% {
+    transform: translate(-1px, -1px) rotate(-5deg);
+  }
+  100% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+}
+/* 전체 컨테이너 */
+.saved-fortune-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.8s ease;
+}
+
+/* "오늘의 운세" 라벨 */
+.fortune-label {
+  background-color: #d4a373; /* 쿠키 색상 */
+  color: white;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: -10px; /* 종이 위에 살짝 걸치게 */
+  z-index: 1; /* 종이보다 위에 표시 */
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 종이 쪽지 스타일 */
+.fortune-paper {
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 25px 30px;
+  min-width: 280px;
+  max-width: 80%;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
+  font-family: 'Georgia', serif; /* 명조체 계열이 운세 느낌에 잘 어울림 */
+  color: #555;
+  line-height: 1.6;
+  font-size: 16px;
+  position: relative;
+  border-radius: 4px; /* 종이처럼 살짝 둥글게 */
+}
+
+/* 따옴표 장식 (꾸밈 요소) */
+.quote-mark {
+  color: #ffcccc; /* 연한 붉은색 포인트 */
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 4px;
+  vertical-align: -3px;
+}
+
+/* 부드럽게 나타나는 효과 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* 결과 화면 애니메이션 */
+.fortune-result {
+  background-color: #fdf6e3;
+  border-radius: 10px;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.fortune-msg {
+  font-weight: bold;
+  color: #333;
+  margin: 10px 0;
+  white-space: pre-wrap; /* 줄바꿈 허용 */
+}
+
+.fortune-reward {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
