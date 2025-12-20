@@ -9,6 +9,26 @@ import './FortuneCookie.css';
 
 const FORTUNE_DB = {
   super: [
+    '🎉 [JACKPOT] Incredible luck! Today is your day.',
+    '🌟 [JACKPOT] A helpful person appears. Big credit discount!',
+    '💎 [JACKPOT] An unexpected opportunity knocks on your door.',
+  ],
+  lucky: [
+    '🍀 [LUCKY] Good news is on its way.',
+    '✨ [LUCKY] A day to achieve great results with small effort.',
+    '🌈 [LUCKY] Signs that your worries will be resolved smoothly.',
+  ],
+  normal: [
+    '☕ Taking a short break will take you further.',
+    '📚 There is no end to learning. Grow today as well.',
+    '🏃‍♂️ A journey of a thousand miles begins with a single step.',
+    '🌞 A positive mind attracts good fortune.',
+    '🧹 Tidy up your surroundings. Your mind will clear up too.',
+  ],
+};
+
+const FORTUNE_DB_KR = {
+  super: [
     '🎉 [대박] 믿을 수 없는 행운! 오늘 하루는 당신의 것입니다.',
     '🌟 [대박] 귀인이 찾아옵니다. 크레딧 대폭 할인!',
     '💎 [대박] 생각지도 못한 기회가 문을 두드립니다.',
@@ -27,24 +47,26 @@ const FORTUNE_DB = {
   ],
 };
 
-const getLuckyResult = () => {
+const getLuckyResult = (lang) => {
   const rand = Math.floor(Math.random() * 200) + 1;
+  const db = lang === 'en' ? FORTUNE_DB : FORTUNE_DB_KR;
+
   if (rand <= 6) {
     return {
       reduction: 5,
-      msg: FORTUNE_DB.super[Math.floor(Math.random() * FORTUNE_DB.super.length)],
+      msg: db.super[Math.floor(Math.random() * db.super.length)],
       type: 'SUPER',
     };
   } else if (rand <= 20) {
     return {
       reduction: 3,
-      msg: FORTUNE_DB.lucky[Math.floor(Math.random() * FORTUNE_DB.lucky.length)],
+      msg: db.lucky[Math.floor(Math.random() * db.lucky.length)],
       type: 'LUCKY',
     };
   } else {
     return {
       reduction: 1,
-      msg: FORTUNE_DB.normal[Math.floor(Math.random() * FORTUNE_DB.normal.length)],
+      msg: db.normal[Math.floor(Math.random() * db.normal.length)],
       type: 'NORMAL',
     };
   }
@@ -86,7 +108,7 @@ export default function FortuneCookie({ setAiResult }) {
         );
       }
 
-      const result = getLuckyResult();
+      const result = getLuckyResult(language);
       const reductionAmount = result.reduction;
       const resultMsg = result.msg;
       const newCount = currentCount - reductionAmount;
@@ -126,7 +148,7 @@ export default function FortuneCookie({ setAiResult }) {
         {!loading && !fortuneMessage && userData?.ZCookie?.today === todayStr ? (
           <div className="animate-in fade-in duration-700 flex flex-col items-center my-6">
             <div className="fortune-label mb-2 px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 text-xs font-bold rounded-full shadow-sm border border-amber-200 dark:border-amber-800">
-              오늘의 메시지
+              {language === 'en' ? "Today's Message" : '오늘의 메시지'}
             </div>
             <div className="fortune-paper relative bg-[#fffdf5] dark:bg-gray-800 px-8 py-10 rounded-sm shadow-[0_4px_10px_rgba(0,0,0,0.1)] border-t-4 border-amber-400 max-w-sm w-full text-center overflow-hidden">
               <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] dark:invert"></div>
@@ -156,14 +178,26 @@ export default function FortuneCookie({ setAiResult }) {
                   </p>
                   <div className="w-full bg-white/60 dark:bg-gray-700/50 rounded-2xl py-4 px-6 border border-[#ffedad] dark:border-amber-900/30">
                     <div className="text-sm text-[#8d6e63] dark:text-amber-200/70 mb-1 font-medium">
-                      상금 획득!
+                      {language === 'en' ? 'Reward Earned!' : '상금 획득!'}
                     </div>
                     <div className="text-lg text-gray-800 dark:text-gray-100">
-                      크레딧{' '}
-                      <span className="font-black text-[#6c47ff] dark:text-indigo-400 text-xl">
-                        {rewardAmount}
-                      </span>
-                      개 세이브!
+                      {language === 'en' ? (
+                        <>
+                          Saved{' '}
+                          <span className="font-black text-[#6c47ff] dark:text-indigo-400 text-xl">
+                            {rewardAmount}
+                          </span>{' '}
+                          credits!
+                        </>
+                      ) : (
+                        <>
+                          크레딧{' '}
+                          <span className="font-black text-[#6c47ff] dark:text-indigo-400 text-xl">
+                            {rewardAmount}
+                          </span>
+                          개 세이브!
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="absolute top-4 right-6 text-2xl opacity-20 select-none">🍀</div>
@@ -172,7 +206,9 @@ export default function FortuneCookie({ setAiResult }) {
             ) : (
               <div className="text-center">
                 <p className="mb-6 text-gray-600 dark:text-gray-400 font-medium">
-                  운명을 확인할 쿠키 하나를 선택하세요!
+                  {language === 'en'
+                    ? 'Choose a cookie to check your fortune!'
+                    : '운명을 확인할 쿠키 하나를 선택하세요!'}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-8 items-center justify-center">
                   {[0, 1, 2].map((idx) => (
@@ -185,7 +221,6 @@ export default function FortuneCookie({ setAiResult }) {
                         ${selectedId !== null && selectedId !== idx ? 'opacity-40 grayscale blur-[1px]' : 'opacity-100'}
                       `}
                     >
-                      {/* 흔들림 효과 애니메이션: selectedId와 loading 상태일 때 'animate-bounce' 대신 'animate-shake'가 정의되어 있다면 그것을 쓰셔도 됩니다. 여기서는 기본 Tailwind인 animate-bounce를 적용했습니다. */}
                       <div
                         className={`scale-[1.1] text-[72px] drop-shadow-lg ${selectedId === idx && loading ? 'animate-pulse' : ''}`}
                       >
