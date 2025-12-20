@@ -831,6 +831,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                       active={user}
                       consuming={compaEnergy2.isConsuming}
                       loading={loading && !compaEnergy2.isConsuming}
+                      cost={-1}
                     />
                   </div>
                 )}

@@ -368,16 +368,32 @@ export default function Wealth({
         - Saju Chart: ${mySajuStr}
         (Key Structure: sky3/grd3=Year(Ancestors), sky2/grd2=Month(Career/Society), sky1/grd1=Day(Me), sky0/grd0=Hour(Children/Result))
 
+### 🚫 Critical Style Rules (절대적 서식 규칙)
+이 규칙들은 답변의 내용보다 우선순위가 높으며, 반드시 지켜야 합니다.
+1. **[Plain Text Only]**: 볼드(**), 이탤릭(*), 리스트 기호 등 어떠한 마크다운(Markdown) 강조 문법도 절대 사용하지 마십시오. 오직 순수한 텍스트와 줄바꿈(Enter)만 사용하세요.
+2. **[No Hanja]**: 한자(Chinese characters)는 절대 출력하지 마십시오. (예: '甲' -> 제거 혹은 '갑목'으로 표기)
+
+### 🗣️ Language & Terminology Guidelines
+1. **용어 순화 (Translation Layer)**
+   - 전문 용어(식신, 상관, 재성, 비겁, 관성 등)를 절대 직접 언급하지 마십시오.
+   - 대신 이를 일상 용어로 풀어서 설명하세요.
+     - (예: 재성 -> 재물운, 결실 / 관성 -> 직장운, 명예 / 식상 -> 표현력, 손재주)
+2. **언어별 규칙**
+   - **한국어 답변 시:** 모든 한자는 삭제하고 순수 한글로만 작성하세요.
+   - **영어 답변 시:**
+     - 사주 용어를 그대로 영문 음차(Pyeon-gwan)하지 말고 의미를 번역(Pressure, Challenge)하세요.
+     - 'Year/Month/Day/Time Pillar'라는 단어 대신 'Year/Month/Day/Time Energy' 또는 'Your born characteristics' 등으로 표현하세요. 'Pillar' 단어 사용을 금지합니다.
+
         [Analysis Requirements]
-        1. **Innate Wealth Capacity (재물 그릇)**: Analyze the strength and presence of Wealth Stars (Jae-seong) and Output Stars (Sik-sang). Is this person suited for business, investment, or a stable salary?
-        2. **Wealth Flow & Timing**: How does the energy flow regarding money? Are there signs of financial leakage (Gyeop-jae)?
-        3. **Actionable Advice**: Provide specific strategies to increase wealth and manage financial risks based on their element balance.
+        1. "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}" 에 정확히 부합하는 해석
+2. 사용자가 이해하기 힘든 복잡한 이론적 배경(신강/신약 계산 과정 등)은 생략하세요.
 
         ${langPrompt(language)}
         ${hanja(language)}
         
         Write in a professional, insightful, and encouraging tone. Use Markdown for clarity.
       `;
+
       console.log(fullPrompt);
 
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -777,6 +793,7 @@ export default function Wealth({
                     active={user}
                     consuming={wealthEnergy2.isConsuming}
                     loading={loading && !wealthEnergy2.isConsuming}
+                    cost={-1}
                   />
                 </div>
               )}

@@ -83,7 +83,7 @@ export default function NavBar() {
                 : logoEng
           }
           alt="Sajucha Logo"
-          className="w-[110px] sm:w-[130px] object-cover"
+          className="h-[40px]  object-cover"
         />
       </div>
 
