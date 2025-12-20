@@ -6,46 +6,7 @@ import { useState } from 'react';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
 import './FortuneCookie.css';
-
-const FORTUNE_DB = {
-  super: [
-    '🎉 [JACKPOT] Incredible luck! Today is your day.',
-    '🌟 [JACKPOT] A helpful person appears. Big credit discount!',
-    '💎 [JACKPOT] An unexpected opportunity knocks on your door.',
-  ],
-  lucky: [
-    '🍀 [LUCKY] Good news is on its way.',
-    '✨ [LUCKY] A day to achieve great results with small effort.',
-    '🌈 [LUCKY] Signs that your worries will be resolved smoothly.',
-  ],
-  normal: [
-    '☕ Taking a short break will take you further.',
-    '📚 There is no end to learning. Grow today as well.',
-    '🏃‍♂️ A journey of a thousand miles begins with a single step.',
-    '🌞 A positive mind attracts good fortune.',
-    '🧹 Tidy up your surroundings. Your mind will clear up too.',
-  ],
-};
-
-const FORTUNE_DB_KR = {
-  super: [
-    '🎉 [대박] 믿을 수 없는 행운! 오늘 하루는 당신의 것입니다.',
-    '🌟 [대박] 귀인이 찾아옵니다. 크레딧 대폭 할인!',
-    '💎 [대박] 생각지도 못한 기회가 문을 두드립니다.',
-  ],
-  lucky: [
-    '🍀 [행운] 기분 좋은 소식이 들려올 거예요.',
-    '✨ [행운] 작은 노력으로 큰 성과를 얻을 날입니다.',
-    '🌈 [행운] 고민하던 일이 술술 풀릴 징조입니다.',
-  ],
-  normal: [
-    '☕ 잠시 휴식을 취하면 더 멀리 갈 수 있습니다.',
-    '📚 배움에는 끝이 없습니다. 오늘도 성장하세요.',
-    '🏃‍♂️ 천리길도 한 걸음부터. 꾸준함이 답입니다.',
-    '🌞 긍정적인 마음이 행운을 불러옵니다.',
-    '🧹 주변을 정리해보세요. 마음도 맑아집니다.',
-  ],
-};
+import { FORTUNE_DB, FORTUNE_DB_KR } from '../data/fortuneCookie';
 
 const getLuckyResult = (lang) => {
   const rand = Math.floor(Math.random() * 200) + 1;

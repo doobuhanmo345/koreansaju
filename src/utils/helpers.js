@@ -134,6 +134,25 @@ export const getLoadingText = (progress, lang, type = 'main') => {
       return 'Finalizing the compatibility report for your relationship!';
     }
   }
+  if (type === 'wealth') {
+    if (lang === 'ko') {
+      if (progress < 20) return '우주의 흐름 속에 흩어진 당신의 재물 기운을 모으고 있습니다.';
+      if (progress < 40) return '사주 팔자 내의 재물 창고(財庫)와 오행의 균형을 정밀 분석 중...';
+      if (progress < 60) return '평생운에 깃든 대운의 흐름과 다가올 금전적 기회를 탐색 확인...';
+      if (progress < 80) return '재물을 부르는 습관과 손실을 막는 방어 기운의 시너지 계산 중...';
+      return '당신의 자산 성장을 위한 맞춤형 재물운 리포트를 완성하고 있습니다.';
+    } else {
+      if (progress < 20)
+        return 'Gathering your financial energies scattered within the cosmic flow...';
+      if (progress < 40)
+        return 'Analyzing your innate wealth potential and the balance of Five Elements...';
+      if (progress < 60)
+        return 'Exploring upcoming financial opportunities and the flow of major luck...';
+      if (progress < 80)
+        return 'Calculating the synergy between wealth-attracting habits and protection...';
+      return 'Finalizing your personalized wealth report for financial growth!';
+    }
+  }
   // 3️⃣ 기본(메인) 사주 분석 로딩 멘트 (기존 유지)
   if (lang === 'ko') {
     if (progress < 10) return '의뢰인의 사주 명식(命式)을 정밀 스캔하고 있습니다.';
