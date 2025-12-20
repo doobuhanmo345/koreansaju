@@ -352,7 +352,7 @@ export default function Wealth({
       const mySajuStr = JSON.stringify(saju);
 
       const qLabel = Q_TYPES.find((r) => r.id === selectedQ)?.label || 'General Wealth';
-
+      const todayStr = new Date().toLocaleDateString('en-CA');
       // 💡 [수정됨] 역할 부여를 재물운 전문가로 변경
       const strictPrompt =
         'You are a professional Saju consultant specializing in Wealth and Financial Career analysis.';
@@ -367,6 +367,7 @@ export default function Wealth({
         - Question Type: "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}"
         - Gender: ${gender}
         - Saju Chart: ${mySajuStr}
+        - 현재 날짜 : ${todayStr}
         (Key Structure: sky3/grd3=Year(Ancestors), sky2/grd2=Month(Career/Society), sky1/grd1=Day(Me), sky0/grd0=Hour(Children/Result))
 
 ### 🚫 Critical Style Rules (절대적 서식 규칙)
