@@ -98,11 +98,11 @@ export default function ResultModal({
 
   const getInitialGreeting = (lang, bDate, tSaju, tFunc) => {
     const formattedDate = bDate.replace('T', ' ');
-    const sajuText = `${tFunc(tSaju.sky3)}${tFunc(tSaju.grd3)}년 ${tFunc(tSaju.sky2)}${tFunc(tSaju.grd2)}월 ${tFunc(tSaju.sky1)}${tFunc(tSaju.grd1)}일 ${tFunc(tSaju.sky0)}${tFunc(tSaju.grd0)}시`;
+    const sajuText = `${tFunc(tSaju.sky3)}${tFunc(tSaju.grd3)}년 ${tFunc(tSaju.sky2)}${tFunc(tSaju.grd2)}월 ${tFunc(tSaju.sky1)}${tFunc(tSaju.grd1)}일 ${isTimeUnknown ? '' : tFunc(tSaju.sky0) + tFunc(tSaju.grd0) + '시'}`;
     const sajuTextEng = `Year:${tFunc(tSaju.sky3)}${tFunc(tSaju.grd3)} Month:${tFunc(tSaju.sky2)}${tFunc(tSaju.grd2)} Day:${tFunc(tSaju.sky1)}${tFunc(tSaju.grd1)} Time:${tFunc(tSaju.sky0)}${tFunc(tSaju.grd0)}`;
 
     if (lang === 'ko') {
-      return `안녕하세요. 사자입니다.\n\n당신이 입력한 생년월일·시 [${formattedDate}]와\n만세력 데이터 [${sajuText}]를 기반으로 운세를 분석합니다.\n\n질문을 하시면 하루에 사용 가능한 토큰이 1개씩 차감됩니다.\n오늘 남은 토큰을 소중하게 사용해 주세요.\n\n준비되셨다면, 알고 싶은 것을 질문해 주세요.`;
+      return `안녕하세요. 사자입니다.\n\n당신이 입력한 생년월일·시 [${isTimeUnknown ? bDate.split('T')[0] : formattedDate}]와\n만세력 데이터 [${sajuText}]를 기반으로 운세를 분석합니다.\n\n질문을 하시면 하루에 사용 가능한 토큰이 1개씩 차감됩니다.\n오늘 남은 토큰을 소중하게 사용해 주세요.\n\n준비되셨다면, 알고 싶은 것을 질문해 주세요.`;
     } else {
       return `Hello, I am your Saju Master.\n\nI analyze your fortune based on your birth data [${formattedDate}]\nand Four Pillars [${sajuTextEng}].\n\nEach time you ask a question, one token from your daily limit will be deducted.\nPlease use your remaining tokens wisely.\n\nWhen you’re ready, ask your first question.`;
     }
@@ -175,6 +175,7 @@ export default function ResultModal({
     );
   };
 
+
   // 추가 질문하기 (API 호출)
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -190,7 +191,8 @@ export default function ResultModal({
 
     try {
       const currentSajuJson = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}`;
+
+      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야, 나를 ${user?.displayName}님 이라고 불러줘.영어로는 ${user?.displayName}.`;
       const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 2025년은 을사년, 2026년은 병오년. `;
       const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${SAZA_DEF_PROMPT[language]}`;
 

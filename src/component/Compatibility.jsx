@@ -302,11 +302,11 @@ export default function Compatibility({
 sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pillar, sky0+grd0 : hour pillar
         [Person 1 (Me)]
         Gender: ${gender}
-        Saju Chart: ${mySajuStr}
+        Saju Chart: ${mySajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
 
         [Person 2 (Partner)]
         Gender: ${gender2}
-        Saju Chart: ${partnerSajuStr}
+        Saju Chart: ${partnerSajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
 
         ${langPrompt(language)}
         ${hanja(language)}
