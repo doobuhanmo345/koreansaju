@@ -520,6 +520,7 @@ export default function Wealth({
                       >
                         <Icon className={`w-6 h-6 ${type.color}`} />
                       </div>
+
                       {isSelected && (
                         <div className="w-3 h-3 rounded-full bg-indigo-500 animate-pulse"></div>
                       )}
@@ -527,21 +528,21 @@ export default function Wealth({
                     <div>
                       <div className="flex items-baseline gap-1.5 mb-0.5">
                         <span
-                          className={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-200'}`}
+                          className={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-700' : 'text-slate-700 dark:text-slate-200'}`}
                         >
                           {labelText}
                         </span>
 
                         {language !== 'en' && (
                           <span
-                            className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'opacity-70' : 'text-slate-400'}`}
+                            className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'opacity-70 dark:text-slate-600' : 'text-slate-400'}`}
                           >
                             {type.sub}
                           </span>
                         )}
                       </div>
                       <p
-                        className={`text-xs ${isSelected ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'}`}
+                        className={`text-xs ${isSelected ? 'text-slate-600 dark:text-slate-500' : 'text-slate-400 dark:text-slate-500'}`}
                       >
                         {/* 설명 출력 */}
                         {descText}

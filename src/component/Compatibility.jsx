@@ -447,7 +447,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                     <div>
                       <div className="flex items-baseline gap-1.5 mb-0.5">
                         <span
-                          classzName={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-200'}`}
+                          className={`text-base font-bold ${isSelected ? 'text-slate-900 dark:text-slate-700' : 'text-slate-700 dark:text-slate-200'}`}
                         >
                           {/* 라벨 출력 */}
                           {labelText}
@@ -457,14 +457,14 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                     여기서는 영어 모드일 땐 subText를 숨겨서 깔끔하게 처리 */}
                         {language !== 'en' && (
                           <span
-                            className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'opacity-70' : 'text-slate-400'}`}
+                            className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'opacity-70 dark:text-slate-600' : 'text-slate-400'}`}
                           >
                             {type.sub}
                           </span>
                         )}
                       </div>
                       <p
-                        className={`text-xs ${isSelected ? 'text-slate-600 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'}`}
+                        className={`text-xs ${isSelected ? 'text-slate-600 dark:text-slate-500' : 'text-slate-400 dark:text-slate-500'}`}
                       >
                         {/* 설명 출력 */}
                         {descText}
