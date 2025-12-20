@@ -3,20 +3,26 @@ import { useEffect } from 'react';
 
 /**
  * 언어 상태(ko/en)를 로컬 스토리지에 저장하고, HTML lang 속성을 설정합니다.
- * @returns {array} [language, setLanguage]
+ * 초기값이 로컬 스토리지에 없으면 브라우저 시스템 언어를 따릅니다.
  */
 export function useLanguage() {
-  // 1. useLocalStorage를 사용하여 상태 관리 (로컬 스토리지 읽기/쓰기)
-  const [language, setLanguage] = useLocalStorage('userLanguage', 'ko');
+  // 1. 초기 시스템 언어 감지 로직
+  const getInitialLanguage = () => {
+    // 브라우저 설정 언어 확인 (기본값 'ko')
+    const systemLang = navigator.language || navigator.userLanguage || 'ko';
 
-  // 2. 🚀 useEffect 로직 통합: 언어 상태가 변경될 때마다 HTML lang 속성 업데이트
+    // 언어 코드가 'ko'로 시작하면 'ko', 아니면 'en'으로 설정 (원하는 언어 범위를 지정하세요)
+    return systemLang.startsWith('ko') ? 'ko' : 'en';
+  };
+
+  // 2. useLocalStorage를 사용하여 상태 관리
+  // 'userLanguage' 키에 저장된 값이 없으면 getInitialLanguage()의 결과가 초기값이 됩니다.
+  const [language, setLanguage] = useLocalStorage('userLanguage', getInitialLanguage());
+
+  // 3. 언어 상태가 변경될 때마다 HTML lang 속성 업데이트
   useEffect(() => {
-    // 현재 언어 상태에 따라 HTML 문서의 'lang' 속성을 설정합니다.
-    // 이는 접근성 및 검색 엔진에 중요한 역할을 합니다.
     document.documentElement.lang = language;
-
-    // 참고: localStorage 저장은 useLocalStorage 훅 내부에 이미 구현되어 있습니다.
-  }, [language]); // language 상태가 바뀔 때만 실행
+  }, [language]);
 
   return [language, setLanguage];
 }
