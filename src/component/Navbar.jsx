@@ -1,169 +1,206 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Bars3Icon,
   MoonIcon,
   SunIcon,
-  LanguageIcon,
   InformationCircleIcon,
-  Cog6ToothIcon,
+  HomeIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
-import { useLanguage } from '../context/useLanguageContext';
-import logoKorDark from '../assets/Logo_Kor_DarkMode.png';
-import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
-import logoKor from '../assets/Logo_Kor.png';
-import logoEng from '../assets/Logo_Eng.png';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
+import { useLanguage } from '../context/useLanguageContext';
 import { useTheme } from '../context/useThemeContext';
 import useContactModal from '../hooks/useContactModal';
 import ContactModal from './ContactModal';
 
-// 1. 햄버거 메뉴의 추가 항목 리스트를 정의합니다.
-// 이 리스트는 객체 형태로, 각 항목의 아이콘, 한국어/영어 텍스트, 클릭 이벤트 핸들러를 포함합니다.
-const MENU_ITEMS = [
-  // 참고: 테마 토글과 언어 설정은 복잡하여 Map에서 제외하고 개별 항목으로 유지하는 것이 더 효율적입니다.
-  // 여기서는 '도움말/문의' 항목만 배열로 관리합니다.
+// 로고 이미지 import
+import logoKorDark from '../assets/Logo_Kor_DarkMode.png';
+import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
+import logoKor from '../assets/Logo_Kor.png';
+import logoEng from '../assets/Logo_Eng.png';
+
+const MAIN_MENUS = [
+  { id: 'home', ko: '홈', en: 'Home', path: '/', icon: HomeIcon },
+  { id: 'fortune', ko: '사주란?', en: 'Saju?', path: '/sajuexp', icon: SparklesIcon },
+];
+
+const UTILITY_ITEMS = [
   {
     id: 'help',
     icon: InformationCircleIcon,
     ko: '도움말 / 문의',
     en: 'Help / Contact',
-    // 클릭 시 실행할 기본 로직 (여기서는 메뉴만 닫음)
     action: 'SHOW_CONTACT_MODAL',
   },
-  //   {
-  //     id: 'settings',
-  //     icon: Cog6ToothIcon,
-  //     ko: '사용자 설정',
-  //     en: 'User Settings',
-  //     action: () => console.log('User Settings Clicked'),
-  //   },
 ];
 
-export default function NavBar({}) {
+export default function NavBar() {
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
+  const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
-  const { language, setLanguage } = useLanguage();
-  // 2. Map 함수를 위한 항목 클릭 핸들러
-  const handleItemClick = (item) => {
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleMainNavigate = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
+  const handleUtilityClick = (item) => {
     if (item.action === 'SHOW_CONTACT_MODAL' && handleShowContact) {
-      handleShowContact(); // 부모에서 받은 문의 팝업 함수 실행
+      handleShowContact();
     } else if (typeof item.action === 'function') {
-      item.action(); // 기타 함수 실행
+      item.action();
     }
-    setIsMenuOpen(false); // 메뉴 닫기
+    setIsMenuOpen(false);
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 max-w-xl m-auto relative z-20">
+    // ✅ [레이아웃 수정] border-b를 삭제하거나 아주 연하게 변경하여 답답함을 없앰
+    <div className="flex items-center justify-between py-3 max-w-xl m-auto relative z-20 px-2">
       {isContactModalOpen && (
         <ContactModal onClose={handleCloseContact} email="doobuhanmo3@gmail.com" />
       )}
-      {/* ✅ 왼쪽: 로고 + 타이틀 그룹 (변동 없음) */}
-      {theme === 'dark' ? (
-        <div className="flex items-center gap-3">
-          <img
-            src={language === 'ko' ? logoKorDark : logoEngDark}
-            alt="Sajucha Logo"
-            className="w-[300px]  object-cover"
-          />
-        </div>
-      ) : (
-        <div className="flex items-center gap-3">
-          <img
-            src={language === 'ko' ? logoKor : logoEng}
-            alt="Sajucha Logo"
-            className="w-[300px]  object-cover"
-          />
-        </div>
-      )}
 
-      {/* ✅ 오른쪽: 버튼 그룹 (언어 버튼 + 햄버거 메뉴) */}
-      <div className="flex items-center gap-2">
-        {/* 1. 언어 변경 버튼 (기존 위치 유지) */}
+      {/* ✅ [왼쪽] 로고 영역 */}
+      <div
+        className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={() => navigate('/')}
+      >
+        <img
+          src={
+            theme === 'dark'
+              ? language === 'ko'
+                ? logoKorDark
+                : logoEngDark
+              : language === 'ko'
+                ? logoKor
+                : logoEng
+          }
+          alt="Sajucha Logo"
+          className="w-[110px] sm:w-[130px] object-cover"
+        />
+      </div>
+
+      {/* ✅ [중앙] 데스크탑 메뉴: "Ghost Pill" 스타일로 통일 */}
+      <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="flex items-center gap-1 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-full backdrop-blur-sm">
+          {MAIN_MENUS.map((menu) => {
+            const isActive = location.pathname === menu.path;
+            return (
+              <button
+                key={menu.id}
+                onClick={() => handleMainNavigate(menu.path)}
+                className={`
+                  flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200
+                  ${
+                    isActive
+                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-slate-700/50 hover:text-gray-900 dark:hover:text-gray-200'
+                  }
+                `}
+              >
+                {/* 아이콘을 살짝 작게 넣어주면 더 예쁩니다 */}
+                <menu.icon className="w-4 h-4" />
+                {language === 'ko' ? menu.ko : menu.en}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ✅ [오른쪽] 유틸 버튼 그룹: 테두리 없애고 중앙 메뉴와 스타일 통일 */}
+      <div className="flex items-center gap-1">
+        {/* 언어 버튼: 테두리 제거 -> 배경색만 은은하게 */}
         <button
           onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
-          className="px-4 py-2.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-slate-600 flex items-center gap-2 transition-all"
+          className="px-3 py-2 rounded-full text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
         >
-          {/* 지구본 아이콘 및 텍스트 (기존 로직 유지) */}
-          <GlobeAltIcon className="w-5 h-5 text-gray-400 dark:text-gray-400" />
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`transition-colors ${language === 'ko' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-gray-400 dark:text-gray-500 font-medium'}`}
-            >
-              KO
-            </span>
-            <span className="text-gray-300 dark:text-gray-600 text-[10px]">|</span>
-            <span
-              className={`transition-colors ${language === 'en' ? 'text-indigo-600 dark:text-indigo-400 font-extrabold' : 'text-gray-400 dark:text-gray-500 font-medium'}`}
-            >
-              EN
-            </span>
-          </div>
+          <GlobeAltIcon className="w-4 h-4" />
+          <span className={language === 'ko' ? 'text-indigo-600 dark:text-indigo-400' : ''}>
+            KO
+          </span>
+          <span className="opacity-30">|</span>
+          <span className={language === 'en' ? 'text-indigo-600 dark:text-indigo-400' : ''}>
+            EN
+          </span>
         </button>
 
-        {/* 2. 햄버거 메뉴 영역 */}
+        {/* 햄버거 버튼: 둥글게(rounded-full) 만들어서 통일감 부여 */}
         <div className="relative">
-          {/* 2-1. 햄버거 메뉴 버튼 */}
           <button
             onClick={toggleMenu}
-            className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors border border-gray-200 dark:border-gray-600/50"
-            aria-label="Toggle Menu"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
           >
-            <Bars3Icon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <Bars3Icon className="w-6 h-6" />
           </button>
 
-          {/* 2-2. 드롭다운 메뉴 본체 */}
+          {/* 드롭다운 메뉴 */}
           {isMenuOpen && (
-            <div
-              className="absolute right-0 mt-3 w-48 origin-top-right 
-                           bg-white dark:bg-slate-700 rounded-lg shadow-2xl 
-                           ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
-            >
-              <div className="p-1.5 space-y-1.5">
-                {/* 항목 1: 테마 토글 버튼 (개별 유지 - Prop Setter 사용) */}
-                <div
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="flex items-center justify-between p-3 cursor-pointer rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
-                >
-                  <span className="text-gray-900 dark:text-white font-medium flex items-center gap-2">
-                    {theme === 'dark' ? (
-                      <SunIcon className="w-5 h-5 text-yellow-500" />
-                    ) : (
-                      <MoonIcon className="w-5 h-5 text-gray-500" />
-                    )}
-                    {language === 'ko' ? '테마 변경' : 'Theme'}
-                  </span>
-                  <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
-                    {language === 'ko' && theme === 'light' && '다크'}
-                    {language === 'ko' && theme === 'dark' && '라이트'}
-                    {language === 'en' && theme === 'light' && 'dark'}
-                    {language === 'en' && theme === 'dark' && 'light'}
-                  </span>
+            <div className="absolute right-0 mt-3 w-56 origin-top-right bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden border border-gray-100 dark:border-gray-700">
+              <div className="p-2 space-y-1">
+                {/* 모바일 전용 메뉴 */}
+                <div className="md:hidden">
+                  <p className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    Menu
+                  </p>
+                  {MAIN_MENUS.map((menu) => (
+                    <div
+                      key={menu.id}
+                      onClick={() => handleMainNavigate(menu.path)}
+                      className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${
+                        location.pathname === menu.path
+                          ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-bold'
+                          : 'hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200'
+                      }`}
+                    >
+                      <menu.icon className="w-5 h-5 mr-3" />
+                      <span>{language === 'ko' ? menu.ko : menu.en}</span>
+                    </div>
+                  ))}
+                  <div className="h-px bg-gray-100 dark:bg-gray-700 my-2" />
                 </div>
 
-                {/* 🚨 항목 2: 추가 메뉴 항목 (MAP으로 반복) 🚨 */}
-                {MENU_ITEMS.map((item) => (
+                {/* 설정 메뉴 */}
+                <p className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  Settings
+                </p>
+                <div
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="flex items-center justify-between p-3 cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div className="flex items-center text-gray-700 dark:text-gray-200">
+                    {theme === 'dark' ? (
+                      <SunIcon className="w-5 h-5 mr-3 text-yellow-500" />
+                    ) : (
+                      <MoonIcon className="w-5 h-5 mr-3 text-gray-400" />
+                    )}
+                    <span className="font-medium">{language === 'ko' ? '테마 변경' : 'Theme'}</span>
+                  </div>
+                </div>
+
+                {UTILITY_ITEMS.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() => handleItemClick(item)} // 공통 핸들러 사용
-                    className="flex items-center p-3 cursor-pointer rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
+                    onClick={() => handleUtilityClick(item)}
+                    className="flex items-center p-3 cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-gray-700 dark:text-gray-200"
                   >
-                    {/* 아이콘 컴포넌트를 동적으로 렌더링 */}
-                    <item.icon className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" />
-                    <span className="text-gray-900 dark:text-white font-medium">
-                      {language === 'ko' ? item.ko : item.en}
-                    </span>
+                    <item.icon className="w-5 h-5 mr-3" />
+                    <span className="font-medium">{language === 'ko' ? item.ko : item.en}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 2-3. 메뉴가 열렸을 때 배경 클릭을 감지하여 닫는 오버레이 */}
+          {/* 오버레이 */}
           {isMenuOpen && (
-            <div className="fixed inset-0 z-[5]" onClick={toggleMenu} aria-hidden="true" />
+            <div className="fixed inset-0 z-40" onClick={toggleMenu} aria-hidden="true" />
           )}
         </div>
       </div>

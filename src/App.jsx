@@ -652,8 +652,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      <NavBar />
+    <div>
       {/* sronly처리할 것 */}
       <div className=" flex absolute justify-center w-full py-4" style={{ visibility: 'hidden' }}>
         <div
