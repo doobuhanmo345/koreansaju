@@ -38,7 +38,7 @@ export function useShareActions(aiResult) {
 
     const shareData = {
       title: 'Saza Saju',
-      text: `[AI 사주 분석]\n\n${cleanText}`, // 제목 + 내용
+      // text: `[AI 사주 분석]\n\n${cleanText}`, // 제목 + 내용
       url: window.location.href,
     };
 
