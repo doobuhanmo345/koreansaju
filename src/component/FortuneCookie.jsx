@@ -133,7 +133,7 @@ export default function FortuneCookie({ setAiResult }) {
     <>
       <div className="fortune-container">
         {/* 결과가 나왔으면 결과창 표시 */}
-        {userData?.ZCookie.today === todayStr ? (
+        {userData?.ZCookie?.today === todayStr ? (
           <div className="saved-fortune-container">
             <div className="fortune-label">오늘의 메시지</div>
             <div className="fortune-paper">

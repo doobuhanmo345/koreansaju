@@ -843,7 +843,7 @@ export default function App() {
           />
         )}
 
-        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 h-[250px] md:h-[130px]">
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 ">
           <AnalysisButton
             energy={mainEnergy}
             handleAnalysis={handleAiAnalysis}
