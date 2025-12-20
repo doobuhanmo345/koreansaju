@@ -46,8 +46,8 @@ export const UI_TEXT = {
   male: { ko: '남성 👨', en: 'Male 👨' },
   female: { ko: '여성 👩', en: 'Female 👩' },
   promptLabel: {
-    ko: 'AI 분석 프롬프트 직접 수정하기 (고급)',
-    en: 'Customize AI Prompt (Advanced)',
+    ko: '분석 프롬프트 직접 수정하기 (고급)',
+    en: 'Customize Prompt (Advanced)',
   },
   resetPrompt: { ko: '기본값으로 초기화', en: 'Reset to Default' },
   analyzeBtn: {

@@ -886,7 +886,7 @@ export default function Wealth({
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
               <SparklesIcon className="w-5 h-5 text-indigo-500" />
               <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">
-                {language === 'en' ? 'AI Detailed Analysis' : 'AI 상세 분석 결과'}
+                {language === 'en' ? 'Detailed Analysis' : '상세 분석 결과'}
               </h3>
             </div>
 
