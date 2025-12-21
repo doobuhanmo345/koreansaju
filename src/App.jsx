@@ -207,7 +207,7 @@ export default function App() {
     }
   };
 
-  // --- API Handlers (Daily, Main, Year) ---
+
 
   const handleDailyFortune = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -280,12 +280,6 @@ export default function App() {
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = currentCount + 1;
-
-      // 4. 저장
-      // const currentSajuKey = JSON.stringify(saju);
-      // const cacheKey = `daily_fortune.${currentSajuKey}.${gender}.${todayDate}.${language}`;
-      // let fortuneCache = data.fortune_cache || {};
-      // fortuneCache[cacheKey] = result;
 
       await setDoc(
         doc(db, 'users', user.uid),

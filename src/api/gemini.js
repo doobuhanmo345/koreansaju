@@ -43,7 +43,7 @@ export const fetchGeminiAnalysis = async (prompt) => {
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    throw new Error(`AI 요청 실패: ${error.message}`);
+    console.error('Error:', error);
+    throw new Error(`오류가 발생하였습니다. 잠시후에 다시 시도해 주세요.`);
   }
 };

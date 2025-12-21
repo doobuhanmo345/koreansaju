@@ -216,7 +216,7 @@ export const STRICT_INSTRUCTION = {
 이 규칙들은 답변의 내용보다 우선순위가 높으며, 반드시 지켜야 합니다.
 1. **[Plain Text Only]**: 볼드(**), 이탤릭(*), 리스트 기호 등 어떠한 마크다운(Markdown) 강조 문법도 절대 사용하지 마십시오. 오직 순수한 텍스트와 줄바꿈(Enter)만 사용하세요.
 2. **[No Hanja]**: 한자(Chinese characters)는 절대 출력하지 마십시오. (예: '甲' -> 제거 혹은 '갑목'으로 표기)
-
+3.  **[No Greetings]**: "안녕하세요", "반갑습니다" 같은 상투적인 인사말로 시작하지 마십시오. 이름 부르면서 시작하지 말고 바로 본문으로.
 ### 🗣️ Language & Terminology Guidelines
 1. **용어 순화 (Translation Layer)**
    - 전문 용어(식신, 상관, 재성, 비겁, 관성 등)를 절대 직접 언급하지 마십시오.
@@ -233,7 +233,7 @@ export const STRICT_INSTRUCTION = {
 2. 긍정적인 답변을 쓰더라도 약한 부정적인 답변을 추가하고, 부정적인 답변이 주제인 답변은 긍정적인 답변을 추가해서 반전의 가능성을 시사해주세요.
 3. [Constructive Caution]: 부정적인 답변은 "당신은 이게 나쁘다"고 지적하는 것이 아니라, "이 약점만 보완하면 운의 흐름이 2배 좋아진다"**는 식의 '개선 포인트(Quest)'로 전달하세요. 
 4. [Directional Specificity]: - 사용자가 A vs B를 물어보면 5:5 중립을 피하고, 사주상 유리한 쪽을 7:3 이상의 확률로 확실히 집어주세요. - 추상적 조언 대신 현대적 키워드(엔터 산업, 서비스 산업, 나스닥, 바이오, 알트코인, 강남 부동산 등)로 매핑하여 답변하세요.
-5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <h2>나 <div> 태그여야 합니다.
+5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <h2>나 <div> 태그여야 합니다. 그리고 <>태그들과 class를 절대 생략하지 마세요.
 6. 제시한 글자수를 꼭 지킬 것. 그 이하의 길이로 절대 나오지 않도록.
 `,
   en: `### Role & Persona
@@ -243,7 +243,7 @@ export const STRICT_INSTRUCTION = {
 이 규칙들은 답변의 내용보다 우선순위가 높으며, 반드시 지켜야 합니다.
 1. **[Plain Text Only]**: 볼드(**), 이탤릭(*), 리스트 기호 등 어떠한 마크다운(Markdown) 강조 문법도 절대 사용하지 마십시오. 오직 순수한 텍스트와 줄바꿈(Enter)만 사용하세요.
 2. **[No Hanja]**: 한자(Chinese characters)는 절대 출력하지 마십시오. (예: '甲' -> 제거 혹은 '갑목'으로 표기)
-3. 답변 시작 시 인사 없이 바로 본문.
+3.  **[No Greetings]**: "안녕하세요", "반갑습니다" 같은 상투적인 인사말로 시작하지 마십시오. 이름 부르면서 시작하지 말고 바로 본문으로.
 ### 🗣️ Language & Terminology Guidelines
 1. **용어 순화 (Translation Layer)**
    - 전문 용어(식신, 상관, 재성, 비겁, 관성 등)를 절대 직접 언급하지 마십시오.
@@ -260,7 +260,7 @@ export const STRICT_INSTRUCTION = {
 2. 긍정적인 답변을 쓰더라도 약한 부정적인 답변을 추가하고, 부정적인 답변이 주제인 답변은 긍정적인 답변을 추가해서 반전의 가능성을 시사해주세요.
 3. [Constructive Caution]: 부정적인 답변은 "당신은 이게 나쁘다"고 지적하는 것이 아니라, "이 약점만 보완하면 운의 흐름이 2배 좋아진다"**는 식의 '개선 포인트(Quest)'로 전달하세요. 
 4. [Directional Specificity]: - 사용자가 A vs B를 물어보면 5:5 중립을 피하고, 사주상 유리한 쪽을 7:3 이상의 확률로 확실히 집어주세요. - 추상적 조언 대신 현대적 키워드(엔터 산업, 서비스 산업, 나스닥, 바이오, 알트코인, 강남 부동산 등)로 매핑하여 답변하세요.
-5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <h2>나 <div> 태그여야 합니다.
+5. [중요] 오직 RAW HTML 코드만 출력해야 합니다. 그 어떤 설명이나 마크다운 코드 블록('''html)도 포함하지 마십시오. 첫 번째 문자는 반드시 <h2>나 <div> 태그여야 합니다.  <>태그들과 class를 절대 생략하지 마세요.
 6. 제시한 글자수를 꼭 지킬 것. 그 이하의 길이로 절대 나오지 않도록.
 `,
 };
@@ -428,79 +428,97 @@ export const DEFAULT_INSTRUCTION = {
 export const DAILY_FORTUNE_PROMPT = {
   ko: `<div class="destiny-container">
   <h2 class="section-title-h3">[오늘의 운세] ([오늘 날짜 기재])</h2>
-  <h3 class="report-keyword" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
+  <h3 class="report-text-summary" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
    <p class="report-keyword">총점 : [100점 기준의 오늘의 운세 총점]</p>
   <p class="report-text">
 [오늘의 운세 총운 내용을 공백 포함 500~700자로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소 서술.]</p>
 
 <h2 class="section-title-h3">재물운</h2>
-[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소 서술.]</p>
+ <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text"> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소 서술.]</p>
 
 <h2 class="section-title-h3">연애운</h2>
-[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br>
-[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
+<p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
 
 <h2 class="section-title-h3">건강운</h2>
-[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술] </p>
+<p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술] </p>
 
 <h2 class="section-title-h3">사업운</h2>
-[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
+<p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
 
 <h2 class="section-title-h3">학업운</h2>
-[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
+<p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
 
 <h2 class="section-title-h3">오늘의 행운 컬러</h2>
-['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
+<p class="report-text">['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
 
 <h2 class="section-title-h3">오늘의 행운 방향</h2>
-['오늘의 방향:' 같은 머릿말 없이 바로 행운의 방향과 그 이유를 100~200자로 서술.]</p>
+ <p class="report-text">['오늘의 방향:' 같은 머릿말 없이 바로 행운의 방향과 그 이유를 100~200자로 서술.]</p>
 
 <h2 class="section-title-h3">오늘의 행운 키워드</h2> <p class="report-keyword"> 
-<span class="keyword-tag">#키워드1</span> <span class="keyword-tag">#키워드2</span> <span class="keyword-tag">#키워드3</span> <span class="keyword-tag">#키워드4</span> <span class="keyword-tag">#키워드5</span> <br> [각 키워드는 현실적인 것과 관념적인 것을 섞어서 선정하십시오. 예: 스마트폰, 오래된 이웃, 아쉬움, 숫자 25, 지하철 등]</p>
+<span class="keyword-tag">#키워드1</span> <span class="keyword-tag">#키워드2</span> <span class="keyword-tag">#키워드3</span> <span class="keyword-tag">#키워드4</span> <span class="keyword-tag">#키워드5</span> 
+<p class="report-text"> [각 키워드는 현실적인 것과 관념적인 것을 섞어서 선정하십시오. 예: 스마트폰, 오래된 이웃, 아쉬움, 숫자 25, 지하철 등]</p>
 
 <h2 class="section-title-h3">[내일의 운세] ([내일 날짜 기재])</h2>
   <h3 class="report-keyword" >[내일의 일진과 사주 관계를 함축한 명사형 제목]</h3>
 <p class="report-text">
-[내일의 운세 총운 내용을 300자 내외로 핵심만 작성. 내일의 전반적인 분위기를 예고하듯 서술하십시오.] <br><br> <br><br> 내일 다시 ‘오늘의 운세’를 확인하시면 100점 만점의 총점과 재물, 연애, 사업, 학업, 건강운의 상세 분석 리포트를 확인하실 수 있습니다. 내일의 행운을 놓치지 않도록 꼭 다시 찾아주세요. <br><br> <br><br> 방금 읽어보신 오늘의 운세 내용 중 더 깊이 알고 싶은 부분이나, 구체적인 상황에 대한 조언이 필요하신가요? 아래 '추가 질문하기' 버튼을 눌러 사자에게 말을 걸어주시면 더 자세히 풀어드리겠습니다. </p>
+[내일의 운세 총운 내용을 300자 내외로 핵심만 작성. 내일의 전반적인 분위기를 예고하듯 서술하십시오.] 
+<p></p>
+<p class="report-text"> 내일 다시 ‘오늘의 운세’를 확인하시면 100점 만점의 총점과 재물, 연애, 사업, 학업, 건강운의 상세 분석 리포트를 확인하실 수 있습니다. 내일의 행운을 놓치지 않도록 꼭 다시 찾아주세요. </p>
+<p></p>
+<p class="report-text"> 방금 읽어보신 오늘의 운세 내용 중 더 깊이 알고 싶은 부분이나, 구체적인 상황에 대한 조언이 필요하신가요? 아래 '추가 질문하기' 버튼을 눌러 사자에게 말을 걸어주시면 더 자세히 풀어드리겠습니다. </p>
 </div>
 `,
 
   en: `<div class="destiny-container">
   <h2 class="section-title-h3">[오늘의 운세] ([오늘 날짜 기재])</h2>
-  <h3 class="report-keyword" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
+  <h3 class="report-text-summary" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
    <p class="report-keyword">총점 : [100점 기준의 오늘의 운세 총점]</p>
   <p class="report-text">
 [오늘의 운세 총운 내용을 공백 포함 500~700자로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소 서술.]</p>
 
 <h2 class="section-title-h3">재물운</h2>
-[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소 서술.]</p>
+ <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text"> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소 서술.]</p>
 
 <h2 class="section-title-h3">연애운</h2>
-[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br>
-[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
+<p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
 
 <h2 class="section-title-h3">건강운</h2>
-[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술] </p>
+<p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술] </p>
 
 <h2 class="section-title-h3">사업운</h2>
-[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
+<p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
 
 <h2 class="section-title-h3">학업운</h2>
-[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] <br> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
+<p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
 
 <h2 class="section-title-h3">오늘의 행운 컬러</h2>
-['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
+<p class="report-text">['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
 
 <h2 class="section-title-h3">오늘의 행운 방향</h2>
-['오늘의 방향:' 같은 머릿말 없이 바로 행운의 방향과 그 이유를 100~200자로 서술.]</p>
+ <p class="report-text">['오늘의 방향:' 같은 머릿말 없이 바로 행운의 방향과 그 이유를 100~200자로 서술.]</p>
 
 <h2 class="section-title-h3">오늘의 행운 키워드</h2> <p class="report-keyword"> 
-<span class="keyword-tag">#키워드1</span> <span class="keyword-tag">#키워드2</span> <span class="keyword-tag">#키워드3</span> <span class="keyword-tag">#키워드4</span> <span class="keyword-tag">#키워드5</span> <br> [각 키워드는 현실적인 것과 관념적인 것을 섞어서 선정하십시오. 예: 스마트폰, 오래된 이웃, 아쉬움, 숫자 25, 지하철 등]</p>
+<span class="keyword-tag">#키워드1</span> <span class="keyword-tag">#키워드2</span> <span class="keyword-tag">#키워드3</span> <span class="keyword-tag">#키워드4</span> <span class="keyword-tag">#키워드5</span> 
+<p class="report-text"> [각 키워드는 현실적인 것과 관념적인 것을 섞어서 선정하십시오. 예: 스마트폰, 오래된 이웃, 아쉬움, 숫자 25, 지하철 등]</p>
 
 <h2 class="section-title-h3">[내일의 운세] ([내일 날짜 기재])</h2>
   <h3 class="report-keyword" >[내일의 일진과 사주 관계를 함축한 명사형 제목]</h3>
 <p class="report-text">
-[내일의 운세 총운 내용을 300자 내외로 핵심만 작성. 내일의 전반적인 분위기를 예고하듯 서술하십시오.] <br><br> <br><br> 내일 다시 ‘오늘의 운세’를 확인하시면 100점 만점의 총점과 재물, 연애, 사업, 학업, 건강운의 상세 분석 리포트를 확인하실 수 있습니다. 내일의 행운을 놓치지 않도록 꼭 다시 찾아주세요. <br><br> <br><br> 방금 읽어보신 오늘의 운세 내용 중 더 깊이 알고 싶은 부분이나, 구체적인 상황에 대한 조언이 필요하신가요? 아래 '추가 질문하기' 버튼을 눌러 사자에게 말을 걸어주시면 더 자세히 풀어드리겠습니다. </p>
+[내일의 운세 총운 내용을 300자 내외로 핵심만 작성. 내일의 전반적인 분위기를 예고하듯 서술하십시오.] 
+<p></p>
+<p class="report-text"> 내일 다시 ‘오늘의 운세’를 확인하시면 100점 만점의 총점과 재물, 연애, 사업, 학업, 건강운의 상세 분석 리포트를 확인하실 수 있습니다. 내일의 행운을 놓치지 않도록 꼭 다시 찾아주세요. </p>
+<p></p>
+<p class="report-text"> 방금 읽어보신 오늘의 운세 내용 중 더 깊이 알고 싶은 부분이나, 구체적인 상황에 대한 조언이 필요하신가요? 아래 '추가 질문하기' 버튼을 눌러 사자에게 말을 걸어주시면 더 자세히 풀어드리겠습니다. </p>
 </div>
 `,
 };
@@ -517,62 +535,62 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
   <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
   <p class="report-text">
-    [을사년 기축월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
   
   <h3 class="section-title-h3">2월 운세 : 을사년 경인월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 경인월의 운세 총점]</p>   <p class="report-text">
-    [을사년 경인월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 경인월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">3월 운세 : 을사년 신묘월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 신묘월의 운세 총점]</p>   <p class="report-text">
-    [을사년 신묘월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 신묘월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">4월 운세 : 을사년 임진월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 임진월의 운세 총점]</p>   <p class="report-text">
-    [을사년 임진월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 임진월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">5월 운세 : 을사년 계사월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 계사월의 운세 총점]</p>   <p class="report-text">
-    [을사년 계사월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 계사월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>   <p class="report-text">
-    [을사년 갑오월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>   <p class="report-text">
-    [을사년 을미월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>   <p class="report-text">
-    [을사년 병신월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>   <p class="report-text">
-    [을사년 정유월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>   <p class="report-text">
-    [을사년 무술월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
   <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>   <p class="report-text">
-    [을사년 기해월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">12. 12월 운세 : 을사년 경자월</h3>
+  <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>   <p class="report-text">
-    [을사년 경자월의 운세 300자 이내, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+    [을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 </div>
 
@@ -580,101 +598,93 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
 `,
   en: `<div class="destiny-container">
   
-  <h2 class="section-title-h2">Comprehensive Analysis (2026, Byeong-o Year)</h2>
+  <h2 class="section-title-h2">종합 분석 (2026년 병오년)</h2>
   <p class="report-text">
-    [Based on the following Saju information, please provide a comprehensive analysis of the fortune for 2026 (Byeong-o Year). Summarize the key points within 500 characters.]
+    [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요.]
   </p>
 
-  <h2 class="section-title-h2">Monthly Horoscope</h2>
+  <h2 class="section-title-h2">월별 운세</h2>
   
-  <h3 class="section-title-h3">1. January Fortune : Eulsa Year, Gichuk Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Gichuk Month out of 100]</p>
+  <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
   <p class="report-text">
-    [Fortune for Eulsa Year, Gichuk Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+    [을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
   
-  <h3 class="section-title-h3">2. February Fortune : Eulsa Year, Gyeongin Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Gyeongin Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Gyeongin Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">2월 운세 : 을사년 경인월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 경인월의 운세 총점]</p>   <p class="report-text">
+    [을사년 경인월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">3. March Fortune : Eulsa Year, Sinmyo Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Sinmyo Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Sinmyo Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">3월 운세 : 을사년 신묘월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 신묘월의 운세 총점]</p>   <p class="report-text">
+    [을사년 신묘월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">4. April Fortune : Eulsa Year, Imjin Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Imjin Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Imjin Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">4월 운세 : 을사년 임진월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 임진월의 운세 총점]</p>   <p class="report-text">
+    [을사년 임진월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">5. May Fortune : Eulsa Year, Gyesa Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Gyesa Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Gyesa Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">5월 운세 : 을사년 계사월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 계사월의 운세 총점]</p>   <p class="report-text">
+    [을사년 계사월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">6. June Fortune : Eulsa Year, Gabo Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Gabo Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Gabo Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>   <p class="report-text">
+    [을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">7. July Fortune : Eulsa Year, Eulmi Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Eulmi Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Eulmi Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>   <p class="report-text">
+    [을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">8. August Fortune : Eulsa Year, Byeongsin Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Byeongsin Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Byeongsin Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>   <p class="report-text">
+    [을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">9. September Fortune : Eulsa Year, Jeongyu Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Jeongyu Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Jeongyu Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>   <p class="report-text">
+    [을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">10. October Fortune : Eulsa Year, Musul Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Musul Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Musul Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>   <p class="report-text">
+    [을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">11. November Fortune : Eulsa Year, Gihae Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Gihae Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Gihae Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>   <p class="report-text">
+    [을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
 
-  <h3 class="section-title-h3">12. December Fortune : Eulsa Year, Gyeongja Month</h3>
-  <p class="report-keyword">Total Score : [Total score for Eulsa Year, Gyeongja Month out of 100]</p> 
-  <p class="report-text">
-    [Fortune for Eulsa Year, Gyeongja Month within 300 characters. Must include Wealth, Health, Career, Academic, and Love luck.]
+  <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
+  <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>   <p class="report-text">
+    [을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
-</div>`,
+</div>
+
+
+`,
 };
 
 export const aiSajuStyle = `<style>
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400&display=swap');
-
-  /* =================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Song+Myung&display=swap');  
+/* =================================================== */
   /* 1. 기본 스타일 (라이트 모드 / Light Mode Defaults) */
   /* =================================================== */
 
   .report-container {
-    font-family: 'Nanum Myeongjo', 'Batang', serif;
+   font-family: 'Song Myung', serif;
     background-color: transparent; /* 배경 투명 강제 적용 */
     color: #333344; /* 짙은 인디고/회색 텍스트 (튀지 않음) */
     padding: 15px;
     line-height: 1.8;
     max-width: 100%;
+  
 
   }
   .section-title-h2 {
@@ -693,6 +703,13 @@ export const aiSajuStyle = `<style>
     margin-bottom: 15px;
     border-left: 4px solid #4B0082; /* Main Indigo accent */
     padding-left: 10px;
+    font-weight: 600;
+  }
+     .report-summary {
+    font-size: 18px;
+    text-align: justify;
+    margin-bottom: 15px;
+    color: #333344; /* 짙은 인디고/회색 - 튀지 않는 일반 텍스트 */
     font-weight: 400;
   }
   .report-text {
@@ -700,6 +717,7 @@ export const aiSajuStyle = `<style>
     text-align: justify;
     margin-bottom: 15px;
     color: #333344; /* 짙은 인디고/회색 - 튀지 않는 일반 텍스트 */
+    font-weight: 300;
   }
   .info-list {
     list-style: none;
@@ -735,6 +753,8 @@ export const aiSajuStyle = `<style>
     border-radius: 3px;
     font-size: 14px;
     font-weight: 400;
+ 
+ 
   }
   .keyword-explanation-block {
     margin-top: 15px;
@@ -764,6 +784,7 @@ export const aiSajuStyle = `<style>
     font-weight: 600;
     margin-bottom: 5px;
     color: #4B0082;
+    line-height: 2;
   }
 
   /* ======================================================= */
