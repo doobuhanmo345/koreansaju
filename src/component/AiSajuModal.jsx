@@ -175,7 +175,6 @@ export default function ResultModal({
     );
   };
 
-
   // 추가 질문하기 (API 호출)
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -191,10 +190,10 @@ export default function ResultModal({
 
     try {
       const currentSajuJson = JSON.stringify(saju);
-
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야, 나를 ${user?.displayName}님 이라고 불러줘.영어로는 ${user?.displayName}.`;
       const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 2025년은 을사년, 2026년은 병오년. `;
-      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${SAZA_DEF_PROMPT[language]}`;
+      const aiRef = `${aiResult}- 내가 이거에 대해서 물어볼 가능성이 높다는 걸 인지하고 이걸 기억해줘.`;
+      const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${SAZA_DEF_PROMPT[language]}\n${aiRef}`;
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
