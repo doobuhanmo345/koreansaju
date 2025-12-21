@@ -354,23 +354,8 @@ export default function Wealth({
       const qLabel = Q_TYPES.find((r) => r.id === selectedQ)?.label || 'General Wealth';
       const todayStr = new Date().toLocaleDateString('en-CA');
       // 💡 [수정됨] 역할 부여를 재물운 전문가로 변경
-      const strictPrompt =
-        'You are a professional Saju consultant specializing in Wealth and Financial Career analysis.';
-
-      // 💡 [수정됨] 재물운 전용 프롬프트
-      const fullPrompt = `
-        ${strictPrompt}
-        
-        Analyze the **Financial Destiny (Wealth Luck)** for this person based on the Saju (Four Pillars of Destiny) chart provided below.
-
-        [Input Data]
-        - Question Type: "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}"
-        - Gender: ${gender}
-        - Saju Chart: ${mySajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
-        - 현재 날짜 : ${todayStr}
-        (Key Structure: sky3/grd3=Year(Ancestors), sky2/grd2=Month(Career/Society), sky1/grd1=Day(Me), sky0/grd0=Hour(Children/Result))
-
-### 🚫 Critical Style Rules (절대적 서식 규칙)
+      const strictPrompt = `You are a professional Saju consultant specializing in Wealth and Financial Career analysis.
+        ### 🚫 Critical Style Rules (절대적 서식 규칙)
 이 규칙들은 답변의 내용보다 우선순위가 높으며, 반드시 지켜야 합니다.
 1. **[Plain Text Only]**: 볼드(**), 이탤릭(*), 리스트 기호 등 어떠한 마크다운(Markdown) 강조 문법도 절대 사용하지 마십시오. 오직 순수한 텍스트와 줄바꿈(Enter)만 사용하세요.
 2. **[No Hanja]**: 한자(Chinese characters)는 절대 출력하지 마십시오. (예: '甲' -> 제거 혹은 '갑목'으로 표기)
@@ -398,10 +383,23 @@ export default function Wealth({
 2. 긍정적인 답변을 쓰더라도 약한 부정적인 답변을 추가하고, 부정적인 답변이 주제인 답변은 긍정적인 답변을 추가해서 반전의 가능성을 시사해주세요.
 3. [Constructive Caution]: 부정적인 답변은 "당신은 이게 나쁘다"고 지적하는 것이 아니라, "이 약점만 보완하면 운의 흐름이 2배 좋아진다"**는 식의 '개선 포인트(Quest)'로 전달하세요. 
 4. [Directional Specificity]: - 사용자가 A vs B를 물어보면 5:5 중립을 피하고, 사주상 유리한 쪽을 7:3 이상의 확률로 확실히 집어주세요. - 추상적 조언 대신 현대적 키워드(엔터 산업, 서비스 산업, 나스닥, 바이오, 알트코인, 강남 부동산 등)로 매핑하여 답변하세요.
+`;
+
+      // 💡 [수정됨] 재물운 전용 프롬프트
+      const fullPrompt = `
+        ${strictPrompt}
+        
+        Analyze the **Financial Destiny (Wealth Luck)** for this person based on the Saju (Four Pillars of Destiny) chart provided below.
+
+        [Input Data]
+        - Question Type: "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}"
+        - Gender: ${gender}
+        - Saju Chart: ${mySajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
+        - 현재 날짜 : ${todayStr}나를 ${user?.displayName}님 이라고 불러줘.영어로는 ${user?.displayName}.
+        (Key Structure: sky3/grd3=Year(Ancestors), sky2/grd2=Month(Career/Society), sky1/grd1=Day(Me), sky0/grd0=Hour(Children/Result))
 
         [Analysis Requirements]
         1. "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}" 에 정확히 부합하는 해석
-2. 사용자가 이해하기 힘든 복잡한 이론적 배경(신강/신약 계산 과정 등)은 생략하세요.
 
         ${langPrompt(language)}
         ${hanja(language)}

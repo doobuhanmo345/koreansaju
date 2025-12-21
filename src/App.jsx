@@ -487,15 +487,12 @@ export default function App() {
       }
 
       const currentSajuJson = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson} sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`;
+      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson} sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야 나를 ${user?.displayName}님 이라고 불러줘.영어로는 ${user?.displayName}.`;
       const strictPrompt = STRICT_INSTRUCTION[language];
       const fullPrompt = `${strictPrompt}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const newCount = currentCount + 1;
-      // const cacheKey = `new_year_fortune.${currentSajuJson}.${nextYear}.${language}`;
-      // let fortuneCache = data.fortune_cache || {};
-      // fortuneCache[cacheKey] = result;
 
       await setDoc(
         doc(db, 'users', user.uid),
