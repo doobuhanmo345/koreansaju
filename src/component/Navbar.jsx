@@ -7,10 +7,14 @@ import {
   InformationCircleIcon,
   HomeIcon,
   SparklesIcon,
+  UserIcon,
+  ArrowRightOnRectangleIcon,
+  ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useLanguage } from '../context/useLanguageContext';
 import { useTheme } from '../context/useThemeContext';
+import { useAuthContext } from '../context/useAuthContext';
 import useContactModal from '../hooks/useContactModal';
 import ContactModal from './ContactModal';
 
@@ -38,6 +42,7 @@ const UTILITY_ITEMS = [
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
+  const { user, login, logout } = useAuthContext(); // Auth 컨텍스트에서 정보 가져옴
   const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,20 +59,29 @@ export default function NavBar() {
   const handleUtilityClick = (item) => {
     if (item.action === 'SHOW_CONTACT_MODAL' && handleShowContact) {
       handleShowContact();
-    } else if (typeof item.action === 'function') {
-      item.action();
+    }
+    setIsMenuOpen(false);
+  };
+
+  // 로그인/로그아웃 통합 핸들러
+  const handleAuthAction = () => {
+    if (user) {
+      if (window.confirm(language === 'ko' ? '로그아웃 하시겠습니까?' : 'Do you want to logout?')) {
+        logout();
+      }
+    } else {
+      login();
     }
     setIsMenuOpen(false);
   };
 
   return (
-    // ✅ [레이아웃 수정] border-b를 삭제하거나 아주 연하게 변경하여 답답함을 없앰
     <div className="flex items-center justify-between py-3 max-w-xl m-auto relative z-20 px-2">
       {isContactModalOpen && (
         <ContactModal onClose={handleCloseContact} email="doobuhanmo3@gmail.com" />
       )}
 
-      {/* ✅ [왼쪽] 로고 영역 */}
+      {/* [왼쪽] 로고 영역 */}
       <div
         className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
         onClick={() => navigate('/')}
@@ -82,12 +96,12 @@ export default function NavBar() {
                 ? logoKor
                 : logoEng
           }
-          alt="Sajucha Logo"
-          className="h-[40px]  object-cover"
+          alt="Logo"
+          className="h-[40px] object-cover"
         />
       </div>
 
-      {/* ✅ [중앙] 데스크탑 메뉴: "Ghost Pill" 스타일로 통일 */}
+      {/* [중앙] 데스크탑 메뉴: "Ghost Pill" 스타일 */}
       <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="flex items-center gap-1 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-full backdrop-blur-sm">
           {MAIN_MENUS.map((menu) => {
@@ -105,7 +119,6 @@ export default function NavBar() {
                   }
                 `}
               >
-                {/* 아이콘을 살짝 작게 넣어주면 더 예쁩니다 */}
                 <menu.icon className="w-4 h-4" />
                 {language === 'ko' ? menu.ko : menu.en}
               </button>
@@ -114,9 +127,9 @@ export default function NavBar() {
         </div>
       </div>
 
-      {/* ✅ [오른쪽] 유틸 버튼 그룹: 테두리 없애고 중앙 메뉴와 스타일 통일 */}
+      {/* [오른쪽] 유틸 버튼 그룹 */}
       <div className="flex items-center gap-1">
-        {/* 언어 버튼: 테두리 제거 -> 배경색만 은은하게 */}
+        {/* 언어 버튼 */}
         <button
           onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
           className="px-3 py-2 rounded-full text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
@@ -131,20 +144,42 @@ export default function NavBar() {
           </span>
         </button>
 
-        {/* 햄버거 버튼: 둥글게(rounded-full) 만들어서 통일감 부여 */}
+        {/* 햄버거/프로필 버튼 */}
         <div className="relative">
           <button
             onClick={toggleMenu}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
+            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
           >
-            <Bars3Icon className="w-6 h-6" />
+            {user && user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt="User Profile"
+                className="w-8 h-8 rounded-full border-2 border-indigo-500 shadow-sm object-cover"
+              />
+            ) : (
+              <div className="p-1.5">
+                <Bars3Icon className="w-6 h-6" />
+              </div>
+            )}
           </button>
 
           {/* 드롭다운 메뉴 */}
           {isMenuOpen && (
-            <div className="absolute right-0 mt-3 w-56 origin-top-right bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div className="absolute right-0 mt-3 w-60 origin-top-right bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black ring-opacity-5 z-50 overflow-hidden border border-gray-100 dark:border-gray-700">
               <div className="p-2 space-y-1">
-                {/* 모바일 전용 메뉴 */}
+                {/* 로그인 유저 정보 요약 */}
+                {user && (
+                  <div className="px-3 py-3 mb-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl">
+                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">
+                      Signed in as
+                    </p>
+                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
+                      {user.displayName || user.email}
+                    </p>
+                  </div>
+                )}
+
+                {/* 모바일 전용 네비게이션 */}
                 <div className="md:hidden">
                   <p className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                     Menu
@@ -163,27 +198,31 @@ export default function NavBar() {
                       <span>{language === 'ko' ? menu.ko : menu.en}</span>
                     </div>
                   ))}
-                  <div className="h-px bg-gray-100 dark:bg-gray-700 my-2" />
+                  <div className="h-px bg-gray-100 dark:bg-gray-700 my-2 mx-2" />
                 </div>
 
                 {/* 설정 메뉴 */}
                 <p className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   Settings
                 </p>
+
+                {/* 테마 토글 */}
                 <div
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="flex items-center justify-between p-3 cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                  onClick={() => {
+                    setTheme(theme === 'dark' ? 'light' : 'dark');
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center p-3 cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-gray-700 dark:text-gray-200"
                 >
-                  <div className="flex items-center text-gray-700 dark:text-gray-200">
-                    {theme === 'dark' ? (
-                      <SunIcon className="w-5 h-5 mr-3 text-yellow-500" />
-                    ) : (
-                      <MoonIcon className="w-5 h-5 mr-3 text-gray-400" />
-                    )}
-                    <span className="font-medium">{language === 'ko' ? '테마 변경' : 'Theme'}</span>
-                  </div>
+                  {theme === 'dark' ? (
+                    <SunIcon className="w-5 h-5 mr-3 text-yellow-500" />
+                  ) : (
+                    <MoonIcon className="w-5 h-5 mr-3 text-gray-400" />
+                  )}
+                  <span className="font-medium">{language === 'ko' ? '테마 변경' : 'Theme'}</span>
                 </div>
 
+                {/* 유틸리티 아이템 (도움말 등) */}
                 {UTILITY_ITEMS.map((item) => (
                   <div
                     key={item.id}
@@ -194,11 +233,38 @@ export default function NavBar() {
                     <span className="font-medium">{language === 'ko' ? item.ko : item.en}</span>
                   </div>
                 ))}
+
+                <div className="h-px bg-gray-100 dark:bg-gray-700 my-2 mx-2" />
+
+                {/* 로그인 / 로그아웃 세션 */}
+                <div
+                  onClick={handleAuthAction}
+                  className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${
+                    user
+                      ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                      : 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                  }`}
+                >
+                  {user ? (
+                    <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-3" />
+                  ) : (
+                    <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3" />
+                  )}
+                  <span className="font-bold">
+                    {user
+                      ? language === 'ko'
+                        ? '로그아웃'
+                        : 'Logout'
+                      : language === 'ko'
+                        ? '로그인'
+                        : 'Login'}
+                  </span>
+                </div>
               </div>
             </div>
           )}
 
-          {/* 오버레이 */}
+          {/* 오버레이 (드롭다운 닫기용) */}
           {isMenuOpen && (
             <div className="fixed inset-0 z-40" onClick={toggleMenu} aria-hidden="true" />
           )}

@@ -50,6 +50,7 @@ import SajuBlur from './component/SajuBlur';
 import AnalysisButton from './ui/AnalysisButton';
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
+import FortuneBanner from './ui/FortuneBanner';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
@@ -206,8 +207,6 @@ export default function App() {
       }
     }
   };
-
-
 
   const handleDailyFortune = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -731,7 +730,9 @@ export default function App() {
         </div>
       </div>
       {/* 로그인이 안되어 있을 때는 LOGIN STATUS보이지 않음 */}
-      {!!user && <LoginStatus MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
+      {!!user && (
+        <LoginStatus MAX_EDIT_COUNT={MAX_EDIT_COUNT} onFortuneClick={handleFortuneCookie} />
+      )}
 
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
       {!user && <SajuBlur MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
