@@ -838,7 +838,7 @@ export default function App() {
           />
         )}
 
-        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 ">
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 h-32 mb-3 ">
           <AnalysisButton
             energy={mainEnergy}
             handleAnalysis={handleAiAnalysis}
@@ -890,6 +890,8 @@ export default function App() {
             subTextEn={'Daily Guide'}
             colorType={'sky'}
           />
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-3 h-32 mb-3">
           <AnalysisButton
             energy={compaEnergy}
             handleAnalysis={handleCompaAnalysis}
