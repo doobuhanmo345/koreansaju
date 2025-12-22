@@ -42,7 +42,7 @@ const UTILITY_ITEMS = [
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
-  const { user, login, logout } = useAuthContext(); // Auth 컨텍스트에서 정보 가져옴
+  const { user, login, logout } = useAuthContext();
   const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,7 +63,6 @@ export default function NavBar() {
     setIsMenuOpen(false);
   };
 
-  // 로그인/로그아웃 통합 핸들러
   const handleAuthAction = () => {
     if (user) {
       if (window.confirm(language === 'ko' ? '로그아웃 하시겠습니까?' : 'Do you want to logout?')) {
@@ -101,7 +100,7 @@ export default function NavBar() {
         />
       </div>
 
-      {/* [중앙] 데스크탑 메뉴: "Ghost Pill" 스타일 */}
+      {/* [중앙] 데스크탑 메뉴 */}
       <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="flex items-center gap-1 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-full backdrop-blur-sm">
           {MAIN_MENUS.map((menu) => {
@@ -144,38 +143,35 @@ export default function NavBar() {
           </span>
         </button>
 
-        {/* 햄버거/프로필 버튼 */}
+        {/* 햄버거 버튼 (로그인 후에도 아이콘 유지) */}
         <div className="relative">
           <button
             onClick={toggleMenu}
-            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
           >
-            {user && user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt="User Profile"
-                className="w-8 h-8 rounded-full border-2 border-indigo-500 shadow-sm object-cover"
-              />
-            ) : (
-              <div className="p-1.5">
-                <Bars3Icon className="w-6 h-6" />
-              </div>
-            )}
+            <Bars3Icon className="w-6 h-6" />
           </button>
 
           {/* 드롭다운 메뉴 */}
           {isMenuOpen && (
             <div className="absolute right-0 mt-3 w-60 origin-top-right bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black ring-opacity-5 z-50 overflow-hidden border border-gray-100 dark:border-gray-700">
               <div className="p-2 space-y-1">
-                {/* 로그인 유저 정보 요약 */}
+                {/* 로그인 유저 정보 (이미지 포함 가로 레이아웃) */}
                 {user && (
-                  <div className="px-3 py-3 mb-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl">
-                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">
-                      Signed in as
-                    </p>
-                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                      {user.displayName || user.email}
-                    </p>
+                  <div className="flex items-center gap-3 px-3 py-3 mb-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl">
+                    <img
+                      src={user.photoURL}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full border border-indigo-200 dark:border-indigo-500/30 object-cover"
+                    />
+                    <div className="flex flex-col min-w-0">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">
+                        Signed in as
+                      </p>
+                      <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
+                        {user.displayName || user.email}
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -206,7 +202,6 @@ export default function NavBar() {
                   Settings
                 </p>
 
-                {/* 테마 토글 */}
                 <div
                   onClick={() => {
                     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -222,7 +217,6 @@ export default function NavBar() {
                   <span className="font-medium">{language === 'ko' ? '테마 변경' : 'Theme'}</span>
                 </div>
 
-                {/* 유틸리티 아이템 (도움말 등) */}
                 {UTILITY_ITEMS.map((item) => (
                   <div
                     key={item.id}
@@ -242,7 +236,7 @@ export default function NavBar() {
                   className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${
                     user
                       ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
-                      : 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                      : 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/10'
                   }`}
                 >
                   {user ? (
@@ -264,7 +258,7 @@ export default function NavBar() {
             </div>
           )}
 
-          {/* 오버레이 (드롭다운 닫기용) */}
+          {/* 오버레이 */}
           {isMenuOpen && (
             <div className="fixed inset-0 z-40" onClick={toggleMenu} aria-hidden="true" />
           )}

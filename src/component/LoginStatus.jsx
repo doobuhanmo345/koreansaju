@@ -27,9 +27,7 @@ export default function LoginStatus({ MAX_EDIT_COUNT = 10, onFortuneClick }) {
             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-0.5 whitespace-nowrap">
               {language === 'ko' ? '오늘의 크레딧' : "Today's Credit"}
             </span>
-            <span className="text-[8px] text-gray-500 dark:text-gray-400 mb-0.5 whitespace-nowrap">
-              {language === 'ko' ? '(00시 자동충전)' : 'Daily reset at Midnight'}
-            </span>
+
             <div className="flex items-baseline gap-1 leading-none">
               <span
                 className={`text-base font-black font-mono ${remainingCredit === 0 ? 'text-red-500' : 'text-indigo-600 dark:text-indigo-400'}`}
@@ -47,11 +45,9 @@ export default function LoginStatus({ MAX_EDIT_COUNT = 10, onFortuneClick }) {
           </div>
         </div>
 
-        {/* 중앙 구분선 */}
-        <div className="w-px h-14 bg-indigo-100 dark:bg-indigo-500/20 mx-5" />
-
         {/* 2. 오른쪽: 포춘쿠키 섹션 (직관적인 문구와 버튼) */}
-        <div className="flex items-center gap-1 flex-1 justify-end">
+        <div className="flex items-center gap-3 flex-1 justify-end border-l border-indigo-100 dark:border-indigo-500/20 ml-3 pl-4 max-w-[200px]">
+          {/* 포춘쿠키 아이콘 */}
           <div className="text-4xl">🥠</div>
           <div className="flex flex-col items-end mr-1">
             <div className="flex flex-col items-center gap-0.5">

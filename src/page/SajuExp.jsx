@@ -24,33 +24,42 @@ export default function SajuExplanation() {
           : 'What if you knew the weather of your life?',
       subtitle:
         language === 'ko'
-          ? '사주는 미신이 아닙니다. 당신이 태어난 순간, 우주가 당신에게 부여한 고유한 에너지 데이터를 분석하는 통계학입니다.'
-          : 'Saju is not magic. It is an ancient statistical analysis of the unique energy data the universe assigned to you the moment you were born.',
+          ? '사주는 당신이 태어난 순간, 우주가 당신에게 부여한 에너지 데이터를 분석하는 통계학입니다.'
+          : 'Saju is a statistical analysis of the energy data the universe assigned to you at the moment of your birth.',
     },
     section1: {
-      label: language === 'ko' ? '사주의 원리' : 'The Principle',
+      label: language === 'ko' ? '사주란?' : 'What is Saju?',
       title: language === 'ko' ? '시간의 바코드, 사주(四柱)' : 'The Barcode of Time',
       desc:
         language === 'ko'
-          ? '우리는 모두 저마다의 "바코드"를 가지고 태어납니다. 태어난 연, 월, 일, 시. 이 네 가지 시점의 천문학적 위치가 당신의 기질과 잠재력을 결정합니다.'
-          : "We are all born with a unique 'barcode'. The Year, Month, Day, and Time. The astronomical positions at these four moments define your temperament and potential.",
+          ? '우리는 저마다의 "바코드"를 가지고 태어납니다.태어난 연, 월, 일, 시. 이 네 가지 시점의 천문학적 위치가 당신의 기질과 잠재력을 결정하며 전 세계 어디서 태어났든 그 지역의 천문학적 위치를 기준으로  정확한 사주 분석이 이루어집니다'
+          : 'Each of us is born with our own unique "barcode." Year, Month, Day, and Hour—the astronomical positions at these four moments determine your temperament and potential. wherever you are born, your Saju analysis is based precisely on the astronomical data of your local region.',
     },
     pillars: {
       year: {
         title: language === 'ko' ? '년(Year)' : 'Year',
-        desc: language === 'ko' ? '나의 뿌리, 초년운, 큰 배경' : 'Roots, Early Life, Background',
+        desc:
+          language === 'ko'
+            ? '나의 뿌리, 초년운, 큰 배경'
+            : 'Your roots, early life fortune, and background',
       },
       month: {
         title: language === 'ko' ? '월(Month)' : 'Month',
-        desc: language === 'ko' ? '나의 환경, 직업, 부모 형제' : 'Environment, Career, Family',
+        desc:
+          language === 'ko'
+            ? '나의 환경, 직업, 부모 형제'
+            : 'Your environment, career, parents, and siblings',
       },
       day: {
         title: language === 'ko' ? '일(Day)' : 'Day',
-        desc: language === 'ko' ? '진정한 나 자신, 배우자' : 'True Self, Spouse',
+        desc: language === 'ko' ? '진정한 나 자신, 배우자' : 'Your true self, spouse',
       },
       time: {
         title: language === 'ko' ? '시(Time)' : 'Time',
-        desc: language === 'ko' ? '나의 미래, 자녀, 말년운' : 'Future, Children, Late Life',
+        desc:
+          language === 'ko'
+            ? '나의 미래, 자녀, 말년운'
+            : 'Your future, children, and late-life fortune',
       },
     },
     elements: {
@@ -58,14 +67,14 @@ export default function SajuExplanation() {
       desc:
         language === 'ko'
           ? '목, 화, 토, 금, 수. 이 다섯 가지 에너지가 당신의 몸과 마음속에서 끊임없이 순환합니다. 어떤 재료가 많고 적은지에 따라 당신의 "사용 설명서"가 달라집니다.'
-          : 'Wood, Fire, Earth, Metal, Water. These five energies constantly circulate within you. Your "User Manual" depends on the balance of these ingredients.',
+          : 'Wood, Fire, Earth, Metal, Water. These five energies circulate endlessly within your body and mind. Your personal "user manual" changes depending on the five energies you possess.',
     },
     analogy: {
       title: language === 'ko' ? '예언이 아니라, 전략입니다' : 'Not Prediction, But Strategy',
       desc:
         language === 'ko'
-          ? "비가 올 것을 안다면 우산을 챙길 수 있습니다. 사주는 정해진 운명을 맹신하는 것이 아니라, 다가올 흐름(Flow)을 읽고 나에게 유리한 선택을 하도록 돕는 '인생의 내비게이션'입니다."
-          : "If you know it's going to rain, you bring an umbrella. Saju isn't about blindly believing in fate; it's a GPS that helps you read the flow and make the best choices for yourself.",
+          ? "비가 올 것을 안다면 우산을 챙기듯, 사주는 정해진 운명을 맹신하는 것이 아니라, 다가올 흐름(Flow)을 읽고 나에게 유리한 선택을 하도록 돕는 '인생의 내비게이션'입니다."
+          : "Knowing it will rain, you bring an umbrella. Saju isn't about blindly believing in fate; it's a GPS that helps you read the flow and make better choices for yourself, Like ‘Inner navigation.’",
     },
     cta: {
       button: language === 'ko' ? '내 사주 분석하러 가기' : 'Analyze My Saju Now',
@@ -171,7 +180,7 @@ export default function SajuExplanation() {
             <ElementCard
               icon="⛰️"
               title={language === 'ko' ? '토(Earth)' : 'Earth'}
-              subtitle={language === 'ko' ? '믿음, 포용력' : 'Trust, Stability'}
+              subtitle={language === 'ko' ? '믿음, 포용력' : 'Trust, Tolerance'}
               color="bg-amber-50/80 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400"
             />
             <ElementCard
@@ -221,7 +230,7 @@ export default function SajuExplanation() {
                 <p className="text-stone-200 dark:text-indigo-100 leading-relaxed text-sm font-medium">
                   {language === 'ko'
                     ? '비를 멈추게 할 순 없지만, 튼튼한 우산을 준비할 순 있습니다. 사주는 위기를 기회로 바꾸는 도구입니다.'
-                    : 'We cannot stop the rain, but we can prepare a sturdy umbrella. Saju is a tool to turn crisis into opportunity.'}
+                    : "You can't stop the rain, but you can prepare a sturdy umbrella. Saju is a tool to turn crises into opportunities."}
                 </p>
               </div>
             </div>
