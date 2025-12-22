@@ -44,14 +44,26 @@ export default function ResultModal({
   const { user } = useAuthContext();
   // --- Helpers ---
   const t = (char) => (language === 'en' ? getEng(char) : char);
-
+  const pureHtml = useMemo(() => extractPureHtml(aiResult), [aiResult]);
   // 모달이 열릴 때마다 'result' 모드로 초기화
   useEffect(() => {
     if (isOpen) {
       setViewMode('result');
-      setChatList([]); // 채팅 기록도 초기화 (선택사항, 안하면 이전 기록 남음)
+      setChatList([]);
+      activeTabRef.current = 0; // 숫자를 0으로 리셋
+
+      // [핵심] 렌더링 직후에 0번(재물운) 카드를 강제로 보여주라고 명령함
+      const timer = setTimeout(() => {
+        if (typeof window.handleSubTitleClick === 'function') {
+          // 콘솔에 찍어서 작동하는지 확인해보세요.
+          console.log('모달 열림: 첫 번째 탭 강제 활성화');
+          window.handleSubTitleClick(0);
+        }
+      }, 150); // HTML이 그려질 시간을 넉넉히 줌
+
+      return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, pureHtml]); // pureHtml이 들어오는 시점까지 같이 감시해야 확실합니다.
   function extractPureHtml(apiResponse) {
     // 1. 문자열의 양쪽 끝에서 공백, 개행 문자를 제거합니다.
     let cleanedResponse = apiResponse.trim();
@@ -68,7 +80,6 @@ export default function ResultModal({
     return cleanedResponse.trim();
   }
 
-  const pureHtml = useMemo(() => extractPureHtml(aiResult), [aiResult]);
   const memoizedHoroscopeHtml = useMemo(
     () => (
       <div>
@@ -186,32 +197,50 @@ export default function ResultModal({
   const activeTabRef = useRef(0);
   // 1. 현재 탭 기억용 변수 (기존과 동일)
 
-  // 2. 클릭 함수 정의 (기존과 동일)
   useEffect(() => {
     window.handleSubTitleClick = function (index) {
+      // index가 없으면 기억해둔 번호(기본 0) 사용
+      if (index === undefined) index = activeTabRef.current;
       activeTabRef.current = index;
-      const tiles = document.querySelectorAll('.subTitle-tile');
-      const cards = document.querySelectorAll('.report-card');
+
+      // [핵심 수정] document 대신 현재 스크롤 가능한 컨테이너(scrollElRef) 내부만 찾습니다.
+      const container = scrollElRef.current;
+      if (!container) return;
+
+      const tiles = container.querySelectorAll('.subTitle-tile');
+      const cards = container.querySelectorAll('.report-card');
+
       if (tiles.length === 0) return;
 
-      tiles.forEach((t, i) => t.classList.toggle('active', i === index));
-      cards.forEach((c, i) => {
-        c.style.display = i === index ? 'block' : 'none';
-        c.classList.toggle('active', i === index);
+      // 모든 타일/카드 초기화
+      tiles.forEach((t) => t.classList.remove('active'));
+      cards.forEach((c) => {
+        c.style.display = 'none';
+        c.classList.remove('active');
       });
+
+      // 현재 섹션의 정확한 인덱스만 활성화
+      if (tiles[index]) tiles[index].classList.add('active');
+      if (cards[index]) {
+        cards[index].style.display = 'block';
+        cards[index].classList.add('active');
+      }
     };
-  }, []);
+  }, []); // 의존성 배열 유지
+
   useEffect(() => {
     if (pureHtml) {
-      // 이제 30ms 타이머나 매번 실행하는 로직 없이도
-      // pureHtml이 바뀔 때만 초기화해주면 됩니다.
-      setTimeout(() => {
+      // 메뉴(연간/오늘/재물 등)가 바뀔 때마다 탭 번호를 다시 0(첫번째)으로!
+      activeTabRef.current = 0;
+
+      const timer = setTimeout(() => {
         if (typeof window.handleSubTitleClick === 'function') {
-          window.handleSubTitleClick(activeTabRef.current);
+          window.handleSubTitleClick(0);
         }
       }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [pureHtml]);
+  }, [pureHtml, resultType]); // resultType이 바뀔 때도 실행되게 추가
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (editCount >= maxEditCount) return alert(UI_TEXT.limitReached[language]);

@@ -1,97 +1,120 @@
 export default function Test() {
-  return <> {daewoonList.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold mb-3 px-2 flex items-center justify-between">
-                <span>{language === 'en' ? '🌊 Flow of Daewoon' : '🌊 대운의 흐름'}</span>
-                <span className="text-xs font-normal bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded text-slate-600 dark:text-slate-300">
-                  {language === 'en' ? `Age ${currentAge}` : `현재 ${currentAge}세`}
-                </span>
-              </h3>
-  
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-x-auto transition-colors">
-                <div className="flex gap-2 min-w-max pb-2">
-                  {daewoonList
-                    .map((dae, idx) => {
-                      const isSelected = selectedDae
-                        ? selectedDae.startAge === dae.startAge
-                        : dae.isCurrent;
-  
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => handleDaeClick(dae)}
-                          className={`flex flex-col items-center justify-center min-w-[60px] p-2 rounded-lg border cursor-pointer transition-all
-              ${
-                isSelected
-                  ? 'bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500 text-white shadow-md transform scale-105'
-                  : 'bg-slate-50 dark:bg-slate-700/50 border-slate-100 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-indigo-300'
-              }`}
-                        >
-                          {/* 나이 표시 */}
-                          <span className="text-xs mb-1 opacity-80">
-                            {language === 'en' ? `Age ${dae.startAge}` : `${dae.startAge}세`}
-                          </span>
-  
-                          {/* 이름 표시 (안전한 렌더링) */}
-                          <span className="font-bold text-lg">
-                            {language === 'en'
-                              ? ENG_MAP[dae.name[0]] && ENG_MAP[dae.name[1]]
-                                ? `${ENG_MAP[dae.name[0]]} ${ENG_MAP[dae.name[1]]}`
-                                : dae.name // 영어 맵에 없으면 한글이라도 표시
-                              : dae.name}
-                          </span>
-  
-                          {dae.isCurrent && (
-                            <span
-                              className={`text-[10px] mt-1 px-1 rounded ${isSelected ? 'bg-white/20' : 'bg-indigo-100 text-indigo-600'}`}
-                            >
-                              {language === 'en' ? 'NOW' : '현재'}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-  
-              {/* 상세 분석 카드 (선택된 selectedDae 기준으로 렌더링) */}
-              {selectedDae && (
-                <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg border border-indigo-100 dark:border-indigo-900/50 transition-colors animate-in fade-in slide-in-from-top-2">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-indigo-200 dark:bg-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-lg">
-                      {selectedDae.name[0]}
-                    </div>
-                    <div>
-                      <p className="text-xs text-indigo-500 dark:text-indigo-400 font-bold uppercase tracking-wider">
-                        {selectedDae.isCurrent
-                          ? language === 'en'
-                            ? 'Current Season'
-                            : '현재 대운'
-                          : language === 'en'
-                            ? 'Selected Season'
-                            : '선택된 대운'}
-                      </p>
-                      <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                        {language === 'en' ? (
-                          <>
-                            {ENG_MAP[selectedDae.name[0]]} {ENG_MAP[selectedDae.name[1]]}
-                          </>
-                        ) : (
-                          <>{selectedDae.name}</>
-                        )}{' '}
-                        {language === 'en' ? 'Period' : '대운'} ({selectedDae.startAge} ~{' '}
-                        {selectedDae.endAge || '...'} {language === 'en' ? 'Age' : '세'})
-                      </h4>
-                    </div>
-                  </div>
-                  <div
-                    className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm text-justify"
-                    dangerouslySetInnerHTML={{
-                      __html: getDaewoonStory(selectedDae, currentAge, language),
-                    }} // 함수 호출 시 선택된 대운 전달
-                  />
-                </div>
-              )}
-            </div>
-          )}</>;
+  return (
+    <>
+      {' '}
+      <div class="subTitle-scroll-container">
+        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)">
+          <span style="font-size:10px">아이콘</span>
+          <span style="font-weight:bold">재물운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(1)">
+          <span style="font-size:10px">아이콘</span>
+          <span style="font-weight:bold">연애운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(2)">
+          <span style="font-size:10px">아이콘</span>
+          <span style="font-weight:bold">건강운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(3)">
+          <span style="font-size:10px">아이콘</span>
+          <span style="font-weight:bold">사업운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(4)">
+          <span style="font-size:10px">아이콘</span>
+          <span style="font-weight:bold">학업운</span>
+        </div>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">재물운</h3>
+        <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소
+          서술.]
+        </p>
+      </div>
+      <div class="report-card">
+        <h2 class="section-title-h3">연애운</h2>
+<p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+ <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
+
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">건강운</h3>
+        <p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술]{' '}
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">사업운</h3>
+        <p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야
+          하는지 작성]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">학업운</h3>
+        <p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야
+          하는지 작성]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>
+        <p class="report-text">
+          [을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
+        </p>
+      </div>
+    </>
+  );
 }

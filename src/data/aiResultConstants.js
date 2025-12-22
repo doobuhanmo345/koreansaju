@@ -433,26 +433,72 @@ export const DAILY_FORTUNE_PROMPT = {
   <p class="report-text">
 [오늘의 운세 총운 내용을 공백 포함 500~700자로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소 서술.]</p>
 
-<h2 class="section-title-h3">재물운</h2>
- <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
- <p class="report-text"> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소 서술.]</p>
-
-<h2 class="section-title-h3">연애운</h2>
-<p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
-
-<h2 class="section-title-h3">건강운</h2>
-<p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술] </p>
-
-<h2 class="section-title-h3">사업운</h2>
-<p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
-
-<h2 class="section-title-h3">학업운</h2>
-<p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
-
+  <div class="subTitle-scroll-container">
+        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></span>
+          <span style="font-weight:bold">재물운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(1)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.5 4.04 3 5.5l7 7Z"></path></svg></span>
+          <span style="font-weight:bold">연애운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(2)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"></path><path d="M9 21s-5-7-4-10"></path></svg></span>
+          <span style="font-weight:bold">건강운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(3)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
+          <span style="font-weight:bold">사업운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(4)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+          <span style="font-weight:bold">학업운</span>
+        </div>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">재물운</h3>
+        <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소
+          서술.]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">연애운</h3>
+        <p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이
+          있을 것인지 서술]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">건강운</h3>
+        <p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술]{' '}
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">사업운</h3>
+        <p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야
+          하는지 작성]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">학업운</h3>
+        <p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야
+          하는지 작성]
+        </p>
+      </div>
 <h2 class="section-title-h3">오늘의 행운 컬러</h2>
 <p class="report-text">['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
 
@@ -481,26 +527,72 @@ export const DAILY_FORTUNE_PROMPT = {
   <p class="report-text">
 [오늘의 운세 총운 내용을 공백 포함 500~700자로 작성. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 하루의 흐름, 주의할 점, 긍정적인 요소 서술.]</p>
 
-<h2 class="section-title-h3">재물운</h2>
- <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
- <p class="report-text"> [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소 서술.]</p>
-
-<h2 class="section-title-h3">연애운</h2>
-<p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이 있을 것인지 서술] </p>
-
-<h2 class="section-title-h3">건강운</h2>
-<p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술] </p>
-
-<h2 class="section-title-h3">사업운</h2>
-<p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p> 
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
-
-<h2 class="section-title-h3">학업운</h2>
-<p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
- <p class="report-text">[위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술. 의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야 하는지 작성]</p>
-
+  <div class="subTitle-scroll-container">
+        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></span>
+          <span style="font-weight:bold">재물운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(1)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.5 4.04 3 5.5l7 7Z"></path></svg></span>
+          <span style="font-weight:bold">연애운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(2)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z"></path><path d="M9 21s-5-7-4-10"></path></svg></span>
+          <span style="font-weight:bold">건강운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(3)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
+          <span style="font-weight:bold">사업운</span>
+        </div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(4)">
+          <span style="font-size:10px"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block; margin: 0 auto 2px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span>
+          <span style="font-weight:bold">학업운</span>
+        </div>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">재물운</h3>
+        <p class="report-text-summary">[재물운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 재물운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 긍정적인 재물운, 주의해야 할 재물운 요소
+          서술.]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">연애운</h3>
+        <p class="report-text-summary">[연애운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 연애운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 가상의 상대와 어떤 형태의 관계 발전이
+          있을 것인지 서술]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">건강운</h3>
+        <p class="report-text-summary">[건강운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 건강운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 하루 주의해야 할 건강 서술]{' '}
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">사업운</h3>
+        <p class="report-text-summary">[사업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 사업운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 사업에 있어 어떤 마음으로 임해야
+          하는지 작성]
+        </p>
+      </div>
+      <div class="report-card">
+        <h3 class="section-title-h3">학업운</h3>
+        <p class="report-text-summary">[학업운을 한 줄로 요약한 문장만 작성(머릿말 생략)] </p>
+        <p class="report-text">
+          [위 요약과 한 줄 띄우고, 사주 분석을 기반으로 한 학업운 상세 내용을 300~500자로 서술.
+          의뢰인의 사주와 오늘의 일진(간지) 관계를 분석하여 오늘 학업에 있어 어떤 마음으로 임해야
+          하는지 작성]
+        </p>
+      </div>
 <h2 class="section-title-h3">오늘의 행운 컬러</h2>
 <p class="report-text">['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
 
@@ -632,18 +724,18 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
 
    <h2 class="section-title-h2">월별 운세</h2>
 <div class="subTitle-scroll-container">
-        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)"><span style="font-size:10px">1월</span><span style="font-weight:bold">기축</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(1)"><span style="font-size:10px">2월</span><span style="font-weight:bold">경인</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(2)"><span style="font-size:10px">3월</span><span style="font-weight:bold">신묘</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(3)"><span style="font-size:10px">4월</span><span style="font-weight:bold">임진</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(4)"><span style="font-size:10px">5월</span><span style="font-weight:bold">계사</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(5)"><span style="font-size:10px">6월</span><span style="font-weight:bold">갑오</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(6)"><span style="font-size:10px">7월</span><span style="font-weight:bold">을미</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(7)"><span style="font-size:10px">8월</span><span style="font-weight:bold">병신</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(8)"><span style="font-size:10px">9월</span><span style="font-weight:bold">정유</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(9)"><span style="font-size:10px">10월</span><span style="font-weight:bold">무술</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(10)"><span style="font-size:10px">11월</span><span style="font-weight:bold">기해</span></div>
-        <div class="subTitle-tile" onclick="handleSubTitleClick(11)"><span style="font-size:10px">12월</span><span style="font-weight:bold">경자</span></div>
+        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)"><span style="font-size:10px">1</span><span style="font-weight:bold">Jan</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(1)"><span style="font-size:10px">2</span><span style="font-weight:bold">Feb</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(2)"><span style="font-size:10px">3</span><span style="font-weight:bold">Mar</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(3)"><span style="font-size:10px">4</span><span style="font-weight:bold">Apr</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(4)"><span style="font-size:10px">5</span><span style="font-weight:bold">May</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(5)"><span style="font-size:10px">6</span><span style="font-weight:bold">June</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(6)"><span style="font-size:10px">7</span><span style="font-weight:bold">July</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(7)"><span style="font-size:10px">8</span><span style="font-weight:bold">Aug</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(8)"><span style="font-size:10px">9</span><span style="font-weight:bold">Sep</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(9)"><span style="font-size:10px">10</span><span style="font-weight:bold">Oct</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(10)"><span style="font-size:10px">11</span><span style="font-weight:bold">Nov</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(11)"><span style="font-size:10px">12</span><span style="font-weight:bold">Dec</span></div>
     </div>
 
    <div class="report-card">
