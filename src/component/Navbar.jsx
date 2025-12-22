@@ -7,7 +7,6 @@ import {
   InformationCircleIcon,
   HomeIcon,
   SparklesIcon,
-  UserIcon,
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
@@ -42,7 +41,7 @@ const UTILITY_ITEMS = [
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
-  const { user, login, logout } = useAuthContext();
+  const { user, login, logout, userData } = useAuthContext();
   const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -109,13 +108,8 @@ export default function NavBar() {
               <button
                 key={menu.id}
                 onClick={() => handleMainNavigate(menu.path)}
-                className={`
-                  flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200
-                  ${
-                    isActive
-                      ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
-                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-slate-700/50 hover:text-gray-900 dark:hover:text-gray-200'
-                  }
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200
+                  ${isActive ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-slate-700/50'}
                 `}
               >
                 <menu.icon className="w-4 h-4" />
@@ -143,10 +137,10 @@ export default function NavBar() {
           </span>
         </button>
 
-        {/* 햄버거 버튼 (로그인 후에도 아이콘 유지) */}
+        {/* 햄버거 버튼 (로그인 후에도 고정 노출) */}
         <div className="relative">
           <button
-            onClick={toggleMenu}
+            onClick={() => toggleMenu()}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
           >
             <Bars3Icon className="w-6 h-6" />
@@ -154,22 +148,28 @@ export default function NavBar() {
 
           {/* 드롭다운 메뉴 */}
           {isMenuOpen && (
-            <div className="absolute right-0 mt-3 w-60 origin-top-right bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black ring-opacity-5 z-50 overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div className="absolute right-0 mt-3 w-64 origin-top-right bg-white dark:bg-slate-800 rounded-2xl shadow-xl ring-1 ring-black ring-opacity-5 z-50 overflow-hidden border border-gray-100 dark:border-gray-700">
               <div className="p-2 space-y-1">
-                {/* 로그인 유저 정보 (이미지 포함 가로 레이아웃) */}
+                {/* 1. 로그인 유저 정보 (이미지 + 이름 가로 배치 + 클릭 시 이동) */}
                 {user && (
-                  <div className="flex items-center gap-3 px-3 py-3 mb-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl">
+                  <div
+                    onClick={() => {
+                      navigate('/editprofile');
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 px-3 py-3 mb-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl cursor-pointer hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition-colors"
+                  >
                     <img
                       src={user.photoURL}
                       alt="Profile"
                       className="w-10 h-10 rounded-full border border-indigo-200 dark:border-indigo-500/30 object-cover"
                     />
                     <div className="flex flex-col min-w-0">
-                      <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tight">
+                      <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tight leading-none mb-1">
                         Signed in as
                       </p>
                       <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                        {user.displayName || user.email}
+                        {userData.displayName || userData.email}
                       </p>
                     </div>
                   </div>
@@ -184,11 +184,7 @@ export default function NavBar() {
                     <div
                       key={menu.id}
                       onClick={() => handleMainNavigate(menu.path)}
-                      className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${
-                        location.pathname === menu.path
-                          ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200'
-                      }`}
+                      className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${location.pathname === menu.path ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 font-bold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'}`}
                     >
                       <menu.icon className="w-5 h-5 mr-3" />
                       <span>{language === 'ko' ? menu.ko : menu.en}</span>
@@ -201,7 +197,6 @@ export default function NavBar() {
                 <p className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                   Settings
                 </p>
-
                 <div
                   onClick={() => {
                     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -230,14 +225,10 @@ export default function NavBar() {
 
                 <div className="h-px bg-gray-100 dark:bg-gray-700 my-2 mx-2" />
 
-                {/* 로그인 / 로그아웃 세션 */}
+                {/* 로그인 / 로그아웃 */}
                 <div
-                  onClick={handleAuthAction}
-                  className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${
-                    user
-                      ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
-                      : 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/10'
-                  }`}
+                  onClick={() => handleAuthAction()}
+                  className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${user ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/10'}`}
                 >
                   {user ? (
                     <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-3" />
@@ -260,7 +251,11 @@ export default function NavBar() {
 
           {/* 오버레이 */}
           {isMenuOpen && (
-            <div className="fixed inset-0 z-40" onClick={toggleMenu} aria-hidden="true" />
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setIsMenuOpen(false)}
+              aria-hidden="true"
+            />
           )}
         </div>
       </div>

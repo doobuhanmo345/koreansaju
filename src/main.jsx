@@ -9,7 +9,7 @@ import OpenInBrowserPage from './component/OpenInBrowerPage';
 import Test from './Test';
 import SajuExp from './page/SajuExp';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
+import EditProfile from './page/EditProfile';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // 1. 공통 레이아웃 컴포넌트 정의 (파일로 따로 빼도 됩니다)
@@ -37,6 +37,7 @@ root.render(
             <Routes>
               <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
               <Route path="/test" element={<Test />} />
+              <Route path="/editprofile" element={<EditProfile />} />
               <Route path="/sajuexp" element={<SajuExp />} />
               {/* 👈 App을 감싸던 AuthProvider는 제거 (위에서 이미 감쌌으므로) */}
               <Route path="/*" element={<App />} />

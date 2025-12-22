@@ -395,7 +395,7 @@ export default function Wealth({
         - Question Type: "${qLabel}", "${SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ).prompt}"
         - Gender: ${gender}
         - Saju Chart: ${mySajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
-        - 현재 날짜 : ${todayStr}나를 ${user?.displayName}님 이라고 불러줘.영어로는 ${user?.displayName}.
+        - 현재 날짜 : ${todayStr}나를 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}.
         (Key Structure: sky3/grd3=Year(Ancestors), sky2/grd2=Month(Career/Society), sky1/grd1=Day(Me), sky0/grd0=Hour(Children/Result))
 
         [Analysis Requirements]
