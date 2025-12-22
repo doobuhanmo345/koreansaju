@@ -73,14 +73,16 @@ export function AuthContextProvider({ children }) {
             email: user.email,
             displayName: user.displayName,
             photoURL: user.photoURL,
+            role: 'user', // ✅ 추가
+            status: 'active', // ✅ 추가 (차단/승인용)
             editCount: 0,
             lastLoginDate: todayStr,
-            gender: 'male',
-            calendarType: 'solar',
+            gender: 'female',
             birthDate: '',
             birthTime: '',
             createdAt: new Date().toISOString(),
           };
+
           await setDoc(userDocRef, initialData);
           setUserData(initialData);
         }
