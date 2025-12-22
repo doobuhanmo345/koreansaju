@@ -121,9 +121,9 @@ export default function SajuExplanation() {
               {TEXT.section1.desc}
             </p>
           </div>
-
           {/* 4개의 기둥 카드 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+
+          <div className="grid grid-cols-2  md:grid-cols-4 gap-4 md:gap-6">
             <PillarCard
               icon={<GlobeAsiaAustraliaIcon className="w-8 h-8" />}
               title={TEXT.pillars.year.title}
