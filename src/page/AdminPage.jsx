@@ -35,9 +35,16 @@ export default function AdminPage() {
   // 2. editCount 숫자 수정 기능
   const handleUpdateCount = async () => {
     try {
-      await updateDoc(docRef, {
-        editCount: -Number(newCount) + 3, // 숫자로 변환하여 저장
-      });
+      if (userData?.role === 'admin') {
+        await updateDoc(docRef, {
+          editCount: -Number(newCount) + 10, // 숫자로 변환하여 저장
+        });
+      } else {
+        await updateDoc(docRef, {
+          editCount: -Number(newCount) + 3, // 숫자로 변환하여 저장
+        });
+      }
+
       alert('숫자가 업데이트되었습니다.');
     } catch (error) {
       console.error('수정 실패:', error);
@@ -107,8 +114,6 @@ export default function AdminPage() {
                   <div className="relative flex-grow max-w-[120px]">
                     <input
                       type="number"
-                      placeholder={-newCount + 3}
-                      //   value={newCount}
                       onChange={(e) => setNewCount(e.target.value)}
                       className="block w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 shadow-sm
                                  focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
@@ -127,7 +132,11 @@ export default function AdminPage() {
                     현재 DB 저장 값
                   </span>
                   <span className="text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                    {-userData?.editCount + 3 ?? 0}회
+                    {userData?.role === 'admin' ? (
+                      <>{-userData?.editCount + 10 ?? 0}회</>
+                    ) : (
+                      <> {-userData?.editCount + 3 ?? 0}회</>
+                    )}
                   </span>
                 </div>
               </div>
