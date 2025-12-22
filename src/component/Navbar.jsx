@@ -169,7 +169,7 @@ export default function NavBar() {
                         Signed in as
                       </p>
                       <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                        {userData.displayName || userData.email}
+                        {userData.displayName || user.displayName}
                       </p>
                     </div>
                   </div>

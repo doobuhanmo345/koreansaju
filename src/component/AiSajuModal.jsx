@@ -41,7 +41,7 @@ export default function ResultModal({
   const { handleShareLink } = useShareActions(aiResult);
   const chatEndRef = useRef(null);
   const { language } = useLanguage();
-  const { user } = useAuthContext();
+  const { user, userData } = useAuthContext();
   // --- Helpers ---
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const pureHtml = useMemo(() => extractPureHtml(aiResult), [aiResult]);
@@ -745,7 +745,7 @@ export default function ResultModal({
                     >
                       <span className={isBottom ? 'animate-bounce' : ''}>💬</span>
                       <span className={isBottom ? 'animate-bounce' : ''}>
-                        {language === 'ko' ? '추가 질문하기' : 'Ask a Question'}
+                        {language === 'ko' ? '추가 질문' : 'Ask a Question'}
                       </span>
                     </button>
                   ) : (

@@ -54,7 +54,7 @@ export const UI_TEXT = {
     ko: '사주 풀이 보기',
     en: ' Life Path Decoding',
   },
-  shareBtn: { ko: '사이트 공유하기', en: 'Share this Site' },
+  shareBtn: { ko: '사이트공유', en: 'Share this site' },
   modalTitle: {
     ko: '🔮  분석 결과',
     en: '🔮  Decoding Result',
