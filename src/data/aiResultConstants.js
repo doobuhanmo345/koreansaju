@@ -530,7 +530,95 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
     [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요.]
   </p>
 
+  
   <h2 class="section-title-h2">월별 운세</h2>
+<div class="subTitle-scroll-container">
+        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)"><span style="font-size:10px">1월</span><span style="font-weight:bold">기축</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(1)"><span style="font-size:10px">2월</span><span style="font-weight:bold">경인</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(2)"><span style="font-size:10px">3월</span><span style="font-weight:bold">신묘</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(3)"><span style="font-size:10px">4월</span><span style="font-weight:bold">임진</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(4)"><span style="font-size:10px">5월</span><span style="font-weight:bold">계사</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(5)"><span style="font-size:10px">6월</span><span style="font-weight:bold">갑오</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(6)"><span style="font-size:10px">7월</span><span style="font-weight:bold">을미</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(7)"><span style="font-size:10px">8월</span><span style="font-weight:bold">병신</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(8)"><span style="font-size:10px">9월</span><span style="font-weight:bold">정유</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(9)"><span style="font-size:10px">10월</span><span style="font-weight:bold">무술</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(10)"><span style="font-size:10px">11월</span><span style="font-weight:bold">기해</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(11)"><span style="font-size:10px">12월</span><span style="font-weight:bold">경자</span></div>
+    </div>
+
+   <div class="report-card">
+        <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
+        <p class="report-text">[을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">2월 운세 : 을사년 경인월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 경인월의 운세 총점]</p>
+        <p class="report-text">[을사년 경인월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">3월 운세 : 을사년 신묘월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 신묘월의 운세 총점]</p>
+        <p class="report-text">[을사년 신묘월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">4월 운세 : 을사년 임진월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 임진월의 운세 총점]</p>
+        <p class="report-text">[을사년 임진월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">5월 운세 : 을사년 계사월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 계사월의 운세 총점]</p>
+        <p class="report-text">[을사년 계사월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>
+        <p class="report-text">[을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>
+        <p class="report-text">[을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>
+        <p class="report-text">[을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>
+        <p class="report-text">[을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>
+        <p class="report-text">[을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>
+        <p class="report-text">[을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>
+        <p class="report-text">[을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+    <h2 class="section-title-h2">월별 운세</h2>
   
   <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
   <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
@@ -538,61 +626,6 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
     [을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
   </p>
   
-  <h3 class="section-title-h3">2월 운세 : 을사년 경인월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 경인월의 운세 총점]</p>   <p class="report-text">
-    [을사년 경인월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">3월 운세 : 을사년 신묘월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 신묘월의 운세 총점]</p>   <p class="report-text">
-    [을사년 신묘월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">4월 운세 : 을사년 임진월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 임진월의 운세 총점]</p>   <p class="report-text">
-    [을사년 임진월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">5월 운세 : 을사년 계사월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 계사월의 운세 총점]</p>   <p class="report-text">
-    [을사년 계사월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>   <p class="report-text">
-    [을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>   <p class="report-text">
-    [을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>   <p class="report-text">
-    [을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>   <p class="report-text">
-    [을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>   <p class="report-text">
-    [을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>   <p class="report-text">
-    [을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-
-  <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>   <p class="report-text">
-    [을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-</div>
 
 
 `,
@@ -603,68 +636,93 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
     [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요.]
   </p>
 
-  <h2 class="section-title-h2">월별 운세</h2>
-  
-  <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
-  <p class="report-text">
-    [을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
-  
-  <h3 class="section-title-h3">2월 운세 : 을사년 경인월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 경인월의 운세 총점]</p>   <p class="report-text">
-    [을사년 경인월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+   <h2 class="section-title-h2">월별 운세</h2>
+<div class="subTitle-scroll-container">
+        <div class="subTitle-tile active" onclick="handleSubTitleClick(0)"><span style="font-size:10px">1월</span><span style="font-weight:bold">기축</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(1)"><span style="font-size:10px">2월</span><span style="font-weight:bold">경인</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(2)"><span style="font-size:10px">3월</span><span style="font-weight:bold">신묘</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(3)"><span style="font-size:10px">4월</span><span style="font-weight:bold">임진</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(4)"><span style="font-size:10px">5월</span><span style="font-weight:bold">계사</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(5)"><span style="font-size:10px">6월</span><span style="font-weight:bold">갑오</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(6)"><span style="font-size:10px">7월</span><span style="font-weight:bold">을미</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(7)"><span style="font-size:10px">8월</span><span style="font-weight:bold">병신</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(8)"><span style="font-size:10px">9월</span><span style="font-weight:bold">정유</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(9)"><span style="font-size:10px">10월</span><span style="font-weight:bold">무술</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(10)"><span style="font-size:10px">11월</span><span style="font-weight:bold">기해</span></div>
+        <div class="subTitle-tile" onclick="handleSubTitleClick(11)"><span style="font-size:10px">12월</span><span style="font-weight:bold">경자</span></div>
+    </div>
 
-  <h3 class="section-title-h3">3월 운세 : 을사년 신묘월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 신묘월의 운세 총점]</p>   <p class="report-text">
-    [을사년 신묘월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+   <div class="report-card">
+        <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
+        <p class="report-text">[을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">4월 운세 : 을사년 임진월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 임진월의 운세 총점]</p>   <p class="report-text">
-    [을사년 임진월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">2월 운세 : 을사년 경인월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 경인월의 운세 총점]</p>
+        <p class="report-text">[을사년 경인월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">5월 운세 : 을사년 계사월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 계사월의 운세 총점]</p>   <p class="report-text">
-    [을사년 계사월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">3월 운세 : 을사년 신묘월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 신묘월의 운세 총점]</p>
+        <p class="report-text">[을사년 신묘월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>   <p class="report-text">
-    [을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">4월 운세 : 을사년 임진월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 임진월의 운세 총점]</p>
+        <p class="report-text">[을사년 임진월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>   <p class="report-text">
-    [을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">5월 운세 : 을사년 계사월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 계사월의 운세 총점]</p>
+        <p class="report-text">[을사년 계사월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>   <p class="report-text">
-    [을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">6월 운세 : 을사년 갑오월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 갑오월의 운세 총점]</p>
+        <p class="report-text">[을사년 갑오월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>   <p class="report-text">
-    [을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">7월 운세 : 을사년 을미월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 을미월의 운세 총점]</p>
+        <p class="report-text">[을사년 을미월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>   <p class="report-text">
-    [을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">8월 운세 : 을사년 병신월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 병신월의 운세 총점]</p>
+        <p class="report-text">[을사년 병신월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>   <p class="report-text">
-    [을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">9월 운세 : 을사년 정유월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 정유월의 운세 총점]</p>
+        <p class="report-text">[을사년 정유월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 
-  <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>   <p class="report-text">
-    [을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
+    <div class="report-card">
+        <h3 class="section-title-h3">10월 운세 : 을사년 무술월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 무술월의 운세 총점]</p>
+        <p class="report-text">[을사년 무술월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">11월 운세 : 을사년 기해월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 기해월의 운세 총점]</p>
+        <p class="report-text">[을사년 기해월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
+
+    <div class="report-card">
+        <h3 class="section-title-h3">12월 운세 : 을사년 경자월</h3>
+        <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>
+        <p class="report-text">[을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
+    </div>
 </div>
 
 
@@ -840,7 +898,147 @@ export const aiSajuStyle = `<style>
   html.dark .report-keyword {
     color: #7B68EE;
   }
-</style>`;
+/* 스타일2 */
+/* 스타일2 */
+/* 스타일2 */
+        :root {
+            --primary: #4f46e5;
+            --bg-page: #ffffff;
+            --bg-sub-container: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --tile-bg: #ffffff;
+        }
+
+        /* 2. 시스템 설정이 다크 모드일 때만 자동 전환 */
+       html.dark {
+            --bg-page: #0f172a;
+            --bg-sub-container: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --tile-bg: #1e293b;
+        }
+
+        body { 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            line-height: 1.6; 
+            background-color: var(--bg-page); 
+            color: var(--text-main); 
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .subTitle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            padding: 0 8px;
+        }
+
+        .subTitle-title {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+
+        /* 상단 탭 스크롤 영역 */
+        .subTitle-scroll-container {
+            background: var(--bg-sub-container);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .subTitle-tile {
+            min-width: 60px;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            background: var(--tile-bg);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+        
+        .subTitle-tile.active {
+            background: var(--primary);
+            color: white !important;
+            border-color: var(--primary);
+        }
+
+        /* 초기 상태: 내용 숨김 */
+        .report-card {
+            display: none; 
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* 클릭 시 활성화 */
+        .report-card.active {
+            display: block !important;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title-h3 {
+            color: var(--text-main);
+            font-size: 1.125rem;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+        }
+
+        .report-keyword {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .report-text {
+            color: var(--text-main);
+            font-size: 0.875rem;
+            text-align: justify;
+        }
+
+  </style>`;
+export const aiSajuScript = `<script>
+       function handleSubTitleClick(index) {
+            const tiles = document.querySelectorAll('.subTitle-tile');
+            const cards = document.querySelectorAll('.report-card');
+            
+            // 1. 모든 탭 스타일 초기화
+            tiles.forEach(t => t.classList.remove('active'));
+            // 2. 모든 카드 숨기기
+            cards.forEach(c => c.style.display = 'none');
+            
+            // 3. 클릭한 탭 강조
+            tiles[index].classList.add('active');
+            // 4. 클릭한 카드만 보이기
+            cards[index].style.display = 'block';
+        }
+window.onload = function() { handleSubTitleClick(0); };
+    </script>`;
 export const koTitle = {
   // === 갑목 (甲木) ===
   갑자: {

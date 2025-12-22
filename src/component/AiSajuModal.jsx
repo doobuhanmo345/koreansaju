@@ -1,5 +1,5 @@
-import { aiSajuStyle, IljuExp } from '../data/aiResultConstants';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { aiSajuStyle, aiSajuScript, IljuExp } from '../data/aiResultConstants';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ChevronLeftIcon, ShareIcon, SparklesIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { doc, getDoc, setDoc, arrayUnion, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // firebase db import 필요
@@ -68,8 +68,16 @@ export default function ResultModal({
     return cleanedResponse.trim();
   }
 
-  const pureHtml = extractPureHtml(aiResult);
-
+  const pureHtml = useMemo(() => extractPureHtml(aiResult), [aiResult]);
+  const memoizedHoroscopeHtml = useMemo(
+    () => (
+      <div>
+        <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
+        <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} />
+      </div>
+    ),
+    [pureHtml],
+  );
   useEffect(() => {
     if (viewMode === 'chat' && chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -174,8 +182,36 @@ export default function ResultModal({
       { merge: true },
     );
   };
+  // 1. 현재 선택된 탭 번호를 기억할 변수 (컴포넌트 안에 추가)
+  const activeTabRef = useRef(0);
+  // 1. 현재 탭 기억용 변수 (기존과 동일)
 
-  // 추가 질문하기 (API 호출)
+  // 2. 클릭 함수 정의 (기존과 동일)
+  useEffect(() => {
+    window.handleSubTitleClick = function (index) {
+      activeTabRef.current = index;
+      const tiles = document.querySelectorAll('.subTitle-tile');
+      const cards = document.querySelectorAll('.report-card');
+      if (tiles.length === 0) return;
+
+      tiles.forEach((t, i) => t.classList.toggle('active', i === index));
+      cards.forEach((c, i) => {
+        c.style.display = i === index ? 'block' : 'none';
+        c.classList.toggle('active', i === index);
+      });
+    };
+  }, []);
+  useEffect(() => {
+    if (pureHtml) {
+      // 이제 30ms 타이머나 매번 실행하는 로직 없이도
+      // pureHtml이 바뀔 때만 초기화해주면 됩니다.
+      setTimeout(() => {
+        if (typeof window.handleSubTitleClick === 'function') {
+          window.handleSubTitleClick(activeTabRef.current);
+        }
+      }, 50);
+    }
+  }, [pureHtml]);
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (editCount >= maxEditCount) return alert(UI_TEXT.limitReached[language]);
@@ -611,15 +647,7 @@ export default function ResultModal({
                           <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
                         </div>
                       </div>
-                      <div>
-                        <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
-
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: aiSajuStyle,
-                          }}
-                        />
-                      </div>
+                      <div>{memoizedHoroscopeHtml}</div>
                     </div>
                   )}
                   {resultType === 'daily' && (
@@ -638,15 +666,8 @@ export default function ResultModal({
                           <div className="w-1 h-1 rounded-full bg-indigo-400"></div>
                         </div>
                       </div>
-                      <div>
-                        <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
 
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: aiSajuStyle,
-                          }}
-                        />
-                      </div>
+                      <div>{memoizedHoroscopeHtml}</div>
                     </div>
                   )}
 
