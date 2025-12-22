@@ -527,7 +527,7 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
   
   <h2 class="section-title-h2">종합 분석 (2026년 병오년)</h2>
   <p class="report-text">
-    [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요.]
+    [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 300~500자로 핵심만 요약해 주세요.]
   </p>
 
   
@@ -618,13 +618,7 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
         <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>
         <p class="report-text">[을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
     </div>
-    <h2 class="section-title-h2">월별 운세</h2>
   
-  <h3 class="section-title-h3">1월 운세 : 을사년 기축월</h3>
-  <p class="report-keyword">총점 : [100점 기준의 을사년 기축월의 운세 총점]</p>
-  <p class="report-text">
-    [을사년 기축월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]
-  </p>
   
 
 
@@ -633,7 +627,7 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
   
   <h2 class="section-title-h2">종합 분석 (2026년 병오년)</h2>
   <p class="report-text">
-    [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 500자 이내로 핵심만 요약해 주세요.]
+    [다음 사주 정보를 바탕으로, 해당 사주를 가진 사람의 2026년(병오년) 운세를 종합적으로 분석해 주세요. 300~500자로 핵심만 요약해 주세요.]
   </p>
 
    <h2 class="section-title-h2">월별 운세</h2>
