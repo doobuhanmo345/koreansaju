@@ -3,7 +3,7 @@ import { BoltIcon } from '@heroicons/react/24/outline';
 import { useAuthContext } from '../context/useAuthContext';
 import { useLanguage } from '../context/useLanguageContext';
 
-export default function LoginStatus({ MAX_EDIT_COUNT = 10, onFortuneClick }) {
+export default function LoginStatus({ MAX_EDIT_COUNT, onFortuneClick, isCookieDone }) {
   const { user, userData } = useAuthContext();
   const { language } = useLanguage();
 
@@ -60,9 +60,21 @@ export default function LoginStatus({ MAX_EDIT_COUNT = 10, onFortuneClick }) {
             </div>
             <button
               onClick={onFortuneClick}
-              className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 text-[11px] font-extrabold px-3 py-1 my-2 rounded-lg shadow-sm transition-all active:scale-95"
+              disabled={isCookieDone} // true일 때 클릭 차단
+              className={`w-full text-[11px] font-extrabold px-3 py-1 my-2 rounded-lg shadow-sm transition-all 
+    ${
+      isCookieDone
+        ? 'bg-gray-200 dark:bg-slate-700 text-gray-400 cursor-not-allowed opacity-60' // 비활성화 스타일
+        : 'bg-yellow-500 hover:bg-yellow-400 text-slate-950 active:scale-95' // 활성화 스타일
+    }`}
             >
-              {language === 'ko' ? '받기' : 'Open'}
+              {isCookieDone
+                ? language === 'ko'
+                  ? '완료'
+                  : 'Done'
+                : language === 'ko'
+                  ? '받기'
+                  : 'Open'}
             </button>
           </div>
         </div>

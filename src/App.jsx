@@ -731,7 +731,11 @@ export default function App() {
       </div>
       {/* 로그인이 안되어 있을 때는 LOGIN STATUS보이지 않음 */}
       {!!user && (
-        <LoginStatus MAX_EDIT_COUNT={MAX_EDIT_COUNT} onFortuneClick={handleFortuneCookie} />
+        <LoginStatus
+          MAX_EDIT_COUNT={MAX_EDIT_COUNT}
+          onFortuneClick={handleFortuneCookie}
+          isCookieDone={isCookieDone}
+        />
       )}
 
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
