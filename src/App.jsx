@@ -54,6 +54,7 @@ import FortuneBanner from './ui/FortuneBanner';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
+  console.log(user, userData);
   const {
     editCount,
     setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)

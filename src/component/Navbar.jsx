@@ -22,6 +22,7 @@ import logoKorDark from '../assets/Logo_Kor_DarkMode.png';
 import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
 import logoKor from '../assets/Logo_Kor.png';
 import logoEng from '../assets/Logo_Eng.png';
+import { RiAdminFill } from 'react-icons/ri';
 
 const MAIN_MENUS = [
   { id: 'home', ko: '홈', en: 'Home', path: '/', icon: HomeIcon },
@@ -172,6 +173,16 @@ export default function NavBar() {
                         {userData.displayName || user.displayName}
                       </p>
                     </div>
+                  </div>
+                )}
+                {userData?.role === 'admin' && (
+                  <div
+                    key={'admin'}
+                    onClick={() => handleMainNavigate('/admin')}
+                    className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${location.pathname === '/admin' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 font-bold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'}`}
+                  >
+                    <RiAdminFill className="w-5 h-5 mr-3" />
+                    <span>{language === 'ko' ? '관리자' : 'admin'}</span>
                   </div>
                 )}
 
