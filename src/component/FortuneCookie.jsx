@@ -1,6 +1,6 @@
 import { useUsageLimit } from '../context/useUsageLimit';
 import { useAuthContext } from '../context/useAuthContext';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc,increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useState } from 'react';
 import { UI_TEXT } from '../data/constants';
@@ -80,7 +80,7 @@ export default function FortuneCookie({ setAiResult }) {
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           ZCookie: { today: todayStr, msg: resultMsg },
-          dailyUsage: { [new Date().toLocaleDateString('en-CA').fCookie]: 1 },
+          dailyUsage: { [new Date().toLocaleDateString('en-CA')]: increment(1) },
         },
         { merge: true },
       );

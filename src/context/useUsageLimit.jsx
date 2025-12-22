@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { UI_TEXT } from '../data/constants';
 
@@ -10,20 +10,14 @@ export const useUsageLimit = (user, userData, language) => {
   const MAX_EDIT_COUNT = useMemo(() => {
     // [디버깅용] 이 로그가 콘솔에 찍히는지 확인해주세요.
     // console.log("🔍 Limit Check - UID:", user?.uid);
-
+    console.log(userData, language); // 여기서 확인하고 싶다면
     // user가 없으면 기본값 3
+    if (userData?.role === 'admin') return 10;
+
     if (!user || !user.uid) return 3;
 
-    const targetUid = 'PQs3NGG6zqPqyiEeLVFYZkQvOHu1';
-
-    // 문자열 공백 제거 후 비교 (안전장치)
-    if (user.uid.trim() === targetUid) {
-      //   console.log("✅ Admin/Tester recognized. Limit set to 20.");
-      return 20;
-    }
-
     return 3;
-  }, [user?.uid]); // 👈 핵심: user 객체 대신 uid 문자열을 감지
+  }, [user?.uid, userData]); // 👈 핵심: user 객체 대신 uid 문자열을 감지
 
   const isLocked = editCount >= MAX_EDIT_COUNT;
 
@@ -46,7 +40,7 @@ export const useUsageLimit = (user, userData, language) => {
       editCount: newCount,
       lastEditDate: todayDate,
       dailyUsage: {
-        [todayDate]: newCount,
+        [todayDate]: increment(1),
       },
     };
 

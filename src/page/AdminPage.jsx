@@ -52,12 +52,12 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             관리자 페이지
           </h1>
-          <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          {/* <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <span className="font-medium text-gray-400 dark:text-gray-500">사용자 ID:</span>
             <code className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs font-mono text-gray-600 dark:text-gray-300">
               {user.uid}
             </code>
-          </div>
+          </div> */}
         </header>
 
         <div className="space-y-10">

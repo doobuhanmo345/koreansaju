@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 // 2. External Libraries (Firebase, Icons)
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, increment } from 'firebase/firestore';
 import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { SunIcon, HeartIcon } from '@heroicons/react/24/solid';
 import { FaHorseHead, FaDownload } from 'react-icons/fa';
@@ -54,7 +54,7 @@ import FortuneBanner from './ui/FortuneBanner';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
-  console.log(user, userData);
+  const { language } = useLanguage();
   const {
     editCount,
     setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)
@@ -62,9 +62,8 @@ export default function App() {
     isLocked,
     incrementUsage,
     checkLimit,
-  } = useUsageLimit();
+  } = useUsageLimit(user, userData, language);
   const { theme } = useTheme();
-  const { language } = useLanguage();
 
   // --- Local States ---
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
@@ -295,7 +294,7 @@ export default function App() {
             gender: gender,
           },
           dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
+            [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
         },
         { merge: true },
@@ -413,7 +412,7 @@ export default function App() {
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
+            [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
           ZApiAnalysis: {
             saju: saju,
@@ -502,7 +501,7 @@ export default function App() {
             gender: gender,
           },
           dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: editCount + 1,
+            [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
         },
         { merge: true },

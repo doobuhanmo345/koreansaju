@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 // 2. External Libraries (Firebase, Icons)
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, increment} from 'firebase/firestore';
 import {
   CalendarDaysIcon,
   PencilSquareIcon,
@@ -352,7 +352,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: newCount,
+            [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
           ZCompatiAnalysis: {
             result: result,

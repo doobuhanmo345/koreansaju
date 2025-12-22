@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 // 2. External Libraries (Firebase, Icons)
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc,increment } from 'firebase/firestore';
 
 import {
   CircleStackIcon, // 평생 재물 (동전 쌓임)
@@ -420,7 +420,7 @@ export default function Wealth({
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: newCount,
+           [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
           ZWealthAnalysis: {
             result: result,

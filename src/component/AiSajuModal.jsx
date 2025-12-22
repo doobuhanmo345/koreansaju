@@ -187,7 +187,7 @@ export default function ResultModal({
         chat_records: sajuRecords,
         updatedAt: new Date(),
         dailyUsage: {
-          [new Date().toLocaleDateString('en-CA')]: editCount + 1, // 오늘 날짜 카운트 +1
+          [new Date().toLocaleDateString('en-CA')]: increment(1), // 오늘 날짜 카운트 +1
         },
       },
       { merge: true },
