@@ -12,7 +12,8 @@ import {
   AcademicCapIcon, // 명리학자 아이콘 추가
   ChevronRightIcon, // 이동 화살표 추가
 } from '@heroicons/react/24/outline';
-
+import FourPillarVis from '../component/FourPillarVis';
+import { useSajuCalculator } from '../hooks/useSajuCalculator';
 export default function EditProfile() {
   const { user, userData, updateProfileData } = useAuthContext();
   const { language } = useLanguage();
@@ -33,7 +34,16 @@ export default function EditProfile() {
     isTimeUnknown: userData?.isTimeUnknown || false, // ✅ 명시적 추가
     gender: userData?.gender || 'female',
   });
+  const inputTime = userData?.isTimeUnknown ? '12:00' : formData.birthTime;
+  const InputDateFull = formData.birthDate + 'T' + inputTime;
 
+  const manse = useSajuCalculator(InputDateFull, userData?.isTimeUnknown).saju;
+  console.log(
+    userData?.birthDate == InputDateFull,
+    'inputDate',
+    InputDateFull,
+    userData?.isTimeUnknown,
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = (e) => {
@@ -45,7 +55,7 @@ export default function EditProfile() {
     setFormData((prev) => ({
       ...prev,
       isTimeUnknown: isChecked, // 여기서 확실하게 true/false 전달
-      birthTime: isChecked ? 'unknown' : '12:00',
+      birthTime: isChecked ? '12:00' : '12:00',
     }));
     // 체크박스 전용 핸들러
   };
@@ -54,7 +64,7 @@ export default function EditProfile() {
     setFormData((prev) => ({
       ...prev,
       isTimeUnknown: checked, // ✅ 여기서 확실하게 true/false가 바뀜
-      birthTime: checked ? 'unknown' : '12:00', // 체크되면 시간은 unknown 처리
+      birthTime: checked ? '12:00' : '12:00', // 체크되면 시간은 unknown 처리
     }));
   };
 
@@ -164,6 +174,16 @@ export default function EditProfile() {
                 ))}
               </div>
             </div>
+
+            {user && manse?.sky1 && (
+              <div className="flex flex-col justify-between mb-2 ml-1">
+                <label className="text-xs font-black text-indigo-500 uppercase tracking-wider">
+                  {language === 'ko' ? '저장된 만세력' : 'Saved Saju'}
+                </label>
+                {userData?.isTimeUnknown}
+                <FourPillarVis isTimeUnknown={userData?.isTimeUnknown} saju={manse} />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-bold">
               {/* 생년월일 입력 - 시간 모름과 상관없이 항상 표시 */}

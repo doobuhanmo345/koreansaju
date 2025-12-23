@@ -640,7 +640,7 @@ export default function App() {
       el.style.visibility = originalStyle.visibility || 'hidden';
     }
   };
-
+  console.log(inputDate);
   return (
     <div>
       {/* sronly처리할 것 */}
