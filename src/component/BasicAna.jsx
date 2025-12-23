@@ -548,10 +548,12 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
       return null;
     }
   }, [saju, inputGender]);
+  console.log(sajuData);
   const safeIlju = saju.sky1 + saju.grd1 ? getRomanizedIlju(saju.sky1 + saju.grd1) : 'gapja';
   const safeGender = inputGender ? inputGender.toLowerCase() : 'male';
   const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
   // 스토리텔링 함수
+
   const getAnalysisStory = (iljuData, shinsalList, maxOhaeng, relations) => {
     const ohaengNames = {
       ko: { wood: '나무(목)', fire: '불(화)', earth: '흙(토)', metal: '쇠(금)', water: '물(수)' },
@@ -748,19 +750,161 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
     return story;
   };
   const isEn = language === 'en';
-  const getDaewoonStory = (selectedDae, currentAge, language) => {
+  const getDaewoonStory = (selectedDae, language, pillars) => {
     const isEn = language === 'en';
-    if (!selectedDae) return '';
 
-    // [데이터 방어] 필드명 불일치 완벽 대응
-    const name = selectedDae.name || selectedDae.pillar || '정보 없음';
-    const startAge = selectedDae.startAge || selectedDae.age || '0';
+    // 데이터 방어 로직
+    if (!selectedDae || !pillars || !pillars.day) {
+      return isEn ? 'Loading luck cycle data...' : '대운 정보를 불러오는 중입니다...';
+    }
+
+    // 1. [데이터 추출] pillars.day(예: "갑진")에서 일간 "갑" 추출
+    const userGan = pillars.day.charAt(0); // 첫 글자인 일간 추출
+    const name = selectedDae.name || selectedDae.pillar || '';
+    const startAge = selectedDae.startAge || selectedDae.age || 0;
     const endAge = selectedDae.endAge || Number(startAge) + 9;
-    const shipSung = isEn
-      ? selectedDae.shipSungEn || selectedDae.shipsungEn || selectedDae.shipSung || 'Luck'
-      : selectedDae.shipSung || selectedDae.shipsung || '운세';
-    const gan = selectedDae.ganOhaeng || '';
-    const zhi = selectedDae.zhiOhaeng || '';
+    const dGanKor = selectedDae.ganKor || (name ? name.charAt(0) : ''); // 대운 천간
+    const ganO = selectedDae.ganOhaeng || '';
+    const zhiO = selectedDae.zhiOhaeng || '';
+
+    // 2. [십성 실시간 계산 테이블] 일간(userGan) vs 대운 천간(dGanKor)
+    const shipSungTable = {
+      갑: {
+        갑: '비견',
+        을: '겁재',
+        병: '식신',
+        정: '상관',
+        무: '편재',
+        기: '정재',
+        경: '편관',
+        신: '정관',
+        임: '편인',
+        계: '정인',
+      },
+      을: {
+        을: '비견',
+        갑: '겁재',
+        정: '식신',
+        병: '상관',
+        기: '편재',
+        무: '정재',
+        신: '편관',
+        경: '정관',
+        계: '편인',
+        임: '정인',
+      },
+      병: {
+        병: '비견',
+        정: '겁재',
+        무: '식신',
+        기: '상관',
+        경: '편재',
+        신: '정재',
+        임: '편관',
+        계: '정관',
+        갑: '편인',
+        을: '정인',
+      },
+      정: {
+        정: '비견',
+        병: '겁재',
+        기: '식신',
+        무: '상관',
+        신: '편재',
+        경: '정재',
+        계: '편관',
+        임: '정관',
+        을: '편인',
+        갑: '정인',
+      },
+      무: {
+        무: '비견',
+        기: '겁재',
+        경: '식신',
+        신: '상관',
+        임: '편재',
+        계: '정재',
+        갑: '편관',
+        을: '정관',
+        병: '편인',
+        정: '정인',
+      },
+      기: {
+        기: '비견',
+        무: '겁재',
+        신: '식신',
+        경: '상관',
+        계: '편재',
+        임: '정재',
+        을: '편관',
+        갑: '정관',
+        정: '편인',
+        병: '정인',
+      },
+      경: {
+        경: '비견',
+        신: '겁재',
+        임: '식신',
+        계: '상관',
+        갑: '편재',
+        을: '정재',
+        병: '편관',
+        정: '정관',
+        무: '편인',
+        기: '정인',
+      },
+      신: {
+        신: '비견',
+        경: '겁재',
+        계: '식신',
+        임: '상관',
+        을: '편재',
+        갑: '정재',
+        정: '편관',
+        병: '정관',
+        기: '편인',
+        무: '정인',
+      },
+      임: {
+        임: '비견',
+        계: '겁재',
+        갑: '식신',
+        을: '상관',
+        병: '편재',
+        정: '정재',
+        무: '편관',
+        기: '정관',
+        경: '편인',
+        신: '정인',
+      },
+      계: {
+        계: '비견',
+        임: '겁재',
+        을: '식신',
+        갑: '상관',
+        정: '편재',
+        병: '정재',
+        기: '편관',
+        무: '정관',
+        신: '편인',
+        경: '정인',
+      },
+    };
+
+    const calculatedShipSung = shipSungTable[userGan]?.[dGanKor] || '대운';
+
+    const shipSungMap = {
+      비견: { ko: '주체성과 자립', en: 'Independence' },
+      겁재: { ko: '경쟁과 사회적 변동', en: 'Competition' },
+      식신: { ko: '창의력과 풍요', en: 'Creativity' },
+      상관: { ko: '혁신과 도전', en: 'Innovation' },
+      편재: { ko: '재물 확장과 모험', en: 'Wealth Expansion' },
+      정재: { ko: '안정적 결실과 성실', en: 'Stability' },
+      편관: { ko: '책임감과 권위', en: 'Discipline' },
+      정관: { ko: '명예와 사회적 인정', en: 'Honor' },
+      편인: { ko: '특수 기술과 통찰', en: 'Intuition' },
+      정인: { ko: '지원과 학문적 성취', en: 'Support' },
+    };
 
     const ohaengMap = {
       wood: isEn ? 'Wood' : '나무(木)',
@@ -770,263 +914,251 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
       water: isEn ? 'Water' : '물(水)',
     };
 
-    // 60갑자 전체 데이터 (KR/EN 통합 객체)
+    // 3. 60갑자 전체 데이터 (생략 없이 수록)
     const pillarDetails = {
       갑자: {
-        ko: '추운 겨울 차가운 물 위로 나무가 뿌리를 내리려 고군분투하는 환경입니다. 전반기에는 정체를 겪을 수 있으나, 후반기로 갈수록 내실이 탄탄해지는 흐름입니다.',
-        en: 'A giant tree rooted in freezing winter water. External growth is slow, but internal roots are deepening. Focus on wisdom rather than immediate action.',
+        ko: '차가운 물을 머금고 겨울을 견디는 나무입니다. 성장은 더디나 지혜가 깊어지는 10년입니다.',
+        en: 'A tree in winter water. Internal growth is prioritized over visible results.',
       },
       을축: {
-        ko: '얼어붙은 땅 밑에서 봄을 기다리며 인내하는 풀의 모습입니다. 끈기와 인내심이 최대 무기이며, 고난 끝에 반드시 싹을 틔우게 됩니다.',
-        en: 'Spring grass enduring on frozen land. A decade of great perseverance. Success comes through resilience against harsh social environments.',
+        ko: '얼어붙은 땅에서 인내하는 풀의 모습입니다. 끈기와 인내로 척박한 환경을 이겨내고 성공합니다.',
+        en: 'Grass on frozen earth. Perseverance leads to breaking through social obstacles.',
       },
       병인: {
-        ko: '봄 숲 위로 떠오르는 태양과 같습니다. 에너지가 넘치고 새로운 시작에 대한 축복이 따르는 매우 역동적인 시기입니다.',
-        en: 'The sun rising over a spring forest. A dynamic decade of expansion and new beginnings. Your social status rises with radiant energy.',
+        ko: '봄 숲 위로 떠오르는 태양입니다. 역동적인 시작과 확장의 기운이 넘치는 매우 화려한 시기입니다.',
+        en: 'Sun rising over a forest. A dynamic decade of expansion and new beginnings.',
       },
       정묘: {
-        ko: '나무 정자 안을 비추는 따스한 등불의 모습입니다. 세심한 감각이 빛을 발하며, 주변 사람들과 조화를 이루며 실속을 챙기는 10년입니다.',
-        en: 'A warm lamp inside a wooden pavilion. Your delicate talents and refined social skills shine. A period of steady progress and gaining honor.',
+        ko: '나무 정자 안을 비추는 따스한 등불입니다. 세심한 감각으로 실속을 챙기며 명예를 쌓는 10년입니다.',
+        en: 'A warm lamp in a pavilion. Delicate talents lead to steady progress and honor.',
       },
       무진: {
-        ko: '깊은 호수를 품은 거대한 산의 형상입니다. 포용력이 넓고 신뢰를 얻는 시기로, 재물 규모가 커지고 리더십을 발휘하게 됩니다.',
-        en: 'A vast mountain holding a deep lake. You gain great trust and take on heavy responsibilities. A decade of financial growth and leadership.',
+        ko: '호수를 품은 산의 형상입니다. 포용력이 넓어지고 사회적 신뢰를 바탕으로 큰 책임을 맡게 됩니다.',
+        en: 'A mountain holding a lake. You gain great trust and take on heavy responsibilities.',
       },
       기사: {
-        ko: '따스한 햇살을 받아 비옥해진 땅입니다. 그동안 노력해온 일들이 실질적인 성과로 연결되며 경제적 풍요를 누리는 황금기입니다.',
-        en: 'Golden earth warmed by the sun. A time of abundance where past efforts turn into tangible results. Career and financial stability define this cycle.',
+        ko: '햇살 받은 비옥한 땅입니다. 노력해온 일들이 성과로 이어지며 경제적 풍요를 누리는 시기입니다.',
+        en: 'Golden earth warmed by sun. Past efforts turn into tangible financial results.',
       },
       경오: {
-        ko: '불길 속을 달리는 백마의 기상입니다. 강직한 의지로 어려운 과업을 성공시켜 명예를 얻게 되는 치열하고 영광스러운 구간입니다.',
-        en: 'A white horse running through fire. A decade of intense discipline. Overcoming challenges will bring you immense authority and charisma.',
+        ko: '불길 속을 달리는 백마의 기상입니다. 강직한 의지로 어려운 과업을 성공시켜 권위를 얻게 됩니다.',
+        en: 'A horse running through fire. Overcoming challenges brings you immense authority.',
       },
       신미: {
-        ko: '사막의 모래 속에서 보석을 제련하는 과정입니다. 환경이 고될 수 있으나, 이 시기를 거치면 독보적인 전문성을 갖춘 인재가 됩니다.',
-        en: 'Refining jewelry in a hot desert. Though the environment feels pressuring, this process turns you into a highly valuable expert.',
+        ko: '사막 속 보석을 제련하는 과정입니다. 고된 환경을 거쳐 독보적인 전문성을 갖춘 인재가 됩니다.',
+        en: 'Refining jewelry in a desert. This process turns you into a highly valuable expert.',
       },
       임신: {
-        ko: '바위 사이를 흐르는 깊은 강물처럼 지혜가 깊습니다. 환경 적응력이 뛰어나며 새로운 기술을 통해 활동 범위를 넓히는 역동적인 시기입니다.',
-        en: 'Deep river water flowing over rocks. High adaptability and wisdom. You will use new knowledge to expand your reach nationally or globally.',
+        ko: '바위 사이 흐르는 강물처럼 지혜가 깊습니다. 환경 적응력이 뛰어나며 활동 범위를 넓히는 시기입니다.',
+        en: 'Deep river over rocks. You will use new knowledge to expand your reach globally.',
       },
       계유: {
-        ko: '금빛 동굴에서 떨어지는 맑은 샘물처럼 통찰력이 날카로워집니다. 전문 분야에서 독보적인 성과를 거두며 삶의 순도가 높아집니다.',
-        en: 'Clear water dripping from a golden cave. Your intuition becomes sharp. You achieve unique success by focusing on the professional essence.',
+        ko: '맑은 샘물처럼 통찰력이 날카로워집니다. 전문 분야에서 독보적 성과를 거두며 삶의 질이 높아집니다.',
+        en: 'Clear water from a cave. Your intuition becomes sharp, leading to professional success.',
       },
       갑술: {
-        ko: '해 질 녘 언덕 위의 외로운 나무처럼 독립심이 강해집니다. 자수성가하려는 기운이 크며 본인만의 확고한 가치관을 세우는 시기입니다.',
-        en: 'A lone tree on a sunset hill. A period of strong independence. You will establish your own philosophy and build a foundation for the future.',
+        ko: '언덕 위 홀로 선 거목입니다. 독립심이 강해지며 본인만의 확고한 가치관을 세우는 시기입니다.',
+        en: 'A lone tree on a hill. You will establish your own philosophy and foundation.',
       },
       을해: {
-        ko: '호수 위로 넓게 퍼져나가는 연꽃의 모습입니다. 주변의 도움과 자원이 자연스럽게 모여들며 명예와 실속을 동시에 챙깁니다.',
-        en: 'Lotus spreading across a peaceful lake. Resources and supporters naturally flow toward you. Adaptability leads to great achievements.',
+        ko: '호수 위 연꽃의 모습입니다. 주변의 도움과 자원이 모여들며 명예와 실속을 동시에 챙깁니다.',
+        en: 'Lotus on a peaceful lake. Resources and supporters naturally flow toward you.',
       },
       병자: {
-        ko: '깊은 밤 호수 위로 비치는 밝은 햇살과 같습니다. 어둠을 밝히는 존재로 부각되어 본인의 명예와 이름이 널리 알려지는 화려한 운세입니다.',
-        en: 'The sun rising over a deep night lake. Your name and honor will be recognized. You take the lead in organizations as a problem solver.',
+        ko: '밤 호수 위 비치는 햇살입니다. 어둠을 밝히는 해결사로 부각되어 명예와 이름이 널리 알려집니다.',
+        en: 'Sun rising over a night lake. Your name and honor will be widely recognized.',
       },
       정축: {
-        ko: '어두운 설원 위를 밝히는 촛불의 형상입니다. 환경은 차갑지만 희망을 꺼뜨리지 않는 끈기로 보이지 않는 곳에서 실속을 챙깁니다.',
-        en: 'A candle in a dark snowy field. Though the environment feels cold, your inner warmth and wisdom eventually move and inspire others.',
+        ko: '설원 위 촛불의 형상입니다. 환경은 차갑지만 지혜와 끈기로 보이지 않는 곳에서 실속을 챙깁니다.',
+        en: 'A candle in snowy field. Inner warmth and wisdom move and inspire others.',
       },
       무인: {
-        ko: '높은 산에서 포효하는 호랑이의 기세입니다. 리더십이 극대화되고 본인의 주장이 강력하게 관철되며 새로운 분야를 개척합니다.',
-        en: 'A tiger roaring on a high mountain. Your leadership is at its peak. A great time to lead large-scale projects with power and authority.',
+        ko: '산속 호랑이의 기세입니다. 리더십이 극대화되고 본인의 주장이 관철되며 새로운 분야를 개척합니다.',
+        en: 'A tiger on a mountain. Your leadership is at its peak to lead large projects.',
       },
       기묘: {
-        ko: '비옥한 들판에 핀 꽃과 풀처럼 주변과 조화를 이룹니다. 재능을 사회적으로 발산하여 꾸준한 수익과 생활의 안정을 기하게 됩니다.',
-        en: 'Flowers blooming in a fertile field. Your artistic and social activities flourish. Steady financial flow and happiness define this cycle.',
+        ko: '비옥한 들판에 핀 꽃처럼 조화롭습니다. 재능을 발산하여 꾸준한 수익과 생활의 안정을 기하게 됩니다.',
+        en: 'Flowers in a fertile field. Artistic activities flourish with steady income.',
       },
       경진: {
-        ko: '진흙 속에서 솟구치는 백룡의 기운입니다. 인생의 대전환점을 맞이하게 되며, 과감한 결단이 예상치 못한 큰 성공을 불러옵니다.',
-        en: 'A white dragon rising from the marsh. A decade of profound transformation. A bold decision will completely change your life path.',
+        ko: '진흙 속 솟구치는 백룡의 기운입니다. 대전환점을 맞이하게 되며 과감한 결단이 큰 성공을 부릅니다.',
+        en: 'A dragon rising from marsh. A bold decision will completely change your life path.',
       },
       신사: {
-        ko: '용광로 속에서 달궈지는 보석입니다. 사회적 규율 안에서 본인을 다듬어야 하며, 이 과정을 거쳐 최상위 계층의 자격을 갖추게 됩니다.',
-        en: 'Jewelry refined in a furnace. You must follow strict rules within a system. This process carves you into a person of high social status.',
+        ko: '용광로 속 보석입니다. 규율 안에서 본인을 다듬어야 하며 최상위 계층의 자격을 갖추게 됩니다.',
+        en: 'Jewelry refined in a furnace. Following rules will carve you into high social status.',
       },
       임오: {
-        ko: '뜨거운 태양 아래 흐르는 강물처럼 감성과 이성이 교차합니다. 대인 관계가 활발해지고 예술적, 창의적 분야에서 큰 성과를 거둡니다.',
-        en: 'Water meeting fire to create steam. Passion and logic are balanced. Your charm is at its peak, leading to dynamic social success.',
+        ko: '태양 아래 흐르는 강물입니다. 감성과 이성이 교차하며 예술적, 창의적 분야에서 큰 성과를 거둡니다.',
+        en: 'Water meeting fire. Passion and charm lead to dynamic social success.',
       },
       계미: {
-        ko: '마른 숲에 내리는 단비와 같습니다. 막혔던 일들이 해결되고 문서운이나 윗사람의 덕을 보며 갈증이 해소되는 흐름입니다.',
-        en: 'Gentle rain falling on parched land. Obstacles are cleared, and mentors appear. A supportive period where long-standing problems are solved.',
+        ko: '마른 숲에 내리는 단비입니다. 막혔던 일들이 해결되고 귀인의 덕을 보며 갈증이 해소되는 흐름입니다.',
+        en: 'Rain on parched land. Obstacles are cleared and mentors appear to help.',
       },
       갑신: {
-        ko: '바위 절벽 위 거목의 형상으로 강한 책임감과 압박이 따릅니다. 이 단련을 통해 비로소 조직의 리더나 큰 인물로 거듭나게 됩니다.',
-        en: 'A giant tree on a rocky cliff against the wind. You face heavy responsibilities and social pressure, which molds you into a leader.',
+        ko: '바위산 위 거목의 형상으로 강한 책임감이 따릅니다. 단련을 통해 리더나 큰 인물로 거듭나게 됩니다.',
+        en: 'Tree on a rocky cliff. Social pressure molds you into a powerful leader.',
       },
       을유: {
-        ko: '칼날 위에 핀 꽃처럼 긴장감이 넘칩니다. 유연한 처세술과 정교한 감각을 발휘하여 경쟁을 뚫고 독보적인 위치를 점하게 됩니다.',
-        en: 'A flower blooming on a sharp blade. High tension and competition. Your delicate intuition and refined skills lead to extraordinary success.',
+        ko: '칼날 위 핀 꽃처럼 긴장감이 넘칩니다. 유연한 처세술로 경쟁을 뚫고 독보적인 위치를 점하게 됩니다.',
+        en: 'Flower on a sharp blade. Your delicate intuition leads to extraordinary success.',
       },
       병술: {
-        ko: '마른 산 위로 지는 저녁 노을입니다. 화려했던 활동을 정리하고 내실을 기하며 안정적인 기반을 마련하는 수확의 시기입니다.',
-        en: 'The sun setting over a vast dry plain. A time to wrap up activities and focus on internal harvest. Maturity leads to a stable foundation.',
+        ko: '지는 저녁 노을입니다. 화려했던 활동을 정리하고 내실을 기하며 안정적 기반을 마련하는 시기입니다.',
+        en: 'Sunset over a plain. Mature experience leads to a stable foundation.',
       },
       정해: {
-        ko: '밤바다를 비추는 등불처럼 고요한 지혜를 발휘합니다. 정신적 성장이 크며, 보이지 않는 곳에서 돕는 귀인의 조력이 따릅니다.',
-        en: 'A lantern guiding ships on the night sea. You act as a mentor with wisdom. Spiritual growth and hidden supporters accompany your journey.',
+        ko: '밤바다를 비추는 등불입니다. 정신적 성장이 크며 보이지 않는 곳에서 돕는 귀인의 조력이 따릅니다.',
+        en: 'Lamp on the night sea. You act as a mentor with deep wisdom and support.',
       },
       무자: {
-        ko: '샘물을 품은 거대한 산처럼 겉은 든든하고 속은 풍요롭습니다. 재물이 남모르게 쌓이는 운세로 경제적 안정을 이룰 수 있습니다.',
-        en: 'A spring hidden beneath a giant mountain. Financial resources accumulate quietly but steadily. Perfect economic independence is achieved.',
+        ko: '샘물 품은 산처럼 풍요롭습니다. 재물이 남모르게 쌓이는 운세로 경제적 안정을 이룰 수 있습니다.',
+        en: 'Spring hidden in a mountain. Financial resources accumulate quietly but steadily.',
       },
       기축: {
-        ko: '얼어붙은 논밭처럼 잠시 활동을 멈추고 에너지를 비축해야 합니다. 내면의 수양에 힘쓰며 다음의 큰 운을 준비하는 시기입니다.',
-        en: 'Frozen earth waiting for spring. Activities are limited. Focus on health and internal cultivation to prepare for the next big cycle.',
+        ko: '얼어붙은 논밭처럼 에너지를 비축해야 합니다. 내면 수양에 힘쓰며 다음의 큰 운을 준비하십시오.',
+        en: 'Frozen earth waiting for spring. Focus on cultivation to prepare for the next cycle.',
       },
       경인: {
-        ko: '숲속의 백호처럼 용맹하고 결단력이 빠릅니다. 개척 정신으로 새로운 분야를 장악하며 거침없는 행동력으로 성취를 거둡니다.',
-        en: 'A white tiger hunting in a forest. Your willpower becomes unbreakable. You pioneer new fields with bold and decisive actions.',
+        ko: '숲속 백호처럼 용맹하고 결단력이 빠릅니다. 개척 정신으로 새로운 분야를 장악하는 시기입니다.',
+        en: 'Tiger hunting in a forest. You pioneer new fields with bold actions.',
       },
       신묘: {
-        ko: '나무를 조각하는 정교한 칼처럼 전문 기술이 극대화됩니다. 디테일에 집중하여 남들이 흉내 낼 수 없는 가치를 창출합니다.',
-        en: 'A delicate chisel carving a masterpiece. Your specialized skills are highly valued. Focusing on details leads to unique professional success.',
+        ko: '나무 조각하는 정교한 칼입니다. 기술이 극대화되어 남들이 흉내 낼 수 없는 가치를 창출합니다.',
+        en: 'A chisel carving a masterpiece. Specialized skills lead to professional success.',
       },
       임진: {
-        ko: '바다를 누비는 흑룡의 기세로 스케일이 큰 일에 도전합니다. 활동 범위가 넓어지며 큰 변화의 파도를 타고 거부가 될 수 있는 운세입니다.',
-        en: 'A black dragon riding waves in the ocean. Your scale of activity expands greatly. Great fluctuations bring the chance for massive wealth.',
+        ko: '바다 속 흑룡의 기세로 스케일이 큰 일에 도전합니다. 큰 변화를 타고 거부가 될 수 있는 운세입니다.',
+        en: 'A dragon in the ocean. Large-scale activities bring massive wealth.',
       },
       계사: {
-        ko: '안개가 걷히고 햇살이 비치는 마을처럼 목표가 명확해집니다. 지혜를 활용하여 재물을 모으며 생활의 질이 급격히 향상됩니다.',
-        en: 'Fog lifting over a sunny village. Confusion clears, and life goals become vivid. Wisdom leads to a significant rise in living standards.',
+        ko: '안개 걷히고 햇살 비치는 마을입니다. 목표가 명확해지며 지혜를 활용해 생활 수준이 향상됩니다.',
+        en: 'Fog lifting over a village. Confusion clears and your life goals become vivid.',
       },
       갑오: {
-        ko: '여름철 그늘을 내어주는 거목처럼 영향력이 확대됩니다. 교육, 문화 사업에서 두각을 나타내며 주변을 이끄는 리더의 시기입니다.',
-        en: 'A giant tree providing shade in summer. Your influence expands as you help others. Fame comes through education or cultural activities.',
+        ko: '여름철 그늘 내어주는 거목입니다. 교육, 문화 사업에서 두각을 나타내며 주변을 이끄는 리더의 시기입니다.',
+        en: 'Tree providing shade. Influence expands through education or culture.',
       },
       을미: {
-        ko: '마른 언덕에 핀 풀처럼 끈질긴 생명력으로 성공합니다. 척박한 환경을 이겨내며 후반부로 갈수록 재산이 안정적으로 축적됩니다.',
-        en: 'Grass blooming on a dry hill. You survive and thrive in harsh conditions. Patience leads to the steady accumulation of wealth.',
+        ko: '마른 언덕 위 끈질긴 풀입니다. 척박한 환경을 이겨내며 재산이 안정적으로 축적되는 시기입니다.',
+        en: 'Grass on a dry hill. Persistence in harsh conditions leads to steady wealth.',
       },
       병신: {
-        ko: '금속에 반사되는 햇살처럼 화려하게 주목받습니다. 대중적인 인기나 사회적 평판이 상승하며 역동적으로 부와 명예를 거머쥡니다.',
-        en: 'The sun reflecting off polished metal. Your personality attracts the public eye. Dynamic activities lead to both wealth and social fame.',
+        ko: '금속에 반사되는 햇살입니다. 대중적 인기나 사회적 평판이 상승하며 역동적으로 부를 거머쥡니다.',
+        en: 'Sun reflecting off metal. Dynamic activities lead to wealth and social fame.',
       },
       정유: {
-        ko: '별빛 아래 금빛 봉황처럼 고귀한 활동이 따릅니다. 전문 분야에서 장인 정신을 발휘하여 명성을 얻고 고귀한 조력자를 만납니다.',
-        en: 'A golden phoenix under starlight. Honorable activities bring respect. You reach the level of a master in your professional field.',
+        ko: '별빛 아래 금빛 봉황입니다. 전문 분야에서 장인 정신을 발휘하여 명성을 얻고 존경을 받습니다.',
+        en: 'Phoenix under starlight. You reach the level of a master in your professional field.',
       },
       무술: {
-        ko: '황혼 녘의 광활한 사막처럼 신념이 확고해집니다. 무게감이 있어 주변에서 함부로 대하지 못하며 정신적 지주 역할을 수행합니다.',
-        en: 'A vast desert at dusk. Your convictions become unshakable. You may manage large assets or act as a spiritual anchor for others.',
+        ko: '황혼 녘 사막처럼 신념이 확고합니다. 무게감이 있어 함부로 대하지 못하며 정신적 지주 역할을 합니다.',
+        en: 'Desert at dusk. Convictions become unshakable as you act as a spiritual anchor.',
       },
       기해: {
-        ko: '물이 흐르는 비옥한 땅처럼 재물이 마르지 않습니다. 사람들과 어울리며 자연스럽게 이익을 취하고 의식주가 풍족해지는 흐름입니다.',
-        en: 'Fertile earth over flowing water. Wealth flows into your life constantly. Social interactions bring profits and a comfortable lifestyle.',
+        ko: '비옥한 땅처럼 재물이 마르지 않습니다. 사람들과 어울리며 이익을 취하고 의식주가 풍족해집니다.',
+        en: 'Fertile earth over water. Social interactions bring profits and comfort.',
       },
       경자: {
-        ko: '깊은 우물 속에서 빛나는 칼날처럼 냉철한 분석력이 돋보입니다. 시시비비를 가리는 연구나 기술 분야에서 압도적 전문성을 보입니다.',
-        en: 'A sharp blade shining in a deep well. Your analytical thinking is at its peak. You excel in research, law, or high-tech professional fields.',
+        ko: '우물 속 빛나는 칼날입니다. 냉철한 분석력이 돋보이며 연구나 기술 분야에서 압도적 전문성을 보입니다.',
+        en: 'Blade shining in a well. You excel in research, law, or high-tech fields.',
       },
       신축: {
-        ko: '진흙 속의 보석처럼 인내가 필요합니다. 조용히 내실을 다지다 보면 후반기에 당신의 가치를 알아봐 줄 귀인을 만나게 됩니다.',
-        en: 'Jewelry hidden in cold mud. Your value might not be recognized immediately, but internal cultivation will lead to a dramatic turning point.',
+        ko: '진흙 속 보석처럼 인내가 필요합니다. 내실을 다지다 보면 당신의 가치를 알아봐 줄 귀인을 만납니다.',
+        en: 'Jewelry hidden in mud. Internal cultivation leads to a dramatic turning point later.',
       },
       임인: {
-        ko: '봄 숲을 적시는 강물처럼 창의적인 아이디어가 샘솟습니다. 기획이나 교육 업종에서 큰 보람을 얻으며 새로운 활로가 열립니다.',
-        en: 'A river feeding a spring forest. Creative ideas and new life sprout everywhere. A hopeful decade where new career paths are opened.',
+        ko: '봄 숲 적시는 강물처럼 창의적입니다. 기획이나 교육 업종에서 보람을 얻으며 새로운 활로가 열립니다.',
+        en: 'River feeding a forest. Creative ideas sprout, opening new career paths.',
       },
       계묘: {
-        ko: '꽃 위의 아침 이슬처럼 섬세하고 다정합니다. 예술적 감수성이 높아지고 부드러운 카리스마로 사람들의 마음을 움직여 성공합니다.',
-        en: "Morning dew on fresh flowers. Your sensitivity and popularity rise. Your gentle charisma moves people's hearts to achieve your goals.",
+        ko: '꽃 위 아침 이슬처럼 다정합니다. 예술적 감수성이 높아지고 부드러운 카리스마로 성공합니다.',
+        en: "Dew on fresh flowers. Gentle charisma moves people's hearts to achieve goals.",
       },
       갑진: {
-        ko: '기름진 땅 위의 거목처럼 기반이 든든해집니다. 활동 영역이 넓어지고 사업이나 프로젝트가 성공 궤도에 오르는 대운의 시기입니다.',
-        en: 'A giant tree on fertile land. Your economic foundation becomes rock-solid. A once-in-a-lifetime opportunity to expand your business.',
+        ko: '기름진 땅 위 거목처럼 기반이 든든합니다. 활동 영역이 넓어지고 사업이 성공 궤도에 오릅니다.',
+        en: 'Tree on fertile land. Rock-solid foundation leads to expanded business.',
       },
       을사: {
-        ko: '열기 속의 풀처럼 본인을 화려하게 드러냅니다. 화술이 좋아지고 사교 모임의 중심이 되며 직업적인 대성공이 따르는 구간입니다.',
-        en: 'Grass shimmering in the summer heat. Your social expression is at its maximum. Fame and success come through networking and showmanship.',
+        ko: '열기 속 풀처럼 본인을 화려하게 드러냅니다. 화술이 좋아지고 사교 모임의 중심이 되는 구간입니다.',
+        en: 'Grass in summer heat. Fame and success come through showmanship.',
       },
       병오: {
-        ko: '한낮의 태양처럼 기세가 하늘을 찌릅니다. 폭발적인 에너지로 단기간에 큰 성취를 이루지만 겸손해야 그 복을 온전히 지킵니다.',
-        en: 'The blazing sun at noon. Explosive energy drives you toward rapid achievements. Success depends on balancing power with humility.',
+        ko: '한낮 태양처럼 기세가 하늘을 찌릅니다. 폭발적 에너지로 성취를 이루지만 겸손해야 복을 지킵니다.',
+        en: 'Blazing sun at noon. Explosive energy drives rapid achievements with power.',
       },
       정미: {
-        ko: '마른 땅을 데우는 열기처럼 내면의 열정이 뜨겁습니다. 장인 정신으로 한 우물을 파면 독보적인 전문가로 인정받는 운세입니다.',
-        en: 'Warm heat warming the dry earth. Quiet but intense passion drives you. Your craftsmanship leads you to become a top authority.',
+        ko: '마른 땅 데우는 열기처럼 열정이 뜨겁습니다. 한 우물을 파면 독보적 전문가로 인정받는 운세입니다.',
+        en: 'Heat warming dry earth. Craftsmanship leads you to become a top authority.',
       },
       무신: {
-        ko: '보석을 품은 거대한 산처럼 잠재력이 터져 나옵니다. 활동량이 늘어나며 부지런히 움직일수록 숨겨진 재물과 성과를 계속 발굴합니다.',
-        en: 'A huge mountain containing minerals. Hidden potentials are triggered. The more active you are, the more wealth you will discover.',
+        ko: '보석 품은 산처럼 잠재력이 터져 나옵니다. 움직일수록 숨겨진 재물과 성과를 계속 발굴합니다.',
+        en: 'Mountain containing minerals. The more active you are, the more wealth you find.',
       },
       기유: {
-        ko: '황금 들판의 추수처럼 노력이 결실로 돌아옵니다. 재물운이 안정적이며 생활의 질이 한 차원 높아지는 풍요로운 10년입니다.',
-        en: 'A golden field ready for harvest. Past hard work turns into tangible wealth. A decade of stability and enjoying the fruits of labor.',
+        ko: '황금 들판 추수처럼 노력이 결실을 맺습니다. 재물운이 안정적이며 풍요로운 10년을 보냅니다.',
+        en: 'Field ready for harvest. Past hard work turns into tangible wealth and comfort.',
       },
       경술: {
-        ko: '마른 언덕 위의 백호처럼 권위가 생깁니다. 강한 신념으로 조직을 개혁하거나 이끌며 본인의 의지를 세상에 관철하는 시기입니다.',
-        en: 'A white tiger guarding a dry hill. You exercise strong authority. You lead reforms in organizations with powerful charisma.',
+        ko: '언덕 위 백호처럼 권위가 생깁니다. 강한 신념으로 조직을 개혁하거나 이끌며 명성을 얻습니다.',
+        en: 'Tiger guarding a hill. You lead reforms in organizations with charisma.',
       },
       신해: {
-        ko: '맑은 물에 씻긴 보석처럼 가치가 깨끗하게 드러납니다. 지혜로운 판단력으로 명성을 얻으며 사람들의 부러움을 사는 우아한 삶을 삽니다.',
-        en: 'Jewelry washed in clear water. Your value is clearly revealed. A decade of grace and elegance with unexpected lucky events.',
+        ko: '맑은 물에 씻긴 보석처럼 가치가 드러납니다. 지혜로운 판단으로 사람들의 부러움을 사는 삶을 삽니다.',
+        en: 'Jewelry washed in water. Your value is clearly revealed with unexpected luck.',
       },
       임자: {
-        ko: '캄캄한 밤의 광활한 바다처럼 깊은 지혜를 품습니다. 포용력이 넓어지고 모든 것을 수용하며 큰 조직이나 학문적 대업을 이룹니다.',
-        en: 'The vast ocean in the dark night. Your wisdom and capacity become immense. You may lead large organizations or achieve great academic success.',
+        ko: '밤의 광활한 바다처럼 깊은 지혜를 품습니다. 포용력이 넓어지고 큰 조직이나 학문적 대업을 이룹니다.',
+        en: 'Ocean in the dark night. Immense capacity leads to leading large organizations.',
       },
       계축: {
-        ko: '얼어붙은 땅에 내리는 비처럼 고독하지만 성숙해집니다. 정신적 깊이가 깊어지며 남들이 모르는 비장의 무기를 준비하게 됩니다.',
-        en: 'Rain falling on frozen earth. A period of solitude but great internal maturity. You gain insights that others miss for a future breakthrough.',
+        ko: '얼어붙은 땅 위 비처럼 고독하지만 성숙해집니다. 남들이 모르는 비장의 무기를 준비하는 시기입니다.',
+        en: 'Rain on frozen earth. Internal maturity prepares you for a breakthrough.',
       },
       갑인: {
-        ko: '봄날의 울창한 거목 숲처럼 독립심이 강합니다. 추진력이 거침없어 본인의 사업을 일으키거나 리더로서 독보적 존재감을 드러냅니다.',
-        en: 'A forest of giant trees in spring. Strong independence drives you. You pioneer your own field and take full control of your path.',
+        ko: '봄날 울창한 거목 숲처럼 독립심이 강합니다. 추진력이 거침없어 본인의 사업을 일으키는 시기입니다.',
+        en: 'Forest of trees in spring. Pioneer your own field and take control of your path.',
       },
       을묘: {
-        ko: '푸른 초원처럼 유연하면서도 끈질긴 생명력을 보입니다. 대인 관계가 원만하고 실속을 차리는 영리함으로 영역을 확장합니다.',
-        en: 'Lush green fields in mid-spring. You expand your territory with flexibility and vitality. Success comes through persistent networking.',
+        ko: '푸른 초원처럼 유연한 생명력을 보입니다. 원만한 대인 관계와 영리함으로 영역을 확장합니다.',
+        en: 'Green fields in mid-spring. Expand territory with flexibility and networking.',
       },
       병진: {
-        ko: '습지 위로 비치는 햇살처럼 희망을 줍니다. 창의적인 아이디어가 현실적인 결과로 이어지며 주변을 번영하게 만드는 복덩이 운세입니다.',
-        en: 'Sunlight over a spring marsh. You bring vitality and hope to others. Creative planning leads to the prosperity of your community.',
+        ko: '습지 위 햇살처럼 희망을 줍니다. 창의적 아이디어가 결과로 이어지는 복덩이 운세입니다.',
+        en: 'Sunlight over a marsh. Creative planning leads to prosperity of your community.',
       },
       정사: {
-        ko: '용광로 속 등불처럼 뜨거운 집념으로 결과를 냅니다. 사회적 성취욕이 강해지며 목표를 정하면 끝내 쟁취하는 강렬한 운의 흐름입니다.',
-        en: 'A lamp burning in the furnace. You burn with ambition to achieve results. A decade of intense social success and striking honor.',
+        ko: '용광로 속 등불처럼 집념으로 결과를 냅니다. 성취욕이 강해지며 목표를 끝내 쟁취하는 시기입니다.',
+        en: 'Lamp in the furnace. Intense social success and striking honor define this cycle.',
       },
       무오: {
-        ko: '화산을 품은 산처럼 내면에 폭발적 기운을 가졌습니다. 인내심이 대단하며 결정적인 순간에 천하를 흔들 정도의 파괴력을 보여줍니다.',
-        en: 'A high mountain with a volcano inside. Steady on the outside but filled with explosive desire. Patience leads to powerful governance.',
+        ko: '화산 품은 산처럼 폭발적 기운을 가졌습니다. 인내심이 대단하며 결정적 순간에 파괴력을 보여줍니다.',
+        en: 'Mountain with a volcano inside. Your patience leads to powerful governance.',
       },
       기미: {
-        ko: '사막의 뜨거운 모래처럼 고집과 자립심이 강합니다. 어떤 역경도 스스로 극복하며 한 분야의 장인이 되어 안정적인 부를 쌓습니다.',
-        en: 'Hot sand in the desert. Unbreakable self-reliance help you overcome adversity. You will build stable wealth as a specialized master.',
+        ko: '뜨거운 모래처럼 자립심이 강합니다. 역경을 스스로 극복하며 안정적인 부를 쌓는 운세입니다.',
+        en: 'Hot sand in the desert. Unbreakable self-reliance helps build stable wealth.',
       },
       경신: {
-        ko: '바위에 가는 칼날처럼 승부욕이 최고조에 달합니다. 결단력 있는 행동으로 강한 전문직 분야에서 최고의 자리에 오르게 됩니다.',
-        en: 'A sharp sword being sharpened on a rock. Your fighting spirit is at its peak. You excel in high-stakes professional fields.',
+        ko: '바위에 가는 칼날처럼 승부욕이 최고조입니다. 결단력 있는 행동으로 전문 분야에서 최고가 됩니다.',
+        en: 'Blade sharpened on a rock. You excel in high-stakes professional fields.',
       },
       신유: {
-        ko: '순도 높은 황금과 보석처럼 본인만의 세계를 지킵니다. 고귀하고 품격 있는 활동을 이어가며 완벽주의적 성과로 가치를 증명합니다.',
-        en: 'Pure gold and sharp jewelry. Your internal world is perfectly established. You maintain high standards and live a life of dignity.',
+        ko: '순도 높은 황금처럼 본인의 세계를 지킵니다. 고귀하고 품격 있는 활동으로 가치를 증명합니다.',
+        en: 'Pure gold and jewelry. Maintain high standards and live a life of dignity.',
       },
       임술: {
-        ko: '계곡에 갇힌 깊은 물처럼 인내하며 기회를 기다립니다. 정신적 공부를 통해 내실을 다지면 훗날 바다로 나가는 거대한 운을 맞습니다.',
-        en: 'Deep water trapped in a dry valley. A time for patience and insight. Internal cultivation will lead to a massive breakthrough later.',
+        ko: '계곡에 갇힌 물처럼 인내하며 기다립니다. 내실을 다지면 훗날 바다로 나가는 큰 운을 맞습니다.',
+        en: 'Water in a dry valley. Internal cultivation leads to a massive breakthrough.',
       },
       계해: {
-        ko: '끝없이 흐르는 바다처럼 포용력이 넓고 지혜롭습니다. 해외 운이나 유통 분야에서 성공하며 모든 경험을 자산으로 만드는 시기입니다.',
-        en: 'The endless flow of the ocean. You embrace all changes with wisdom. Success comes through global networking or cultural exchange.',
+        ko: '끝없이 흐르는 바다처럼 포용력이 넓습니다. 해외 운이나 유통 분야에서 지혜롭게 성공합니다.',
+        en: 'Endless flow of the ocean. Embrace changes with wisdom and global networking.',
       },
     };
 
-    const shipSungMap = {
-      비견: isEn ? 'Independence' : '독립심과 주체성',
-      겁재: isEn ? 'Competition' : '경쟁과 사회적 변동',
-      식신: isEn ? 'Creativity' : '창의력과 풍요',
-      상관: isEn ? 'Innovation' : '혁신과 표현',
-      편재: isEn ? 'Adventure' : '역동적 재물과 모험',
-      정재: isEn ? 'Stability' : '성실과 안정',
-      편관: isEn ? 'Discipline' : '책임감과 권위',
-      정관: isEn ? 'Honor' : '명예와 질서',
-      편인: isEn ? 'Insight' : '직관과 통찰',
-      정인: isEn ? 'Support' : '조력과 수용',
-    };
-
+    // 4. 최종 결과 조립
     const currentNuance = pillarDetails[name]
       ? isEn
         ? pillarDetails[name].en
@@ -1034,8 +1166,20 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
       : isEn
         ? 'Significant transition.'
         : '중요한 변화의 시기입니다.';
+    const shipSungDetail = shipSungMap[calculatedShipSung]
+      ? isEn
+        ? shipSungMap[calculatedShipSung].en
+        : shipSungMap[calculatedShipSung].ko
+      : '개인적 성장';
 
-    const clashKey = `${gan}_${zhi}`;
+    const introText = isEn
+      ? `<b>Luck Cycle: ${name} (Age ${startAge} - ${endAge})</b>`
+      : `<b>${name} 대운 (약 ${startAge}세 ~ ${endAge}세)</b>`;
+    const shipSungText = isEn
+      ? `The energy of <b>${calculatedShipSung}</b> is the primary driver, focusing on <b>${shipSungDetail}</b>.`
+      : `당신의 운명에서 이 구간은 <b>${calculatedShipSung}</b>의 작용력이 가장 크게 나타납니다. 이는 <b>${shipSungDetail}</b>의 흐름이 주도하게 됨을 의미합니다.`;
+
+    const clashKey = `${ganO}_${zhiO}`;
     const isClash = !(
       {
         water_wood: 1,
@@ -1048,38 +1192,21 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         earth_fire: 1,
         metal_earth: 1,
         water_metal: 1,
-      }[clashKey] || gan === zhi
+      }[clashKey] || ganO === zhiO
     );
 
-    const introText = isEn
-      ? `<b>Luck Cycle: ${isEn ? '' : name} (Age ${startAge} - ${endAge})</b>`
-      : `<b>${name} 대운 (약 ${startAge}세 ~ ${endAge}세)</b>`;
-
-    const flowText = isEn
-      ? `Starting from age ${startAge}, here is the flow of this 10-year cycle.`
-      : `${startAge}세부터 시작되는 이 10년의 흐름에 대해 설명해 드립니다.`;
-
-    const shipSungText = isEn
-      ? `The energy of <b>${shipSung}</b> is the primary driver, focusing on <b>${shipSungMap[shipSung] || shipSung}</b>.`
-      : `당신의 운명에서 이 구간은 <b>${shipSung}</b>의 작용력이 가장 크게 나타납니다. 이는 <b>${shipSungMap[shipSung] || shipSung}</b>의 흐름이 주도하게 됨을 의미합니다.`;
-
     const environmentText = isEn
-      ? `The interaction between ${ohaengMap[gan] || gan} and ${ohaengMap[zhi] || zhi} creates a <b>${isClash ? 'dynamic and innovative' : 'steady and supportive'}</b> environment.`
-      : `천간의 ${ohaengMap[gan] || gan} 기운과 지지의 ${ohaengMap[zhi] || zhi} 기운이 만나는 이 환경은, <b>${isClash ? '역동적인 변화와 혁신을' : '안정적인 성장과 기반을'}</b> 만들어내는 소중한 바탕이 됩니다.`;
-
-    const footerText = isEn
-      ? 'This interpretation is based on the analysis of the Luck Pillar in traditional Saju.'
-      : '이 분석은 전통 명리학의 대운 흐름 분석 원리를 바탕으로 구성되었습니다.';
+      ? `The interaction between ${ohaengMap[ganO] || ganO} and ${ohaengMap[zhiO] || zhiO} creates a <b>${isClash ? 'dynamic and innovative' : 'steady and supportive'}</b> environment.`
+      : `천간의 ${ohaengMap[ganO] || ganO} 기운과 지지의 ${ohaengMap[zhiO] || zhiO} 기운이 만나는 이 환경은, <b>${isClash ? '역동적인 변화와 혁신을' : '안정적인 성장과 기반을'}</b> 만들어내는 소중한 바탕이 됩니다.`;
 
     return `
     <div style="line-height: 1.8; color: inherit; text-align: left; font-size: 15px; font-family: sans-serif;">
       <p style="margin-bottom: 12px; font-size: 16px;">${introText}</p>
-      <p style="margin-bottom: 16px;">${flowText}</p>
       <p style="margin-bottom: 20px; font-weight: 500;">${currentNuance}</p>
       <p style="margin-bottom: 16px;">${shipSungText}</p>
       <p style="margin-bottom: 16px;">${environmentText}</p>
       <p style="margin-bottom: 8px; opacity: 0.8; font-size: 14px; border-top: 1px solid #eee; padding-top: 10px;">
-        ${footerText}
+        ${isEn ? '※ Interpretation based on traditional Saju principles.' : '※ 이 분석은 전통 명리학의 대운 흐름 분석 원리를 바탕으로 구성되었습니다.'}
       </p>
     </div>
   `;
@@ -1125,6 +1252,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
   const handleDaeClick = (dae) => {
     setSelectedDae(dae);
   };
+
   const t = (char) => (language === 'en' ? getEng(char) : char);
   return (
     <div className="max-w-2xl mx-auto min-h-screen  flex flex-col items-center transition-colors">
@@ -1545,7 +1673,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
                 <div
                   className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm text-justify"
                   dangerouslySetInnerHTML={{
-                    __html: getDaewoonStory(selectedDae, currentAge, language),
+                    __html: getDaewoonStory(selectedDae, currentAge, pillars),
                   }} // 함수 호출 시 선택된 대운 전달
                 />
               </div>
