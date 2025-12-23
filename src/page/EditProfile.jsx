@@ -189,7 +189,12 @@ export default function EditProfile() {
                 <label className="text-xs font-black text-indigo-500 uppercase tracking-wider mb-2">
                   {language === 'ko' ? '실시간 만세력 확인' : 'Live Saju Preview'}
                 </label>
-                <FourPillarVis isTimeUnknown={formData.isTimeUnknown} saju={manse} />
+                <div className="w-full overflow-x-auto touch-pan-x pb-2 custom-scrollbar">
+                  {/* 사주 명반이 최소 400~500px은 되어야 스마트폰에서 스크롤이 생깁니다 */}
+                  <div className="min-w-[250px]">
+                    <FourPillarVis isTimeUnknown={formData.isTimeUnknown} saju={manse} />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -274,6 +279,7 @@ export default function EditProfile() {
                 </p>
               </div>
             </div>
+
             <ChevronRightIcon className="w-6 h-6 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
           </button>
         )}
