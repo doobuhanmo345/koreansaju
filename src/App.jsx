@@ -747,7 +747,7 @@ export default function App() {
       {/* 내 정보 및 사주 시각화 카드 */}
       <div className="w-full max-w-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700 shadow-xl mx-auto my-4">
         <div className="flex flex-col m-2">
-          <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
+          {/* <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
               <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 tracking-widest uppercase">
                 <UserCircleIcon className="w-3 h-3" />
@@ -785,7 +785,7 @@ export default function App() {
               isSaved={isSaved}
               setGender={setGender}
             />
-          </div>
+          </div> */}
           {isSaved && (
             <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm relative">
               <button
@@ -825,9 +825,9 @@ export default function App() {
               </div>
             </div>
           )}
-          {!isSaved && user && saju?.sky1 && (
+          {/* {!isSaved && user && saju?.sky1 && (
             <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
-          )}
+          )} */}
         </div>
       </div>
 
