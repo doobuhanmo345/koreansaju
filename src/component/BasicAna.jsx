@@ -358,81 +358,116 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         year: { branch: branches.year, ...JIJANGGAN_MAP[branches.year] },
       };
 
-      const TEN_GOD_DESC = {
-        비겁: {
-          name: isEn ? 'Self (Bigeop)' : '비겁',
-          initial: isEn
-            ? 'have developed a strong sense of self and uncompromising conviction'
-            : '타협하지 않는 주관과 뚝심을 익혔으며',
-          middle: isEn
-            ? 'a competitive spirit that refuses to be defeated by others'
-            : '타인에게 지지 않으려는 승부욕',
-        },
-        식상: {
-          name: isEn ? 'Expression (Siksang)' : '식상',
-          initial: isEn
-            ? 'possess a free-spirited curiosity that is not bound by formality'
-            : '형식에 얽매이지 않는 자유로운 호기심을 가지고 있으며',
-          middle: isEn
-            ? 'an instinct to express yourself uniquely from others'
-            : '남과 다르게 자신을 표현하고자 하는 본능',
-        },
-        재성: {
-          name: isEn ? 'Wealth (Jaeseong)' : '재성',
-          initial: isEn
-            ? 'have the ability to perceive reality with a cool and analytical mind'
-            : '현실을 냉철하게 파악하는 능력이 있으며',
-          middle: isEn
-            ? 'a practical desire to achieve tangible results and efficiency'
-            : '확실한 결과와 실속을 챙기려는 실리적 욕망',
-        },
-        관성: {
-          name: isEn ? 'Honor (Gwanseong)' : '관성',
-          initial: isEn
-            ? 'maintain an attitude of self-discipline and adherence to principles'
-            : '스스로를 절제하고 원칙을 지키려는 태도를 가지고 있으며',
-          middle: isEn
-            ? 'a will to value honor and control yourself with integrity'
-            : '명예를 중요시하고 흐트러짐 없이 자신을 통제하려는 의지',
-        },
-        인성: {
-          name: isEn ? 'Resource (Inseong)' : '인성',
-          initial: isEn
-            ? 'think deeply about situations and accept them with an open mind'
-            : '상황을 깊이 생각하고 수용하며',
-          middle: isEn
-            ? 'profound insight and intuition to pierce through the essence of things'
-            : '본질을 꿰뚫어 보고자 하는 깊은 통찰력과 직관',
-        },
-      };
-
       const getHiddenStory = () => {
+        // 1. 십성 그룹별 + 위치별 확장 설명 (한글/영어 통합)
+        const TEN_GOD_DESC = {
+          비겁: {
+            year: isEn
+              ? 'you were likely a child with a strong will and clear self-identity'
+              : '어려서부터 고집도 좀 있고 자기 주관이 뚜렷한 아이였을 거예요',
+            month: isEn
+              ? "you are known in society as a steadfast person who doesn't easily back down"
+              : '직장이나 사회에서는 쉽게 굽히지 않는 뚝심 있는 스타일로 통하겠네요',
+            day: isEn
+              ? 'a competitive streak quietly flares up, especially when you are with those closest to you'
+              : '연인이나 배우자 앞에서는 절대 지지 않으려는 승부욕이 은근히 발동하곤 하죠',
+            time: isEn
+              ? 'you will establish a dignified sense of self-reliance, needing no one to lean on'
+              : '나이가 들수록 누구에게도 의지하지 않는 당당한 자립심을 갖게 될 거예요',
+            middle: isEn
+              ? 'a pride and competitive spirit that hates to lose'
+              : '남한테 지기 싫어하는 자존심과 승부욕',
+          },
+          식상: {
+            year: isEn
+              ? 'you were full of curiosity and quite expressive from a young age'
+              : '어릴 때부터 호기심이 많고 자기표현을 참 잘하는 편이었을 거예요',
+            month: isEn
+              ? 'you have a talent for showcasing your skills and bringing fresh ideas to the table'
+              : '사회생활 할 때도 형식적인 것보다는 아이디어를 내고 실력을 뽐내는 데 재능이 있어요',
+            day: isEn
+              ? 'you love to express yourself affectionately and engage in deep conversations with loved ones'
+              : '가장 가까운 사람에게는 다정다감하게 자신을 표현하고 대화하는 걸 좋아해요',
+            time: isEn
+              ? 'you will find the true joy of life in creative pursuits or personal hobbies'
+              : '인생 후반부로 갈수록 취미 활동이나 창의적인 일에서 삶의 즐거움을 찾게 됩니다',
+            middle: isEn
+              ? 'an honest instinct to fully express your individuality'
+              : '개성을 마음껏 드러내고 싶은 솔직한 본능',
+          },
+          재성: {
+            year: isEn
+              ? 'you had a quick sense for reality and a knack for looking after your own interests'
+              : '어려서부터 현실 감각이 빨랐고 실속을 챙기는 면이 있었겠네요',
+            month: isEn
+              ? 'you are a high-performer who calculates coolly and produces tangible results'
+              : '일을 할 때는 누구보다 냉철하게 계산하고 확실한 결과를 만들어내는 능력자예요',
+            day: isEn
+              ? 'you are always thinking about financial stability and living an efficient life deep down'
+              : '속으로는 항상 우리 집의 경제적 안정이나 효율적인 삶을 중요하게 생각하고 있죠',
+            time: isEn
+              ? 'your eye for managing wealth will deepen, leading to a comfortable and abundant life'
+              : '말년으로 갈수록 재물을 관리하는 안목이 깊어지고 풍요로운 환경을 꾸리게 됩니다',
+            middle: isEn
+              ? 'a practical desire to not miss out on real profits and results'
+              : '실질적인 이득과 결과를 놓치지 않으려는 실리적인 마음',
+          },
+          관성: {
+            year: isEn
+              ? 'you were likely a well-mannered child who knew how to exercise self-restraint'
+              : '어릴 때부터 예의 바르고 스스로를 절제할 줄 아는 모범생 같은 면이 있었을 거예요',
+            month: isEn
+              ? 'you earn the full trust of those around you due to your strong sense of responsibility'
+              : '사회에서는 원칙을 철저히 지키고 책임감이 강해서 주변의 신뢰를 한몸에 받는 분이죠',
+            day: isEn
+              ? 'you value your honor deeply and dislike showing any signs of weakness to your family'
+              : '배우자나 가족에게도 흐트러진 모습을 보이기 싫어하고 명예를 아주 소중히 여겨요',
+            time: isEn
+              ? 'you will settle your life while maintaining social dignity and earning respect'
+              : '시간이 흐를수록 사회적 품격을 유지하며 존경받는 위치에서 삶을 갈무리하게 될 거예요',
+            middle: isEn
+              ? 'a steady will to control yourself and uphold your honor'
+              : '나를 통제하고 명예를 지키려는 반듯한 의지',
+          },
+          인성: {
+            year: isEn
+              ? 'you were loved for your thoughtful and mature nature even as a small child'
+              : '어린 시절부터 생각이 깊고 어른스러운 면이 있어 사랑을 많이 받았겠네요',
+            month: isEn
+              ? 'you act as a strategist who deeply accepts and analyzes situations before moving'
+              : '일을 할 때도 서두르기보다는 상황을 깊이 수용하고 분석하는 전략가적인 면모가 있어요',
+            day: isEn
+              ? 'you are warm and understanding, though you sometimes sink into deep personal reflection'
+              : '본심은 참 따뜻하고 이해심이 넓지만, 가끔은 혼자만의 생각에 깊이 빠져들기도 하죠',
+            time: isEn
+              ? 'you will become a wise elder, attaining spiritual peace and profound knowledge'
+              : '인생의 끝자락에는 학문이나 정신적인 평온을 얻으며 아주 지혜로운 어른이 됩니다',
+            middle: isEn
+              ? 'profound insight and intuition to see through the essence of things'
+              : '본질을 꿰뚫어 보고자 하는 깊은 통찰력과 직관',
+          },
+        };
+
         const order = [
           {
             key: 'year',
-            title: isEn ? '🌱 Early Life' : '🌱 초년',
-            context: isEn
-              ? 'Influenced by your childhood experiences and family background, you'
-              : '당신은 어린시절 경험과 가족의 영향으로',
+            title: isEn ? '🌱 Roots of Life' : '🌱 초년의 기운',
+            context: isEn ? 'Looking at your growth, ' : '당신의 성장 과정을 보면 ',
           },
           {
             key: 'month',
-            title: isEn ? '🏢 Social Environment' : '🏢 사회적 환경',
-            context: isEn
-              ? 'Behind your professional and social persona,'
-              : '당신의 사회적 모습 이면에는',
+            title: isEn ? '🏢 Social Persona' : '🏢 사회적 성향',
+            context: isEn ? 'In your career and social life, ' : '사회생활을 할 때는 ',
           },
           {
             key: 'day',
             title: isEn ? '🏠 Inner Heart' : '🏠 본심과 속마음',
-            context: isEn
-              ? 'In your private life and personal relationships,'
-              : '당신이 배우자를 대할 때에는',
+            context: isEn ? 'In your private life, ' : '가장 가까운 관계에서는 ',
           },
           {
             key: 'time',
-            title: isEn ? '🌇 Later Life' : '🌇 말년',
-            context: isEn ? 'As you grow older, you' : '나이가 들수록',
+            title: isEn ? '🌇 Final Goals' : '🌇 인생의 지향점',
+            context: isEn ? 'Ultimately, ' : '결국 삶의 마지막은 ',
           },
         ];
 
@@ -440,42 +475,67 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
 
         order.forEach((section) => {
           const data = jijangganList[section.key];
-          let sectionStory = `<div class="mb-6 last:mb-0"><h4 class="font-bold text-slate-700 dark:text-slate-200 mb-1">${section.title}</h4>`;
+          if (!data) return;
+
+          let sectionStory = `<div class="mb-6 last:mb-0">
+      <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-1">${section.title}</h4>`;
           sectionStory += `<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed text-justify">`;
           sectionStory += `${section.context} `;
 
           const parts = [];
 
-          if (data.initial) {
-            const initialOhaeng = OHAENG_MAP[data.initial];
-            const tenGod = getTenGodType(dayMasterOhaeng, initialOhaeng);
-            parts.push(`<b>${TEN_GOD_DESC[tenGod].initial}</b>`);
-          }
+          // Main 십성 추출 및 그룹화
+          const mainOhaeng = OHAENG_MAP[data.main];
+          const tenGod = getTenGodType(dayMasterOhaeng, mainOhaeng);
+          const groupKey = ['비견', '겁재'].includes(tenGod)
+            ? '비겁'
+            : ['식신', '상관'].includes(tenGod)
+              ? '식상'
+              : ['편재', '정재'].includes(tenGod)
+                ? '재성'
+                : ['편관', '정관'].includes(tenGod)
+                  ? '관성'
+                  : '인성';
 
+          // Middle 십성 처리
           if (data.middle) {
             const middleOhaeng = OHAENG_MAP[data.middle];
-            const tenGod = getTenGodType(dayMasterOhaeng, middleOhaeng);
+            const mTenGod = getTenGodType(dayMasterOhaeng, middleOhaeng);
+            const mGroupKey = ['비견', '겁재'].includes(mTenGod)
+              ? '비겁'
+              : ['식신', '상관'].includes(mTenGod)
+                ? '식상'
+                : ['편재', '정재'].includes(mTenGod)
+                  ? '재성'
+                  : ['편관', '정관'].includes(mTenGod)
+                    ? '관성'
+                    : '인성';
+
+            const middleDesc = TEN_GOD_DESC[mGroupKey]?.middle || mTenGod;
             parts.push(
               isEn
-                ? `within that lies <b>${TEN_GOD_DESC[tenGod].middle}</b>`
-                : `그 내면에는 <b>${TEN_GOD_DESC[tenGod].middle}</b>이(가) 있습니다`,
+                ? `carrying <b>${middleDesc}</b> deep within, `
+                : `<b>${middleDesc}</b>을(를) 가슴 한구석에 품은 채로 `,
             );
           } else {
             parts.push(
               isEn
-                ? `show a <b>straightforward and transparent nature</b>, where your outer energy is exactly what lies in your heart, with no hidden motives`
-                : `숨겨진 다른 마음 없이, 겉으로 드러난 기운이 곧 본심인 <b>솔직하고 투명한 직진성</b>을 보입니다`,
+                ? `with a <b>transparent and simple nature</b>, `
+                : `다른 섞임 없이 <b>아주 담백하고 투명한 성격</b>을 바탕으로 `,
             );
           }
 
-          sectionStory += parts.join(isEn ? ', and ' : ', ');
-          sectionStory += `.</p></div>`;
+          // Main 위치별 설명 결합
+          const mainDesc = TEN_GOD_DESC[groupKey]?.[section.key] || tenGod;
+          parts.push(`<b>${mainDesc}</b>.`);
+
+          sectionStory += parts.join('');
+          sectionStory += `</p></div>`;
           fullStory += sectionStory;
         });
 
         return fullStory;
       };
-
       const hiddenStory = getHiddenStory();
 
       const daewoonList = [];
