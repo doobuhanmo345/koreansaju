@@ -51,6 +51,7 @@ import AnalysisButton from './ui/AnalysisButton';
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
 import FortuneBanner from './ui/FortuneBanner';
+import BeforeLogin from './page/BeforeLogin';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login } = useAuthContext();
@@ -640,7 +641,8 @@ export default function App() {
       el.style.visibility = originalStyle.visibility || 'hidden';
     }
   };
-  console.log(inputDate);
+
+  if (!userData?.birthDate) return <BeforeLogin />;
   return (
     <div>
       {/* sronly처리할 것 */}
