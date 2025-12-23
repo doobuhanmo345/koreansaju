@@ -10,7 +10,7 @@ export const useUsageLimit = (user, userData, language) => {
   const MAX_EDIT_COUNT = useMemo(() => {
     // [디버깅용] 이 로그가 콘솔에 찍히는지 확인해주세요.
     // console.log("🔍 Limit Check - UID:", user?.uid);
-    console.log(userData, language); // 여기서 확인하고 싶다면
+
     // user가 없으면 기본값 3
     if (userData?.role === 'admin') return 10;
 
