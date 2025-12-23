@@ -12,6 +12,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import EditProfile from './page/EditProfile';
 import AdminPage from './page/AdminPage';
 import AdminRoute from './routes/AdminRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
+import ApplySaju from './page/ApplySaju';
+import ConsultantDashboard from './page/ConsultantDashboard';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // 1. 공통 레이아웃 컴포넌트 정의 (파일로 따로 빼도 됩니다)
@@ -48,6 +51,15 @@ root.render(
                   </AdminRoute>
                 }
               />
+              {/* 로그인한 일반 유저만 신청 가능 */}
+              <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+                <Route path="/apply-saju-consultant" element={<ApplySaju />} />
+              </Route>
+
+              {/* 명리학자 전용 페이지 */}
+              <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
+                <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
+              </Route>
               <Route path="/sajuexp" element={<SajuExp />} />
               {/* 👈 App을 감싸던 AuthProvider는 제거 (위에서 이미 감쌌으므로) */}
               <Route path="/*" element={<App />} />

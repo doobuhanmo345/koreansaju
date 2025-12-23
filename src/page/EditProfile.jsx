@@ -9,6 +9,8 @@ import {
   ChevronLeftIcon,
   CheckIcon,
   EnvelopeIcon,
+  AcademicCapIcon, // 명리학자 아이콘 추가
+  ChevronRightIcon, // 이동 화살표 추가
 } from '@heroicons/react/24/outline';
 
 export default function EditProfile() {
@@ -16,7 +18,6 @@ export default function EditProfile() {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // 1. 데이터 파싱: "1990-12-05T10:30" -> ["1990-12-05", "10:30"]
   const initialBirthDate = userData?.birthDate ? userData.birthDate.split('T')[0] : '';
   const initialBirthTime = userData?.birthDate ? userData.birthDate.split('T')[1] : '';
 
@@ -29,27 +30,22 @@ export default function EditProfile() {
 
   const [isSaving, setIsSaving] = useState(false);
 
-  // 2. 입력 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 3. 저장 로직
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // 날짜와 시간을 다시 "YYYY-MM-DDTHH:mm" 형식으로 결합
       const combinedBirthDate = `${formData.birthDate}T${formData.birthTime}`;
-
       const updateData = {
         displayName: formData.displayName,
         birthDate: combinedBirthDate,
         gender: formData.gender,
         updatedAt: new Date(),
       };
-
       await updateProfileData(updateData);
       alert(
         language === 'ko' ? '정보가 성공적으로 수정되었습니다.' : 'Profile updated successfully.',
@@ -67,7 +63,6 @@ export default function EditProfile() {
 
   return (
     <div className="max-w-xl m-auto px-4 py-8">
-      {/* 헤더 */}
       <div className="flex items-center gap-2 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -82,7 +77,6 @@ export default function EditProfile() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white/70 dark:bg-slate-800/60 p-6 rounded-3xl border border-indigo-50 dark:border-indigo-500/20 shadow-xl backdrop-blur-md">
-          {/* 프로필 이미지 (고정) */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative">
               <img
@@ -94,7 +88,6 @@ export default function EditProfile() {
           </div>
 
           <div className="space-y-5">
-            {/* 이메일 (수정 불가, 보기 전용) */}
             <div>
               <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                 {language === 'ko' ? '이메일 (수정 불가)' : 'Email (Read Only)'}
@@ -110,7 +103,6 @@ export default function EditProfile() {
               </div>
             </div>
 
-            {/* 이름 수정 */}
             <div>
               <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                 {language === 'ko' ? '이름' : 'Name'}
@@ -125,7 +117,6 @@ export default function EditProfile() {
               />
             </div>
 
-            {/* 성별 선택 */}
             <div>
               <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                 {language === 'ko' ? '성별' : 'Gender'}
@@ -154,7 +145,6 @@ export default function EditProfile() {
               </div>
             </div>
 
-            {/* 생년월일 & 시간 분리 입력 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-bold">
               <div>
                 <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
@@ -192,7 +182,30 @@ export default function EditProfile() {
           </div>
         </div>
 
-        {/* 버튼 */}
+        {/* --- 명리학자 신청 섹션 추가 --- */}
+        {userData?.role === 'user' && (
+          <button
+            type="button"
+            onClick={() => navigate('/apply-saju-consultant')}
+            className="w-full flex items-center justify-between p-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl text-white shadow-lg hover:opacity-90 transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-white/20 rounded-xl">
+                <AcademicCapIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-black opacity-90 uppercase tracking-tighter">
+                  {language === 'ko' ? '전문가 활동' : 'Expert Activity'}
+                </p>
+                <p className="text-lg font-bold">
+                  {language === 'ko' ? '명리학자 신청하기' : 'Apply as Consultant'}
+                </p>
+              </div>
+            </div>
+            <ChevronRightIcon className="w-6 h-6 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+          </button>
+        )}
+
         <div className="flex gap-3">
           <button
             type="button"

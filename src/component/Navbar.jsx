@@ -10,6 +10,7 @@ import {
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
 } from '@heroicons/react/24/outline';
+import { GiYinYang } from 'react-icons/gi';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useLanguage } from '../context/useLanguageContext';
 import { useTheme } from '../context/useThemeContext';
@@ -183,6 +184,21 @@ export default function NavBar() {
                   >
                     <RiAdminFill className="w-5 h-5 mr-3" />
                     <span>{language === 'ko' ? '관리자' : 'admin'}</span>
+                  </div>
+                )}
+                {userData?.role === 'saju_consultant' && (
+                  <div
+                    key={'sajuconsultant'}
+                    onClick={() => handleMainNavigate('/consultant/dashboard')}
+                    className={`flex items-center p-3 cursor-pointer rounded-xl transition-colors ${
+                      location.pathname === '/consultant/dashboard' // 경로 조건 수정
+                        ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 font-bold'
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {/* 명리학자 전용 아이콘 */}
+                    <GiYinYang className="w-5 h-5 mr-3 text-indigo-500" />
+                    <span>{language === 'ko' ? '명리학자 대시보드' : 'Consultant'}</span>
                   </div>
                 )}
 
