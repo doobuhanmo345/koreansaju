@@ -255,7 +255,7 @@ export default function ResultModal({
 
     try {
       const currentSajuJson = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야, 나를 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}.`;
+      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson}sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야. 나를 선생님이 아닌 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}. undefined시는 그냥 선생님이라고 해..`;
       const todayInfo = `오늘 날짜가 ${new Date()}임을 고려해줘. 2025년은 을사년, 2026년은 병오년. `;
       const aiRef = `${aiResult}- 내가 이거에 대해서 물어볼 가능성이 높다는 걸 인지하고 이걸 기억해줘.`;
       const fullPrompt = `${myQuestion}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}\n${todayInfo}\n${SAZA_DEF_PROMPT[language]}\n${aiRef}`;

@@ -18,13 +18,19 @@ export default function EditProfile() {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
+  // 안전하게 날짜만 추출 (T를 기준으로 자르되 데이터가 없으면 빈 문자열)
   const initialBirthDate = userData?.birthDate ? userData.birthDate.split('T')[0] : '';
-  const initialBirthTime = userData?.birthDate ? userData.birthDate.split('T')[1] : '';
+
+  // isTimeUnknown이 true이면 true, 아니면 시간 추출
+  const initialBirthTime = userData?.isTimeUnknown
+    ? true
+    : userData?.birthDate?.split('T')[1] || '';
 
   const [formData, setFormData] = useState({
     displayName: userData?.displayName || user?.displayName || '',
     birthDate: initialBirthDate,
     birthTime: initialBirthTime,
+    isTimeUnknown: userData?.isTimeUnknown || false, // ✅ 명시적 추가
     gender: userData?.gender || 'female',
   });
 
@@ -33,29 +39,43 @@ export default function EditProfile() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  }; // 체크박스 클릭 시 실행될 함수
+  const handleUnknownToggle = (e) => {
+    const isChecked = e.target.checked;
+    setFormData((prev) => ({
+      ...prev,
+      isTimeUnknown: isChecked, // 여기서 확실하게 true/false 전달
+      birthTime: isChecked ? 'unknown' : '12:00',
+    }));
+    // 체크박스 전용 핸들러
+  };
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked; // ✅ value가 아닌 checked를 가져와야 함
+    setFormData((prev) => ({
+      ...prev,
+      isTimeUnknown: checked, // ✅ 여기서 확실하게 true/false가 바뀜
+      birthTime: checked ? 'unknown' : '12:00', // 체크되면 시간은 unknown 처리
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
+
     try {
-      const combinedBirthDate = `${formData.birthDate}T${formData.birthTime}`;
       const updateData = {
         displayName: formData.displayName,
-        birthDate: combinedBirthDate,
+        birthDate: `${formData.birthDate}T${formData.birthTime}`,
+        isTimeUnknown: formData.isTimeUnknown, // ✅ 이 값이 true여야 Firestore에도 true로 저장됨
         gender: formData.gender,
         updatedAt: new Date(),
       };
+
+      console.log('전송 데이터 확인:', updateData); // 전송 전에 콘솔로 true인지 확인해보세요!
       await updateProfileData(updateData);
-      alert(
-        language === 'ko' ? '정보가 성공적으로 수정되었습니다.' : 'Profile updated successfully.',
-      );
       navigate(-1);
     } catch (error) {
       console.error(error);
-      alert(language === 'ko' ? '저장 중 오류가 발생했습니다.' : 'An error occurred while saving.');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -146,6 +166,7 @@ export default function EditProfile() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-bold">
+              {/* 생년월일 입력 - 시간 모름과 상관없이 항상 표시 */}
               <div>
                 <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                   {language === 'ko' ? '생년월일' : 'Birth Date'}
@@ -157,24 +178,50 @@ export default function EditProfile() {
                     name="birthDate"
                     value={formData.birthDate}
                     onChange={handleChange}
-                    className="w-full bg-white/50 dark:bg-slate-900/50 border border-indigo-50 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-3 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                    className="w-full bg-white/50 dark:bg-slate-900/50 border border-indigo-50 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-3 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                     required
                   />
                 </div>
               </div>
+
+              {/* 태어난 시간 입력 */}
               <div>
-                <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
-                  {language === 'ko' ? '태어난 시간' : 'Birth Time'}
-                </label>
+                <div className="flex justify-between items-center mb-2 ml-1">
+                  <label className="text-xs font-black text-indigo-500 uppercase tracking-wider">
+                    {language === 'ko' ? '태어난 시간' : 'Birth Time'}
+                  </label>
+
+                  {/* 시간 모름 체크박스 */}
+                  <label className="flex items-center gap-1.5 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      // 중요: formData의 값을 직접 연결
+                      checked={formData.isTimeUnknown}
+                      onChange={handleCheckboxChange} // ✅ 전용 핸들러 연결
+                      className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                      {language === 'ko' ? '시간 모름' : 'Unknown'}
+                    </span>
+                  </label>
+                </div>
+
                 <div className="relative">
-                  <ClockIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <ClockIcon
+                    className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${formData.isTimeUnknown ? 'text-gray-300 dark:text-slate-700' : 'text-gray-400'}`}
+                  />
                   <input
                     type="time"
                     name="birthTime"
-                    value={formData.birthTime}
+                    value={formData.isTimeUnknown ? '' : formData.birthTime}
                     onChange={handleChange}
-                    className="w-full bg-white/50 dark:bg-slate-900/50 border border-indigo-50 dark:border-slate-700 rounded-2xl pl-12 pr-4 py-3 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                    required
+                    disabled={formData.isTimeUnknown}
+                    className={`w-full border rounded-2xl pl-12 pr-4 py-3 outline-none transition-all font-bold ${
+                      formData.isTimeUnknown
+                        ? 'bg-gray-100/50 dark:bg-slate-900/30 border-transparent text-gray-300 dark:text-slate-700 cursor-not-allowed'
+                        : 'bg-white/50 dark:bg-slate-900/50 border-indigo-50 dark:border-slate-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500'
+                    }`}
+                    required={!formData.isTimeUnknown}
                   />
                 </div>
               </div>

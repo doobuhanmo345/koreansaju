@@ -41,7 +41,7 @@ export const UI_TEXT = {
 
   // --- 기본 라벨 ---
   birthLabel: { ko: '생년월일시 입력', en: 'Date of Birth & Time' },
-  unknownTime: { ko: '생시 모름', en: 'Unknown Time' },
+  unknownTime: { ko: '태어난 시간 모름', en: 'Unknown Time' },
   genderLabel: { ko: '성별', en: 'Gender' },
   male: { ko: '남성 👨', en: 'Male 👨' },
   female: { ko: '여성 👩', en: 'Female 👩' },

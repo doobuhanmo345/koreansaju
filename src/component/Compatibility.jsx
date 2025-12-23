@@ -330,7 +330,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
         [Person 1 (Me)]
         Gender: ${gender}
         Saju Chart: ${mySajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
-        나를 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}.
+        나를 선생님이 아닌 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}. undefined시는 그냥 선생님이라고 해..
 
         [Person 2 (Partner)]
         Gender: ${gender2}

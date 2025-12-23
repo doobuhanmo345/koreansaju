@@ -158,7 +158,7 @@ export default function ConsultantDashboard() {
 
         {/* 프로필 관리 섹션 */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl border border-white dark:border-slate-800 transition-all text-left">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-3">
             <h3 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
               <AcademicCapIcon className="w-6 h-6 text-indigo-500" />
               전문가 프로필 관리

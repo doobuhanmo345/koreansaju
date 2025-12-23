@@ -36,7 +36,7 @@ export default function ContactModal({ onClose, email }) {
         </h3>
         <p className="mb-4 text-gray-700 dark:text-gray-300">
           {language === 'ko'
-            ? '궁금한 점이나 버그 신고는 아래 메일을 클릭하여 복사한 후 이용해주세요.'
+            ? '궁금한 점이나 문의사항은 아래 이메일로 편하게 보내주세요.'
             : 'Click the email below to copy it for inquiries or bug reports.'}
         </p>
 
