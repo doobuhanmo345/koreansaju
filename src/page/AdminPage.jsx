@@ -10,24 +10,78 @@ import {
   where,
   writeBatch,
   serverTimestamp,
+  deleteDoc,
+  addDoc, // addDoc 추가됨
 } from 'firebase/firestore';
 import { useAuthContext } from '../context/useAuthContext';
+import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'; // XMarkIcon 추가
 
 export default function AdminPage() {
   const { user, userData } = useAuthContext();
   const [newCount, setNewCount] = useState(0);
 
-  // 추가된 상태: 명리학자 신청 목록
+  // 추가된 상태: 명리학자 신청 목록 및 모달 제어
   const [applications, setApplications] = useState([]);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [rejectReason, setRejectReason] = useState('');
 
-  // 1. 기존 editCount 초기값 설정
+  // 1단계: 거절 버튼 클릭 시 모달 열기
+  const openRejectModal = (app) => {
+    setSelectedApp(app);
+    setRejectReason(''); // 사유 초기화
+    setIsRejectModalOpen(true);
+  };
+
+  // 2단계: 모달에서 '거절 확정' 클릭 시 실행되는 실제 로직
+
+  const handleRejectConfirm = async () => {
+    if (!selectedApp) return;
+    if (!rejectReason.trim()) {
+      alert('거절 사유를 입력해주세요.');
+      return;
+    }
+
+    try {
+      // 거절 대상의 UID가 확실히 있는지 체크 (selectedApp.uid)
+      console.log('거절 대상 UID:', selectedApp.uid);
+
+      // 1. 알림 생성 (notifications 컬렉션에 문서 추가)
+      // 여기서 에러가 나면 아래 삭제 로직이 실행되지 않습니다.
+      await addDoc(collection(db, 'notifications'), {
+        userId: selectedApp.uid, // 신청한 유저의 고유 ID
+        title: '전문가 신청 반려 안내',
+        message: `명리학자 신청이 반려되었습니다. 사유: ${rejectReason}`,
+        type: 'reject',
+        isRead: false,
+        createdAt: serverTimestamp(), // 서버 시간 사용
+      });
+
+      // 2. 신청서 삭제 (/consultant_applications 내 문서)
+      const appRef = doc(db, 'consultant_applications', selectedApp.id);
+      await deleteDoc(appRef);
+
+      // 3. UI 업데이트
+      setApplications((prev) => prev.filter((item) => item.id !== selectedApp.id));
+      setIsRejectModalOpen(false);
+      setSelectedApp(null);
+      setRejectReason('');
+
+      alert('거절 처리와 알림 전송이 완료되었습니다.');
+    } catch (error) {
+      // 여기서 어떤 에러인지 상세히 출력하게 수정했습니다.
+      console.error('거절 처리 중 상세 에러:', error.code, error.message);
+      alert(`오류 발생: ${error.message}`);
+    }
+  };
+  // 1. 기존 editCount 초기값 설정 (로직 유지)
   useEffect(() => {
     if (userData?.editCount !== undefined) {
       setNewCount(userData.editCount);
     }
   }, [userData]);
 
-  // 2. 추가된 Effect: 명리학자 신청 대기 목록 실시간 로드
+  // 2. 추가된 Effect: 명리학자 신청 대기 목록 실시간 로드 (로직 유지)
   useEffect(() => {
     if (userData?.role !== 'admin') return;
 
@@ -46,7 +100,7 @@ export default function AdminPage() {
 
   const docRef = doc(db, 'users', user.uid);
 
-  // --- 기존 기능 로직 ---
+  // --- 기존 기능 로직 (유지) ---
   const handleDeleteCookie = async () => {
     if (!confirm('ZCookie를 삭제하시겠습니까?')) return;
     try {
@@ -67,7 +121,7 @@ export default function AdminPage() {
     }
   };
 
-  // --- 추가된 기능: 명리학자 승인 로직 ---
+  // --- 명리학자 승인 로직 (유지) ---
   const handleApprove = async (app) => {
     if (!confirm(`${app.displayName} 님을 명리학자로 승인하시겠습니까?`)) return;
 
@@ -98,52 +152,142 @@ export default function AdminPage() {
           <p className="text-sm text-gray-500 mt-1">관리자 권한으로 시스템을 제어합니다.</p>
         </header>
 
-        {/* 1. 명리학자 신청 관리 (추가된 섹션) */}
+        {/* 1. 명리학자 신청 관리 섹션 */}
         <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 flex items-center gap-2">
             <span className="w-1 h-5 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
             명리학자 승인 대기 목록
           </h3>
 
-          <div className="overflow-hidden">
-            {applications.length > 0 ? (
-              <div className="space-y-4">
-                {applications.map((app) => (
-                  <div
-                    key={app.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 gap-4"
-                  >
-                    <div className="flex-grow">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gray-900 dark:text-gray-100">
-                          {app.displayName}
-                        </span>
-                        <span className="text-xs text-gray-500">{app.email}</span>
+          <div className="space-y-6">
+            {applications.length === 0 ? (
+              <p className="text-center py-10 text-gray-400 italic text-sm border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl">
+                대기 중인 신청 건이 없습니다.
+              </p>
+            ) : (
+              applications.map((app) => (
+                <div
+                  key={app.id}
+                  className="flex flex-col lg:flex-row items-stretch justify-between p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-gray-100/50 dark:shadow-none gap-6 transition-all hover:border-purple-200 dark:hover:border-purple-900/30"
+                >
+                  {/* 정보 영역 */}
+                  <div className="flex-grow space-y-5 text-left">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 font-black text-xl">
+                        {app.displayName?.charAt(0)}
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-1">
-                        {app.bio}
-                      </p>
+                      <div>
+                        <h4 className="text-lg font-black text-gray-900 dark:text-white leading-tight">
+                          {app.displayName}
+                        </h4>
+                        <p className="text-sm text-gray-500 font-medium">{app.email}</p>
+                      </div>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-slate-800/50 p-5 rounded-[1.5rem]">
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">
+                            소개 및 포부
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed italic line-clamp-2">
+                            "{app.bio || '등록된 소개가 없습니다.'}"
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">
+                            전문 경력
+                          </p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
+                            {app.experience || '경력 정보 없음'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-3">
+                          상담 방식
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {(app.consultationMethods || []).map((method) => (
+                            <span
+                              key={method}
+                              className="px-3 py-1 bg-white dark:bg-slate-900 rounded-full text-[11px] font-bold text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-slate-700 shadow-sm"
+                            >
+                              {method === 'text' && '💬 채팅'}
+                              {method === 'video' && '📹 화상'}
+                              {method === 'offline' && '📍 대면'}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 액션 버튼 */}
+                  <div className="flex flex-row lg:flex-col items-center justify-center lg:w-40 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-slate-800 pt-6 lg:pt-0 lg:pl-6 gap-3">
                     <button
                       onClick={() => handleApprove(app)}
-                      className="w-full sm:w-auto px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-all active:scale-95"
+                      className="flex-1 lg:flex-none w-full py-4 lg:py-5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-sm flex flex-col items-center justify-center gap-1 group shadow-lg shadow-purple-200 dark:shadow-none"
                     >
-                      승인하기
+                      <CheckIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                      <span>최종 승인</span>
+                    </button>
+                    <button
+                      onClick={() => openRejectModal(app)}
+                      className="flex-1 lg:flex-none w-full py-3 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl text-xs font-bold transition-all"
+                    >
+                      신청 거절
                     </button>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
-                <p className="text-sm text-gray-400 italic">현재 승인 대기 중인 신청이 없습니다.</p>
-              </div>
+                </div>
+              ))
             )}
           </div>
         </section>
 
-        {/* 2. 기존 데이터 관리 섹션 */}
+        {/* 거절 사유 입력 모달 */}
+        {isRejectModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white">반려 사유 입력</h3>
+                <button
+                  onClick={() => setIsRejectModalOpen(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                >
+                  <XMarkIcon className="w-6 h-6 text-gray-400" />
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4 font-medium">
+                <span className="text-purple-600 font-bold">{selectedApp?.displayName}</span>님께
+                전달될 메시지를 입력해주세요.
+              </p>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="예: 실무 경력 증빙이 부족하여 반려되었습니다."
+                className="w-full h-32 p-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-gray-800 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-medium mb-6 resize-none"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsRejectModalOpen(false)}
+                  className="flex-1 py-4 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleRejectConfirm}
+                  className="flex-[2] py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-100 dark:shadow-none transition-all"
+                >
+                  거절 확정
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 기존 데이터 관리 섹션 (로직 유지) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* ZCookie 삭제 */}
           <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
               <span className="w-1 h-5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
@@ -170,7 +314,6 @@ export default function AdminPage() {
             </div>
           </section>
 
-          {/* editCount 수정 */}
           <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
               <span className="w-1 h-5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
@@ -198,7 +341,7 @@ export default function AdminPage() {
                 <span className="text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
                   {userData?.role === 'admin'
                     ? -userData?.editCount + 10
-                    : -userData?.editCount + 3}
+                    : -userData?.editCount + 3}{' '}
                   회
                 </span>
               </div>
@@ -206,7 +349,6 @@ export default function AdminPage() {
           </section>
         </div>
 
-        {/* 푸터 안내 */}
         <footer className="pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
           <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-semibold">
             Administrator Access Only

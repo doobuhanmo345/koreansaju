@@ -25,7 +25,7 @@ import { useUsageLimit } from './context/useUsageLimit';
 import { useConsumeEnergy } from './hooks/useConsumingEnergy';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import { useModal } from './hooks/useModal';
-
+import NotificationList from './context/NotificationList';
 // 6. Utils & Helpers
 import { getPillars } from './utils/sajuCalculator';
 import processSajuData from './sajuDataProcessor';
@@ -645,6 +645,7 @@ export default function App() {
   if (!userData?.birthDate) return <BeforeLogin />;
   return (
     <div>
+      <NotificationList />
       {/* sronly처리할 것 */}
       <div className=" flex absolute justify-center w-full py-4" style={{ visibility: 'hidden' }}>
         <div
