@@ -9,62 +9,62 @@ import {
   ChevronLeftIcon,
   CheckIcon,
   EnvelopeIcon,
-  AcademicCapIcon, // 명리학자 아이콘 추가
-  ChevronRightIcon, // 이동 화살표 추가
+  AcademicCapIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import FourPillarVis from '../component/FourPillarVis';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
+
 export default function EditProfile() {
   const { user, userData, updateProfileData } = useAuthContext();
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // 안전하게 날짜만 추출 (T를 기준으로 자르되 데이터가 없으면 빈 문자열)
-  const initialBirthDate = userData?.birthDate ? userData.birthDate.split('T')[0] : '';
-
-  // isTimeUnknown이 true이면 true, 아니면 시간 추출
-  const initialBirthTime = userData?.isTimeUnknown
-    ? true
-    : userData?.birthDate?.split('T')[1] || '';
-
+  // 폼 상태 관리
   const [formData, setFormData] = useState({
-    displayName: userData?.displayName || user?.displayName || '',
-    birthDate: initialBirthDate,
-    birthTime: initialBirthTime,
-    isTimeUnknown: userData?.isTimeUnknown || false, // ✅ 명시적 추가
-    gender: userData?.gender || 'female',
+    displayName: '',
+    birthDate: '',
+    birthTime: '12:00',
+    isTimeUnknown: false,
+    gender: 'female',
   });
-  const inputTime = userData?.isTimeUnknown ? '12:00' : formData.birthTime;
-  const InputDateFull = formData.birthDate + 'T' + inputTime;
 
-  const manse = useSajuCalculator(InputDateFull, userData?.isTimeUnknown).saju;
-  console.log(
-    userData?.birthDate == InputDateFull,
-    'inputDate',
-    InputDateFull,
-    userData?.isTimeUnknown,
-  );
   const [isSaving, setIsSaving] = useState(false);
+
+  // 1. 유저 데이터 로드 시 초기값 동기화
+  useEffect(() => {
+    if (userData) {
+      const bDate = userData.birthDate ? userData.birthDate.split('T')[0] : '';
+      const bTime = userData.birthDate ? userData.birthDate.split('T')[1] : '12:00';
+
+      setFormData({
+        displayName: userData.displayName || user?.displayName || '',
+        birthDate: bDate,
+        birthTime: bTime,
+        isTimeUnknown: !!userData.isTimeUnknown,
+        gender: userData.gender || 'female',
+      });
+    }
+  }, [userData, user]);
+
+  // 2. 실시간 계산용 날짜/시간 문자열 조합
+  // formData가 바뀔 때마다 이 변수가 새로 계산되어 useSajuCalculator로 전달됩니다.
+  const effectiveTime = formData.isTimeUnknown ? '12:00' : formData.birthTime || '12:00';
+  const InputDateFull = `${formData.birthDate || '2000-01-01'}T${effectiveTime}`;
+
+  // 3. 만세력 계산 훅 (InputDateFull이 변경되면 내부적으로 리랜더링을 유발함)
+  const { saju: manse } = useSajuCalculator(InputDateFull, formData.isTimeUnknown);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  }; // 체크박스 클릭 시 실행될 함수
-  const handleUnknownToggle = (e) => {
-    const isChecked = e.target.checked;
-    setFormData((prev) => ({
-      ...prev,
-      isTimeUnknown: isChecked, // 여기서 확실하게 true/false 전달
-      birthTime: isChecked ? '12:00' : '12:00',
-    }));
-    // 체크박스 전용 핸들러
   };
+
   const handleCheckboxChange = (e) => {
-    const checked = e.target.checked; // ✅ value가 아닌 checked를 가져와야 함
+    const checked = e.target.checked;
     setFormData((prev) => ({
       ...prev,
-      isTimeUnknown: checked, // ✅ 여기서 확실하게 true/false가 바뀜
-      birthTime: checked ? '12:00' : '12:00', // 체크되면 시간은 unknown 처리
+      isTimeUnknown: checked,
     }));
   };
 
@@ -75,17 +75,20 @@ export default function EditProfile() {
     try {
       const updateData = {
         displayName: formData.displayName,
-        birthDate: `${formData.birthDate}T${formData.birthTime}`,
-        isTimeUnknown: formData.isTimeUnknown, // ✅ 이 값이 true여야 Firestore에도 true로 저장됨
+        birthDate: `${formData.birthDate}T${effectiveTime}`,
+        isTimeUnknown: formData.isTimeUnknown,
         gender: formData.gender,
         updatedAt: new Date(),
       };
 
-      console.log('전송 데이터 확인:', updateData); // 전송 전에 콘솔로 true인지 확인해보세요!
       await updateProfileData(updateData);
+      alert(language === 'ko' ? '프로필이 저장되었습니다.' : 'Profile saved successfully.');
       navigate(-1);
     } catch (error) {
-      console.error(error);
+      console.error('저장 실패:', error);
+      alert(language === 'ko' ? '저장 중 오류가 발생했습니다.' : 'Error saving profile.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -93,6 +96,7 @@ export default function EditProfile() {
 
   return (
     <div className="max-w-xl m-auto px-4 py-8">
+      {/* 상단 헤더 */}
       <div className="flex items-center gap-2 mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -107,6 +111,7 @@ export default function EditProfile() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white/70 dark:bg-slate-800/60 p-6 rounded-3xl border border-indigo-50 dark:border-indigo-500/20 shadow-xl backdrop-blur-md">
+          {/* 프로필 이미지 */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative">
               <img
@@ -118,6 +123,7 @@ export default function EditProfile() {
           </div>
 
           <div className="space-y-5">
+            {/* 이메일 섹션 */}
             <div>
               <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                 {language === 'ko' ? '이메일 (수정 불가)' : 'Email (Read Only)'}
@@ -133,6 +139,7 @@ export default function EditProfile() {
               </div>
             </div>
 
+            {/* 이름 섹션 */}
             <div>
               <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                 {language === 'ko' ? '이름' : 'Name'}
@@ -147,6 +154,7 @@ export default function EditProfile() {
               />
             </div>
 
+            {/* 성별 섹션 */}
             <div>
               <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                 {language === 'ko' ? '성별' : 'Gender'}
@@ -175,18 +183,18 @@ export default function EditProfile() {
               </div>
             </div>
 
-            {user && manse?.sky1 && (
-              <div className="flex flex-col justify-between mb-2 ml-1">
-                <label className="text-xs font-black text-indigo-500 uppercase tracking-wider">
-                  {language === 'ko' ? '저장된 만세력' : 'Saved Saju'}
+            {/* 실시간 만세력 시각화 섹션 */}
+            {manse?.sky1 && (
+              <div className="flex flex-col justify-between mb-2 ml-1 animate-in fade-in duration-500">
+                <label className="text-xs font-black text-indigo-500 uppercase tracking-wider mb-2">
+                  {language === 'ko' ? '실시간 만세력 확인' : 'Live Saju Preview'}
                 </label>
-                {userData?.isTimeUnknown}
-                <FourPillarVis isTimeUnknown={userData?.isTimeUnknown} saju={manse} />
+                <FourPillarVis isTimeUnknown={formData.isTimeUnknown} saju={manse} />
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-bold">
-              {/* 생년월일 입력 - 시간 모름과 상관없이 항상 표시 */}
+              {/* 생년월일 입력 */}
               <div>
                 <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
                   {language === 'ko' ? '생년월일' : 'Birth Date'}
@@ -210,14 +218,11 @@ export default function EditProfile() {
                   <label className="text-xs font-black text-indigo-500 uppercase tracking-wider">
                     {language === 'ko' ? '태어난 시간' : 'Birth Time'}
                   </label>
-
-                  {/* 시간 모름 체크박스 */}
                   <label className="flex items-center gap-1.5 cursor-pointer group">
                     <input
                       type="checkbox"
-                      // 중요: formData의 값을 직접 연결
                       checked={formData.isTimeUnknown}
-                      onChange={handleCheckboxChange} // ✅ 전용 핸들러 연결
+                      onChange={handleCheckboxChange}
                       className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
@@ -233,7 +238,7 @@ export default function EditProfile() {
                   <input
                     type="time"
                     name="birthTime"
-                    value={formData.isTimeUnknown ? '' : formData.birthTime}
+                    value={formData.isTimeUnknown ? '12:00' : formData.birthTime}
                     onChange={handleChange}
                     disabled={formData.isTimeUnknown}
                     className={`w-full border rounded-2xl pl-12 pr-4 py-3 outline-none transition-all font-bold ${
@@ -249,7 +254,7 @@ export default function EditProfile() {
           </div>
         </div>
 
-        {/* --- 명리학자 신청 섹션 추가 --- */}
+        {/* 명리학자 신청 섹션 */}
         {userData?.role === 'user' && (
           <button
             type="button"
@@ -273,6 +278,7 @@ export default function EditProfile() {
           </button>
         )}
 
+        {/* 하단 버튼 */}
         <div className="flex gap-3">
           <button
             type="button"
