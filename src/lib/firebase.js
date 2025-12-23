@@ -6,6 +6,7 @@ import {
   signOut,
   onAuthStateChanged,
   setPersistence,
+  indexedDBLocalPersistence, // 추가
   browserLocalPersistence, // LocalStorage만 사용
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
@@ -36,22 +37,32 @@ const provider = new GoogleAuthProvider();
 
 export async function login() {
   try {
-    // 1. Persistence를 LocalStorage로 강제 설정
-    // 로그인 시점에 명확하게 LocalStorage를 사용하도록 지정합니다.
+    // 1. Persistence 설정 (표준적인 단일 인자 방식으로 변경)
+    // 인자를 배열이 아닌 단일 객체로 넣어야 합니다.
     await setPersistence(auth, browserLocalPersistence);
 
-    // 2. 팝업 로그인 실행
+    // 2. 구글 프로바이더 설정
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account',
+    });
+
+    // 3. 팝업 실행
     const result = await signInWithPopup(auth, provider);
 
     console.log('로그인 성공:', result.user);
     return result.user;
   } catch (error) {
-    console.error('로그인 실패:', error);
+    // 에러 메시지가 문자열일 경우를 대비해 상세히 로깅
+    console.error('로그인 상세 에러:', error);
 
     if (error.code === 'auth/popup-closed-by-user') {
       console.log('사용자가 팝업을 닫았습니다.');
+    } else if (error.message?.includes('missing initial state')) {
+      alert(
+        '브라우저 보안 설정으로 인해 로그인이 차단되었습니다. 다른 브라우저(크롬 등)를 사용하거나 사파리 설정을 확인해주세요.',
+      );
     }
-    // "missing initial state" 에러도 여기서 잡히게 됩니다.
 
     throw error;
   }

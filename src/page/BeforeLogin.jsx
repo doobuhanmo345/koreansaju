@@ -126,7 +126,7 @@ export default function BeforeLogin() {
                   setLanguage('en');
                   setStep(2);
                 }}
-                className={`p-4 rounded-2xl border-2 font-bold transition-all ${language === 'en' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600' : 'border-slate-100 dark:border-slate-800'}`}
+                className={`p-4 rounded-2xl border-2 font-bold transition-all ${language === 'en' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600' : 'border-slate-100 dark:border-slate-800 dark:text-white'}`}
               >
                 English
               </button>
