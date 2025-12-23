@@ -746,8 +746,8 @@ export default function App() {
 
       {/* 내 정보 및 사주 시각화 카드 */}
       <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto my-4">
-        <div className="flex items-center justify-between  p-3 ">
-          {/* <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
+        {!userData?.birthDate && (
+          <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
               <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 tracking-widest uppercase">
                 <UserCircleIcon className="w-3 h-3" />
@@ -785,7 +785,9 @@ export default function App() {
               isSaved={isSaved}
               setGender={setGender}
             />
-          </div> */}
+          </div>
+        )}
+        <div className="flex items-center justify-between  p-3 ">
           {isSaved && (
             <div className="mx-auto max-w-lg p-3 relative overflow-hidden group">
               {/* 다운로드 버튼 - 디자인 일관성 유지 */}
