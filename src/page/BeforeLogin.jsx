@@ -109,31 +109,56 @@ export default function BeforeLogin() {
     year: '',
     month: '',
     day: '',
-    hour: '12',
-    minute: '00',
+    hour: '',
+    minute: '',
   });
   const [timeUnknown, setTimeUnknown] = useState(false);
 
   const handleComplete = async () => {
     if (!user?.uid) return;
+
+    // 1. 필수값 추출
+    const { year, month, day, hour, minute } = birthData;
+
+    // 2. 유효성 검사 (하나라도 비어있으면 중단)
+    const isDateEmpty = !year || !month || !day;
+    const isTimeEmpty = !timeUnknown && (!hour || !minute);
+
+    if (isDateEmpty || isTimeEmpty) {
+      alert(language === 'ko' ? '모든 정보를 입력해주세요!' : 'Please fill in all information!');
+      return; // 👈 여기서 중단되어야 함
+    }
+
+    // 3. 데이터 포맷팅
     const pad = (n) => n.toString().padStart(2, '0');
-    const formattedBirthdate = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
+    const formattedBirthdate = `${year}-${pad(month)}-${pad(day)}T${timeUnknown ? '12' : pad(hour)}:${timeUnknown ? '00' : pad(minute)}`;
 
     try {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
-        gender: gender, // 성별 저장 추가
+        gender: gender,
         birthDate: formattedBirthdate,
         timeUnknown: timeUnknown,
         updatedAt: new Date(),
       });
-      window.location.href = '/dashboard';
+      window.location.href = '/';
     } catch (error) {
-      console.error('데이터 저장 실패:', error);
-      alert('정보 저장 중 오류가 발생했습니다.');
+      console.error('저장 실패:', error);
     }
   };
 
+  // 버튼 비활성화 조건 정의
+  // 1. 년, 월, 일은 무조건 있어야 함
+  // 1. 년, 월, 일은 어떤 경우에도 비어있으면 안 됨
+  const isDateInvalid = !birthData.year || !birthData.month || !birthData.day;
+
+  // 2. 시간을 모르는 게 아닐 때(false)만 시, 분이 비어있는지 체크
+  // (시간을 안다고 했으니 시/분이 비어있으면 Invalid가 됨)
+  const isTimeInvalid = !timeUnknown && (!birthData.hour || !birthData.minute);
+
+  // 3. 최종 판단: 날짜가 잘못됐거나, 시간이 잘못됐으면 버튼 비활성화
+  const isInvalid = isDateInvalid || isTimeInvalid;
+  console.log(isInvalid);
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-white dark:border-slate-800">
@@ -333,6 +358,7 @@ export default function BeforeLogin() {
             <button
               className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all mt-4"
               onClick={handleComplete}
+              disabled={isInvalid} //
             >
               {t.complete}
             </button>
