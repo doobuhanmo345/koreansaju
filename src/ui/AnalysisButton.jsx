@@ -22,7 +22,7 @@ export default function AnalysisButton({
   redBadge = false,
   goldBadge = false,
   cost = -1,
-  textFree='free',
+  textFree = 'free',
 }) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -66,7 +66,7 @@ export default function AnalysisButton({
       {!loading && user && isSaved && redBadge && (
         <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden rounded-tr-2xl">
           <div className="absolute top-0 right-0 h-full w-full flex items-center justify-center bg-transparent">
-            <div className="absolute top-[10px] right-[-28px] w-[100px] h-[18px] bg-gradient-to-r from-rose-500 to-red-600 text-white text-[8px] font-black uppercase tracking-widest flex items-center justify-center transform rotate-45 shadow-md z-20 border-y border-white/20">
+            <div className="absolute top-[10px] right-[-28px] w-[100px] h-[18px] bg-gradient-to-r from-rose-500 to-red-600 text-white text-[8px] font-black uppercase tracking-widest flex items-center justify-center transform rotate-45 shadow-md z-10 border-y border-white/20">
               Limited
             </div>
           </div>
@@ -75,7 +75,7 @@ export default function AnalysisButton({
       {!loading && user && isSaved && goldBadge && (
         <div className="absolute top-0 right-0 w-16 h-16 pointer-events-none overflow-hidden rounded-tr-2xl">
           <div className="absolute top-0 right-0 h-full w-full flex items-center justify-center bg-transparent">
-            <div className="absolute top-[10px] right-[-28px] w-[100px] h-[18px] bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-white text-[8px] font-black uppercase tracking-widest flex items-center justify-center transform rotate-45 shadow-md z-20 border-y border-white/30">
+            <div className="absolute top-[10px] right-[-28px] w-[100px] h-[18px] bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-white text-[8px] font-black uppercase tracking-widest flex items-center justify-center transform rotate-45 shadow-md z-10 border-y border-white/30">
               Daily
             </div>
           </div>
@@ -122,7 +122,9 @@ export default function AnalysisButton({
               : 'border-white/30 bg-white/20', // 열렸을 때 (밝고 투명)
           )}
         >
-          <span className="text-[9px] font-bold text-white tracking-wide uppercase">{textFree}</span>
+          <span className="text-[9px] font-bold text-white tracking-wide uppercase">
+            {textFree}
+          </span>
           <TicketIcon className="w-3 h-3 text-white" />
         </div>
       )}
@@ -137,7 +139,7 @@ export default function AnalysisButton({
             active={isSaved && user}
             consuming={energy.isConsuming}
             loading={loading && !energy.isConsuming}
-            cost ={cost}
+            cost={cost}
           />
         </div>
       )}

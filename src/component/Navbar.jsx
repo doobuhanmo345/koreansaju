@@ -159,20 +159,38 @@ export default function NavBar() {
                       navigate('/editprofile');
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 px-3 py-3 mb-2 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl cursor-pointer hover:bg-indigo-100/50 dark:hover:bg-indigo-900/40 transition-colors"
+                    className="group flex flex-col gap-3 p-4 mb-4 bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-[2rem] cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-500 transition-all shadow-sm hover:shadow-md"
                   >
-                    <img
-                      src={user.photoURL}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full border border-indigo-200 dark:border-indigo-500/30 object-cover"
-                    />
-                    <div className="flex flex-col min-w-0">
-                      <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tight leading-none mb-1">
-                        Signed in as
-                      </p>
-                      <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">
-                        {userData?.displayName || user?.displayName}
-                      </p>
+                    {/* 상단: 유저 정보 영역 */}
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={user.photoURL}
+                        alt="Profile"
+                        className="w-12 h-12 rounded-full border-2 border-indigo-100 dark:border-indigo-800 object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
+                          Logged in as
+                        </p>
+                        <p className="text-base font-black text-gray-900 dark:text-white truncate">
+                          {userData?.displayName || user?.displayName}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 하단: 누가 봐도 '수정'임을 알리는 버튼 영역 */}
+                    <div className="flex items-center justify-center gap-2 py-2.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl group-hover:bg-indigo-600 transition-all">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-4 h-4 text-indigo-600 dark:text-indigo-400 group-hover:text-white transition-colors"
+                      >
+                        <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.154-1.262a.5.5 0 00.153-.122L16.12 6.447a.75.75 0 000-1.06l-2.122-2.122a.75.75 0 00-1.061 0L2.817 14.61a.5.5 0 00-.122.153z" />
+                      </svg>
+                      <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 group-hover:text-white transition-colors">
+                        프로필 수정하기
+                      </span>
                     </div>
                   </div>
                 )}

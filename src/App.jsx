@@ -704,7 +704,7 @@ export default function App() {
               marginBottom: '12px',
             }}
           >
-            SIGNATURE
+            SIGNATURE{' '}
           </div>
 
           {/* 텍스트 영역 */}
@@ -787,41 +787,49 @@ export default function App() {
             />
           </div> */}
           {isSaved && (
-            <div className="mb-6 mx-auto max-w-md bg-indigo-50/50 dark:bg-slate-700/50 border border-indigo-100 dark:border-indigo-900/30 rounded-2xl p-5 text-center shadow-sm backdrop-blur-sm relative">
+            <div className="mx-auto max-w-lg p-3 relative overflow-hidden group">
+              {/* 다운로드 버튼 - 디자인 일관성 유지 */}
               <button
                 onClick={() => handleShareImg('share-card')}
-                className="absolute top-3 right-3"
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all shadow-sm"
               >
-                <FaDownload className="h-3 w-3 text-indigo-700/50 hover:text-indigo-700/80" />
+                <FaDownload className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-300" />
               </button>
-              <div className="flex items-center justify-center gap-2 mb-2 opacity-80">
-                <div className="h-[1px] w-6 bg-gradient-to-r from-transparent to-indigo-300 dark:to-indigo-600"></div>
-                <span className="text-[12px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400 uppercase drop-shadow-sm">
-                  Who Am I?
+
+              {/* 상단 헤더 - 더 심플하게 처리하여 텍스트 공간 확보 */}
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-[15px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400/60 uppercase">
+                  Who Am I
                 </span>
-                <div className="h-[1px] w-6 bg-gradient-to-l from-transparent to-indigo-300 dark:to-indigo-600"></div>
+                <div className="h-[1px] flex-1 bg-gradient-to-r from-indigo-500/40 to-transparent"></div>
               </div>
-              <div className="text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                <div className="flex-cols items-center justify-center gap-1 text-indigo-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest mb-1">
-                  <div className="flex items-center justify-center mx-auto">
-                    <img src={iljuImagePath} className="w-1/2 h-1/2" />
-                  </div>
-                  <div>Signature</div>
+
+              {/* 메인 콘텐츠: 가로 배치 최적화 */}
+              <div className="flex items-center gap-5">
+                {/* 왼쪽: 일주 이미지 (크기를 키우되 컨테이너를 밀어내지 않게 세팅) */}
+                <div className="relative shrink-0">
+                  {/* 이미지 뒤에 은은한 후광 효과 추가 (그림을 더 커보이게 함) */}
+                  <div className="absolute inset-0 bg-indigo-500/5 dark:bg-indigo-400/10 blur-2xl rounded-full scale-150"></div>
+                  <img
+                    src={iljuImagePath}
+                    className="relative w-28 h-28 sm:w-32 sm:h-32 object-contain transition-transform group-hover:scale-105 duration-500"
+                    alt="ilju"
+                  />
                 </div>
-              </div>
-              <div className="text-lg sm:text-xl font-extrabold text-gray-800 dark:text-gray-100 font-serif mb-2">
-                {language === 'ko' ? (
-                  <>{ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.title}</>
-                ) : (
-                  <>{ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.title}</>
-                )}
-              </div>
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed break-keep">
-                {language === 'ko' ? (
-                  <>{ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}</>
-                ) : (
-                  <>{ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}</>
-                )}
+
+                {/* 오른쪽: 텍스트 정보 (이미지가 커진 만큼 타이포그래피 밀도 조절) */}
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-tight mb-2">
+                    {language === 'ko'
+                      ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.title
+                      : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.title}
+                  </div>
+                  <p className="text-[12px] sm:text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3 break-keep font-medium">
+                    {language === 'ko'
+                      ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.desc
+                      : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}
+                  </p>
+                </div>
               </div>
             </div>
           )}
