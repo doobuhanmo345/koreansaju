@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // useState, useEffect 추가
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import NavBar from './component/Navbar';
@@ -15,56 +15,61 @@ import AdminRoute from './routes/AdminRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
 import ApplySaju from './page/ApplySaju';
 import ConsultantDashboard from './page/ConsultantDashboard';
-const root = ReactDOM.createRoot(document.getElementById('root'));
+import SplashScreen from './page/SplashScreen';
+const RootComponent = () => {
+  const [isAppLoading, setIsAppLoading] = useState(true);
 
-// 1. 공통 레이아웃 컴포넌트 정의 (파일로 따로 빼도 됩니다)
-const Layout = () => {
+  useEffect(() => {
+    // 2.5초 후 로딩 해제
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 1. 로딩 중일 때는 SplashScreen만 렌더링 (NavBar 안 보임)
+  if (isAppLoading) {
+    return <SplashScreen />;
+  }
+
+  // 2. 로딩 완료 후 전체 앱 구조 렌더링
   return (
-    <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      {/* 모든 페이지에 보일 네비게이션 */}
+    <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
       <NavBar />
+      <Routes>
+        <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
+        <Route path="/test" element={<Test />} />
+        <Route path="/editprofile" element={<EditProfile />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPage />
+            </AdminRoute>
+          }
+        />
+        <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+          <Route path="/apply-saju-consultant" element={<ApplySaju />} />
+        </Route>
 
-      {/* 👈 여기에 자식 Route 컴포넌트(Test, App 등)가 렌더링됩니다 */}
-      <Outlet />
+        <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
+          <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
+        </Route>
+        <Route path="/sajuexp" element={<SajuExp />} />
+        <Route path="/*" element={<App />} />
+      </Routes>
     </div>
   );
 };
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
     <AppProvider>
-      {/* 👈 AuthContextProvider를 최상위로 올림 (Navbar에서도 유저 정보 쓰기 위함) */}
       <AuthContextProvider>
         <BrowserRouter>
-          <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-            {/* 👈 Navbar 위치 */}
-            <NavBar />
-
-            <Routes>
-              <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
-              <Route path="/test" element={<Test />} />
-              <Route path="/editprofile" element={<EditProfile />} />
-              <Route
-                path="/admin"
-                element={
-                  <AdminRoute>
-                    <AdminPage />
-                  </AdminRoute>
-                }
-              />
-              {/* 로그인한 일반 유저만 신청 가능 */}
-              <Route element={<ProtectedRoute allowedRoles={['user']} />}>
-                <Route path="/apply-saju-consultant" element={<ApplySaju />} />
-              </Route>
-
-              {/* 명리학자 전용 페이지 */}
-              <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
-                <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
-              </Route>
-              <Route path="/sajuexp" element={<SajuExp />} />
-              {/* 👈 App을 감싸던 AuthProvider는 제거 (위에서 이미 감쌌으므로) */}
-              <Route path="/*" element={<App />} />
-            </Routes>
-          </div>
+          <RootComponent /> {/* 👈 로직을 분리한 컴포넌트 배치 */}
         </BrowserRouter>
       </AuthContextProvider>
     </AppProvider>
