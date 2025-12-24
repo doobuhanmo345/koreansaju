@@ -60,7 +60,6 @@ function SajuLoading() {
 
 // 2. 메인 페이지 컴포넌트
 export default function TodaysLuckPage() {
-  const energy = useConsumeEnergy();
   const { loading, setLoading, loadingType, setLoadingType, setAiResult, aiResult } = useLoading();
   const { userData, user, isDailyDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
@@ -74,9 +73,10 @@ export default function TodaysLuckPage() {
     // 1. 기본 방어 로직
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (!userData?.birthDate) return alert(UI_TEXT.saveFirst[language]);
-    if (loading) return;
 
     setLoading(true);
+    setLoadingType('daily');
+    setAiResult('');
 
     const todayDate = new Date().toLocaleDateString('en-CA');
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
@@ -101,8 +101,10 @@ export default function TodaysLuckPage() {
 
         // 모든 조건이 맞고 결과값이 이미 있다면 바로 결과 모달/스텝으로 이동
         if (isDateMatch && isLangMatch && isGenderMatch && isSajuMatch && savedResult) {
-          setAiResult(savedResult); // 기존 결과 세팅
-          onStart(); // Loading 스킵하고 바로 결과 진입 (컴포넌트 로직에 따라)
+          setAiResult(savedResult);
+          setLoading(false);
+          setLoadingType(null);
+          onStart();
           return;
         }
       }
@@ -161,10 +163,10 @@ export default function TodaysLuckPage() {
       alert(`Error: ${e.message}`);
     } finally {
       setLoading(false);
+      setLoadingType(null);
     }
   };
-  console.log(isDailyDone);
-  if (loading) return <LoadingPage />;
+
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
     return (
@@ -249,13 +251,15 @@ export default function TodaysLuckPage() {
       </div>
     );
   };
-
+  if (loading) {
+    return <SajuLoading />;
+  }
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
       loadingContent={<SajuLoading />}
       resultComponent={ViewResult}
-      loadingTime={3000}
+      loadingTime={0}
     />
   );
 }

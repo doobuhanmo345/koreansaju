@@ -83,7 +83,6 @@ export default function YearlyLuckPage() {
 
     try {
       const data = userData || {};
-      const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
       // 2. 신년 운세 캐시 체크 (연도 + 사주 + 언어 + 성별 일치 확인)
       if (data.ZLastNewYear) {
@@ -118,9 +117,7 @@ export default function YearlyLuckPage() {
       // 4. 프롬프트 생성 (요청하신 호칭 및 사주 텍스트 반영)
       const currentSajuJson = JSON.stringify(saju);
       const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
-
       const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${userData.birthDate}, 팔자:${currentSajuJson} sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야. 나를 선생님이 아닌 ${displayName}님 이라고 불러줘. 영어로는 ${displayName}. undefined시는 그냥 선생님이라고 해..`;
-
       const fullPrompt = `${STRICT_INSTRUCTION[language]}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
 
       // 5. API 호출 및 DB 업데이트 (ZLastNewYear 필드 사용)
@@ -162,6 +159,10 @@ export default function YearlyLuckPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
+    if (loading) {
+      return <SajuLoading />;
+    }
+ 
     return (
       <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 새로운 시작을 상징하는 태양이나 용 아이콘 */}
@@ -250,7 +251,7 @@ export default function YearlyLuckPage() {
       guideContent={sajuGuide}
       loadingContent={<SajuLoading />}
       resultComponent={ViewResult}
-      loadingTime={3000}
+      loadingTime={0}
     />
   );
 }
