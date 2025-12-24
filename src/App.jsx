@@ -798,7 +798,10 @@ export default function App() {
               <p className="text-white/70 text-[11px] mt-1">행운 리포트 확인</p>
             </div>
 
-            <button className="bg-white hover:bg-indigo-50 text-black text-[11px] font-black px-6 py-2.5 rounded-full flex items-center gap-1 shadow-2xl transition-all active:scale-95">
+            <button
+              className="bg-white hover:bg-indigo-50 text-black text-[11px] font-black px-6 py-2.5 rounded-full flex items-center gap-1 shadow-2xl transition-all active:scale-95"
+              onClick={() => navigate('/todaysluck')}
+            >
               보러가기
               <svg
                 xmlns="http://www.w3.org/2000/svg"

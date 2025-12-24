@@ -4,6 +4,7 @@ const LoadingContext = createContext();
 
 export function LoadingProvider({ children }) {
   // 1. 전역에서 관리할 상태들 (병신같이 각 페이지마다 만들지 않아도 됨)
+  const [aiResult, setAiResult] = useState();
   const [loading, setLoading] = useState(false);
   const [loadingType, setLoadingType] = useState(null);
   const [isCachedLoading, setIsCachedLoading] = useState(false);
@@ -39,6 +40,8 @@ export function LoadingProvider({ children }) {
     setIsCachedLoading,
     progress,
     setProgress,
+    aiResult,
+    setAiResult,
   };
 
   return <LoadingContext.Provider value={value}>{children}</LoadingContext.Provider>;

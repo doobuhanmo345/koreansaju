@@ -14,7 +14,7 @@ export function AuthContextProvider({ children }) {
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
 
     const todayStr = new Date().toLocaleDateString('en-CA');
-    const nextYear = '2025';
+    const nextYear = '2026';
     const language = userData.language || 'ko';
     const gender = userData.gender;
     const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];

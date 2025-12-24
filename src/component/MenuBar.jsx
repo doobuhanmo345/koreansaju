@@ -94,13 +94,13 @@ export default function MobileNav() {
             name: '오늘의 운세',
             desc: '오늘 하루 나의 기운 확인',
             icon: <CalendarDaysIcon className="w-6 h-6" />,
-            path: '/loadingpage',
+            path: '/todaysluck',
           },
           {
             name: '신년 운세',
-            desc: '을사년 한 해의 흐름',
+            desc: '병오년 한 해의 흐름',
             icon: <SparklesIcon className="w-6 h-6" />,
-            path: '/fortune/yearly',
+            path: '/2026luck',
           },
           {
             name: '궁합 보기',

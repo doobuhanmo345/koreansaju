@@ -224,7 +224,7 @@ export default function ResultModal({
         cards[index].classList.add('active');
       }
     };
-  }, []); // 의존성 배열 유지
+  }, []); 
 
   useEffect(() => {
     if (pureHtml) {
@@ -319,66 +319,7 @@ export default function ResultModal({
     node.addEventListener('scroll', onScroll, { passive: true });
     onScroll(); // 초기 1회
   }, []);
-  const handleShareImg = async (id) => {
-    const el = document.getElementById(id);
-    if (!el) {
-      alert('share-card를 찾을 수 없습니다.');
-      return;
-    }
 
-    // 1️⃣ 현재 visibility 상태 저장
-    const prevVisibility = el.style.visibility;
-
-    try {
-      // 2️⃣ 잠깐 보이게 전환
-      el.style.visibility = 'visible';
-
-      // 3️⃣ 이미지 / 폰트 로딩 대기
-      const imgs = Array.from(el.querySelectorAll('img'));
-      await Promise.all(
-        imgs.map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete) return resolve();
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }),
-        ),
-      );
-
-      if (document.fonts?.ready) {
-        await document.fonts.ready;
-      }
-
-      // 4️⃣ 캡쳐
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-      });
-
-      // 5️⃣ 이미지 저장
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png', 1));
-
-      if (!blob) throw new Error('canvas toBlob 실패');
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'share-card.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert('캡쳐 실패: 이미지 CORS 또는 렌더링 문제');
-    } finally {
-      // 6️⃣ 다시 숨김 복구
-      el.style.visibility = prevVisibility || 'hidden';
-    }
-  };
 
   // 모달 렌더링 시작
   if (!isOpen) return null;
