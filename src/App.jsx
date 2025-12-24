@@ -25,7 +25,7 @@ import { useUsageLimit } from './context/useUsageLimit';
 import { useConsumeEnergy } from './hooks/useConsumingEnergy';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import { useModal } from './hooks/useModal';
-import NotificationList from './context/NotificationList';
+
 // 6. Utils & Helpers
 import { getPillars } from './utils/sajuCalculator';
 import processSajuData from './sajuDataProcessor';
@@ -40,7 +40,7 @@ import {
   DAILY_FORTUNE_PROMPT,
   NEW_YEAR_FORTUNE_PROMPT,
 } from './data/aiResultConstants';
-
+import { useLoading } from './context/useLoadingContext';
 // 8. Components (UI & Features)
 import NavBar from './component/Navbar';
 import LoginStatus from './component/LoginStatus';
@@ -50,7 +50,6 @@ import SajuBlur from './component/SajuBlur';
 import AnalysisButton from './ui/AnalysisButton';
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
-import FortuneBanner from './ui/FortuneBanner';
 import BeforeLogin from './page/BeforeLogin';
 export default function App() {
   // --- Context Hooks ---
@@ -82,11 +81,17 @@ export default function App() {
   const { isModalOpen, openModal, closeModal } = useModal();
 
   // 로딩 상태
-  const [loading, setLoading] = useState(false);
-  const [loadingType, setLoadingType] = useState(null);
-  const [isCachedLoading, setIsCachedLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-
+  // 어떤 파일이든 상단에서 이렇게 한 줄 쓰면 끝
+  const {
+    loading,
+    setLoading,
+    loadingType,
+    setLoadingType,
+    isCachedLoading,
+    setIsCachedLoading,
+    progress,
+    setProgress,
+  } = useLoading();
   // 입력 데이터
   const [inputDate, setInputDate] = useState(() => {
     try {
@@ -645,7 +650,7 @@ export default function App() {
   if (!userData?.birthDate) return <BeforeLogin />;
   return (
     <div>
-      <NotificationList />
+    
       {/* sronly처리할 것 */}
       <div className=" flex absolute justify-center w-full py-4" style={{ visibility: 'hidden' }}>
         <div

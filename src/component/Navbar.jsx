@@ -9,7 +9,9 @@ import {
   SparklesIcon,
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
+  BoltIcon,
 } from '@heroicons/react/24/outline';
+import { useLoading } from '../context/useLoadingContext';
 import { GiYinYang } from 'react-icons/gi';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useLanguage } from '../context/useLanguageContext';
@@ -17,7 +19,8 @@ import { useTheme } from '../context/useThemeContext';
 import { useAuthContext } from '../context/useAuthContext';
 import useContactModal from '../hooks/useContactModal';
 import ContactModal from './ContactModal';
-
+import { useUsageLimit } from '../context/useUsageLimit';
+import NotificationList from '../context/NotificationList';
 // 로고 이미지 import
 import logoKorDark from '../assets/Logo_Kor_DarkMode.png';
 import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
@@ -43,15 +46,32 @@ const UTILITY_ITEMS = [
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
-  const { user, login, logout, userData } = useAuthContext();
+  const { user, login, logout, userData, isCookieDone } = useAuthContext();
   const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
+  const {
+    editCount,
+    setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)
+    MAX_EDIT_COUNT,
+    isLocked,
+    incrementUsage,
+    checkLimit,
+  } = useUsageLimit(user, userData, language);
   const navigate = useNavigate();
   const location = useLocation();
-
+  // 어떤 파일이든 상단에서 이렇게 한 줄 쓰면 끝
+  const {
+    loading,
+    setLoading,
+    loadingType,
+    setLoadingType,
+    isCachedLoading,
+    setIsCachedLoading,
+    progress,
+    setProgress,
+  } = useLoading();
   const handleMainNavigate = (path) => {
     navigate(path);
     setIsMenuOpen(false);
@@ -74,7 +94,22 @@ export default function NavBar() {
     }
     setIsMenuOpen(false);
   };
+  const onFortuneClick = async () => {
+    // if (!user) return alert(UI_TEXT.loginReq[language]);
 
+    setLoading(true);
+    setLoadingType('fCookie');
+    setResultType('fCookie');
+
+    try {
+      // openModal();
+    } catch (e) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+      setLoadingType(null);
+    }
+  };
   return (
     <div className="flex items-center justify-between py-3 max-w-xl m-auto relative z-20 px-2">
       {isContactModalOpen && (
@@ -101,30 +136,37 @@ export default function NavBar() {
         />
       </div>
 
-      {/* [중앙] 데스크탑 메뉴 */}
-      <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="flex items-center gap-1 bg-gray-100/50 dark:bg-slate-800/50 p-1 rounded-full backdrop-blur-sm">
-          {MAIN_MENUS.map((menu) => {
-            const isActive = location.pathname === menu.path;
-            return (
-              <button
-                key={menu.id}
-                onClick={() => handleMainNavigate(menu.path)}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200
-                  ${isActive ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-slate-700/50'}
-                `}
-              >
-                <menu.icon className="w-4 h-4" />
-                {language === 'ko' ? menu.ko : menu.en}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* [오른쪽] 유틸 버튼 그룹 */}
       <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
+          {/* 1. 크레딧 카운터: 아이콘 + 남은 숫자 */}
+          <div className="flex items-center gap-1 border-r border-slate-300 dark:border-slate-600 pr-2">
+            <BoltIcon
+              className={`w-4 h-4 ${MAX_EDIT_COUNT - editCount === 0 ? 'text-red-500' : 'text-amber-500'} fill-current`}
+            />
+            <span
+              className={`text-[11px] font-black font-mono ${MAX_EDIT_COUNT - editCount === 0 ? 'text-red-500' : 'text-slate-700 dark:text-slate-200'}`}
+            >
+              {MAX_EDIT_COUNT - editCount}
+            </span>
+          </div>
+
+          {/* 2. 포춘쿠키 미니 버튼: 클릭 시 바로 실행 */}
+          <button
+            onClick={onFortuneClick}
+            disabled={isCookieDone}
+            className={`relative flex items-center justify-center transition-transform active:scale-90 ${isCookieDone ? 'opacity-40 grayscale' : 'animate-bounce'}`}
+          >
+            <span className="text-sm">🥠</span>
+            {/* 쿠키 안받았을 때만 우측 상단에 작은 점 알림 */}
+            {!isCookieDone && (
+              <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
+            )}
+          </button>
+        </div>
+
         {/* 언어 버튼 */}
+
         <button
           onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
           className="px-3 py-2 rounded-full text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1"
@@ -303,6 +345,7 @@ export default function NavBar() {
             />
           )}
         </div>
+        <NotificationList />
       </div>
     </div>
   );
