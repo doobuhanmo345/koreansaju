@@ -33,7 +33,7 @@ const getLuckyResult = (lang) => {
   }
 };
 
-export default function FortuneCookie({ setAiResult }) {
+export default function FortuneCookie({ }) {
   const { editCount, setEditCount, MAX_EDIT_COUNT, incrementUsage, checkLimit } = useUsageLimit();
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
@@ -50,7 +50,6 @@ export default function FortuneCookie({ setAiResult }) {
     if (!user) return alert(UI_TEXT.loginReq[language]);
     if (loading) return;
 
-    setAiResult('');
     setSelectedId(index);
     setLoading(true);
 

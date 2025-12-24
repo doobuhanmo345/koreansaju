@@ -121,10 +121,10 @@ export default function MobileNav() {
         color: 'text-emerald-500',
         items: [
           {
-            name: '무료 크레딧 받기',
-            desc: '광고 시청 후 10P 충전',
+            name: '포춘쿠키',
+            desc: '하루 1~5개의 무료 크레딧',
             icon: <CircleStackIcon className="w-6 h-6" />,
-            path: '/credits/free',
+            path: '/fortunecookie',
           },
           {
             name: '크레딧 상점',

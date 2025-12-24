@@ -23,7 +23,7 @@ import LoadingPage from './page/LoadingPage';
 
 import Wealth from './page/Wealth';
 import Match from './page/match';
-
+import FortuneCookie from './page/FortuneCookie';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -66,6 +66,7 @@ const RootComponent = () => {
           <Route path="/test" element={<Test />} />
           <Route path="/wealth" element={<Wealth />} />
           <Route path="/match" element={<Match />} />
+          <Route path="/fortunecookie" element={<FortuneCookie />} />
           <Route path="/editprofile" element={<EditProfile />} />
           <Route
             path="/admin"
