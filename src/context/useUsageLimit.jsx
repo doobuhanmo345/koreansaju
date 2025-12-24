@@ -11,9 +11,6 @@ export const useUsageLimit = () => {
   const { language } = useLanguage();
   // 1. user.uid가 변경될 때만 다시 계산하도록 수정
   const MAX_EDIT_COUNT = useMemo(() => {
-    // [디버깅용] 이 로그가 콘솔에 찍히는지 확인해주세요.
-    console.log('🔍 Limit Check - UID:', user?.uid);
-
     // user가 없으면 기본값 3
     if (userData?.role === 'admin') return 10;
     else return 3;

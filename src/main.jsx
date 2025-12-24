@@ -56,31 +56,33 @@ const RootComponent = () => {
   // 4. 정상 상태
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
-      <NavBar />
+      <div className="pb-24">
+        <NavBar />
+        <Routes>
+          <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
+          <Route path="/test" element={<Test />} />
+          <Route path="/editprofile" element={<EditProfile />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            }
+          />
+          {/* /loadingpage 경로는 따로 둘 필요 없이 전역 상태로 관리되지만 유지함 */}
+          <Route path="/loadingpage" element={<LoadingPage />} />
+          <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+            <Route path="/apply-saju-consultant" element={<ApplySaju />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
+            <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
+          </Route>
+          <Route path="/sajuexp" element={<SajuExp />} />
+          <Route path="/*" element={<App />} />
+        </Routes>
+      </div>
       <MenuBar />
-      <Routes>
-        <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
-        <Route path="/test" element={<Test />} />
-        <Route path="/editprofile" element={<EditProfile />} />
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminPage />
-            </AdminRoute>
-          }
-        />
-        {/* /loadingpage 경로는 따로 둘 필요 없이 전역 상태로 관리되지만 유지함 */}
-        <Route path="/loadingpage" element={<LoadingPage />} />
-        <Route element={<ProtectedRoute allowedRoles={['user']} />}>
-          <Route path="/apply-saju-consultant" element={<ApplySaju />} />
-        </Route>
-        <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
-          <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
-        </Route>
-        <Route path="/sajuexp" element={<SajuExp />} />
-        <Route path="/*" element={<App />} />
-      </Routes>
     </div>
   );
 };
