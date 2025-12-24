@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'; // useMemo 추가
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
@@ -23,63 +23,62 @@ export default function MobileNav() {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
+  const isKo = language === 'ko';
+
   const formatBirth = (dateStr) => {
-    if (!dateStr || typeof dateStr !== 'string') return '정보 없음';
+    if (!dateStr || typeof dateStr !== 'string') return isKo ? '정보 없음' : 'No Info';
     try {
       const [datePart, timePart] = dateStr.split('T');
       const [year, month, day] = datePart.split('-');
       const [hour, minute] = (timePart || '00:00').split(':');
-      return `${year}년 ${month}월 ${day}일 ${hour}:${minute}`;
+      return isKo
+        ? `${year}년 ${month}월 ${day}일 ${hour}:${minute}`
+        : `${month}/${day}/${year} ${hour}:${minute}`;
     } catch (e) {
-      return '형식 오류';
+      return isKo ? '형식 오류' : 'Format Error';
     }
   };
 
   const handleItemClick = (path) => {
     if (!path) {
-      alert(language === 'ko' ? '준비중입니다.' : 'Coming soon!');
-      return; // path가 없으면 함수 종료
+      alert(isKo ? '준비중입니다.' : 'Coming soon!');
+      return;
     }
     navigate(path);
     setActiveMenu(null);
   };
 
-  // ✅ useMemo를 사용하여 userData.role에 따라 메뉴를 실시간으로 생성
   const menuData = useMemo(() => {
-    // profile 하위 아이템을 위한 임시 배열
     const profileItems = [];
 
-    // 1. 관리자 권한 메뉴 추가
     if (userData?.role === 'admin') {
       profileItems.push({
-        name: language === 'ko' ? '관리자 페이지' : 'Admin Page',
-        desc: '시스템 제어 및 통계',
+        name: isKo ? '관리자 페이지' : 'Admin Page',
+        desc: isKo ? '시스템 제어 및 통계' : 'System Control & Stats',
         icon: <RiAdminFill className="w-6 h-6 text-rose-500" />,
         path: '/admin',
       });
     }
 
-    // 2. 명리학자 권한 메뉴 추가
     if (userData?.role === 'saju_consultant') {
       profileItems.push({
-        name: language === 'ko' ? '명리학자 대시보드' : 'Consultant',
-        desc: '상담 요청 관리',
+        name: isKo ? '명리학자 대시보드' : 'Consultant Dashboard',
+        desc: isKo ? '상담 요청 관리' : 'Manage Consultations',
         icon: <GiYinYang className="w-6 h-6 text-indigo-500" />,
         path: '/consultant/dashboard',
       });
     }
 
-    // 3. 공통 메뉴 추가
     profileItems.push(
       {
-        name: '프로필 수정',
-        desc: '이름, 생년월일 정보 변경',
+        name: isKo ? '프로필 수정' : 'Edit Profile',
+        desc: isKo ? '이름, 생년월일 정보 변경' : 'Change Name, Birthdate',
         icon: <UserCircleIcon className="w-6 h-6" />,
         path: '/editprofile',
       },
       {
-        name: '상담 내역',
-        desc: '내가 본 운세 기록 확인',
+        name: isKo ? '상담 내역' : 'History',
+        desc: isKo ? '내가 본 운세 기록 확인' : 'Check Fortune Records',
         icon: <PresentationChartLineIcon className="w-6 h-6" />,
         path: null,
       },
@@ -87,60 +86,60 @@ export default function MobileNav() {
 
     return {
       fortune: {
-        title: '운세보기',
+        title: isKo ? '운세보기' : 'Fortunes',
         color: 'text-amber-500',
         items: [
           {
-            name: '오늘의 운세',
-            desc: '오늘 하루 나의 기운 확인',
+            name: isKo ? '오늘의 운세' : "Today's Luck",
+            desc: isKo ? '오늘 하루 나의 기운 확인' : 'Daily Energy Check',
             icon: <CalendarDaysIcon className="w-6 h-6" />,
             path: '/todaysluck',
           },
           {
-            name: '신년 운세',
-            desc: '병오년 한 해의 흐름',
+            name: isKo ? '신년 운세' : 'New Year Luck',
+            desc: isKo ? '병오년 한 해의 흐름' : 'Flow of the Year',
             icon: <SparklesIcon className="w-6 h-6" />,
             path: '/2026luck',
           },
           {
-            name: '궁합 보기',
-            desc: '상대방과의 에너지 조화',
+            name: isKo ? '궁합 보기' : 'Compatibility',
+            desc: isKo ? '상상대방과의 에너지 조화' : 'Match with Others',
             icon: <UserPlusIcon className="w-6 h-6" />,
             path: '/match',
           },
           {
-            name: '재물운',
-            desc: '나의 재물운',
-            icon: <UserPlusIcon className="w-6 h-6" />,
+            name: isKo ? '재물운' : 'Wealth',
+            desc: isKo ? '나의 재물운' : 'Your Money Luck',
+            icon: <CircleStackIcon className="w-6 h-6" />,
             path: '/wealth',
           },
         ],
       },
       credits: {
-        title: '크레딧 받기',
+        title: isKo ? '크레딧 받기' : 'Get Credits',
         color: 'text-emerald-500',
         items: [
           {
-            name: '포춘쿠키',
-            desc: '하루 1~5개의 무료 크레딧',
+            name: isKo ? '포춘쿠키' : 'Fortune Cookie',
+            desc: isKo ? '하루 1~5개의 무료 크레딧' : 'Free Daily Credits',
             icon: <CircleStackIcon className="w-6 h-6" />,
             path: '/fortunecookie',
           },
           {
-            name: '크레딧 상점',
-            desc: '유료 크레딧 패키지 구매',
+            name: isKo ? '크레딧 상점' : 'Credit Shop',
+            desc: isKo ? '유료 크레딧 패키지 구매' : 'Buy Credit Packages',
             icon: <CreditCardIcon className="w-6 h-6" />,
             path: '/credits/shop',
           },
         ],
       },
       profile: {
-        title: '내 정보 관리',
+        title: isKo ? '내 정보 관리' : 'Account',
         color: 'text-indigo-500',
         items: profileItems,
       },
     };
-  }, [userData, language]); // userData나 language가 바뀔 때만 재계산
+  }, [userData, language, isKo]);
 
   return (
     <>
@@ -173,14 +172,26 @@ export default function MobileNav() {
                         <UserCircleIcon className="w-8 h-8 text-white" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold opacity-70">사용자 이름</p>
-                        <p className="text-lg font-black">{userData?.displayName || '선생님'}</p>
+                        <p className="text-xs font-bold opacity-70">
+                          {isKo ? '사용자 이름' : 'Username'}
+                        </p>
+                        <p className="text-lg font-black">
+                          {userData?.displayName || (isKo ? '선생님' : 'Guest')}
+                        </p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/10">
                       <div>
                         <p className="text-[10px] font-bold opacity-60 uppercase">Gender</p>
-                        <p className="font-bold">{userData?.gender === 'male' ? '남성' : '여성'}</p>
+                        <p className="font-bold">
+                          {userData?.gender === 'male'
+                            ? isKo
+                              ? '남성'
+                              : 'Male'
+                            : isKo
+                              ? '여성'
+                              : 'Female'}
+                        </p>
                       </div>
                       <div>
                         <p className="text-[10px] font-bold opacity-60 uppercase">Birth Time</p>
@@ -215,7 +226,9 @@ export default function MobileNav() {
                   {item.path ? (
                     <ChevronRightIcon className="w-5 h-5 text-slate-300" />
                   ) : (
-                    <span className="text-[10px] font-bold text-slate-300">준비 중</span>
+                    <span className="text-[10px] font-bold text-slate-300">
+                      {isKo ? '준비 중' : 'Coming soon'}
+                    </span>
                   )}
                 </button>
               ))}
@@ -234,7 +247,7 @@ export default function MobileNav() {
             className={`flex flex-col items-center gap-1 transition-colors ${!activeMenu ? 'text-indigo-600' : 'text-slate-400'}`}
           >
             <HomeIcon className="w-6 h-6" />
-            <span className="text-[10px] font-black">홈</span>
+            <span className="text-[10px] font-black">{isKo ? '홈' : 'Home'}</span>
           </button>
 
           <button
@@ -242,7 +255,7 @@ export default function MobileNav() {
             className={`flex flex-col items-center gap-1 transition-colors ${activeMenu === 'fortune' ? 'text-indigo-600' : 'text-slate-400'}`}
           >
             <SparklesIcon className="w-6 h-6" />
-            <span className="text-[10px] font-black">운세보기</span>
+            <span className="text-[10px] font-black">{isKo ? '운세보기' : 'Fortune'}</span>
           </button>
 
           <button
@@ -250,7 +263,7 @@ export default function MobileNav() {
             className={`flex flex-col items-center gap-1 transition-colors ${activeMenu === 'credits' ? 'text-indigo-600' : 'text-slate-400'}`}
           >
             <CircleStackIcon className="w-6 h-6" />
-            <span className="text-[10px] font-black">크레딧</span>
+            <span className="text-[10px] font-black">{isKo ? '크레딧' : 'Credits'}</span>
           </button>
 
           <button
@@ -258,7 +271,7 @@ export default function MobileNav() {
             className={`flex flex-col items-center gap-1 transition-colors ${activeMenu === 'profile' ? 'text-indigo-600' : 'text-slate-400'}`}
           >
             <UserCircleIcon className="w-6 h-6" />
-            <span className="text-[10px] font-black">내 정보</span>
+            <span className="text-[10px] font-black">{isKo ? '내 정보' : 'Profile'}</span>
           </button>
         </div>
       </nav>
