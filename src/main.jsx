@@ -21,6 +21,9 @@ import BeforeLogin from './page/BeforeLogin';
 import MenuBar from './component/MenuBar';
 import LoadingPage from './page/LoadingPage';
 
+import Wealth from './page/Wealth';
+import Match from './page/match';
+
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -61,6 +64,8 @@ const RootComponent = () => {
         <Routes>
           <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
           <Route path="/test" element={<Test />} />
+          <Route path="/wealth" element={<Wealth />} />
+          <Route path="/match" element={<Match />} />
           <Route path="/editprofile" element={<EditProfile />} />
           <Route
             path="/admin"
