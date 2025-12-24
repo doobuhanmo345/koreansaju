@@ -17,13 +17,10 @@ import Compatibility from './Compatibility';
 import Wealth from './Wealth';
 import FortuneCookie from './FortuneCookie';
 import { SAZA_DEF_PROMPT } from '../data/aiResultConstants';
+import { useUsageLimit } from '../context/useUsageLimit';
 export default function ResultModal({
   isOpen,
   onClose,
-  isLocked,
-  editCount,
-  setEditCount, // 카운트 업데이트를 위해 필요
-  maxEditCount,
   saju,
   inputDate, // 채팅 프롬프트용
   gender, // 채팅 프롬프트용
@@ -44,6 +41,7 @@ export default function ResultModal({
   const { user, userData } = useAuthContext();
   // --- Helpers ---
   const t = (char) => (language === 'en' ? getEng(char) : char);
+  const { editCount, MAX_EDIT_COUNT, setEditCount, isLocked } = useUsageLimit();
   const pureHtml = useMemo(() => extractPureHtml(aiResult), [aiResult]);
   // 모달이 열릴 때마다 'result' 모드로 초기화
   useEffect(() => {
@@ -243,7 +241,7 @@ export default function ResultModal({
   }, [pureHtml, resultType]); // resultType이 바뀔 때도 실행되게 추가
   const handleAdditionalQuestion = async () => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (editCount >= maxEditCount) return alert(UI_TEXT.limitReached[language]);
+    if (editCount >= MAX_EDIT_COUNT) return alert(UI_TEXT.limitReached[language]);
     if (!customQuestion.trim()) return alert('질문을 입력해주세요.');
 
     const myQuestion = customQuestion;
@@ -426,10 +424,10 @@ export default function ResultModal({
                 <div className="flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-full shadow-sm">
                   <BoltIcon className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                   <span className="text-xs font-extrabold text-gray-700 dark:text-gray-200 font-mono tracking-tight">
-                    {maxEditCount - editCount}
+                    {MAX_EDIT_COUNT - editCount}
                     <span className="text-gray-300 dark:text-gray-600 mx-0.5 font-normal">/</span>
                     <span className="text-gray-400 dark:text-gray-500 font-medium">
-                      {maxEditCount}
+                      {MAX_EDIT_COUNT}
                     </span>
                   </span>
                 </div>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 
 // 2. External Libraries (Firebase, Icons)
-import { doc, setDoc,increment } from 'firebase/firestore';
+import { doc, setDoc, increment } from 'firebase/firestore';
 
 import {
   CircleStackIcon, // 평생 재물 (동전 쌓임)
@@ -218,7 +218,7 @@ export default function Wealth({
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
-  const { MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
+  const { MAX_EDIT_COUNT, isLocked } = useUsageLimit();
 
   // --- States ---
   const [step, setStep] = useState(1);
@@ -342,10 +342,7 @@ export default function Wealth({
       console.log('🚀 사주 글자가 변경되었습니다. API를 호출합니다.');
       if (currentCount >= MAX_EDIT_COUNT) {
         setLoading(false);
-        return alert(UI_TEXT.limitReached[language]);
-      }
-      if (currentCount >= MAX_LIMIT) {
-        setLoading(false);
+   
         return alert(UI_TEXT.limitReached[language]);
       }
 
@@ -420,7 +417,7 @@ export default function Wealth({
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {
-           [new Date().toLocaleDateString('en-CA')]: increment(1),
+            [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
           ZWealthAnalysis: {
             result: result,

@@ -40,9 +40,9 @@ const RootComponent = () => {
 
   // 2. 분석 중 로딩 화면 (전역 loading이 true일 때 모든 화면 덮기)
   // 어느 페이지에서든 setLoading(true)만 하면 이 화면이 뜹니다.
-  if (loading) {
-    return <LoadingPage />;
-  }
+  // if (loading) {
+  //   return <LoadingPage />;
+  // }
 
   // 3. 생년월일 데이터가 없는 경우
   if (!userData?.birthDate) {
