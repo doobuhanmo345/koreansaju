@@ -53,7 +53,8 @@ import LoadingBar from './ui/LoadingBar';
 import BeforeLogin from './page/BeforeLogin';
 export default function App() {
   // --- Context Hooks ---
-  const { user, userData, login, isDailyDone, isMainDone, isYearDone } = useAuthContext();
+  const { user, userData, login, isDailyDone, isMainDone, isYearDone, isCookieDone } =
+    useAuthContext();
   const { language } = useLanguage();
   const {
     editCount,
