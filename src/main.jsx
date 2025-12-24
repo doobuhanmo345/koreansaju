@@ -20,9 +20,8 @@ import SplashScreen from './page/SplashScreen';
 import BeforeLogin from './page/BeforeLogin';
 import MenuBar from './component/MenuBar';
 import LoadingPage from './page/LoadingPage';
-
 import Wealth from './page/Wealth';
-import Match from './page/match';
+import Match from './page/Match';
 import FortuneCookie from './page/FortuneCookie';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
