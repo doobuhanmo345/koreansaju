@@ -8,31 +8,31 @@ export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
 
-  // 1️⃣ [전역 상태 계산] 사주 정보가 일치하는지 확인하는 헬퍼 함수
-  const checkSajuMatch = (prevSaju, currentSaju) => {
-    if (!prevSaju || !currentSaju) return false;
-    return JSON.stringify(prevSaju) === JSON.stringify(currentSaju);
-  };
-
-  // 2️⃣ [전역 상태 계산] 각 운세 서비스의 완료 여부를 실시간으로 계산
+  // 2️⃣ [전역 상태 계산] 완료 여부 실시간 계산
   const status = useMemo(() => {
     if (!userData)
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
 
     const todayStr = new Date().toLocaleDateString('en-CA');
-    const nextYear = '2025'; // 2025년 을사년 기준 (필요시 2026으로 수정)
+    const nextYear = '2025';
     const language = userData.language || 'ko';
     const gender = userData.gender;
+    const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
-    // 현재 유저의 최신 사주 정보 (ZApiAnalysis 등에 저장된 사주와 비교용)
-    const currentSaju = userData.saju || null;
+    // 1️⃣ 사주 정보 일치 확인 헬퍼 함수 (필드별 직접 비교)
+    const checkSajuMatch = (prevSaju, targetSaju) => {
+      if (!prevSaju || !targetSaju) return false;
+      const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+      // 인자로 받은 두 객체의 값을 직접 비교
+      return sajuKeys.every((k) => prevSaju[k] === targetSaju[k]);
+    };
 
     return {
       isMainDone: !!(
         userData?.ZApiAnalysis &&
         userData.ZApiAnalysis.language === language &&
         userData.ZApiAnalysis.gender === gender &&
-        checkSajuMatch(userData.ZApiAnalysis.saju, currentSaju)
+        checkSajuMatch(userData.ZApiAnalysis.saju, userData.saju)
       ),
 
       isYearDone: !!(
@@ -40,7 +40,7 @@ export function AuthContextProvider({ children }) {
         String(userData.ZLastNewYear.year) === nextYear &&
         userData.ZLastNewYear.language === language &&
         userData.ZLastNewYear.gender === gender &&
-        checkSajuMatch(userData.ZLastNewYear.saju, currentSaju)
+        checkSajuMatch(userData.ZLastNewYear.saju, userData.saju)
       ),
 
       isDailyDone: !!(
@@ -48,7 +48,7 @@ export function AuthContextProvider({ children }) {
         userData.ZLastDaily.date === todayStr &&
         userData.ZLastDaily.language === language &&
         userData.ZLastDaily.gender === gender &&
-        checkSajuMatch(userData.ZLastDaily.saju, currentSaju)
+        checkSajuMatch(userData.ZLastDaily.saju, userData.saju)
       ),
 
       isCookieDone: !!(userData?.ZCookie && userData.ZCookie.today === todayStr),
@@ -114,7 +114,7 @@ export function AuthContextProvider({ children }) {
             setUserData(data);
           }
         } else {
-          // [신규 유저 생성] 문서가 없으면 기본 데이터셋 생성
+          // [신규 유저 생성] 기본 데이터셋 생성
           const initialData = {
             uid: user.uid,
             email: user.email,

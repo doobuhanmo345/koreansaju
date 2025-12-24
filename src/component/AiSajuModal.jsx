@@ -272,7 +272,7 @@ export default function ResultModal({
       // DB 업데이트 (카운트 + 질문로그)
       await setDoc(
         doc(db, 'users', user.uid),
-        {
+        {saju:saju,
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           question_history: arrayUnion(newQuestionLog),

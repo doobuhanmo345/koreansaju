@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 // 2. External Libraries (Firebase, Icons)
 import { doc, setDoc, increment } from 'firebase/firestore';
 import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { SunIcon, HeartIcon } from '@heroicons/react/24/solid';
+import { SunIcon, HeartIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { FaHorseHead, FaDownload } from 'react-icons/fa';
 import { GiCrystalBall } from 'react-icons/gi';
+
 import { GiGoldBar } from 'react-icons/gi';
 import html2canvas from 'html2canvas';
 import { TbCookieFilled } from 'react-icons/tb';
@@ -51,6 +52,7 @@ import AnalysisButton from './ui/AnalysisButton';
 import ModifyBd from './ui/ModifyBd';
 import LoadingBar from './ui/LoadingBar';
 import BeforeLogin from './page/BeforeLogin';
+import { useNavigate } from 'react-router-dom';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, isDailyDone, isMainDone, isYearDone, isCookieDone } =
@@ -94,6 +96,7 @@ export default function App() {
     setProgress,
   } = useLoading();
   // 입력 데이터
+  const navigate = useNavigate();
   const [inputDate, setInputDate] = useState(() => {
     try {
       const now = new Date();
@@ -164,12 +167,6 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [loading, isCachedLoading]);
-
-  // --- Handlers ---
-
-  // 🔹 [복구] 에너지 소모 애니메이션 훅
-
-  // 🔹 [복구] 공유용 텍스트 정제 함수
 
   const handleEditMode = () => {
     setIsSaved(false);
@@ -497,6 +494,7 @@ export default function App() {
       await setDoc(
         doc(db, 'users', user.uid),
         {
+          saju: saju,
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           // fortune_cache: fortuneCache,
@@ -716,20 +714,115 @@ export default function App() {
           </div>
         </div>
       </div>
-      {/* 로그인이 안되어 있을 때는 LOGIN STATUS보이지 않음 */}
-      {!!user && (
-        <LoginStatus
-          MAX_EDIT_COUNT={MAX_EDIT_COUNT}
-          onFortuneClick={handleFortuneCookie}
-          isCookieDone={isCookieDone}
-        />
-      )}
+      <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-lg border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto mb-2 p-2 px-4 dark:text-white flex items-center justify-between">
+        {userData?.birthDate ? (
+          <>
+            <div className="flex items-center gap-3 text-sm tracking-tight">
+              {/* 날짜와 시간 세트 */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-indigo-500 dark:text-indigo-400 font-bold text-[10px] uppercase">
+                  Birth
+                </span>
+                <span className="font-medium">
+                  {userData.birthDate.split('T')[0].replace(/-/g, '.')}
+                </span>
+                <span className="text-slate-400 dark:text-slate-600 text-xs font-light">
+                  {userData?.isTimeUnknown ? '시간 모름' : userData.birthDate.split('T')[1]}
+                </span>
+              </div>
 
+              {/* 성별 배지 */}
+              <div
+                className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  userData.gender === 'male'
+                    ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/30'
+                    : 'bg-rose-50 text-rose-500 dark:bg-rose-900/30'
+                }`}
+              >
+                {userData.gender === 'male' ? 'M' : 'F'}
+              </div>
+            </div>
+
+            {/* 수정하기 버튼 */}
+            <button
+              onClick={() => {
+                navigate('/editprofile');
+              }}
+              className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-4"
+            >
+              수정하기
+            </button>
+          </>
+        ) : (
+          <span className="text-xs text-slate-400 mx-auto">데이터가 없습니다.</span>
+        )}
+      </div>
+      {/* 오늘의 운세 */}
+      <div className="h-[150px] w-full max-w-lg bg-slate-900 rounded-xl overflow-hidden relative group mx-auto mb-2 shadow-lg border border-white/5">
+        {/* 배경 그라데이션 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 to-slate-900 opacity-100"></div>
+
+        {/* 마스코트 이미지 (크기 및 반응형 최적화) */}
+        <img
+          src="/todaysluck.png"
+          className="absolute 
+               /* 1. 위치: 하단 우측에 살짝 걸치게 */
+               bottom-[-20px] right-[-10px] 
+               /* 2. 크기: 기본(모바일)에서 더 크게 설정, 최소 높이 확보 */
+               h-[180px] sm:h-[180px] 
+               /* 3. 비율 유지 및 레이어 순서 */
+               w-auto object-contain z-10 
+               /* 4. 애니메이션 및 방해 금지 */
+               scale-125 transition-transform duration-500 pointer-events-none"
+          alt="mascot"
+        />
+
+        {/* 콘텐츠 레이어 (z-20으로 마스코트보다 위에 위치) */}
+        <div className="absolute inset-0 flex items-center justify-between px-6 z-20 pointer-events-none">
+          {/* 왼쪽: 점수 영역 */}
+          <div className="flex flex-col items-start justify-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+            <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold mb-1">
+              Daily Score
+            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-5xl sm:text-6xl font-black text-white">??</span>
+              <span className="text-lg font-bold text-white/90">점</span>
+            </div>
+          </div>
+
+          {/* 오른쪽: 버튼 영역 (버튼만 클릭 가능하게) */}
+          <div className="flex flex-col items-end gap-3 pointer-events-auto">
+            <div className="text-right drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <h3 className="text-white text-xl sm:text-2xl font-black leading-tight">
+                오늘의 운세
+              </h3>
+              <p className="text-white/70 text-[11px] mt-1">행운 리포트 확인</p>
+            </div>
+
+            <button className="bg-white hover:bg-indigo-50 text-black text-[11px] font-black px-6 py-2.5 rounded-full flex items-center gap-1 shadow-2xl transition-all active:scale-95">
+              보러가기
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
       {!user && <SajuBlur MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
-
       {/* 내 정보 및 사주 시각화 카드 */}
-      <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto my-4">
+      <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto my-2">
         {!userData?.birthDate && (
           <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
@@ -772,9 +865,9 @@ export default function App() {
           </div>
         )}
         <div className="flex items-center justify-between  p-3 ">
-          {isSaved && (
+          {userData?.birthDate && (
             <div className="mx-auto max-w-lg p-3 relative overflow-hidden group">
-              {/* 다운로드 버튼 - 디자인 일관성 유지 */}
+              {/* 다운로드 버튼 */}
               <button
                 onClick={() => handleShareImg('share-card')}
                 className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all shadow-sm"
@@ -782,7 +875,7 @@ export default function App() {
                 <FaDownload className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-300" />
               </button>
 
-              {/* 상단 헤더 - 더 심플하게 처리하여 텍스트 공간 확보 */}
+              {/* 상단 헤더 */}
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-[15px] font-black tracking-[0.3em] text-indigo-400 dark:text-indigo-400/60 uppercase">
                   Who Am I
@@ -790,11 +883,10 @@ export default function App() {
                 <div className="h-[1px] flex-1 bg-gradient-to-r from-indigo-500/40 to-transparent"></div>
               </div>
 
-              {/* 메인 콘텐츠: 가로 배치 최적화 */}
+              {/* 메인 콘텐츠 */}
               <div className="flex items-center gap-5">
-                {/* 왼쪽: 일주 이미지 (크기를 키우되 컨테이너를 밀어내지 않게 세팅) */}
+                {/* 왼쪽: 일주 이미지 */}
                 <div className="relative shrink-0">
-                  {/* 이미지 뒤에 은은한 후광 효과 추가 (그림을 더 커보이게 함) */}
                   <div className="absolute inset-0 bg-indigo-500/5 dark:bg-indigo-400/10 blur-2xl rounded-full scale-150"></div>
                   <img
                     src={iljuImagePath}
@@ -803,18 +895,31 @@ export default function App() {
                   />
                 </div>
 
-                {/* 오른쪽: 텍스트 정보 (이미지가 커진 만큼 타이포그래피 밀도 조절) */}
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-tight mb-2">
-                    {language === 'ko'
-                      ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.title
-                      : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.title}
+                {/* 오른쪽: 텍스트 정보 */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                  <div className="space-y-1 mb-3">
+                    <div className="text-lg sm:text-xl font-black text-gray-900 dark:text-white leading-tight mb-2">
+                      {language === 'ko'
+                        ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.title
+                        : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.title}
+                    </div>
+                    <p className="text-[12px] sm:text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3 break-keep font-medium">
+                      {language === 'ko'
+                        ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.desc
+                        : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}
+                    </p>
                   </div>
-                  <p className="text-[12px] sm:text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3 break-keep font-medium">
-                    {language === 'ko'
-                      ? ILJU_DATA?.[saju.sky1 + saju.grd1]?.title[gender]?.desc
-                      : ILJU_DATA_EN?.[saju.sky1 + saju.grd1]?.title[gender]?.desc}
-                  </p>
+
+                  {/* ✨ 추가된 버튼 영역 */}
+                  <button
+                    onClick={() => navigate('/basic')} // 👈 이동할 경로에 맞춰 수정하세요
+                    className="flex items-center justify-center gap-1.5 w-fit px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-all active:scale-95 shadow-md shadow-indigo-200 dark:shadow-none"
+                  >
+                    <span className="text-[11px] font-black tracking-tight">
+                      {language === 'ko' ? '나의 사주 보기' : 'Analysis My Saju'}
+                    </span>
+                    <ArrowRightIcon className="w-3 h-3 stroke-[3px]" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -824,7 +929,6 @@ export default function App() {
           )} */}
         </div>
       </div>
-
       {/* 분석 버튼 영역 */}
       <div className="mt-4 mb-8  pt-4 border-t border-gray-200 dark:border-gray-700 max-w-xl m-auto px-4">
         {loading && (
@@ -942,7 +1046,6 @@ export default function App() {
           />
         </div>
       </div>
-
       {/* 🟢 분리된 모달 컴포넌트 사용 */}
       <AiSajuModal
         isOpen={isModalOpen}

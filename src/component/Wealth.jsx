@@ -413,7 +413,7 @@ export default function Wealth({
       // ---------------------------------------------------------
       await setDoc(
         doc(db, 'users', user.uid),
-        {
+        {saju:saju,
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {

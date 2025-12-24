@@ -23,6 +23,7 @@ import LoadingPage from './page/LoadingPage';
 import Wealth from './page/Wealth';
 import Match from './page/Match';
 import FortuneCookie from './page/FortuneCookie';
+import SajuAnalysisPage from './page/SajuAnalysisPage';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -69,6 +70,7 @@ const RootComponent = () => {
           <Route path="/test" element={<Test />} />
           <Route path="/wealth" element={<Wealth />} />
           <Route path="/match" element={<Match />} />
+          <Route path="/basic" element={<SajuAnalysisPage />} />
           <Route path="/fortunecookie" element={<FortuneCookie />} />
           <Route path="/editprofile" element={<EditProfile />} />
           <Route
@@ -94,7 +96,7 @@ const RootComponent = () => {
       <MenuBar />
     </div>
   );
-};;
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

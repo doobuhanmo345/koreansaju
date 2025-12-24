@@ -343,7 +343,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
       // ---------------------------------------------------------
       await setDoc(
         doc(db, 'users', user.uid),
-        {
+        {saju:saju,
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {
