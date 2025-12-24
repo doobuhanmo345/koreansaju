@@ -15,7 +15,7 @@ import { classNames } from '../utils/helpers';
 import { TicketIcon } from '@heroicons/react/24/outline';
 import { STRICT_INSTRUCTION, NEW_YEAR_FORTUNE_PROMPT } from '../data/aiResultConstants';
 import { langPrompt, hanja } from '../data/constants';
-
+import { fetchGeminiAnalysis } from '../api/gemini';
 // 1. 로딩 컴포넌트
 function SajuLoading() {
   const [textIndex, setTextIndex] = useState(0);

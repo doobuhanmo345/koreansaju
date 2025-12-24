@@ -15,7 +15,9 @@ import { classNames } from '../utils/helpers';
 import { TicketIcon } from '@heroicons/react/24/outline';
 import { STRICT_INSTRUCTION, DAILY_FORTUNE_PROMPT } from '../data/aiResultConstants';
 import { langPrompt, hanja } from '../data/constants';
-
+import { getPillars } from '../utils/sajuCalculator';
+import { fetchGeminiAnalysis } from '../api/gemini';
+import LoadingPage from './LoadingPage';
 // 1. 로딩 컴포넌트
 function SajuLoading() {
   const [textIndex, setTextIndex] = useState(0);
@@ -161,6 +163,8 @@ export default function TodaysLuckPage() {
       setLoading(false);
     }
   };
+  console.log(isDailyDone);
+  if (loading) return <LoadingPage />;
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
     return (

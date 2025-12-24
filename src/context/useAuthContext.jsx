@@ -1,21 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { doc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { login, logout, onUserStateChange, db } from '../lib/firebase';
-
+import { useLanguage } from './useLanguageContext';
 const AuthContext = createContext();
 
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
-
-  // 2️⃣ [전역 상태 계산] 완료 여부 실시간 계산
+  const { language } = useLanguage();
+  console.log(language);
   const status = useMemo(() => {
     if (!userData)
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
 
     const todayStr = new Date().toLocaleDateString('en-CA');
     const nextYear = '2026';
-    const language = userData.language || 'ko';
     const gender = userData.gender;
     const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
@@ -46,9 +45,9 @@ export function AuthContextProvider({ children }) {
       isDailyDone: !!(
         userData?.ZLastDaily &&
         userData.ZLastDaily.date === todayStr &&
-        userData.ZLastDaily.language === language &&
         userData.ZLastDaily.gender === gender &&
-        checkSajuMatch(userData.ZLastDaily.saju, userData.saju)
+        checkSajuMatch(userData.ZLastDaily.saju, userData.saju) &&
+        userData.ZLastDaily.language === language
       ),
 
       isCookieDone: !!(userData?.ZCookie && userData.ZCookie.today === todayStr),
