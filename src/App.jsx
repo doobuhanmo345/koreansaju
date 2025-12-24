@@ -53,7 +53,7 @@ import LoadingBar from './ui/LoadingBar';
 import BeforeLogin from './page/BeforeLogin';
 export default function App() {
   // --- Context Hooks ---
-  const { user, userData, login } = useAuthContext();
+  const { user, userData, login, isDailyDone, isMainDone, isYearDone } = useAuthContext();
   const { language } = useLanguage();
   const {
     editCount,
@@ -536,27 +536,6 @@ export default function App() {
 
   const dbUser = userData;
 
-  const isMainDone =
-    dbUser?.ZApiAnalysis &&
-    dbUser.ZApiAnalysis.language === language &&
-    dbUser.ZApiAnalysis.gender === gender &&
-    checkSajuMatch(dbUser.ZApiAnalysis.saju);
-
-  const isYearDone =
-    dbUser?.ZLastNewYear &&
-    String(dbUser.ZLastNewYear.year) === String(nextYear) &&
-    dbUser.ZLastNewYear.language === language &&
-    dbUser.ZLastNewYear.gender === gender &&
-    checkSajuMatch(dbUser.ZLastNewYear.saju);
-
-  const isDailyDone =
-    dbUser?.ZLastDaily &&
-    dbUser.ZLastDaily.date === todayStr &&
-    dbUser.ZLastDaily.language === language &&
-    dbUser.ZLastDaily.gender === gender &&
-    checkSajuMatch(dbUser.ZLastDaily.saju);
-  const isCookieDone = dbUser?.ZCookie && dbUser.ZCookie.today === todayStr;
-
   // 에너지 훅 인스턴스 생성
   const mainEnergy = useConsumeEnergy();
   const yearEnergy = useConsumeEnergy();
@@ -650,7 +629,6 @@ export default function App() {
   if (!userData?.birthDate) return <BeforeLogin />;
   return (
     <div>
-    
       {/* sronly처리할 것 */}
       <div className=" flex absolute justify-center w-full py-4" style={{ visibility: 'hidden' }}>
         <div

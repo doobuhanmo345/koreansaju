@@ -34,7 +34,11 @@ const RootComponent = () => {
     }, 2500);
     return () => clearTimeout(timer);
   }, []);
-
+  // ⭐ 0순위: 브라우저 유도 페이지 (인앱 브라우저 차단용)
+  // 주소창이 이 경로라면 다른 어떤 로직보다 먼저 이 페이지를 보여줘야 합니다.
+  if (window.location.pathname === '/open-in-browser') {
+    return <OpenInBrowserPage />;
+  }
   // 1. 스플래시 화면 (앱 초기 로딩)
   if (isAppLoading) {
     return <SplashScreen />;
@@ -90,7 +94,7 @@ const RootComponent = () => {
       <MenuBar />
     </div>
   );
-};
+};;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
