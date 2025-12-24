@@ -17,7 +17,8 @@ import ApplySaju from './page/ApplySaju';
 import ConsultantDashboard from './page/ConsultantDashboard';
 import SplashScreen from './page/SplashScreen';
 import BeforeLogin from './page/BeforeLogin'; // 👈 BeforeLogin 직접 임포트 확인
-
+import MenuBar from './component/MenuBar';
+import LoadingPage from './page/LoadingPage';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -47,6 +48,7 @@ const RootComponent = () => {
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
       <NavBar />
+      <MenuBar />
       <Routes>
         <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
         <Route path="/test" element={<Test />} />
@@ -59,6 +61,7 @@ const RootComponent = () => {
             </AdminRoute>
           }
         />
+        <Route path="/loadingpage" element={<LoadingPage />} />
         <Route element={<ProtectedRoute allowedRoles={['user']} />}>
           <Route path="/apply-saju-consultant" element={<ApplySaju />} />
         </Route>

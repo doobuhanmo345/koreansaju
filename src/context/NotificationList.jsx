@@ -62,11 +62,10 @@ export default function NotificationList() {
     }
   };
 
-  
   if (loading && !user) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
+    <div className="fixed top-2 right-2 z-[9999] flex flex-col items-end gap-3">
       {/* 알림 창 */}
       {isOpen && (
         <div className="w-72 sm:w-80 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-slate-800 overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
