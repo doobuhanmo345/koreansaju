@@ -759,7 +759,6 @@ export default function App() {
       </div>
       {/* 오늘의 운세 */}
       <div className="h-[150px] w-full max-w-lg bg-slate-900 rounded-xl overflow-hidden relative group mx-auto mb-2 shadow-lg border border-white/5">
-        {/* 배경 그라데이션 */}
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 to-slate-900 opacity-100"></div>
 
         {/* 마스코트 이미지 (크기 및 반응형 최적화) */}
@@ -771,14 +770,14 @@ export default function App() {
                /* 2. 크기: 기본(모바일)에서 더 크게 설정, 최소 높이 확보 */
                h-[180px] sm:h-[180px] 
                /* 3. 비율 유지 및 레이어 순서 */
-               w-auto object-contain z-10 
+               w-auto object-contain 
                /* 4. 애니메이션 및 방해 금지 */
                scale-125 transition-transform duration-500 pointer-events-none"
           alt="mascot"
         />
 
         {/* 콘텐츠 레이어 (z-20으로 마스코트보다 위에 위치) */}
-        <div className="absolute inset-0 flex items-center justify-between px-6 z-20 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-between px-6 pointer-events-none">
           {/* 왼쪽: 점수 영역 */}
           <div className="flex flex-col items-start justify-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
             <span className="text-[10px] text-white/60 uppercase tracking-[0.2em] font-bold mb-1">
