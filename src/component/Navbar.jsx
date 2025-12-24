@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
   Bars3Icon,
   MoonIcon,
@@ -26,8 +26,8 @@ import logoKorDark from '../assets/Logo_Kor_DarkMode.png';
 import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
 import logoKor from '../assets/Logo_Kor.png';
 import logoEng from '../assets/Logo_Eng.png';
-import { RiAdminFill } from 'react-icons/ri';
 
+const navigate = useNavigate();
 const MAIN_MENUS = [
   { id: 'home', ko: '홈', en: 'Home', path: '/', icon: HomeIcon },
   { id: 'fortune', ko: '사주란?', en: 'Saju?', path: '/sajuexp', icon: SparklesIcon },
@@ -134,7 +134,7 @@ export default function NavBar() {
             </span>
           </div>
           <button
-            onClick={onFortuneClick}
+            onClick={() => navigate('/fortunecookie')}
             disabled={isCookieDone}
             className={`relative flex items-center justify-center transition-transform active:scale-90 ${isCookieDone ? 'opacity-40 grayscale' : 'animate-bounce'}`}
           >
