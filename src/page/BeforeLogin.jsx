@@ -158,7 +158,7 @@ export default function BeforeLogin() {
 
   // 3. 최종 판단: 날짜가 잘못됐거나, 시간이 잘못됐으면 버튼 비활성화
   const isInvalid = isDateInvalid || isTimeInvalid;
-  console.log(isInvalid);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-white dark:border-slate-800">
