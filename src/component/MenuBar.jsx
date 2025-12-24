@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👈 useNavigate 추가
+import React, { useState, useMemo } from 'react'; // useMemo 추가
+import { useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
   SparklesIcon,
@@ -13,11 +13,15 @@ import {
   PresentationChartLineIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthContext } from '../context/useAuthContext';
+import { RiAdminFill } from 'react-icons/ri';
+import { GiYinYang } from 'react-icons/gi';
+import { useLanguage } from '../context/useLanguageContext';
 
 export default function MobileNav() {
   const [activeMenu, setActiveMenu] = useState(null);
   const { userData } = useAuthContext();
-  const navigate = useNavigate(); // 👈 네비게이트 함수 초기화
+  const navigate = useNavigate();
+  const { language } = useLanguage();
 
   const formatBirth = (dateStr) => {
     if (!dateStr || typeof dateStr !== 'string') return '정보 없음';
@@ -31,81 +35,109 @@ export default function MobileNav() {
     }
   };
 
-  // 메뉴 클릭 시 이동 및 메뉴 닫기 처리 함수
   const handleItemClick = (path) => {
     if (!path) {
-      alert('준비중입니다.');
+      alert(language === 'ko' ? '준비중입니다.' : 'Coming soon!');
+      return; // path가 없으면 함수 종료
     }
-    navigate(path); // 👈 페이지 이동
-    setActiveMenu(null); // 👈 서브메뉴 닫기
+    navigate(path);
+    setActiveMenu(null);
   };
 
-  const menuData = {
-    fortune: {
-      title: '운세보기',
-      color: 'text-amber-500',
-      items: [
-        {
-          name: '오늘의 운세',
-          desc: '오늘 하루 나의 기운 확인',
-          icon: <CalendarDaysIcon className="w-6 h-6" />,
-          path: '/loadingpage', // 👈 이동할 경로 추가
-        },
-        {
-          name: '신년 운세',
-          desc: '을사년 한 해의 흐름',
-          icon: <SparklesIcon className="w-6 h-6" />,
-          path: '/fortune/yearly',
-        },
-        {
-          name: '궁합 보기',
-          desc: '상대방과의 에너지 조화',
-          icon: <UserPlusIcon className="w-6 h-6" />,
-          path: '/fortune/match',
-        },
-      ],
-    },
-    credits: {
-      title: '크레딧 받기',
-      color: 'text-emerald-500',
-      items: [
-        {
-          name: '무료 크레딧 받기',
-          desc: '광고 시청 후 10P 충전',
-          icon: <CircleStackIcon className="w-6 h-6" />,
-          path: '/credits/free',
-        },
-        {
-          name: '크레딧 상점',
-          desc: '유료 크레딧 패키지 구매',
-          icon: <CreditCardIcon className="w-6 h-6" />,
-          path: '/credits/shop',
-        },
-      ],
-    },
-    profile: {
-      title: '내 정보 관리',
-      color: 'text-indigo-500',
-      items: [
-        {
-          name: '프로필 수정',
-          desc: '이름, 생년월일 정보 변경',
-          icon: <UserCircleIcon className="w-6 h-6" />,
-          path: '/editprofile',
-        },
-        {
-          name: '상담 내역',
-          desc: '내가 본 운세 기록 확인',
-          icon: <PresentationChartLineIcon className="w-6 h-6" />,
-          path: null,
-        },
-      ],
-    },
-  };
+  // ✅ useMemo를 사용하여 userData.role에 따라 메뉴를 실시간으로 생성
+  const menuData = useMemo(() => {
+    // profile 하위 아이템을 위한 임시 배열
+    const profileItems = [];
+
+    // 1. 관리자 권한 메뉴 추가
+    if (userData?.role === 'admin') {
+      profileItems.push({
+        name: language === 'ko' ? '관리자 페이지' : 'Admin Page',
+        desc: '시스템 제어 및 통계',
+        icon: <RiAdminFill className="w-6 h-6 text-rose-500" />,
+        path: '/admin',
+      });
+    }
+
+    // 2. 명리학자 권한 메뉴 추가
+    if (userData?.role === 'saju_consultant') {
+      profileItems.push({
+        name: language === 'ko' ? '명리학자 대시보드' : 'Consultant',
+        desc: '상담 요청 관리',
+        icon: <GiYinYang className="w-6 h-6 text-indigo-500" />,
+        path: '/consultant/dashboard',
+      });
+    }
+
+    // 3. 공통 메뉴 추가
+    profileItems.push(
+      {
+        name: '프로필 수정',
+        desc: '이름, 생년월일 정보 변경',
+        icon: <UserCircleIcon className="w-6 h-6" />,
+        path: '/editprofile',
+      },
+      {
+        name: '상담 내역',
+        desc: '내가 본 운세 기록 확인',
+        icon: <PresentationChartLineIcon className="w-6 h-6" />,
+        path: null,
+      },
+    );
+
+    return {
+      fortune: {
+        title: '운세보기',
+        color: 'text-amber-500',
+        items: [
+          {
+            name: '오늘의 운세',
+            desc: '오늘 하루 나의 기운 확인',
+            icon: <CalendarDaysIcon className="w-6 h-6" />,
+            path: '/loadingpage',
+          },
+          {
+            name: '신년 운세',
+            desc: '을사년 한 해의 흐름',
+            icon: <SparklesIcon className="w-6 h-6" />,
+            path: '/fortune/yearly',
+          },
+          {
+            name: '궁합 보기',
+            desc: '상대방과의 에너지 조화',
+            icon: <UserPlusIcon className="w-6 h-6" />,
+            path: '/fortune/match',
+          },
+        ],
+      },
+      credits: {
+        title: '크레딧 받기',
+        color: 'text-emerald-500',
+        items: [
+          {
+            name: '무료 크레딧 받기',
+            desc: '광고 시청 후 10P 충전',
+            icon: <CircleStackIcon className="w-6 h-6" />,
+            path: '/credits/free',
+          },
+          {
+            name: '크레딧 상점',
+            desc: '유료 크레딧 패키지 구매',
+            icon: <CreditCardIcon className="w-6 h-6" />,
+            path: '/credits/shop',
+          },
+        ],
+      },
+      profile: {
+        title: '내 정보 관리',
+        color: 'text-indigo-500',
+        items: profileItems,
+      },
+    };
+  }, [userData, language]); // userData나 language가 바뀔 때만 재계산
 
   return (
     <>
-      {/* 1. 서브메뉴 오버레이 */}
       <div
         className={`fixed inset-0 z-40 bg-white dark:bg-slate-950 transition-transform duration-500 ease-in-out ${
           activeMenu ? 'translate-y-0' : 'translate-y-full'
@@ -114,7 +146,7 @@ export default function MobileNav() {
         {activeMenu && (
           <div className="flex flex-col h-full p-8 pb-32 overflow-y-auto">
             <div className="flex justify-between items-center mb-10">
-              <h2 className="text-3xl font-black tracking-tighter dark:text-white">
+              <h2 className="text-3xl font-black tracking-tighter dark:text-white uppercase">
                 {menuData[activeMenu].title}
               </h2>
               <button
@@ -125,7 +157,6 @@ export default function MobileNav() {
               </button>
             </div>
 
-            {/* 프로필 카드 로직 유지 */}
             {activeMenu === 'profile' && (
               <div className="mb-8">
                 <div className="relative overflow-hidden p-6 rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-indigo-700 text-white shadow-xl shadow-indigo-200 dark:shadow-none">
@@ -161,7 +192,7 @@ export default function MobileNav() {
               {menuData[activeMenu].items.map((item, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleItemClick(item.path)} // 👈 클릭 시 경로 이동 함수 호출
+                  onClick={() => handleItemClick(item.path)}
                   className="w-full flex items-center justify-between p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 active:scale-[0.98] transition-all"
                 >
                   <div className="flex items-center gap-4">
@@ -175,7 +206,11 @@ export default function MobileNav() {
                       <p className="text-[11px] text-slate-400 font-bold">{item.desc}</p>
                     </div>
                   </div>
-                  <ChevronRightIcon className="w-5 h-5 text-slate-300" />
+                  {item.path ? (
+                    <ChevronRightIcon className="w-5 h-5 text-slate-300" />
+                  ) : (
+                    <span className="text-[10px] font-bold text-slate-300">준비 중</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -183,14 +218,13 @@ export default function MobileNav() {
         )}
       </div>
 
-      {/* 2. 하단 네비게이션 바 */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8 pt-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-md mx-auto flex justify-between items-center">
           <button
             onClick={() => {
               setActiveMenu(null);
               navigate('/');
-            }} // 👈 홈으로 이동
+            }}
             className={`flex flex-col items-center gap-1 transition-colors ${!activeMenu ? 'text-indigo-600' : 'text-slate-400'}`}
           >
             <HomeIcon className="w-6 h-6" />
