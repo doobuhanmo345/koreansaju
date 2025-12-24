@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Bars3Icon,
   MoonIcon,
@@ -27,7 +27,6 @@ import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
 import logoKor from '../assets/Logo_Kor.png';
 import logoEng from '../assets/Logo_Eng.png';
 
-const navigate = useNavigate();
 const MAIN_MENUS = [
   { id: 'home', ko: '홈', en: 'Home', path: '/', icon: HomeIcon },
   { id: 'fortune', ko: '사주란?', en: 'Saju?', path: '/sajuexp', icon: SparklesIcon },
