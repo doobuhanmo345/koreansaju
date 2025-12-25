@@ -16,7 +16,8 @@ import {
   ArrowRightIcon,
   ArrowDownIcon,
 } from '@heroicons/react/24/outline';
-import { LinkIcon, UserIcon } from '@heroicons/react/24/solid';
+import { LinkIcon, UserIcon, TicketIcon } from '@heroicons/react/24/solid';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 
 // 3. Internal Config, Libs, Utils, API
 import { db } from '../lib/firebase';
@@ -776,7 +777,7 @@ export default function Wealth({}) {
           <div className="flex justify-center">
             <button
               onClick={() => wealthEnergy2.triggerConsume(handleWealthAnalysis)}
-              disabled={loading && !wealthEnergy2.isConsuming}
+              disabled={isDisabled || !isAnalysisDone}
               className={classNames(
                 'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
                 isDisabled
@@ -786,40 +787,41 @@ export default function Wealth({}) {
             >
               <SparklesIcon className="w-5 h-5 animate-pulse" />
               <span>{language === 'en' ? 'Start Analysis' : '분석 시작하기'}</span>
-
-              {!isAnalysisDone && !user && (
-                <div className="mt-1 relative z-10">
-                  <LockClosedIcon className="w-4 h-4 text-amber-500" />
+              {isAnalysisDone ? (
+                <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
+                  <span className="text-[9px] font-bold text-white uppercase">Free</span>
+                  <TicketIcon className="w-3 h-3 text-white" />
                 </div>
-              )}
-
-              {!isAnalysisDone && !!user && (
-                <div className="mt-1 relative w-10">
-                  <EnergyBadge
-                    active={user}
-                    consuming={wealthEnergy2.isConsuming}
-                    loading={loading && !wealthEnergy2.isConsuming}
-                    cost={-1}
-                  />
-                </div>
-              )}
-
-              {isAnalysisDone && !loading && (
-                <div
-                  className={classNames(
-                    'mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10',
-                    isLocked
-                      ? 'border-gray-500/50 bg-gray-400/40' // 잠겼을 때
-                      : 'border-white/30 bg-white/20', // 열렸을 때
-                  )}
-                >
-                  <span className="text-[9px] font-bold text-white tracking-wide uppercase">
-                    Free
-                  </span>
-                </div>
+              ) : isLocked ? (
+                <>
+                  <div
+                    className="mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40" // 잠겼을 때
+                  >
+                    <span className="text-[9px] font-bold text-white tracking-wide uppercase">
+                      <LockClosedIcon className="w-4 h-4 text-amber-500" />
+                    </span>
+                  </div>
+                </>
+              ) : (
+                user && (
+                  <div className="relative scale-90">
+                    <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
+                  </div>
+                )
               )}
             </button>
           </div>
+          {isLocked ? (
+            <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+              <ExclamationTriangleIcon className="w-4 h-4" />{' '}
+              {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
+              크레딧이 부족합니다.
+            </p>
+          ) : (
+            <p className="mt-4 text-[11px] text-slate-400">
+              이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+            </p>
+          )}
         </div>
       )}
       {step === 4 && (

@@ -12,7 +12,9 @@ import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
 import { classNames } from '../utils/helpers';
-import { TicketIcon } from '@heroicons/react/24/outline';
+import { TicketIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 // 1. 로딩 컴포넌트
 function SajuLoading() {
   const [textIndex, setTextIndex] = useState(0);
@@ -63,7 +65,9 @@ export default function SajuAnalysisPage() {
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
-  const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+
+  const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
+  const isDisabled = !user || loading;
 
   // 1️⃣ 사주 정보 일치 확인 헬퍼 함수 (필드별 직접 비교)
   // 1️⃣ [헬퍼 함수] 인자 두 개를 명확히 비교하도록 수정
@@ -182,39 +186,50 @@ export default function SajuAnalysisPage() {
 
         <button
           onClick={() => handleStartClick(onStart)} // 중간 함수 호출
-          disabled={energy.isConsuming}
-          className="w-full py-4 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white rounded-2xl font-bold text-lg shadow-xl active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+          disabled={isDisabled && !isMainDone}
+          className={classNames(
+            'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+            isDisabled
+              ? DISABLED_STYLE
+              : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
+          )}
         >
           운명 분석 시작하기
-          {isMainDone && !loading && (
-            <div
-              className={classNames(
-                'mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10',
-                isLocked
-                  ? 'border-gray-500/50 bg-gray-400/40' // 잠겼을 때 (어둡고 회색)
-                  : 'border-white/30 bg-white/20', // 열렸을 때 (밝고 투명)
-              )}
-            >
-              <span className="text-[9px] font-bold text-white tracking-wide uppercase">Free</span>
+          {isMainDone ? (
+            <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
+              <span className="text-[9px] font-bold text-white uppercase">Free</span>
               <TicketIcon className="w-3 h-3 text-white" />
             </div>
-          )}
-          {!isMainDone && !user && (
-            <div className="mt-1 relative z-10">
-              <LockClosedIcon className="w-4 h-4 text-amber-500" />
-            </div>
-          )}
-          {!isMainDone && !!user && (
-            <div className="mt-1 relative">
-              <EnergyBadge
-                active={userData?.inputDate}
-                consuming={energy.isConsuming}
-                loading={loading && !energy.isConsuming}
-                cost={-1}
-              />
-            </div>
+          ) : isLocked ? (
+            <>
+              <div
+                className="mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40" // 잠겼을 때
+              >
+                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
+                  <LockClosedIcon className="w-4 h-4 text-amber-500" />
+                </span>
+              </div>
+            </>
+          ) : (
+            user && (
+              <div className="relative scale-90">
+                <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
+              </div>
+            )
           )}
         </button>
+
+        {isLocked ? (
+          <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+            <ExclamationTriangleIcon className="w-4 h-4" />{' '}
+            {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
+            크레딧이 부족합니다.
+          </p>
+        ) : (
+          <p className="mt-4 text-[11px] text-slate-400">
+            이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+          </p>
+        )}
       </div>
     );
   };

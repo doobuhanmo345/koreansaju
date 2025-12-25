@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import EnergyBadge from '../ui/EnergyBadge';
-import { useConsumeEnergy } from '../hooks/useConsumingEnergy';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
@@ -12,12 +11,13 @@ import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
 import { classNames } from '../utils/helpers';
-import { TicketIcon } from '@heroicons/react/24/outline';
+import { TicketIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { STRICT_INSTRUCTION, DAILY_FORTUNE_PROMPT } from '../data/aiResultConstants';
 import { langPrompt, hanja } from '../data/constants';
 import { getPillars } from '../utils/sajuCalculator';
 import { fetchGeminiAnalysis } from '../api/gemini';
-import LoadingPage from './LoadingPage';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+
 // 1. 로딩 컴포넌트
 function SajuLoading() {
   const [textIndex, setTextIndex] = useState(0);
@@ -60,13 +60,15 @@ function SajuLoading() {
 
 // 2. 메인 페이지 컴포넌트
 export default function TodaysLuckPage() {
-  const { loading, setLoading, loadingType, setLoadingType, setAiResult, aiResult } = useLoading();
+  const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
   const { userData, user, isDailyDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
   const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
+  const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
+  const isDisabled = !user || loading;
 
   // 버튼 클릭 시 실행될 중간 로직
   const handleStartClick = async (onStart) => {
@@ -169,6 +171,9 @@ export default function TodaysLuckPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
+    if (loading) {
+      return <SajuLoading />;
+    }
     return (
       <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}
@@ -225,17 +230,31 @@ export default function TodaysLuckPage() {
         {/* 시작 버튼: handleDailyStartClick 연결 */}
         <button
           onClick={() => handleStartClick(onStart)} // 일일 운세용 함수 호출
-          disabled={loading}
-          className="w-full py-4 bg-gradient-to-r from-amber-500 via-orange-600 to-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-amber-200 dark:shadow-none active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50"
+          disabled={isDisabled && !isDailyDone}
+          className={classNames(
+            'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+            isDisabled
+              ? DISABLED_STYLE
+              : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
+          )}
         >
           {loading ? '기운 분석 중...' : '오늘의 운세 확인하기'}
 
-          {/* 캐시 완료 상태면 티켓 표시, 아니면 에너지 소모 표시 */}
           {isDailyDone ? (
             <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
               <span className="text-[9px] font-bold text-white uppercase">Free</span>
               <TicketIcon className="w-3 h-3 text-white" />
             </div>
+          ) : isLocked ? (
+            <>
+              <div
+                className="mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40" // 잠겼을 때
+              >
+                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
+                  <LockClosedIcon className="w-4 h-4 text-amber-500" />
+                </span>
+              </div>
+            </>
           ) : (
             user && (
               <div className="relative scale-90">
@@ -245,15 +264,21 @@ export default function TodaysLuckPage() {
           )}
         </button>
 
-        <p className="mt-4 text-[11px] text-slate-400">
-          이미 확인한 운세는 에너지가 소모되지 않습니다.
-        </p>
+        {isLocked ? (
+          <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+            <ExclamationTriangleIcon className="w-4 h-4" />{' '}
+            {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
+            크레딧이 부족합니다.
+          </p>
+        ) : (
+          <p className="mt-4 text-[11px] text-slate-400">
+            이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+          </p>
+        )}
       </div>
     );
   };
-  if (loading) {
-    return <SajuLoading />;
-  }
+
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
