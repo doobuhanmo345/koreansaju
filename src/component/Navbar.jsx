@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // 1. useEffect, useRef 추가
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Bars3Icon,
@@ -41,7 +41,6 @@ const UTILITY_ITEMS = [
     action: 'SHOW_CONTACT_MODAL',
   },
 ];
-// ... (상단 import 생략)
 
 export default function NavBar() {
   const { theme, setTheme } = useTheme();
@@ -56,6 +55,26 @@ export default function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setLoading, setLoadingType } = useLoading();
+
+  // 2. 외부 클릭 감지를 위한 Ref 생성
+  const menuRef = useRef(null);
+
+  // 3. 외부 클릭 감지 로직 추가
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // 메뉴가 열려있고, 클릭된 곳이 메뉴 영역(menuRef)의 바깥이라면 닫기
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    // 마우스 클릭 이벤트 리스너 등록
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // 컴포넌트가 사라질 때 리스너 제거
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleMainNavigate = (path) => {
     navigate(path);
@@ -147,8 +166,9 @@ export default function NavBar() {
         {/* 알림 리스트 아이콘 */}
         <NotificationList />
 
-        {/* 햄버거 버튼 */}
-        <div className="relative ml-1">
+        {/* 햄버거 버튼 영역 (여기에 ref 연결) */}
+        {/* 4. ref={menuRef} 추가: 이 div 내부(버튼+메뉴)를 제외한 곳 클릭 시 닫힘 */}
+        <div className="relative ml-1" ref={menuRef}>
           <button
             onClick={() => toggleMenu()}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-700 dark:text-gray-300"
