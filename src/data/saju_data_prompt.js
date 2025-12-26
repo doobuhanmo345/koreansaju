@@ -447,7 +447,6 @@ export const aiSajuStyle = `<style>
         body { 
             font-family: sans-serif; 
             margin: 0; 
-            padding: 20px; 
             line-height: 1.6; 
             background-color: var(--bg-page); 
             color: var(--text-main); 
