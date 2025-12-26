@@ -8,7 +8,7 @@ export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const { language } = useLanguage();
-  console.log(language);
+
   const status = useMemo(() => {
     if (!userData)
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };

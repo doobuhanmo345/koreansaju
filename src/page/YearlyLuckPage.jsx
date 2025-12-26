@@ -16,6 +16,7 @@ import { langPrompt, hanja } from '../data/constants';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { classNames } from '../utils/helpers';
+import { BoltIcon } from '@heroicons/react/24/outline';
 // 1. 로딩 컴포넌트
 function SajuLoading() {
   const [textIndex, setTextIndex] = useState(0);
@@ -165,63 +166,50 @@ export default function YearlyLuckPage() {
 
     return (
       <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
-        {/* 상단 비주얼: 새로운 시작을 상징하는 태양이나 용 아이콘 */}
-        <div className="relative inline-block mb-6">
-          <div className="text-6xl relative z-10">🌅</div>
-          <div className="absolute inset-0 bg-emerald-200 dark:bg-emerald-900/30 blur-2xl rounded-full scale-150"></div>
-        </div>
-
-        {/* 타이틀: 1년의 대계 강조 */}
-        <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-          2026년 당신의 삶을 바꿀
+        <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+          오행으로 읽는
           <br />
-          <span className="text-emerald-600 dark:text-emerald-400">거대한 운명의 흐름</span>
+          <span className="relative text-red-600 dark:text-red-400">
+            평생운세 & 10년 대운
+            <div className="absolute inset-0 bg-red-200/50 dark:bg-red-900/30 blur-md rounded-full scale-100"></div>
+          </span>
         </h2>
-
         {/* 설명문구 */}
         <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
           <p className="text-sm">
-            단순한 예측을 넘어, <strong>2026년 병오년</strong>의 천간과 지지가 당신의 사주와
-            충돌하고 화합하는 모든 과정을 정밀 분석합니다.
+            <strong>붉은 말의 해</strong>, 사주에 숨겨진 월별 건강운, 재물운, 연애운.
           </p>
 
-          {/* 요약 리스트: 연간 분석만의 깊이감 강조 */}
-          <div className="bg-white/50 dark:bg-slate-800/40 rounded-2xl p-5 text-sm text-left inline-block w-full border border-emerald-100 dark:border-emerald-900/30">
-            <ul className="space-y-3">
-              <li className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 flex items-center justify-center text-[10px]">
-                  📈
-                </span>
-                <span>
-                  한 해의 <strong>월별 길흉화복</strong> 그래프 분석
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 flex items-center justify-center text-[10px]">
-                  💰
-                </span>
-                <span>
-                  재물, 사업, 애정운의 <strong>전성기 확인</strong>
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 flex items-center justify-center text-[10px]">
-                  🧭
-                </span>
-                <span>
-                  최선의 결과를 위한 <strong>월별 맞춤 전략</strong>
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
+          <div>
+            <span
+              className="
+    inline-flex items-center gap-1.5 
+    /* 라이트 모드 디자인 */
+    bg-amber-50 text-amber-700 border border-amber-200 
+    /* 다크 모드 디자인 (어두운 배경에 대비되게) */
+    dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700/50 
+    /* 공통 스타일: 둥글게, 글자 크기, 여백, 그림자 */
+    py-1 px-3.5 rounded-md text-[13px] font-bold shadow-sm
+    transition-all duration-300
+  "
+            >
+              {/* 아이콘 부분: 살짝 애니메이션을 줘서 생동감 있게 */}
+              <BoltIcon className="h-4 w-4 fill-amber-500 dark:fill-amber-400 animate-pulse" />
 
+              <span className="tracking-tight">
+                -1 <span className="text-[11px] opacity-80 ml-0.5 font-medium">크레딧</span>
+              </span>
+            </span>
+          </div>
+
+          <img src="/images/introcard/newyear_1.png" />
+        </div>
         {/* 시작 버튼: handleYearlyStartClick (가칭) 연결 */}
         <button
           onClick={() => handleStartClick(onStart)}
           disabled={isDisabled || !isYearDone}
           className={classNames(
-            'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+            'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
             isDisabled
               ? DISABLED_STYLE
               : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
@@ -252,7 +240,6 @@ export default function YearlyLuckPage() {
             )
           )}
         </button>
-
         {isLocked ? (
           <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
             <ExclamationTriangleIcon className="w-4 h-4" />{' '}

@@ -17,7 +17,7 @@ import { langPrompt, hanja } from '../data/constants';
 import { getPillars } from '../utils/sajuCalculator';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-
+import{ BoltIcon} from '@heroicons/react/24/outline';
 // 1. 로딩 컴포넌트
 function SajuLoading() {
   const [textIndex, setTextIndex] = useState(0);
@@ -177,53 +177,47 @@ export default function TodaysLuckPage() {
     return (
       <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}
-        <div className="relative inline-block mb-6">
-          <div className="text-6xl relative z-10">🗓️</div>
-          <div className="absolute inset-0 bg-amber-200 dark:bg-amber-900/30 blur-2xl rounded-full scale-150"></div>
-        </div>
+        <div>
+          {' '}
+          {/* 타이틀: 매일의 흐름을 강조 */}
+          <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+            사자가 읽어주는
+            <br />
+            <span className=" relative text-amber-600 dark:text-amber-500">
+              당신의 오늘
+              <div className="absolute inset-0 bg-amber-200/50 dark:bg-amber-800/60 blur-md rounded-full scale-100"></div>
+            </span>
+          </h2>
+          {/* 설명문구: 줄줄이 쓰지 않고 핵심만 */}
+          <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
+            <p className="text-sm">
+              사주로 보는
+              <strong>오늘의 재물운, 연애운</strong>부터 <strong>오늘의 방향과 컬러</strong>까지!
+              운명 지도 분석.
+            </p>
+            <div>
+              <span
+                className="
+    inline-flex items-center gap-1.5 
+    /* 라이트 모드 디자인 */
+    bg-amber-50 text-amber-700 border border-amber-200 
+    /* 다크 모드 디자인 (어두운 배경에 대비되게) */
+    dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700/50 
+    /* 공통 스타일: 둥글게, 글자 크기, 여백, 그림자 */
+    py-1 px-3.5 rounded-md text-[13px] font-bold shadow-sm
+    transition-all duration-300
+  "
+              >
+                {/* 아이콘 부분: 살짝 애니메이션을 줘서 생동감 있게 */}
+                <BoltIcon className="h-4 w-4 fill-amber-500 dark:fill-amber-400 animate-pulse" />
 
-        {/* 타이틀: 매일의 흐름을 강조 */}
-        <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-          오늘 당신을 기다리는
-          <br />
-          <span className="text-amber-600 dark:text-amber-500">행운의 타이밍</span>
-        </h2>
+                <span className="tracking-tight">
+                  -1 <span className="text-[11px] opacity-80 ml-0.5 font-medium">크레딧</span>
+                </span>
+              </span>
+            </div>
 
-        {/* 설명문구: 줄줄이 쓰지 않고 핵심만 */}
-        <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
-          <p className="text-sm">
-            매일 변화하는 하늘의 기운과 당신의 사주가 만나는 지점을 분석하여{' '}
-            <strong>오늘과 내일의 맞춤 가이드</strong>를 전해드립니다.
-          </p>
-
-          {/* 요약 리스트: 사용자가 얻을 이득을 명확히 함 */}
-          <div className="bg-white/50 dark:bg-slate-800/40 rounded-2xl p-5 text-sm text-left inline-block w-full border border-amber-100 dark:border-amber-900/30">
-            <ul className="space-y-3">
-              <li className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 flex items-center justify-center text-[10px]">
-                  ⭐
-                </span>
-                <span>
-                  <strong>오늘의 점수</strong>와 핵심 집중 키워드
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 flex items-center justify-center text-[10px]">
-                  🛡️
-                </span>
-                <span>
-                  미리 대비하는 <strong>시간대별 유의사항</strong>
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 flex items-center justify-center text-[10px]">
-                  🍀
-                </span>
-                <span>
-                  기운을 북돋아 줄 <strong>행운의 아이템 & 컬러</strong>
-                </span>
-              </li>
-            </ul>
+            <img src="/images/introcard/todaysluck_1.png" />
           </div>
         </div>
 
@@ -232,7 +226,7 @@ export default function TodaysLuckPage() {
           onClick={() => handleStartClick(onStart)} // 일일 운세용 함수 호출
           disabled={isDisabled && !isDailyDone}
           className={classNames(
-            'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+            'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
             isDisabled
               ? DISABLED_STYLE
               : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
@@ -241,7 +235,7 @@ export default function TodaysLuckPage() {
           {loading ? '기운 분석 중...' : '오늘의 운세 확인하기'}
 
           {isDailyDone ? (
-            <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
+            <div className="flex items-center gabackdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
               <span className="text-[9px] font-bold text-white uppercase">Free</span>
               <TicketIcon className="w-3 h-3 text-white" />
             </div>

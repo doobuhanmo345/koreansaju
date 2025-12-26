@@ -26,6 +26,8 @@ import FortuneCookie from './page/FortuneCookie';
 import SajuAnalysisPage from './page/SajuAnalysisPage';
 import TodaysLuckPage from './page/TodaysLuckPage';
 import YearlyLuckPage from './page/YearlyLuckPage';
+import SajuResult from './component/SajuResult';
+import BasicAnaPage from './page/BasicAnaPage';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -68,13 +70,15 @@ const RootComponent = () => {
       <div className="pb-24">
         <NavBar />
         <Routes>
+          <Route path="/sajuresult" element={<SajuResult />} />
           <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
+          <Route path="/basic" element={<BasicAnaPage />} />
           <Route path="/todaysluck" element={<TodaysLuckPage />} />
           <Route path="/2026luck" element={<YearlyLuckPage />} />
           <Route path="/test" element={<Test />} />
           <Route path="/wealth" element={<Wealth />} />
           <Route path="/match" element={<Match />} />
-          <Route path="/basic" element={<SajuAnalysisPage />} />
+          {/* <Route path="/basic" element={<SajuAnalysisPage />} /> */}
           <Route path="/fortunecookie" element={<FortuneCookie />} />
           <Route path="/editprofile" element={<EditProfile />} />
           <Route

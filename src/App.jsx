@@ -110,7 +110,7 @@ export default function App() {
   // 사주 계산 훅
   const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
   const processedData = processSajuData(saju);
-
+  console.log(userData?.displayName, userData?.gender, userData?.birthDate, userData?.saju);
   // --- 1. 데이터 동기화 Effect ---
   useEffect(() => {
     if (user && userData) {

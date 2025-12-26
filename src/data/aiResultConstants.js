@@ -710,6 +710,7 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
         <p class="report-keyword">총점 : [100점 기준의 을사년 경자월의 운세 총점]</p>
         <p class="report-text">[을사년 경자월의 운세 300~500자, 재물운, 건강운, 직업운, 학업운, 연애운 반드시 포함]</p>
     </div>
+    </div>
   
   
 

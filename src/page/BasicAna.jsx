@@ -1121,7 +1121,7 @@ const BasicAna = ({}) => {
   } = sajuData;
 
   const analysisStory = getAnalysisStory(myIljuData, myShinsal, maxOhaeng, relations);
-  const daewoonStory = getDaewoonStory(currentDaewoon, currentAge);
+
   // 기본값은 현재 대운(dae.isCurrent)으로 설정
   const [selectedDae, setSelectedDae] = useState(null);
 
