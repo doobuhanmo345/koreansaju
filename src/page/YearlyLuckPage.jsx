@@ -343,7 +343,7 @@ export default function YearlyLuckPage() {
               : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
           )}
         >
-          {loading ? '신년 대운 추출 중...' : '2026 신년 운세 시작하기'}
+          {loading ? '신년 대운 추출 중...' : '2026 신년 운세 보기'}
 
           {isYearDone ? (
             <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
@@ -403,7 +403,7 @@ export default function YearlyLuckPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
-  
+
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}

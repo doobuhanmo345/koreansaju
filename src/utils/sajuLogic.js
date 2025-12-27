@@ -388,25 +388,35 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
   ${DEFAULT_INSTRUCTION}
 
     ---
-    !!! SYSTEM ALERT: YOU ARE A HTML GENERATOR. !!!
+    !!! SYSTEM ALERT: YOU ARE A PROFESSIONAL MYUNG-RI SCHOLAR & HTML GENERATOR. !!!
     
     [YOUR GOAL]
     - Fill the content inside the provided HTML template based on the SAJU data.
     - **CRITICAL**: DO NOT CHANGE class names (e.g., class="section-title-h2", class="report-text").
     - **CRITICAL**: DO NOT REMOVE any <div>, <h2>, <p> tags. Keep the structure EXACTLY as provided.
     - OUTPUT ONLY THE RAW HTML. No markdown code blocks.
-    - 특이 사항이 명시되어 있지 않을때에는 너의 자의적인 해석도 허용. 하지만 기본내용은 해치지 말 것.
+
+    [MYUNG-RI ANALYSIS LOGIC: THE MASTER'S PERSPECTIVE]
+    - 당신은 '일주(Day Pillar)'를 개인의 핵심 엔진으로 보되, '월주(Month)'와 '연주(Year)'를 그 엔진이 가동되는 환경과 유전적 배경으로 분석합니다.
+    - **핵심 분석법**: 
+      1. 일주(${pillars.day})의 기본 특성이 월주(${pillars.month})의 환경(사회궁)을 만났을 때 어떻게 변주되는지 설명하세요. 
+         (예: 갑자일주가 월주에 관성이 강하면 모범생 기질이 강박으로, 식상이 강하면 응용력 있는 전문가로 변함)
+      2. 일주가 가진 태생적 약점이 사주 전체의 오행(${maxOhaeng})이나 신살에 의해 어떻게 보완되거나 심화되는지 입체적으로 서술하세요.
+      3. 대운의 흐름을 단순히 나열하지 말고, 일주라는 주인공이 각 대운(환경)을 지나며 어떻게 성장해왔는지 한 편의 이야기처럼 정제하여 서술하세요.
 
     [SAJU DATA]
     - Birth: ${inputDate} (${inputGender})
     - Day Pillar (Core): ${pillars.day}
-    - Key Personality Traits:${ILJU_DATA[pillars.day].desc[inputGender].join(', ')}
+    - Month Pillar (Environment): ${pillars.month}
+    - Year Pillar (Root): ${pillars.year}
+    - Key Personality Traits: ${ILJU_DATA[pillars.day].desc[inputGender].join(', ')}
     - Dominant Element: ${maxOhaeng}
     - Special Stars: ${myShinsal.map((s) => `${s.name}(${s.desc})`).join(', ')}
     - Current Daewoon: ${currentDaewoon?.name}
-   - 대운 흐름 정보:
-    ${daewoonList.map((i) => getDaewoonStory(i, language, pillars))}를 참조하여, 사용자의 인생 흐름을 과거부터 현재까지 자세히 서술해줘. 대운 이름은 절대 한자로 표기하지 말고 한글로만 표기할 것.
-    대운을 설명할 때 내용은 이것을 참조해서 더욱 정제해서 더 길게 해줘. 내용은 더해도 되는데 빠뜨리지 말아줘.
+    - 대운 흐름 정보:
+    ${daewoonList.map((i) => getDaewoonStory(i, language, pillars))}를 참조하여, 사용자의 인생 흐름을 과거부터 현재까지 자세히 서술해줘.
+    내용을 정제하여 더 길고 깊이 있게 작성하되, 제공된 정보는 하나도 빠뜨리지 마세요.
+
     [HTML TEMPLATE TO FILL]
     ${targetFormat}
   `;

@@ -362,7 +362,7 @@ export default function BasicAnaPage() {
               : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
           )}
         >
-          {loading ? '기운 분석 중...' : '오늘의 운세 확인하기'}
+          {loading ? '기운 분석 중...' : '평생 운세 보기'}
 
           {isMainDone ? (
             <div className="flex items-center gabackdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
