@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -19,89 +19,139 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
 import { BoltIcon } from '@heroicons/react/24/outline';
-import { pillarStyle } from '../data/style';
 
 // 1. 로딩 컴포넌트
 
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);
-  // 데이터 추출 최적화
+  const [isFinished, setIsFinished] = useState(false); // 전체 로딩 완료 여부
+  const containerRef = useRef(null);
+
   const pillars = sajuData?.pillars;
-  const currentDaewoon = sajuData?.currentDaewoon?.name;
-  const shinsal = sajuData?.myShinsal?.[0]?.name;
-  const age = sajuData?.currentAge;
-  const counts = sajuData?.ohaengCount; // 오행 개수
-  const maxOhaeng = sajuData?.maxOhaeng?.[0]; // 가장 강한 기운
+  const age = sajuData?.currentAge || 0;
+  const daewoonArr = sajuData?.daewoonList || [];
+  const currentDae = daewoonArr.find((d) => d.isCurrent)?.name || '현재';
+  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
+  const shinsalList = sajuData?.myShinsal?.map((s) => s.name) || [];
+  const primaryShinsal = shinsalList.length > 0 ? shinsalList[0] : '특별한';
 
   const loadingTexts = [
-    `먼저 ${pillars?.year || '태어난 해'}의 기운을 종이에 옮깁니다...`,
-    `${pillars?.month || '태어난 달'}의 계절적 흐름을 살피는 중입니다.`,
-    `당신의 본질인 ${pillars?.day || '태어난 날'}의 에너지를 기록합니다.`,
-    `${pillars?.time || '태어난 시'}를 더해 사주 팔자의 형상을 완성합니다.`,
-    `오행 중 ${maxOhaeng || '특정'}의 기운이 강하게 나타나고 있군요.`,
-    `나무(${counts?.wood}), 불(${counts?.fire}), 흙(${counts?.earth}), 금(${counts?.metal}), 물(${counts?.water})의 배합을 확인합니다.`,
-    `천간의 네 글자가 하늘의 뜻을 어떻게 전하는지 읽어내는 중입니다.`,
-    `지지의 네 글자가 땅의 형상으로 어떻게 뿌리내렸는지 분석합니다.`,
-    `현재 ${currentDaewoon || '운명'} 대운의 거대한 흐름 속에 계시는군요.`,
-    `당신에게 깃든 ${shinsal || '특별한'} 기운의 깊은 의미를 풀이합니다.`,
-    `인생의 변곡점이 될 합(合)과 충(沖)의 작용을 세밀히 검토 중입니다.`,
-    `음양의 균형이 당신의 삶에 어떤 조화를 이루는지 살피고 있습니다.`,
-    `${age || '현재'}세, 지금 이 순간 당신의 위치를 운명의 지도 위에 그립니다.`,
-    `앞으로 다가올 변화의 파동을 하나하나 문장으로 정리하고 있습니다.`,
-    `이제 당신만을 위한 운명 보고서의 마지막 마침표를 찍습니다.`,
+    `당신이 태어난 순간의 천기(天氣)를 종이 위에 정밀하게 옮기고 있습니다...`,
+    `본질을 상징하는 '${pillars?.day || '일주'}'의 글자를 통해 당신의 타고난 성질을 읽어냅니다.`,
+    `내면의 에너지를 관장하는 '${pillars?.month || '월지'}'의 계절감을 분석하여 기질의 온도를 측정합니다.`,
+    `나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) — 다섯 기운의 과다와 결핍을 확인합니다.`,
+    `가장 강한 기운인 '${primaryShinsal}'의 에너지가 당신의 성격 형성에 미친 영향력을 추적합니다.`,
+    `겉으로 드러나는 사회적 모습과 내면에 감춰진 본능적인 욕구 사이의 균형점을 살핍니다.`,
+    `당신이 타인에게 비치는 첫인상과 시간이 흐를수록 드러나는 진면목의 차이를 분석 중입니다.`,
+    `사주 원국의 '${pillars?.year || '년주'}'에 새겨진 조상의 기운과 가문으로부터 이어진 성향을 훑습니다.`,
+    `정신적 지향점을 보여주는 천간의 합과 현실적 행동 양식을 보여주는 지지의 충을 대조합니다.`,
+    `인생 전체를 지배하는 10년 단위의 거대한 파동, '${currentDae}' 대운의 위치를 좌표 위에 찍습니다.`,
+    `과거 대운에서 겪었을 심리적 변화의 궤적을 복기하며 현재의 기운과 연결하고 있습니다.`,
+    `잠재된 재능을 깨우는 '${shinsalList.length > 1 ? shinsalList[1] : '특별한'}' 기운이 인생의 어느 시점에 개화할지 계산합니다.`,
+    `당신의 성격이 인간관계와 사회적 성취에 어떤 방식으로 작용하는지 메커니즘을 파악합니다.`,
+    `결핍된 오행을 채우기 위해 당신이 무의식적으로 추구해온 가치관과 행동 패턴을 분석 중입니다.`,
+    `현재 대운 리스트에 기록된 10단계의 운명 궤적을 훑으며 장기적인 성장의 방향성을 잡습니다.`,
+    `타고난 팔자의 한계를 넘어서는 '개운(開運)'의 실마리를 당신의 명식 안에서 찾고 있습니다.`,
+    `논리적인 분석을 넘어 당신의 영혼이 가진 고유한 색깔과 울림을 문장으로 정리합니다.`,
+    `인생의 파도 속에서도 변치 않을 당신만의 강력한 무기와 자산이 무엇인지 특정하고 있습니다.`,
+    `복잡하게 얽힌 운명의 실타래에서 당신이라는 존재의 핵심 키워드를 도출합니다.`,
+    `이제 사자가 기록한 당신의 본질과 평생의 흐름에 대한 종합 분석 보고서를 완성합니다.`,
   ];
 
+  // 스크롤 제어
   useEffect(() => {
-    if (sajuData) {
-      setDisplayedTexts([loadingTexts[0]]);
-      let currentIndex = 1;
-
-      // 15문장 x 2.5초 간격 = 약 37.5초 (취향에 따라 3000ms~4000ms로 조절하세요)
-      const interval = setInterval(() => {
-        if (currentIndex < loadingTexts.length) {
-          setDisplayedTexts((prev) => [...prev, loadingTexts[currentIndex]]);
-          currentIndex++;
-        } else {
-          clearInterval(interval);
-        }
-      }, 3000);
-
-      return () => clearInterval(interval);
+    if (containerRef.current) {
+      const { scrollHeight, clientHeight, scrollTop } = containerRef.current;
+      const threshold = 100;
+      if (scrollHeight > clientHeight + scrollTop - threshold) {
+        containerRef.current.scrollTo({
+          top: scrollHeight - clientHeight + threshold,
+          behavior: 'smooth',
+        });
+      }
     }
+  }, [displayedTexts]);
+
+  // 글자 단위 타이핑 로직 (커서 포함)
+  useEffect(() => {
+    if (!sajuData) return;
+
+    let textIdx = 0;
+    const addNextSentence = () => {
+      if (textIdx >= loadingTexts.length) {
+        setIsFinished(true);
+        return;
+      }
+
+      const fullText = loadingTexts[textIdx];
+      let charIdx = 0;
+
+      // 새 문장을 위한 빈 공간 추가
+      setDisplayedTexts((prev) => [...prev, '']);
+
+      const typeChar = () => {
+        if (charIdx < fullText.length) {
+          setDisplayedTexts((prev) => {
+            const lastIdx = prev.length - 1;
+            const updated = [...prev];
+            updated[lastIdx] = fullText.substring(0, charIdx + 1);
+            return updated;
+          });
+          charIdx++;
+          setTimeout(typeChar, 45);
+        } else {
+          textIdx++;
+          setTimeout(addNextSentence, 800);
+        }
+      };
+
+      typeChar();
+    };
+
+    addNextSentence();
   }, [sajuData]);
+
   return (
     <div className="flex flex-col items-center px-6 overflow-hidden min-h-screen">
-      <svg className="absolute w-0 h-0">
+      <svg className="absolute w-0 h-0 text-transparent">
         <filter id="paper-edge">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
         </filter>
       </svg>
 
-      <div className="relative w-full max-w-lg animate-in fade-in duration-1000">
+      <div className="relative w-full max-w-lg animate-in fade-in duration-1000 mt-6">
         <div
-          className="mt-1 relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-6 md:p-14 border border-stone-200/50 dark:border-slate-800 transition-all duration-500"
+          ref={containerRef}
+          className="relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-8 md:p-14 border border-stone-200/50 dark:border-slate-800 h-[500px] overflow-y-auto scrollbar-hide"
           style={{ filter: 'url(#paper-edge)' }}
         >
-          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
-          <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-[linear-gradient(transparent_31px,#5d4037_32px)] bg-[length:100%_32px]"></div>
+          {/* 종이 배경 질감 (가로줄 제거됨) */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] z-0"></div>
 
           <div className="relative z-10">
-            <div className="flex flex-col items-center mb-6 opacity-40">
+            <div className="flex flex-col items-center mb-10 opacity-40">
               <div className="w-10 h-[1px] bg-stone-500 mb-2"></div>
-              <span className="text-[10px] tracking-[0.4em] uppercase text-stone-600 font-serif font-bold">
+              <span className="text-[10px] tracking-[0.4em] uppercase text-stone-600 dark:text-stone-300 font-serif font-bold text-center">
                 Heavenly Record
               </span>
             </div>
 
-            <div className="flex flex-col gap-1">
-              {displayedTexts.map((text, idx) => (
-                <div key={idx} className="relative h-8 flex items-center">
-                  <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-none break-keep animate-writing-ink-slow">
-                    {text}
-                  </p>
-                </div>
-              ))}
+            <div className="flex flex-col gap-3 pb-10">
+              {displayedTexts.map((text, idx) => {
+                const isCurrentTyping = idx === displayedTexts.length - 1 && !isFinished;
+                return (
+                  <div key={idx} className="min-h-[28px] flex items-start py-1">
+                    <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed break-keep">
+                      {text}
+                      {/* 현재 타이핑 중인 문장에만 커서 표시 */}
+                      {isCurrentTyping && (
+                        <span className="inline-block w-[2px] h-[1.1em] bg-stone-500 ml-1 align-middle animate-cursor-blink" />
+                      )}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -109,33 +159,24 @@ function SajuLoading({ sajuData }) {
       </div>
 
       <div className="mt-14 text-center">
-        <p className="text-stone-500 dark:text-slate-400 text-xs tracking-[0.2em] animate-pulse font-serif italic">
-          사자가 당신의 운명을 기록하고 있어요. 조금만 기다려 주세요.
+        <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
+          운명의 실타래를 푸는 중입니다...
         </p>
       </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
-        
-        .font-handwriting {
-          font-family: 'Nanum Pen Script', cursive;
-        }
+        .font-handwriting { font-family: 'Nanum Pen Script', cursive; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 2. 한 문장이 써지는 속도 자체를 3초로 늦춤 */
-        .animate-writing-ink-slow {
-          display: inline-block;
-          overflow: hidden;
-          white-space: nowrap;
-          mask-image: linear-gradient(to right, black 100%, transparent 100%);
-          mask-size: 200% 100%;
-          mask-position: 100% 0;
-          animation: writing-ink 3s ease-in-out forwards; 
+        /* 커서 깜빡임 애니메이션 */
+        @keyframes cursor-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
-
-        @keyframes writing-ink {
-          0% { width: 0; mask-position: 100% 0; opacity: 0; filter: blur(2px); transform: translateY(1px); }
-          20% { opacity: 1; filter: blur(1px); }
-          100% { width: 100%; mask-position: 0% 0; opacity: 1; filter: blur(0); transform: translateY(0); }
+        .animate-cursor-blink {
+          animation: cursor-blink 0.8s infinite;
         }
       `}</style>
     </div>
@@ -147,7 +188,6 @@ export default function BasicAnaPage() {
   const [sajuData, setSajuData] = useState(null);
   const [aiAnalysis, setAiAnalysis] = useState('');
   const { loading, setLoading, loadingType, setLoadingType, aiResult, setAiResult } = useLoading();
-
 
   const { userData, user, isMainDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
@@ -168,6 +208,7 @@ export default function BasicAnaPage() {
     }
   }, [inputDate, gender, isTimeUnknown, language]);
   // 버튼 클릭 시 실행될 중간 로직
+  console.log(sajuData);
 
   const handleStartClick = async (onStart) => {
     // 1. 방어 로직
@@ -381,6 +422,7 @@ export default function BasicAnaPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
+  return <SajuLoading sajuData={sajuData} />;
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
