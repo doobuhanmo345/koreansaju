@@ -422,7 +422,7 @@ export default function BasicAnaPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
-  return <SajuLoading sajuData={sajuData} />;
+
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
