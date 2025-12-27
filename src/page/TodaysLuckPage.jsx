@@ -60,7 +60,7 @@ function SajuLoading() {
 
 // 2. 메인 페이지 컴포넌트
 export default function TodaysLuckPage() {
-  const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
+  const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
   const { userData, user, isDailyDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
   const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
@@ -140,6 +140,7 @@ export default function TodaysLuckPage() {
       await setDoc(
         doc(db, 'users', user.uid),
         {
+          saju: saju,
           editCount: newCount,
           lastEditDate: todayDate,
           ZLastDaily: {
@@ -178,7 +179,7 @@ export default function TodaysLuckPage() {
       <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}
         <div>
-          {' '}
+      
           {/* 타이틀: 매일의 흐름을 강조 */}
           <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
             사자가 읽어주는
@@ -272,6 +273,18 @@ export default function TodaysLuckPage() {
       </div>
     );
   };
+  useEffect(() => {
+    if (aiResult) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [aiResult]);
+
+  // 추가: 로딩이 시작될 때도 상단으로 올리고 싶다면 (선택 사항)
+  useEffect(() => {
+    if (loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [loading]);
 
   return (
     <AnalysisStepContainer

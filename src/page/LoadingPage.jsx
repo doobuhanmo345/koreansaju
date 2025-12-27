@@ -1,71 +1,113 @@
 import React, { useState, useEffect } from 'react';
 
-export default function LoadingPage() {
-  const [dots, setDots] = useState('');
+function LoadingPage() {
+  const [displayedTexts, setDisplayedTexts] = useState([]);
 
-  // 점 애니메이션 (...)
+  const loadingTexts = [
+    '태어난 날의 천간과 지지를 조합하는 중...',
+    '오행의 균형과 기운을 분석하는 중...',
+    '인생을 바꿀 대운의 흐름을 계산 중...',
+    '사주 명식의 신살과 합충을 풀이하는 중...',
+    '운명의 지도를 완성하고 있습니다...',
+    '격국과 용신의 향방을 가늠하는 중...',
+    '음양의 조화가 이끄는 길을 찾는 중...',
+    '타고난 기질과 잠재력을 살피는 중...',
+    '사계절의 순환 속 당신의 위치를 확인 중...',
+    '곧 당신의 운명 보고서가 도착합니다.',
+  ];
+
   useEffect(() => {
+    setDisplayedTexts([loadingTexts[0]]);
+    let currentIndex = 1;
     const interval = setInterval(() => {
-      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
-    }, 500);
+      if (currentIndex < loadingTexts.length) {
+        setDisplayedTexts((prev) => [...prev, loadingTexts[currentIndex]]);
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 1800);
+
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[999] bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
-      {/* 1. 배경용 은하계 배경 (움직이는 그라데이션) */}
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600 rounded-full blur-[120px] animate-pulse delay-700" />
-      </div>
+    <div className="flex flex-col items-center justify-center  px-6 overflow-hidden">
+      {/* 1. 외곽선이 불규칙한 종이 필터 정의 (SVG) */}
+      <svg className="absolute w-0 h-0">
+        <filter id="paper-edge">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+        </filter>
+      </svg>
 
-      {/* 2. 메인 애니메이션: 회전하는 마법진/데이터 서클 */}
-      <div className="relative w-64 h-64 flex items-center justify-center">
-        {/* 바깥쪽 점선 원 (시계방향 회전) */}
-        <div className="absolute inset-0 border-4 border-dashed border-indigo-500/30 rounded-full animate-[spin_10s_linear_infinite]" />
+      <div className="relative w-full max-w-lg animate-in fade-in duration-1000">
+        {/* 2. 실제 편지지 몸체 */}
+        <div
+          className="mt-1 relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-6 md:p-14 border border-stone-200/50 dark:border-slate-800 transition-all duration-500"
+          style={{ filter: 'url(#paper-edge)' }} // 불규칙한 종이 테두리 적용
+        >
+          {/* 종이 질감 오버레이 */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
 
-        {/* 중간 실선 원 (반시계방향 회전) */}
-        <div className="absolute inset-4 border-2 border-purple-500/50 rounded-full animate-[spin_6s_linear_infinite_reverse]">
-          {/* 원 위의 포인트 점들 */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-purple-400 rounded-full shadow-[0_0_10px_#a855f7]" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-purple-400 rounded-full shadow-[0_0_10px_#a855f7]" />
-        </div>
+          {/* 가로줄 가이드 */}
+          <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-[linear-gradient(transparent_31px,#5d4037_32px)] bg-[length:100%_32px]"></div>
 
-        {/* 안쪽 빛나는 구체 */}
-        <div className="relative w-32 h-32 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full shadow-[0_0_50px_rgba(99,102,241,0.5)] flex items-center justify-center animate-bounce">
-          <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center overflow-hidden">
-            {/* 구체 내부의 스캐닝 효과 */}
-            <div className="w-full h-1 bg-indigo-400 shadow-[0_0_15px_#818cf8] animate-[scan_2s_ease-in-out_infinite]" />
+          <div className="relative z-10">
+            <div className="flex flex-col items-center mb-6 opacity-40">
+              <div className="w-10 h-[1px] bg-stone-500 mb-2"></div>
+              <span className="text-[10px] tracking-[0.4em] uppercase text-stone-600 font-serif font-bold">
+                Heavenly Record
+              </span>
+            </div>
+
+            {/* 텍스트 영역: min-h 제거 */}
+            <div className="flex flex-col gap-1">
+              {displayedTexts.map((text, idx) => (
+                <div key={idx} className="relative h-8 flex items-center">
+                  <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-none break-keep animate-writing-ink">
+                    {text}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* 바닥 그림자: 종이가 살짝 뜬 느낌 */}
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[98%] h-12 bg-stone-800/20 blur-3xl rounded-[100%]"></div>
       </div>
 
-      {/* 3. 텍스트 영역 */}
-      <div className="mt-12 text-center z-10">
-        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300 tracking-tighter mb-2">
-          운명의 지도를 그리는 중
-        </h2>
-        <p className="text-slate-500 font-bold text-sm tracking-widest uppercase">
-          Calculating Destiny{dots}
+      <div className="mt-14 text-center">
+        <p className="text-stone-500 dark:text-slate-400 text-xs tracking-[0.2em] animate-pulse font-serif italic">
+          부드러운 필체로 당신의 기운을 적어 내려갑니다...
         </p>
       </div>
 
-      {/* 4. 하단 팁 (랜덤 문구 노출하면 더 좋음) */}
-      <div className="absolute bottom-12 px-8 text-center">
-        <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-          "사주는 정해진 결론이 아니라, <br />
-          당신이 나아갈 길을 비춰주는 등불입니다."
-        </p>
-      </div>
-
-      {/* Tailwind에 없는 사용자 정의 애니메이션 주입 */}
       <style>{`
-        @keyframes scan {
-          0% { transform: translateY(-50px); opacity: 0; }
-          50% { opacity: 1; }
-          100% { transform: translateY(50px); opacity: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
+        
+        .font-handwriting {
+          font-family: 'Nanum Pen Script', cursive;
+        }
+
+        .animate-writing-ink {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          mask-image: linear-gradient(to right, black 100%, transparent 100%);
+          mask-size: 200% 100%;
+          mask-position: 100% 0;
+          animation: writing-ink 2.2s ease-out forwards;
+        }
+
+        @keyframes writing-ink {
+          0% { width: 0; mask-position: 100% 0; opacity: 0; filter: blur(1.5px); transform: translateY(1px); }
+          100% { width: 100%; mask-position: 0% 0; opacity: 1; filter: blur(0); transform: translateY(0); }
         }
       `}</style>
     </div>
   );
 }
+
+export default LoadingPage;

@@ -137,6 +137,9 @@ export default function Match({}) {
 
   // --- States ---
   const [step, setStep] = useState(1);
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [step]); 
   const [aiResult, setAiResult] = useState();
   const totalStep = 4;
   const [selectedRel, setSelectedRel] = useState(null);

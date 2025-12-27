@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import NavBar from './component/Navbar';
 import App from './App';
+import ScrollToTop from './utils/ScrollToTop';
 import { AppProvider } from './context/AppProvider';
 import { AuthContextProvider, useAuthContext } from './context/useAuthContext';
 import { LoadingProvider, useLoading } from './context/useLoadingContext';
@@ -67,6 +68,7 @@ const RootComponent = () => {
   // 4. 정상 상태
   return (
     <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
+      <ScrollToTop />
       <div className="pb-24">
         <NavBar />
         <Routes>

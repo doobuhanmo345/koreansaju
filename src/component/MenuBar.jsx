@@ -11,7 +11,9 @@ import {
   UserPlusIcon,
   CreditCardIcon,
   PresentationChartLineIcon,
+  IdentificationIcon,
 } from '@heroicons/react/24/outline';
+
 import { useAuthContext } from '../context/useAuthContext';
 import { RiAdminFill } from 'react-icons/ri';
 import { GiYinYang } from 'react-icons/gi';
@@ -89,6 +91,12 @@ export default function MobileNav() {
         title: isKo ? '운세보기' : 'Fortunes',
         color: 'text-amber-500',
         items: [
+          {
+            name: isKo ? '기본 사주 분석' : 'Saju Analysis', // '오늘의 운세' 대신 직관적인 명칭
+            desc: isKo ? '타고난 성격과 평생의 운명 흐름' : 'Your innate traits and destiny',
+            icon: <IdentificationIcon className="w-6 h-6" />, // 날짜(Calendar)보다는 정체성(ID) 아이콘 추천
+            path: '/basic',
+          },
           {
             name: isKo ? '오늘의 운세' : "Today's Luck",
             desc: isKo ? '오늘 하루 나의 기운 확인' : 'Daily Energy Check',

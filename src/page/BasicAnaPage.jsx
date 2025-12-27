@@ -19,42 +19,125 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
 import { BoltIcon } from '@heroicons/react/24/outline';
+import { pillarStyle } from '../data/style';
+
 // 1. 로딩 컴포넌트
-function SajuLoading() {
-  const [textIndex, setTextIndex] = useState(0);
+
+function SajuLoading({ sajuData }) {
+  const [displayedTexts, setDisplayedTexts] = useState([]);
+  // 데이터 추출 최적화
+  const pillars = sajuData?.pillars;
+  const currentDaewoon = sajuData?.currentDaewoon?.name;
+  const shinsal = sajuData?.myShinsal?.[0]?.name;
+  const age = sajuData?.currentAge;
+  const counts = sajuData?.ohaengCount; // 오행 개수
+  const maxOhaeng = sajuData?.maxOhaeng?.[0]; // 가장 강한 기운
+
   const loadingTexts = [
-    '태어난 날의 천간과 지지를 조합하는 중...',
-    '오행의 균형과 기운을 분석하는 중...',
-    '당신의 인생을 바꿀 대운의 흐름을 계산 중...',
-    '사주 명식의 신살과 합충을 풀이하는 중...',
-    '운명의 지도를 완성하고 있습니다...',
+    `먼저 ${pillars?.year || '태어난 해'}의 기운을 종이에 옮깁니다...`,
+    `${pillars?.month || '태어난 달'}의 계절적 흐름을 살피는 중입니다.`,
+    `당신의 본질인 ${pillars?.day || '태어난 날'}의 에너지를 기록합니다.`,
+    `${pillars?.time || '태어난 시'}를 더해 사주 팔자의 형상을 완성합니다.`,
+    `오행 중 ${maxOhaeng || '특정'}의 기운이 강하게 나타나고 있군요.`,
+    `나무(${counts?.wood}), 불(${counts?.fire}), 흙(${counts?.earth}), 금(${counts?.metal}), 물(${counts?.water})의 배합을 확인합니다.`,
+    `천간의 네 글자가 하늘의 뜻을 어떻게 전하는지 읽어내는 중입니다.`,
+    `지지의 네 글자가 땅의 형상으로 어떻게 뿌리내렸는지 분석합니다.`,
+    `현재 ${currentDaewoon || '운명'} 대운의 거대한 흐름 속에 계시는군요.`,
+    `당신에게 깃든 ${shinsal || '특별한'} 기운의 깊은 의미를 풀이합니다.`,
+    `인생의 변곡점이 될 합(合)과 충(沖)의 작용을 세밀히 검토 중입니다.`,
+    `음양의 균형이 당신의 삶에 어떤 조화를 이루는지 살피고 있습니다.`,
+    `${age || '현재'}세, 지금 이 순간 당신의 위치를 운명의 지도 위에 그립니다.`,
+    `앞으로 다가올 변화의 파동을 하나하나 문장으로 정리하고 있습니다.`,
+    `이제 당신만을 위한 운명 보고서의 마지막 마침표를 찍습니다.`,
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTextIndex((prev) => (prev + 1) % loadingTexts.length);
-    }, 800);
-    return () => clearInterval(interval);
-  }, [loadingTexts.length]);
+    if (sajuData) {
+      setDisplayedTexts([loadingTexts[0]]);
+      let currentIndex = 1;
 
+      // 15문장 x 2.5초 간격 = 약 37.5초 (취향에 따라 3000ms~4000ms로 조절하세요)
+      const interval = setInterval(() => {
+        if (currentIndex < loadingTexts.length) {
+          setDisplayedTexts((prev) => [...prev, loadingTexts[currentIndex]]);
+          currentIndex++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [sajuData]);
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-white dark:bg-slate-900 px-6">
-      <div className="relative w-24 h-24 mb-10">
-        <div className="absolute inset-0 border-4 border-indigo-100 dark:border-slate-800 rounded-full"></div>
-        <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-        <div className="absolute inset-4 border-2 border-purple-400 rounded-full border-b-transparent animate-[spin_1.5s_linear_infinite_reverse]"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-2 h-2 bg-indigo-600 rounded-full shadow-[0_0_15px_rgba(79,70,229,0.8)] animate-pulse"></div>
+    <div className="flex flex-col items-center px-6 overflow-hidden min-h-screen">
+      <svg className="absolute w-0 h-0">
+        <filter id="paper-edge">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+        </filter>
+      </svg>
+
+      <div className="relative w-full max-w-lg animate-in fade-in duration-1000">
+        <div
+          className="mt-1 relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-6 md:p-14 border border-stone-200/50 dark:border-slate-800 transition-all duration-500"
+          style={{ filter: 'url(#paper-edge)' }}
+        >
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')]"></div>
+          <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-[linear-gradient(transparent_31px,#5d4037_32px)] bg-[length:100%_32px]"></div>
+
+          <div className="relative z-10">
+            <div className="flex flex-col items-center mb-6 opacity-40">
+              <div className="w-10 h-[1px] bg-stone-500 mb-2"></div>
+              <span className="text-[10px] tracking-[0.4em] uppercase text-stone-600 font-serif font-bold">
+                Heavenly Record
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              {displayedTexts.map((text, idx) => (
+                <div key={idx} className="relative h-8 flex items-center">
+                  <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-none break-keep animate-writing-ink-slow">
+                    {text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[98%] h-12 bg-stone-800/20 blur-3xl rounded-[100%]"></div>
       </div>
-      <div className="text-center space-y-3">
-        <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-          운명의 실타래를 푸는 중
-        </h3>
-        <p className="text-indigo-600 dark:text-indigo-400 font-medium min-h-[1.5rem] transition-all duration-300">
-          {loadingTexts[textIndex]}
+
+      <div className="mt-14 text-center">
+        <p className="text-stone-500 dark:text-slate-400 text-xs tracking-[0.2em] animate-pulse font-serif italic">
+          사자가 당신의 운명을 기록하고 있어요. 조금만 기다려 주세요.
         </p>
       </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
+        
+        .font-handwriting {
+          font-family: 'Nanum Pen Script', cursive;
+        }
+
+        /* 2. 한 문장이 써지는 속도 자체를 3초로 늦춤 */
+        .animate-writing-ink-slow {
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          mask-image: linear-gradient(to right, black 100%, transparent 100%);
+          mask-size: 200% 100%;
+          mask-position: 100% 0;
+          animation: writing-ink 3s ease-in-out forwards; 
+        }
+
+        @keyframes writing-ink {
+          0% { width: 0; mask-position: 100% 0; opacity: 0; filter: blur(2px); transform: translateY(1px); }
+          20% { opacity: 1; filter: blur(1px); }
+          100% { width: 100%; mask-position: 0% 0; opacity: 1; filter: blur(0); transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -64,6 +147,8 @@ export default function BasicAnaPage() {
   const [sajuData, setSajuData] = useState(null);
   const [aiAnalysis, setAiAnalysis] = useState('');
   const { loading, setLoading, loadingType, setLoadingType, aiResult, setAiResult } = useLoading();
+
+
   const { userData, user, isMainDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
   const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
@@ -72,6 +157,7 @@ export default function BasicAnaPage() {
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = !user || loading;
+
   useEffect(() => {
     if (inputDate) {
       const data = calculateSajuData(inputDate, gender, isTimeUnknown, language);
@@ -82,6 +168,7 @@ export default function BasicAnaPage() {
     }
   }, [inputDate, gender, isTimeUnknown, language]);
   // 버튼 클릭 시 실행될 중간 로직
+
   const handleStartClick = async (onStart) => {
     // 1. 방어 로직
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -139,6 +226,7 @@ export default function BasicAnaPage() {
       await setDoc(
         doc(db, 'users', user.uid),
         {
+          saju: saju,
           editCount: newCount,
           lastEditDate: todayDate,
           ZApiAnalysis: {
@@ -174,13 +262,13 @@ export default function BasicAnaPage() {
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
     if (loading) {
-      return <SajuLoading />;
+      return <SajuLoading sajuData={sajuData} />;
     }
+
     return (
       <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}
         <div>
-       
           {/* 타이틀: 매일의 흐름을 강조 */}
           <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
             오행으로 읽는
@@ -273,7 +361,26 @@ export default function BasicAnaPage() {
       </div>
     );
   };
+  useEffect(() => {
+    // 1. aiResult가 존재하고, 내용이 비어있지 않을 때만 실행 (안전장치)
+    if (aiResult && typeof aiResult === 'string' && aiResult.length > 0) {
+      // 2. 브라우저 렌더링이 완전히 끝난 뒤에 실행되도록 0ms 타임아웃 부여
+      const timer = setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }, 0);
 
+      return () => clearTimeout(timer);
+    }
+  }, [aiResult]); // aiResult 데이터가 들어오는 순간만 감지
+  // 추가: 로딩이 시작될 때도 상단으로 올리고 싶다면 (선택 사항)
+  useEffect(() => {
+    if (loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [loading]);
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}

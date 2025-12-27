@@ -109,8 +109,7 @@ export default function App() {
 
   // 사주 계산 훅
   const saju = useSajuCalculator(inputDate, isTimeUnknown).saju;
-  const processedData = processSajuData(saju);
-  console.log(userData?.displayName, userData?.gender, userData?.birthDate, userData?.saju);
+  
   // --- 1. 데이터 동기화 Effect ---
   useEffect(() => {
     if (user && userData) {
@@ -927,6 +926,107 @@ export default function App() {
           {/* {!isSaved && user && saju?.sky1 && (
             <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
           )} */}
+        </div>
+      </div>
+
+      <div class="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+        <div class="mb-6 ml-1 text-left">
+          <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+            타고난 기운을 분석한 1:1 정밀 리포트
+          </p>
+          <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+            당신의 명식으로 풀어낸 맞춤 운세
+          </h2>
+        </div>
+        {/* 아이콘 */}
+        <div class="flex items-center justify-around">
+          <a href="/todaysluck" class="group flex flex-col items-center gap-2 transition-all">
+            <div class="flex h-12 w-12 items-center justify-center text-slate-900 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-7 w-7"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
+                />
+              </svg>
+            </div>
+            <span class="text-[12px] font-bold text-slate-600 transition-colors group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">
+              오늘의 운세
+            </span>
+          </a>
+
+          <a href="/2026luck" class="group flex flex-col items-center gap-2 transition-all">
+            <div class="flex h-12 w-12 items-center justify-center text-slate-900 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-7 w-7"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.456-2.455L18 2.25l.259 1.036a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.456 2.455zM16.894 20.567L16.5 22.5l-.394-1.933a2.25 2.25 0 00-1.713-1.713L12.5 18.5l1.933-.394a2.25 2.25 0 001.713-1.713l.394-1.933.394 1.933a2.25 2.25 0 001.713 1.713l1.933.394-1.933.394a2.25 2.25 0 00-1.713 1.713z"
+                />
+              </svg>
+            </div>
+            <span class="text-[12px] font-bold text-slate-600 transition-colors group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">
+              신년운세
+            </span>
+          </a>
+
+          <a href="/match" class="group flex flex-col items-center gap-2 transition-all">
+            <div class="flex h-12 w-12 items-center justify-center text-slate-900 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-7 w-7"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+            </div>
+            <span class="text-[12px] font-bold text-slate-600 transition-colors group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">
+              궁합보기
+            </span>
+          </a>
+
+          <a href="/wealth" class="group flex flex-col items-center gap-2 transition-all">
+            <div class="flex h-12 w-12 items-center justify-center text-slate-900 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-7 w-7"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0v3.75"
+                />
+              </svg>
+            </div>
+            <span class="text-[12px] font-bold text-slate-600 transition-colors group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white">
+              재물운
+            </span>
+          </a>
         </div>
       </div>
     </div>

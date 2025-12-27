@@ -2,7 +2,7 @@ import { useLoading } from '../context/useLoadingContext';
 import { aiSajuStyle } from '../data/aiResultConstants';
 import { useMemo, useEffect, useRef } from 'react';
 
-export default function ViewResult() {
+export default function ViewResult({}) {
   const { loading, aiResult } = useLoading();
   const scrollElRef = useRef(null); // 컨테이너 참조용
   const activeTabRef = useRef(0);

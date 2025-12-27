@@ -59,7 +59,8 @@ function SajuLoading() {
 
 // 2. 메인 페이지 컴포넌트
 export default function YearlyLuckPage() {
-  const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
+  const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
+
   const { userData, user, isYearDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
   const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
@@ -129,6 +130,7 @@ export default function YearlyLuckPage() {
       await setDoc(
         doc(db, 'users', user.uid),
         {
+          saju: saju,
           editCount: newCount,
           lastEditDate: todayDate,
           ZLastNewYear: {
@@ -207,7 +209,7 @@ export default function YearlyLuckPage() {
         {/* 시작 버튼: handleYearlyStartClick (가칭) 연결 */}
         <button
           onClick={() => handleStartClick(onStart)}
-          disabled={isDisabled || !isYearDone}
+          disabled={isDisabled && !isYearDone}
           className={classNames(
             'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
             isDisabled
@@ -254,12 +256,32 @@ export default function YearlyLuckPage() {
       </div>
     );
   };
+  // 1. 결과가 나왔을 때 스크롤을 위로 올리는 로직
+  useEffect(() => {
+    // aiResult가 유효한 문자열인지 확인
+    if (typeof aiResult === 'string' && aiResult.trim().length > 0) {
+      const timer = setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }, 100);
 
+      return () => clearTimeout(timer);
+    }
+  }, [aiResult]); // <--- aiResult를 반드시 넣어줘야 합니다!
+
+  // 2. 로딩이 시작될 때 스크롤 상단 이동
+  useEffect(() => {
+    if (loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [loading]);
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
       loadingContent={<SajuLoading />}
-      resultComponent={ViewResult}
+      resultComponent={ViewResult }
       loadingTime={0}
     />
   );

@@ -38,8 +38,8 @@ export function AuthContextProvider({ children }) {
         userData?.ZLastNewYear &&
         String(userData.ZLastNewYear.year) === nextYear &&
         userData.ZLastNewYear.language === language &&
-        userData.ZLastNewYear.gender === gender &&
-        checkSajuMatch(userData.ZLastNewYear.saju, userData.saju)
+        userData.ZLastNewYear.gender === gender 
+        && checkSajuMatch(userData.ZLastNewYear.saju, userData.saju)
       ),
 
       isDailyDone: !!(

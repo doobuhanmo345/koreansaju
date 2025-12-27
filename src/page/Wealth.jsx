@@ -219,6 +219,9 @@ export default function Wealth({}) {
 
   // --- States ---
   const [step, setStep] = useState(1);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]); 
   const totalStep = 4;
   const [selectedQ, setSelectedQ] = useState(null);
   const [loading, setLoading] = useState(false);
