@@ -1,15 +1,18 @@
-import React from 'react';
+import splash from '../assets/splash.png';
 
 export default function SplashScreen() {
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-slate-900">
-      {/* 로고나 아이콘 (여기에 서비스 로고 이미지를 넣으세요) */}
-      <div className="relative mb-8">
-        <div className="w-24 h-24 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl animate-bounce">
-          <span className="text-4xl text-white font-black">🥠</span>
+      <div className="relative mb-8 flex justify-center items-center">
+        <div className="w-16 h-16 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl animate-bounce overflow-visible">
+          <img
+            src={splash}
+            className="absolute w-36 h-36 max-w-none object-contain transform"
+            alt="splash logo"
+          />
         </div>
-        {/* 로고 뒤 후광 효과 */}
-        <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+
+        <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full scale-150 animate-pulse -z-10"></div>
       </div>
 
       {/* 텍스트 로고 */}
