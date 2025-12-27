@@ -11,10 +11,10 @@ import {
   writeBatch,
   serverTimestamp,
   deleteDoc,
-  addDoc, // addDoc 추가됨
+  addDoc,
 } from 'firebase/firestore';
 import { useAuthContext } from '../context/useAuthContext';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'; // XMarkIcon 추가
+import { CheckIcon, XMarkIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export default function AdminPage() {
   const { user, userData } = useAuthContext();
@@ -34,7 +34,6 @@ export default function AdminPage() {
   };
 
   // 2단계: 모달에서 '거절 확정' 클릭 시 실행되는 실제 로직
-
   const handleRejectConfirm = async () => {
     if (!selectedApp) return;
     if (!rejectReason.trim()) {
@@ -43,25 +42,20 @@ export default function AdminPage() {
     }
 
     try {
-      // 거절 대상의 UID가 확실히 있는지 체크 (selectedApp.uid)
       console.log('거절 대상 UID:', selectedApp.uid);
 
-      // 1. 알림 생성 (notifications 컬렉션에 문서 추가)
-      // 여기서 에러가 나면 아래 삭제 로직이 실행되지 않습니다.
       await addDoc(collection(db, 'notifications'), {
-        userId: selectedApp.uid, // 신청한 유저의 고유 ID
+        userId: selectedApp.uid,
         title: '전문가 신청 반려 안내',
         message: `명리학자 신청이 반려되었습니다. 사유: ${rejectReason}`,
         type: 'reject',
         isRead: false,
-        createdAt: serverTimestamp(), // 서버 시간 사용
+        createdAt: serverTimestamp(),
       });
 
-      // 2. 신청서 삭제 (/consultant_applications 내 문서)
       const appRef = doc(db, 'consultant_applications', selectedApp.id);
       await deleteDoc(appRef);
 
-      // 3. UI 업데이트
       setApplications((prev) => prev.filter((item) => item.id !== selectedApp.id));
       setIsRejectModalOpen(false);
       setSelectedApp(null);
@@ -69,11 +63,11 @@ export default function AdminPage() {
 
       alert('거절 처리와 알림 전송이 완료되었습니다.');
     } catch (error) {
-      // 여기서 어떤 에러인지 상세히 출력하게 수정했습니다.
       console.error('거절 처리 중 상세 에러:', error.code, error.message);
       alert(`오류 발생: ${error.message}`);
     }
   };
+
   // 1. 기존 editCount 초기값 설정 (로직 유지)
   useEffect(() => {
     if (userData?.editCount !== undefined) {
@@ -99,6 +93,18 @@ export default function AdminPage() {
     return <div className="p-10 text-center">접근 권한이 없습니다.</div>;
 
   const docRef = doc(db, 'users', user.uid);
+
+  // --- 데이터 개별 삭제 로직 (요청하신 신규 기능) ---
+  const handleRemoveField = async (fieldName, label) => {
+    if (!confirm(`${label} 데이터를 삭제하시겠습니까?`)) return;
+    try {
+      await updateDoc(docRef, { [fieldName]: deleteField() });
+      alert(`${label} 데이터가 삭제되었습니다.`);
+    } catch (error) {
+      console.error(`${label} 삭제 실패:`, error);
+      alert('삭제 중 오류가 발생했습니다.');
+    }
+  };
 
   // --- 기존 기능 로직 (유지) ---
   const handleDeleteCookie = async () => {
@@ -286,34 +292,75 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* 기존 데이터 관리 섹션 (로직 유지) */}
+        {/* 2. 데이터 관리 섹션 (수정됨) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
               <span className="w-1 h-5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-              데이터 관리
+              분석 캐시 데이터 관리
             </h3>
-            <div className="p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-              {userData?.ZCookie ? (
-                <div className="space-y-4">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    내 계정의 ZCookie 데이터가 존재합니다.
-                  </p>
-                  <button
-                    onClick={handleDeleteCookie}
-                    className="w-full py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-500 hover:bg-red-600 transition-all shadow-sm"
+            <div className="grid gap-4">
+              {[
+                { key: 'ZApiAnalysis', label: '기본 사주 분석', color: 'text-blue-500' },
+                { key: 'ZLastDaily', label: '일일 운세 결과', color: 'text-amber-500' },
+                { key: 'ZLastNewYear', label: '신년 운세 결과', color: 'text-rose-500' },
+                { key: 'ZCookie', label: '포춘 쿠키', color: 'text-emerald-500' },
+              ].map((item) => {
+                const hasData = !!userData?.[item.key]; // 데이터 존재 여부 확인
+
+                return (
+                  <div
+                    key={item.key}
+                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${
+                      hasData
+                        ? 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                        : 'bg-gray-50 dark:bg-slate-900/50 border-gray-100 dark:border-slate-800 opacity-60'
+                    }`}
                   >
-                    데이터 초기화
-                  </button>
-                </div>
-              ) : (
-                <p className="text-xs text-gray-400 text-center py-2 italic">
-                  삭제할 데이터가 없습니다.
-                </p>
-              )}
+                    <div className="flex items-center gap-3">
+                      {/* 데이터 상태 표시 램프 */}
+                      <div className={`relative flex h-3 w-3`}>
+                        {hasData && (
+                          <span
+                            className={`animate-ping absolute inline-flex h-full w-full rounded-full ${item.color.replace('text', 'bg')} opacity-75`}
+                          ></span>
+                        )}
+                        <span
+                          className={`relative inline-flex rounded-full h-3 w-3 ${hasData ? item.color.replace('text', 'bg') : 'bg-gray-300 dark:bg-gray-700'}`}
+                        ></span>
+                      </div>
+
+                      <div>
+                        <p
+                          className={`text-sm font-bold ${hasData ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}
+                        >
+                          {item.label}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-medium">
+                          {hasData ? '데이터 저장됨' : '비어있음'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 삭제 버튼: 데이터가 있을 때만 활성화 */}
+                    <button
+                      onClick={() => handleRemoveField(item.key, item.label)}
+                      disabled={!hasData}
+                      className={`p-3 rounded-xl transition-all ${
+                        hasData
+                          ? 'bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 shadow-sm'
+                          : 'bg-gray-100 dark:bg-slate-800 text-gray-300 cursor-not-allowed'
+                      }`}
+                    >
+                      <TrashIcon className={`w-5 h-5 ${hasData ? 'animate-pulse-slow' : ''}`} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
+          {/* 3. 편집 횟수 수정 (기존 로직 유지) */}
           <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
               <span className="w-1 h-5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
@@ -323,7 +370,6 @@ export default function AdminPage() {
               <div className="flex gap-2">
                 <input
                   type="number"
-                  value={newCount}
                   onChange={(e) => setNewCount(e.target.value)}
                   className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 transition-all"
                 />
