@@ -414,7 +414,7 @@ export default function TodaysLuckPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
-  return <SajuLoading sajuData={sajuData} />;
+
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
