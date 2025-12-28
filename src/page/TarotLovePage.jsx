@@ -234,13 +234,13 @@ export default function TarotLovePage() {
                   <img
                     src="/images/tarot/cardback.png"
                     alt="tarot card"
-                    className="w-full h-full object-cover rounded-2xl border border-white/10"
+                    className="w-full h-full object-cover rounded-md border border-white/10"
                   />
                 </div>
 
                 {/* --- 카드 앞면 (뒤집혔을 때 보이는 곳) --- */}
                 <div
-                  className="absolute inset-0 w-full h-full z-20 bg-white dark:bg-slate-800 flex items-center justify-center rounded-2xl border-4 border-rose-500 overflow-hidden"
+                  className="absolute inset-0 w-full h-full z-20 bg-white dark:bg-slate-800 flex items-center justify-center rounded-md overflow-hidden"
                   style={{
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
@@ -249,7 +249,7 @@ export default function TarotLovePage() {
                 >
                   {cardPicked && (
                     <img
-                      src={`/images/tarot/${cardPicked.id}.png`}
+                      src={`/images/tarot/${cardPicked.id}.jpg`}
                       alt={cardPicked.kor}
                       className="w-full h-full object-cover"
                     />

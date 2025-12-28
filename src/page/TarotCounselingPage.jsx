@@ -195,7 +195,7 @@ export default function TarotCounselingPage() {
               style={{ transformStyle: 'preserve-3d' }} // 1. 최상위 부모 3D 설정
             >
               <div
-                className="w-full h-full transition-transform duration-700 shadow-xl rounded-2xl relative"
+                className="w-full h-full transition-transform duration-700 shadow-xl rounded-md relative"
                 style={{
                   transformStyle: 'preserve-3d', // 2. 회전 레이어 3D 설정
                   transform: flippedIdx === i ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -209,13 +209,13 @@ export default function TarotCounselingPage() {
                   <img
                     src="/images/tarot/cardback.png"
                     alt="tarot card"
-                    className="w-full h-full object-cover rounded-2xl border border-white/10"
+                    className="w-full h-full object-cover rounded-md border border-white/10"
                   />
                 </div>
 
                 {/* --- 카드 앞면 (뒤집혔을 때 보이는 곳) --- */}
                 <div
-                  className="absolute inset-0 w-full h-full z-20 bg-white dark:bg-slate-800 flex items-center justify-center rounded-2xl border-4 border-rose-500 overflow-hidden"
+                  className="absolute inset-0 w-full h-full z-20 bg-white dark:bg-slate-800 flex items-center justify-center rounded-md overflow-hidden"
                   style={{
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
@@ -224,7 +224,7 @@ export default function TarotCounselingPage() {
                 >
                   {cardPicked && (
                     <img
-                      src={`/images/tarot/${cardPicked.id}.png`}
+                      src={`/images/tarot/${cardPicked.id}.jpg`}
                       alt={cardPicked.kor}
                       className="w-full h-full object-cover"
                     />

@@ -22,7 +22,7 @@ export default function TarotLoading({ cardPicked }) {
 
             {/* [카드 앞면 - 타로 이미지] */}
             <div
-              className="absolute inset-0 w-full h-full z-10 bg-white dark:bg-slate-800 flex flex-col items-center justify-center rounded-md border-2 border-rose-500 shadow-2xl overflow-hidden"
+              className="absolute inset-0 w-full h-full z-10 bg-white dark:bg-slate-800 flex flex-col items-center justify-center rounded-md shadow-2xl overflow-hidden"
               style={{
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
@@ -31,7 +31,7 @@ export default function TarotLoading({ cardPicked }) {
             >
               {cardPicked ? (
                 <img
-                  src={`/images/tarot/${cardPicked.id}.png`}
+                  src={`/images/tarot/${cardPicked.id}.jpg`}
                   alt={cardPicked.kor}
                   className="w-full h-full object-cover"
                 />

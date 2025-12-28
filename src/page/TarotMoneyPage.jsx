@@ -140,7 +140,7 @@ export default function TarotMoneyPage() {
           </p>
           <button
             onClick={() => setStep('category')}
-            className="w-full py-4 bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-200 dark:shadow-none"
+            className="w-full py-4 bg-amber-500 text-white rounded-md font-bold shadow-lg shadow-amber-200 dark:shadow-none"
           >
             나의 재물운 확인하기
           </button>
@@ -162,7 +162,7 @@ export default function TarotMoneyPage() {
                   setSelectedCategory(cat.id);
                   setStep('selection');
                 }}
-                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-slate-700 transition-all group"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md flex items-center justify-between hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-slate-700 transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{cat.icon}</span>
@@ -225,7 +225,7 @@ export default function TarotMoneyPage() {
 
                 {/* --- 카드 앞면 (뒤집혔을 때 보이는 곳) --- */}
                 <div
-                  className="absolute inset-0 w-full h-full z-20 bg-white dark:bg-slate-800 flex items-center justify-center rounded-2xl border-4 border-rose-500 overflow-hidden"
+                  className="absolute inset-0 w-full h-full z-20 bg-white dark:bg-slate-800 flex items-center justify-center rounded-2xl  overflow-hidden"
                   style={{
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
@@ -234,7 +234,7 @@ export default function TarotMoneyPage() {
                 >
                   {cardPicked && (
                     <img
-                      src={`/images/tarot/${cardPicked.id}.png`}
+                      src={`/images/tarot/${cardPicked.id}.jpg`}
                       alt={cardPicked.kor}
                       className="w-full h-full object-cover"
                     />
