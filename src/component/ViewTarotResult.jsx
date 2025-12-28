@@ -62,7 +62,7 @@ export default function ViewTarotResult({ cardPicked }) {
       {/* 3. ref를 여기에 반드시 연결해야 querySelector가 작동합니다 */}
       <div ref={scrollElRef} className="max-w-lg m-auto relative">
         {!!cardPicked.id && (
-          <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[9999]">
+          <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[10]">
             <div
               key={cardPicked.id} // 카드가 바뀔 때마다 애니메이션 초기화
               className="relative pointer-events-auto"
