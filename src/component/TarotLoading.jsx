@@ -1,7 +1,7 @@
 import { SparklesIcon } from '@heroicons/react/24/outline';
 export default function TarotLoading({ cardPicked }) {
   return (
-    <div className="flex flex-col items-center  px-6 overflow-hidden min-h-screen bg-white dark:bg-slate-950">
+    <div className="flex flex-col items-center  px-6 overflow-hidden min-h-screen">
       {/* 1. 수직 축 회전 컨테이너 */}
       <div className="pt-10 [perspective:1000px] animate-[vertical-spin_4s_infinite_linear] [transform-style:preserve-3d]">
         {/* 2. 30도 기울기 유지 레이어 */}

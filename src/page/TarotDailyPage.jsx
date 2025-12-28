@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
-import ViewResult from './ViewResult';
+import ViewTarotResult from '../component/ViewTarotResult';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
@@ -210,7 +210,7 @@ export default function TarotDailyPage() {
     <AnalysisStepContainer
       guideContent={tarotContent}
       loadingContent={<TarotLoading />}
-      resultComponent={ViewResult}
+      resultComponent={()=><ViewTarotResult cardPicked={cardPicked}/>}
       loadingTime={0}
     />
   );

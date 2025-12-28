@@ -8,7 +8,7 @@ const SubIcons = () => {
       label: '포춘쿠키',
       path: '/fortunecookie',
       isReady: true,
-      // 달콤하고 둥근 쿠키/간식 느낌 (Cookie/Gift)
+      plusCredit: true, // 포춘쿠키에만 크레딧 뱃지 활성화
       icon: (
         <path
           strokeLinecap="round"
@@ -21,7 +21,7 @@ const SubIcons = () => {
       label: '타로 연애운',
       path: '/tarotlove',
       isReady: true,
-      // 사랑과 설렘을 상징하는 하트 (Heart)
+      plusCredit: false,
       icon: (
         <path
           strokeLinecap="round"
@@ -34,7 +34,6 @@ const SubIcons = () => {
       label: '타로 오늘의운세',
       path: '/tarotdaily',
       isReady: true,
-      // 신비로운 운명과 반짝임 (Sparkles)
       icon: (
         <path
           strokeLinecap="round"
@@ -47,7 +46,6 @@ const SubIcons = () => {
       label: '타로금전운',
       path: '/tarotmoney',
       isReady: true,
-      // 돈과 풍요를 상징하는 지폐/지갑 (Banknotes)
       icon: (
         <path
           strokeLinecap="round"
@@ -61,7 +59,6 @@ const SubIcons = () => {
       label: '타로고민상담',
       path: '/tarotcounseling',
       isReady: true,
-      // 대화와 소통을 상징하는 말풍선 (ChatBubbles)
       icon: (
         <path
           strokeLinecap="round"
@@ -81,7 +78,7 @@ const SubIcons = () => {
   };
 
   return (
-    <div className="flex items-center justify-around overflow-x-scroll">
+    <div className="flex items-center justify-start sm:justify-center overflow-x-auto scrollbar-hide py-2 px-4 gap-2">
       {subNavItems.map((item) => (
         <button
           key={item.path}
@@ -103,6 +100,13 @@ const SubIcons = () => {
             {!item.isReady && (
               <span className="absolute -top-1 flex items-center justify-center bg-slate-500 px-1.5 py-0.5 text-[7px] font-bold text-white ring-1 ring-white rounded-md z-10">
                 준비중
+              </span>
+            )}
+
+            {/* +credit 배지 (item.plusCredit이 true일 때만 노출) */}
+            {item.plusCredit && item.isReady && (
+              <span className="absolute -right-2 -top-1 flex items-center justify-center bg-amber-600 px-1.5 py-0.5 text-[8px] font-black italic tracking-tighter text-white ring-2 ring-white dark:ring-slate-900 rounded-full">
+                + CREDIT
               </span>
             )}
 

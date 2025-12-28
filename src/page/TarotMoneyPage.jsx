@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import TarotLoading from '../component/TarotLoading';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
-import ViewResult from './ViewResult';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
@@ -14,6 +13,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { TARO_CARDS } from '../data/tarotConstants';
 import { BanknotesIcon, SparklesIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import CreditIcon from '../ui/CreditIcon';
+import ViewTarotResult from '../component/ViewTarotResult';
 
 export default function TarotMoneyPage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
@@ -255,7 +255,7 @@ export default function TarotMoneyPage() {
     <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<TarotLoading cardPicked={cardPicked} />}
-      resultComponent={ViewResult}
+       resultComponent={()=><ViewTarotResult cardPicked={cardPicked}/>}
       loadingTime={0}
     />
   );
