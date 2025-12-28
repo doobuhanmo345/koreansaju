@@ -260,31 +260,6 @@ export default function EditProfile() {
           </div>
         </div>
 
-        {/* 명리학자 신청 섹션 */}
-        {userData?.role === 'user' && (
-          <button
-            type="button"
-            onClick={() => navigate('/apply-saju-consultant')}
-            className="w-full flex items-center justify-between p-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl text-white shadow-lg hover:opacity-90 transition-all group"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-2 bg-white/20 rounded-xl">
-                <AcademicCapIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-black opacity-90 uppercase tracking-tighter">
-                  {language === 'ko' ? '전문가 활동' : 'Expert Activity'}
-                </p>
-                <p className="text-lg font-bold">
-                  {language === 'ko' ? '명리학자 신청하기' : 'Apply as Consultant'}
-                </p>
-              </div>
-            </div>
-
-            <ChevronRightIcon className="w-6 h-6 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-          </button>
-        )}
-
         {/* 하단 버튼 */}
         <div className="flex gap-3">
           <button
@@ -310,6 +285,30 @@ export default function EditProfile() {
           </button>
         </div>
       </form>
+      {/* 명리학자 신청 섹션 */}
+      {userData?.role === 'user' && (
+        <button
+          type="button"
+          onClick={() => navigate('/apply-saju-consultant')}
+          className="w-full flex items-center justify-between p-5 my-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl text-white shadow-lg hover:opacity-90 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-white/20 rounded-xl">
+              <AcademicCapIcon className="w-6 h-6 text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-black opacity-90 uppercase tracking-tighter">
+                {language === 'ko' ? '전문가 활동' : 'Expert Activity'}
+              </p>
+              <p className="text-lg font-bold">
+                {language === 'ko' ? '명리학자 신청하기' : 'Apply as Consultant'}
+              </p>
+            </div>
+          </div>
+
+          <ChevronRightIcon className="w-6 h-6 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+        </button>
+      )}
     </div>
   );
 }

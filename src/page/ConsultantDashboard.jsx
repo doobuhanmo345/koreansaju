@@ -113,7 +113,7 @@ export default function ConsultantDashboard() {
     );
 
   return (
-    <div className=" bg-gray-50 dark:bg-slate-950 py-10 px-4 sm:px-10 transition-colors duration-300">
+    <div className="  py-10 px-4 sm:px-10 transition-colors duration-300 max-w-2xl m-auto">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* 헤더 섹션 (userData는 일반 정보용으로 사용) */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -141,7 +141,7 @@ export default function ConsultantDashboard() {
         </header>
 
         {/* 스탯 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
           <StatCard
             icon={<CalendarDaysIcon className="w-6 h-6 text-blue-500" />}
             label="오늘의 상담"
@@ -154,10 +154,6 @@ export default function ConsultantDashboard() {
             value="0원"
             color="emerald"
           />
-          <div className="p-6 rounded-[2rem] bg-indigo-600 text-white shadow-xl shadow-indigo-200 dark:shadow-none flex flex-col justify-center">
-            <p className="text-indigo-100 text-sm font-bold">등급</p>
-            <p className="text-2xl font-black italic">PRO Master</p>
-          </div>
         </div>
 
         {/* 전문가 프로필 관리 (전용 컬렉션 데이터 사용) */}
@@ -279,7 +275,7 @@ function StatCard({ icon, label, value, color }) {
       <div className={`p-4 rounded-2xl ${colorMap[color]}`}>{icon}</div>
       <div className="text-left">
         <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-black text-gray-900 dark:text-white">{value}</p>
+        <p className="text-xl font-black text-gray-900 dark:text-white">{value}</p>
       </div>
     </div>
   );
