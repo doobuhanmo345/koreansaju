@@ -29,6 +29,10 @@ import TodaysLuckPage from './page/TodaysLuckPage';
 import YearlyLuckPage from './page/YearlyLuckPage';
 import SajuResult from './component/SajuResult';
 import BasicAnaPage from './page/BasicAnaPage';
+import TarotDailyPage from './page/TarotDailyPage';
+import TarotMoneyPage from './page/TarotMoneyPage';
+import TarotCounselingPage from './page/TarotCounselingPage';
+import TarotLovePage from './page/TarotLovePage';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -59,7 +63,7 @@ const RootComponent = () => {
   // 3. 생년월일 데이터가 없는 경우
   if (!userData?.birthDate) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
+      <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
         <BeforeLogin />
       </div>
     );
@@ -67,11 +71,15 @@ const RootComponent = () => {
 
   // 4. 정상 상태
   return (
-    <div className="relative px-3 py-6 min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
+    <div className="min-h-screen relative px-3 py-6 bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
       <ScrollToTop />
       <div className="pb-24">
         <NavBar />
         <Routes>
+          <Route path="/tarotmoney" element={<TarotMoneyPage />} />
+          <Route path="/tarotlove" element={<TarotLovePage />} />
+          <Route path="/tarotcounseling" element={<TarotCounselingPage />} />
+          <Route path="/tarotdaily" element={<TarotDailyPage />} />
           <Route path="/sajuresult" element={<SajuResult />} />
           <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
           <Route path="/basic" element={<BasicAnaPage />} />

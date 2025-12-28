@@ -18,7 +18,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
-import { BoltIcon } from '@heroicons/react/24/outline';
+import CreditIcon from '../ui/CreditIcon';
 
 // 1. 로딩 컴포넌트
 
@@ -112,7 +112,7 @@ function SajuLoading({ sajuData }) {
   }, [sajuData]);
 
   return (
-    <div className="flex flex-col items-center px-6 overflow-hidden min-h-screen">
+    <div className="flex flex-col items-center px-6 overflow-hidden ">
       <svg className="absolute w-0 h-0 text-transparent">
         <filter id="paper-edge">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
@@ -208,7 +208,6 @@ export default function BasicAnaPage() {
     }
   }, [inputDate, gender, isTimeUnknown, language]);
   // 버튼 클릭 시 실행될 중간 로직
-  console.log(sajuData);
 
   const handleStartClick = async (onStart) => {
     // 1. 방어 로직
@@ -307,16 +306,16 @@ export default function BasicAnaPage() {
     }
 
     return (
-      <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}
         <div>
           {/* 타이틀: 매일의 흐름을 강조 */}
           <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
             오행으로 읽는
             <br />
-            <span className=" relative text-amber-600 dark:text-amber-500">
+            <span className=" relative text-sky-600 dark:text-sky-500">
               평생운세 & 10년 대운
-              <div className="absolute inset-0 bg-amber-200/50 dark:bg-amber-800/60 blur-md rounded-full scale-100"></div>
+              <div className="absolute inset-0 bg-sky-200/50 dark:bg-sky-800/60 blur-md rounded-full scale-100"></div>
             </span>
           </h2>
           {/* 설명문구: 줄줄이 쓰지 않고 핵심만 */}
@@ -326,28 +325,16 @@ export default function BasicAnaPage() {
               운명 지도 분석.
             </p>
             <div>
-              <span
-                className="
-    inline-flex items-center gap-1.5 
-    /* 라이트 모드 디자인 */
-    bg-amber-50 text-amber-700 border border-amber-200 
-    /* 다크 모드 디자인 (어두운 배경에 대비되게) */
-    dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700/50 
-    /* 공통 스타일: 둥글게, 글자 크기, 여백, 그림자 */
-    py-1 px-3.5 rounded-md text-[13px] font-bold shadow-sm
-    transition-all duration-300
-  "
-              >
-                {/* 아이콘 부분: 살짝 애니메이션을 줘서 생동감 있게 */}
-                <BoltIcon className="h-4 w-4 fill-amber-500 dark:fill-amber-400 animate-pulse" />
-
-                <span className="tracking-tight">
-                  -1 <span className="text-[11px] opacity-80 ml-0.5 font-medium">크레딧</span>
-                </span>
-              </span>
+              <CreditIcon num={-1} />
             </div>
 
-            <img src="/images/introcard/basicana_1.png" />
+            <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+              <img
+                src="/images/introcard/basicana_1.png"
+                alt="saju analysis"
+                className="w-full h-auto"
+              />
+            </div>
           </div>
         </div>
 

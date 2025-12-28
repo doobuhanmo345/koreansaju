@@ -823,7 +823,7 @@ export const aiSajuStyle = `<style>
   /* =================================================== */
 
   .report-container {
-   font-family: 'Song Myung', serif;
+
     background-color: transparent; /* 배경 투명 강제 적용 */
     color: #333344; /* 짙은 인디고/회색 텍스트 (튀지 않음) */
     padding: 15px;

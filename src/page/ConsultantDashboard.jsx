@@ -107,13 +107,13 @@ export default function ConsultantDashboard() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center dark:bg-slate-950 dark:text-white font-bold">
+      <div className=" flex items-center justify-center dark:bg-slate-950 dark:text-white font-bold">
         전문가 정보를 불러오는 중...
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-10 px-4 sm:px-10 transition-colors duration-300">
+    <div className=" bg-gray-50 dark:bg-slate-950 py-10 px-4 sm:px-10 transition-colors duration-300">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* 헤더 섹션 (userData는 일반 정보용으로 사용) */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -39,6 +39,7 @@ import Step from '../ui/Step';
 import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
+import CreditIcon from '../ui/CreditIcon';
 export default function Wealth({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -218,10 +219,10 @@ export default function Wealth({}) {
   const { MAX_EDIT_COUNT, isLocked } = useUsageLimit();
 
   // --- States ---
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [step]); 
+  }, [step]);
   const totalStep = 4;
   const [selectedQ, setSelectedQ] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -267,14 +268,16 @@ export default function Wealth({}) {
   }, [loading, isCachedLoading]);
   // 🟢 [초기화] 모달 열릴 때마다 Step 1로 리셋
   useEffect(() => {
-    setStep(1);
-    if (step === 1) {
+    setStep(0);
+    if (step === 0) {
       setAiResult('');
     }
   }, []);
 
   // --- Handlers ---
-
+  const handleStartClick = () => {
+    setStep(1);
+  };
   // 뒤로가기
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
@@ -466,20 +469,110 @@ export default function Wealth({}) {
   return (
     <>
       {/* 상단 단계 표시바 (Stepper) */}
-      <Step
-        step={step}
-        totalStep={totalStep}
-        title={
-          step === 1
-            ? 'Question 1'
-            : step === 2
-              ? 'Question 2'
-              : step === 3
-                ? 'Confirm Data'
-                : 'Analysis Result'
-        }
-        onBack={handleBack}
-      />
+      {step > 0 && (
+        <Step
+          step={step}
+          totalStep={totalStep}
+          title={
+            step === 1
+              ? 'Question 1'
+              : step === 2
+                ? 'Question 2'
+                : step === 3
+                  ? 'Confirm Data'
+                  : 'Analysis Result'
+          }
+          onBack={handleBack}
+        />
+      )}
+
+      {/* ================================================= */}
+      {/* 🟢 STEP 0: 인트로 화면 (추가된 부분) */}
+      {/* ================================================= */}
+      {step === 0 && (
+        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <div>
+            <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+              {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}
+              <br />
+              <span className="relative text-emerald-600 dark:text-emerald-500">
+                {language === 'ko' ? '평생 재물운 & 투자운' : 'Lifetime Wealth & Investment'}
+                <div className="absolute inset-0 bg-emerald-200/50 dark:bg-emerald-800/60 blur-md rounded-full scale-100"></div>
+              </span>
+            </h2>
+
+            <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
+              <p className="text-sm">
+                <strong>
+                  {language === 'ko' ? '타고난 금전의 그릇' : 'Innate Wealth Capacity'}
+                </strong>
+                {language === 'ko' ? '과 ' : ' and '}
+                <strong>
+                  {language === 'ko' ? '재물이 모이는 시기' : 'Strategic Financial Timing'}
+                </strong>
+                {language === 'ko' ? ', 당신의 재물 지도 분석.' : ', Analyzing your financial map.'}
+              </p>
+
+              <div className="flex justify-center">
+                {/* 에너지 배지 또는 크레딧 아이콘 */}
+                <CreditIcon num={-1} />
+              </div>
+
+              {/* 이미지 경로 확인 필요 */}
+              <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+                <img
+                  src="/images/introcard/wealth_1.png"
+                  alt="wealth"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleStartClick}
+            disabled={loading}
+            className={classNames(
+              'w-full px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+              loading
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-emerald-200 hover:-translate-y-1',
+            )}
+          >
+            {loading
+              ? language === 'ko'
+                ? '준비 중...'
+                : 'Loading...'
+              : language === 'ko'
+                ? '나의 재물운 분석하기'
+                : 'Analyze My Wealth'}
+
+            {/* 무료 분석 가능 시 티켓 표시 */}
+            {isAnalysisDone && (
+              <div className="flex items-center backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
+                <span className="text-[9px] font-bold text-white uppercase tracking-tighter">
+                  Free
+                </span>
+                <TicketIcon className="w-3 h-3 text-white ml-0.5" />
+              </div>
+            )}
+          </button>
+
+          {isLocked && !isAnalysisDone && (
+            <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+              <ExclamationTriangleIcon className="w-4 h-4" />
+              {language === 'ko' ? '크레딧이 부족합니다.' : 'Not enough credits.'}
+            </p>
+          )}
+          {!isAnalysisDone && !isLocked && (
+            <p className="mt-4 text-[11px] text-slate-400">
+              {language === 'ko'
+                ? '이미 분석된 운세는 크레딧을 재소모하지 않습니다.'
+                : 'Analysis already done does not consume credits again.'}
+            </p>
+          )}
+        </div>
+      )}
       {/* ================================================= */}
       {/* 🟢 STEP 1: 관계 선택 (Relationship) */}
       {/* ================================================= */}

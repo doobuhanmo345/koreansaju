@@ -87,7 +87,7 @@ export default function ApplySaju() {
 
   if (applied) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-slate-950">
+      <div className="flex items-center justify-center p-6 bg-gray-50 dark:bg-slate-950">
         <div className="max-w-sm w-full text-center p-8 rounded-3xl bg-white dark:bg-slate-900 shadow-xl border border-indigo-50 dark:border-slate-800">
           <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckBadgeIcon className="w-12 h-12 text-indigo-600 dark:text-indigo-400" />
@@ -112,7 +112,7 @@ export default function ApplySaju() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-12 px-4 transition-colors duration-300">
+    <div className=" bg-gray-50 dark:bg-slate-950 py-12 px-4 transition-colors duration-300">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-10">
           <button

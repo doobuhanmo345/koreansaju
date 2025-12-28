@@ -267,7 +267,7 @@ export const aiSajuStyle = `<style>
   .section-title-h2 {
     font-size: 22px;
     color: #4B0082; /* Main Indigo */
-    margin-top: 40px;
+    margin-top: 20px;
     margin-bottom: 20px;
     border-bottom: 1px solid #B0B0D8;
     padding-bottom: 5px;

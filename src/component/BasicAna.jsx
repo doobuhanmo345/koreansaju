@@ -1133,7 +1133,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
 
   const t = (char) => (language === 'en' ? getEng(char) : char);
   return (
-    <div className="max-w-2xl mx-auto min-h-screen  flex flex-col items-center transition-colors">
+    <div className="max-w-2xl mx-auto  flex flex-col items-center transition-colors">
       <div className="bg-white dark:bg-slate-800 w-full rounded-sm shadow-xl overflow-hidden relative mb-8 transition-colors">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         <div className="w-full overflow-x-auto mt-2">

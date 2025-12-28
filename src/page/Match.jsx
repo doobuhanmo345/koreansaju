@@ -38,6 +38,7 @@ import Step from '../ui/Step';
 import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
+import CreditIcon from '../ui/CreditIcon';
 export default function Match({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -136,10 +137,10 @@ export default function Match({}) {
   const { editCount, MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
 
   // --- States ---
-  const [step, setStep] = useState(1);
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, [step]); 
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
   const [aiResult, setAiResult] = useState();
   const totalStep = 4;
   const [selectedRel, setSelectedRel] = useState(null);
@@ -184,14 +185,16 @@ export default function Match({}) {
   }, [loading, isCachedLoading]);
   // 🟢 [초기화] 모달 열릴 때마다 Step 1로 리셋
   useEffect(() => {
-    setStep(1);
-    if (step === 1) {
+    setStep(0);
+    if (step === 0) {
       setAiResult('');
     }
   }, []);
 
   // --- Handlers ---
-
+  const handleStartClick = () => {
+    setStep(1);
+  };
   // 뒤로가기
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
@@ -405,21 +408,107 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
   return (
     <>
       {/* 상단 단계 표시바 (Stepper) */}
-      <Step
-        step={step}
-        totalStep={totalStep}
-        title={
-          step === 1
-            ? 'Select Relationship'
-            : step === 2
-              ? 'Enter Birth Details'
-              : step === 3
-                ? 'Confirm Data'
-                : 'Analysis Result'
-        }
-        onBack={handleBack}
-      />
+      {step > 0 && (
+        <Step
+          step={step}
+          totalStep={totalStep}
+          title={
+            step === 1
+              ? 'Select Relationship'
+              : step === 2
+                ? 'Enter Birth Details'
+                : step === 3
+                  ? 'Confirm Data'
+                  : 'Analysis Result'
+          }
+          onBack={handleBack}
+        />
+      )}
 
+      {step === 0 && (
+        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <div>
+            <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+              {language === 'ko' ? '사주로 보는' : 'Reading the Fate'}
+              <br />
+              <span className="relative text-rose-600 dark:text-rose-500">
+                {language === 'ko' ? '운명적 궁합 & 조화' : 'Destined Match & Harmony'}
+                <div className="absolute inset-0 bg-rose-200/50 dark:bg-rose-800/60 blur-md rounded-full scale-100"></div>
+              </span>
+            </h2>
+
+            <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
+              <p className="text-sm">
+                <strong>
+                  {language === 'ko' ? '두 사람의 에너지 조화' : 'Harmony of Two Energies'}
+                </strong>
+                {language === 'ko' ? '와 ' : ' and '}
+                <strong>
+                  {language === 'ko' ? '서로에게 미치는 영향' : 'Mutual Impact on Fate'}
+                </strong>
+                {language === 'ko'
+                  ? ', 정밀한 관계 지도 분석.'
+                  : ', Precise Relationship Map Analysis.'}
+              </p>
+
+              <div className="flex justify-center">
+                <CreditIcon num={-1} />
+              </div>
+
+              {/* 궁합용 이미지 경로 (필요시 수정) */}
+              <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+                <img
+                  src="/images/introcard/match_1.png"
+                  alt="Relationship Match Intro"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setStep(1)} // 다음 단계로 이동
+            disabled={loading || (isLocked && !isAnalysisDone)}
+            className={classNames(
+              'w-full px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
+              loading
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white shadow-rose-200 hover:-translate-y-1',
+            )}
+          >
+            {loading
+              ? language === 'ko'
+                ? '기운 대조 중...'
+                : 'Matching...'
+              : language === 'ko'
+                ? '궁합 분석 시작하기'
+                : 'Start Match Analysis'}
+
+            {/* 이미 분석한 적이 있다면 무료 티켓 표시 */}
+            {isAnalysisDone && (
+              <div className="flex items-center backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
+                <span className="text-[9px] font-bold text-white uppercase tracking-tighter">
+                  Free
+                </span>
+                <TicketIcon className="w-3 h-3 text-white ml-0.5" />
+              </div>
+            )}
+          </button>
+
+          {isLocked && !isAnalysisDone ? (
+            <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+              <ExclamationTriangleIcon className="w-4 h-4" />
+              {language === 'ko' ? '크레딧이 부족합니다.' : 'Not enough credits.'}
+            </p>
+          ) : (
+            <p className="mt-4 text-[11px] text-slate-400">
+              {language === 'ko'
+                ? '이미 분석된 궁합은 크레딧을 재소모하지 않습니다.'
+                : 'Analysis already done does not consume credits again.'}
+            </p>
+          )}
+        </div>
+      )}
       {/* ================================================= */}
       {/* 🟢 STEP 1: 관계 선택 (Relationship) */}
       {/* ================================================= */}

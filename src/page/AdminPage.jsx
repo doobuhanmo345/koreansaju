@@ -148,8 +148,8 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="max-w-3xl mx-auto space-y-8">
+    <div className="bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 max-w-xl m-auto">
+      <div className="max-w-xl mx-auto space-y-8">
         {/* 헤더 섹션 */}
         <header className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
@@ -157,143 +157,39 @@ export default function AdminPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">관리자 권한으로 시스템을 제어합니다.</p>
         </header>
-
-        {/* 1. 명리학자 신청 관리 섹션 */}
+        {/* 3. 편집 횟수 수정 (기존 로직 유지) */}
         <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 flex items-center gap-2">
-            <span className="w-1 h-5 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
-            명리학자 승인 대기 목록
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+            <span className="w-1 h-5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
+            편집 횟수 수정
           </h3>
-
-          <div className="space-y-6">
-            {applications.length === 0 ? (
-              <p className="text-center py-10 text-gray-400 italic text-sm border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl">
-                대기 중인 신청 건이 없습니다.
-              </p>
-            ) : (
-              applications.map((app) => (
-                <div
-                  key={app.id}
-                  className="flex flex-col lg:flex-row items-stretch justify-between p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-gray-100/50 dark:shadow-none gap-6 transition-all hover:border-purple-200 dark:hover:border-purple-900/30"
-                >
-                  {/* 정보 영역 */}
-                  <div className="flex-grow space-y-5 text-left">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 font-black text-xl">
-                        {app.displayName?.charAt(0)}
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-black text-gray-900 dark:text-white leading-tight">
-                          {app.displayName}
-                        </h4>
-                        <p className="text-sm text-gray-500 font-medium">{app.email}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-slate-800/50 p-5 rounded-[1.5rem]">
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">
-                            소개 및 포부
-                          </p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed italic line-clamp-2">
-                            "{app.bio || '등록된 소개가 없습니다.'}"
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">
-                            전문 경력
-                          </p>
-                          <p className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
-                            {app.experience || '경력 정보 없음'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col">
-                        <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-3">
-                          상담 방식
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {(app.consultationMethods || []).map((method) => (
-                            <span
-                              key={method}
-                              className="px-3 py-1 bg-white dark:bg-slate-900 rounded-full text-[11px] font-bold text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-slate-700 shadow-sm"
-                            >
-                              {method === 'text' && '💬 채팅'}
-                              {method === 'video' && '📹 화상'}
-                              {method === 'offline' && '📍 대면'}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 액션 버튼 */}
-                  <div className="flex flex-row lg:flex-col items-center justify-center lg:w-40 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-slate-800 pt-6 lg:pt-0 lg:pl-6 gap-3">
-                    <button
-                      onClick={() => handleApprove(app)}
-                      className="flex-1 lg:flex-none w-full py-4 lg:py-5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-sm flex flex-col items-center justify-center gap-1 group shadow-lg shadow-purple-200 dark:shadow-none"
-                    >
-                      <CheckIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                      <span>최종 승인</span>
-                    </button>
-                    <button
-                      onClick={() => openRejectModal(app)}
-                      className="flex-1 lg:flex-none w-full py-3 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl text-xs font-bold transition-all"
-                    >
-                      신청 거절
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </section>
-
-        {/* 거절 사유 입력 모달 */}
-        {isRejectModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-gray-900 dark:text-white">반려 사유 입력</h3>
-                <button
-                  onClick={() => setIsRejectModalOpen(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
-                >
-                  <XMarkIcon className="w-6 h-6 text-gray-400" />
-                </button>
-              </div>
-              <p className="text-sm text-gray-500 mb-4 font-medium">
-                <span className="text-purple-600 font-bold">{selectedApp?.displayName}</span>님께
-                전달될 메시지를 입력해주세요.
-              </p>
-              <textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="예: 실무 경력 증빙이 부족하여 반려되었습니다."
-                className="w-full h-32 p-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-gray-800 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-medium mb-6 resize-none"
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <input
+                type="number"
+                onChange={(e) => setNewCount(e.target.value)}
+                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 transition-all"
               />
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsRejectModalOpen(false)}
-                  className="flex-1 py-4 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-200 transition-all"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleRejectConfirm}
-                  className="flex-[2] py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-100 dark:shadow-none transition-all"
-                >
-                  거절 확정
-                </button>
-              </div>
+              <button
+                onClick={handleUpdateCount}
+                className="shrink-0 px-4 py-2 bg-gray-900 dark:bg-gray-100 dark:text-gray-900 hover:bg-black dark:hover:bg-white text-white text-sm font-medium rounded-lg transition-all active:scale-95"
+              >
+                저장
+              </button>
+            </div>
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">
+                Current Value
+              </span>
+              <span className="text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                {userData?.role === 'admin' ? -userData?.editCount + 10 : -userData?.editCount + 3}{' '}
+                회
+              </span>
             </div>
           </div>
-        )}
-
+        </section>
         {/* 2. 데이터 관리 섹션 (수정됨) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1  gap-8">
           <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
               <span className="w-1 h-5 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
@@ -360,39 +256,141 @@ export default function AdminPage() {
             </div>
           </section>
 
-          {/* 3. 편집 횟수 수정 (기존 로직 유지) */}
+          {/* 1. 명리학자 신청 관리 섹션 */}
           <section className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-              편집 횟수 수정
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 flex items-center gap-2">
+              <span className="w-1 h-5 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.5)]"></span>
+              명리학자 승인 대기 목록
             </h3>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  onChange={(e) => setNewCount(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 transition-all"
-                />
-                <button
-                  onClick={handleUpdateCount}
-                  className="shrink-0 px-4 py-2 bg-gray-900 dark:bg-gray-100 dark:text-gray-900 hover:bg-black dark:hover:bg-white text-white text-sm font-medium rounded-lg transition-all active:scale-95"
-                >
-                  저장
-                </button>
-              </div>
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">
-                  Current Value
-                </span>
-                <span className="text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                  {userData?.role === 'admin'
-                    ? -userData?.editCount + 10
-                    : -userData?.editCount + 3}{' '}
-                  회
-                </span>
-              </div>
+
+            <div className="space-y-6">
+              {applications.length === 0 ? (
+                <p className="text-center py-10 text-gray-400 italic text-sm border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl">
+                  대기 중인 신청 건이 없습니다.
+                </p>
+              ) : (
+                applications.map((app) => (
+                  <div
+                    key={app.id}
+                    className="flex flex-col lg:flex-row items-stretch justify-between p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-gray-100/50 dark:shadow-none gap-6 transition-all hover:border-purple-200 dark:hover:border-purple-900/30"
+                  >
+                    {/* 정보 영역 */}
+                    <div className="flex-grow space-y-5 text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 font-black text-xl">
+                          {app.displayName?.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-black text-gray-900 dark:text-white leading-tight">
+                            {app.displayName}
+                          </h4>
+                          <p className="text-sm text-gray-500 font-medium">{app.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-slate-800/50 p-5 rounded-[1.5rem]">
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">
+                              소개 및 포부
+                            </p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed italic line-clamp-2">
+                              "{app.bio || '등록된 소개가 없습니다.'}"
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">
+                              전문 경력
+                            </p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
+                              {app.experience || '경력 정보 없음'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-3">
+                            상담 방식
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {(app.consultationMethods || []).map((method) => (
+                              <span
+                                key={method}
+                                className="px-3 py-1 bg-white dark:bg-slate-900 rounded-full text-[11px] font-bold text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-slate-700 shadow-sm"
+                              >
+                                {method === 'text' && '💬 채팅'}
+                                {method === 'video' && '📹 화상'}
+                                {method === 'offline' && '📍 대면'}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 액션 버튼 */}
+                    <div className="flex flex-row lg:flex-col items-center justify-center lg:w-40 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-slate-800 pt-6 lg:pt-0 lg:pl-6 gap-3">
+                      <button
+                        onClick={() => handleApprove(app)}
+                        className="flex-1 lg:flex-none w-full py-4 lg:py-5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black text-sm flex flex-col items-center justify-center gap-1 group shadow-lg shadow-purple-200 dark:shadow-none"
+                      >
+                        <CheckIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                        <span>최종 승인</span>
+                      </button>
+                      <button
+                        onClick={() => openRejectModal(app)}
+                        className="flex-1 lg:flex-none w-full py-3 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl text-xs font-bold transition-all"
+                      >
+                        신청 거절
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </section>
+
+          {/* 거절 사유 입력 모달 */}
+          {isRejectModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white">
+                    반려 사유 입력
+                  </h3>
+                  <button
+                    onClick={() => setIsRejectModalOpen(false)}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                  >
+                    <XMarkIcon className="w-6 h-6 text-gray-400" />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500 mb-4 font-medium">
+                  <span className="text-purple-600 font-bold">{selectedApp?.displayName}</span>님께
+                  전달될 메시지를 입력해주세요.
+                </p>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="예: 실무 경력 증빙이 부족하여 반려되었습니다."
+                  className="w-full h-32 p-4 bg-gray-50 dark:bg-slate-800 border-none rounded-2xl text-gray-800 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-medium mb-6 resize-none"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsRejectModalOpen(false)}
+                    className="flex-1 py-4 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleRejectConfirm}
+                    className="flex-[2] py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-100 dark:shadow-none transition-all"
+                  >
+                    거절 확정
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <footer className="pt-6 border-t border-gray-100 dark:border-gray-800 text-center">

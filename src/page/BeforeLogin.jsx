@@ -160,7 +160,7 @@ export default function BeforeLogin() {
   const isInvalid = isDateInvalid || isTimeInvalid;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
+    <div className=" bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-white dark:border-slate-800">
         <div className="flex justify-center gap-2 mb-2">
           {[1, 2, 3].map((s) => (

@@ -8,6 +8,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import './FortuneCookie.css';
 import { FORTUNE_DB, FORTUNE_DB_KR } from '../data/fortuneCookie';
 import { BoltIcon } from '@heroicons/react/24/outline';
+import CreditIcon from '../ui/CreditIcon';
 const getLuckyResult = (lang) => {
   const rand = Math.floor(Math.random() * 200) + 1;
   const db = lang === 'en' ? FORTUNE_DB : FORTUNE_DB_KR;
@@ -134,28 +135,14 @@ export default function FortuneCookie({}) {
             포춘쿠키로 운세 보고 최대 5 크레딧 추가 획득!
           </p>
           <div>
-            <span
-              className="
-              inline-flex items-center gap-1.5 
-              /* 라이트 모드 디자인 */
-              bg-amber-50 text-amber-700 border border-amber-200 
-              /* 다크 모드 디자인 (어두운 배경에 대비되게) */
-              dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700/50 
-              /* 공통 스타일: 둥글게, 글자 크기, 여백, 그림자 */
-              py-1 px-3.5 rounded-md text-[13px] font-bold shadow-sm
-              transition-all duration-300
-            "
-            >
-              {/* 아이콘 부분: 살짝 애니메이션을 줘서 생동감 있게 */}
-              <BoltIcon className="h-4 w-4 fill-amber-500 dark:fill-amber-400 animate-pulse" />
-              <span className="text-[11px] opacity-80 ml-0.5 font-medium">최대</span>
-              <span className="tracking-tight">
-                +5 <span className="text-[11px] opacity-80 ml-0.5 font-medium">크레딧</span>
-              </span>
-            </span>
+            <CreditIcon num={`최대 +5`} />
           </div>
-          <div className="relative">
-            <img src="/images/introcard/cookie_2.png" />
+          <div className="m-auto max-w-sm rounded-2xl overflow-hidden ">
+            <img
+              src="/images/introcard/cookie_2.png"
+              alt="cookie started"
+              className="w-full h-auto"
+            />
           </div>
 
           <button
@@ -189,13 +176,16 @@ export default function FortuneCookie({}) {
           ) : (
             <>
               {fortuneMessage ? (
-                <div className="fortune-result-wrapper fade-in">
+                <div className="fortune-result-wrapper fade-in max-w-lg m-auto">
                   {showCoin && <div className="flying-coin-animation">⚡</div>}
                   <div className="text-center">
-                    <img
-                      src="/images/introcard/cookie_result.png"
-                      className="w-full max-w-md p-6"
-                    />
+                    <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+                      <img
+                        src="/images/introcard/cookie_result.png"
+                        alt="cookie result"
+                        className="w-full h-auto"
+                      />
+                    </div>
                     <p className="text-[#5d4037] dark:text-amber-100 text-xl font-bold leading-relaxed mb-3 break-keep">
                       {fortuneMessage}
                     </p>
@@ -230,28 +220,7 @@ export default function FortuneCookie({}) {
                       ) : (
                         <>
                           <div>
-                            <span
-                              className="
-    inline-flex items-center gap-1.5 
-    /* 라이트 모드 디자인 */
-    bg-amber-50 text-amber-700 border border-amber-200 
-    /* 다크 모드 디자인 (어두운 배경에 대비되게) */
-    dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700/50 
-    /* 공통 스타일: 둥글게, 글자 크기, 여백, 그림자 */
-    py-1 px-3.5 rounded-md text-[13px] font-bold shadow-sm
-    transition-all duration-300
-  "
-                            >
-                              {/* 아이콘 부분: 살짝 애니메이션을 줘서 생동감 있게 */}
-                              <BoltIcon className="h-4 w-4 fill-amber-500 dark:fill-amber-400 animate-pulse" />
-
-                              <span className="tracking-tight">
-                                + {rewardAmount}{' '}
-                                <span className="text-[11px] opacity-80 ml-0.5 font-medium">
-                                  크레딧
-                                </span>
-                              </span>
-                            </span>
+                            <CreditIcon num={-1} />
                           </div>
                         </>
                       )}
@@ -272,7 +241,13 @@ export default function FortuneCookie({}) {
                       </>
                     )}
                   </p>
-                  <img src="/images/introcard/cookie_1.png" />
+                  <div className="m-auto max-w-sm rounded-2xl overflow-hidden">
+                    <img
+                      src="/images/introcard/cookie_1.png"
+                      alt="select cookie"
+                      className="w-full h-auto"
+                    />
+                  </div>
                   <div className="flex gap-8 items-center justify-center ">
                     {[0, 1, 2].map((idx) => (
                       <div

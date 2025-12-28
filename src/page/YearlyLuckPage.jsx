@@ -16,8 +16,9 @@ import { langPrompt, hanja } from '../data/constants';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { classNames } from '../utils/helpers';
-import { BoltIcon } from '@heroicons/react/24/outline';
+
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
+import CreditIcon from '../ui/CreditIcon';
 // 1. 로딩 컴포넌트
 
 function SajuLoading({ sajuData }) {
@@ -104,7 +105,7 @@ function SajuLoading({ sajuData }) {
   }, [sajuData]);
 
   return (
-    <div className="flex flex-col items-center px-6 overflow-hidden min-h-screen">
+    <div className="flex flex-col items-center px-6 overflow-hidden">
       <svg className="absolute w-0 h-0 text-transparent">
         <filter id="paper-edge">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
@@ -293,7 +294,7 @@ export default function YearlyLuckPage() {
     }
 
     return (
-      <div className="max-w-md mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
           오행으로 읽는
           <br />
@@ -309,28 +310,16 @@ export default function YearlyLuckPage() {
           </p>
 
           <div>
-            <span
-              className="
-    inline-flex items-center gap-1.5 
-    /* 라이트 모드 디자인 */
-    bg-amber-50 text-amber-700 border border-amber-200 
-    /* 다크 모드 디자인 (어두운 배경에 대비되게) */
-    dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700/50 
-    /* 공통 스타일: 둥글게, 글자 크기, 여백, 그림자 */
-    py-1 px-3.5 rounded-md text-[13px] font-bold shadow-sm
-    transition-all duration-300
-  "
-            >
-              {/* 아이콘 부분: 살짝 애니메이션을 줘서 생동감 있게 */}
-              <BoltIcon className="h-4 w-4 fill-amber-500 dark:fill-amber-400 animate-pulse" />
-
-              <span className="tracking-tight">
-                -1 <span className="text-[11px] opacity-80 ml-0.5 font-medium">크레딧</span>
-              </span>
-            </span>
+            <CreditIcon num={-1} />
           </div>
 
-          <img src="/images/introcard/newyear_1.png" />
+          <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+            <img
+              src="/images/introcard/newyear_1.png"
+              alt="2026 yearly luck"
+              className="w-full h-auto"
+            />
+          </div>
         </div>
         {/* 시작 버튼: handleYearlyStartClick (가칭) 연결 */}
         <button
@@ -340,7 +329,7 @@ export default function YearlyLuckPage() {
             'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
             isDisabled
               ? DISABLED_STYLE
-              : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
+              : 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white shadow-red-200 hover:-translate-y-1',
           )}
         >
           {loading ? '신년 대운 추출 중...' : '2026 신년 운세 보기'}

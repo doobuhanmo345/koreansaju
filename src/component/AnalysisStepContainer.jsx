@@ -24,7 +24,7 @@ const AnalysisStepContainer = ({
   }, [stage, loadingTime]);
 
   return (
-    <div className="min-h-screen w-full transition-all duration-500">
+    <div className="w-full transition-all duration-500">
       {/* 1. 안내 단계 */}
       {stage === 'guide' && (
         <div className="animate-in fade-in duration-700">{guideContent(handleStart)}</div>

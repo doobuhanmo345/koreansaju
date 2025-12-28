@@ -149,7 +149,7 @@ export default function SajuAnalysisPage() {
     const isAlreadyAnalyzed = editCount > 0;
 
     return (
-      <div className="max-w-md mx-auto pt-20 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="max-w-lg mx-auto pt-20 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         <div className="relative inline-block mb-8">
           <div className="text-6xl relative z-10">🔮</div>
           <div className="absolute inset-0 bg-indigo-200 dark:bg-indigo-900/40 blur-2xl rounded-full scale-150"></div>

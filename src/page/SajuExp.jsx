@@ -83,7 +83,7 @@ export default function SajuExplanation() {
 
   return (
     // 1. 전체 텍스트 톤 다운: text-stone-700 (너무 검지 않게)
-    <div className="min-h-screen bg-stone-50 dark:bg-slate-900 text-stone-700 dark:text-stone-300 transition-colors pb-24 font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900">
+    <div className="bg-stone-50 dark:bg-slate-900 text-stone-700 dark:text-stone-300 transition-colors pb-24 font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900">
       {/* ================= HERO SECTION ================= */}
       <section className="relative pt-24 pb-20 px-6 text-center w-full mx-auto flex flex-col items-center">
         {/* 부드러운 그라데이션 배경 */}

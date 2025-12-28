@@ -231,7 +231,7 @@ const SajuResult = ({ aiResult }) => {
 
   return (
     <div
-      className="max-w-2xl mx-auto min-h-screen flex flex-col items-center transition-colors p-4"
+      className="max-w-2xl mx-auto flex flex-col items-center transition-colors p-4"
       ref={scrollElRef}
     >
       {/* 1. 명식 카드 */}
