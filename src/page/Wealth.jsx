@@ -309,7 +309,7 @@ export default function Wealth({}) {
     };
 
     try {
-      const data = userData || {};
+      const data = userData.usageHistory || {};
       const currentCount = data.editCount || 0;
 
       // ---------------------------------------------------------
@@ -423,18 +423,15 @@ export default function Wealth({}) {
           dailyUsage: {
             [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
-          ZWealthAnalysis: {
-            result: result,
-            // ★ 비교 기준이 되는 사주 데이터 저장
-            saju: saju,
-            gender: gender,
-            ques: selectedQ,
-            ques2: selectedSubQ,
-            language: language,
-
-            // 참고용 날짜 정보 (비교엔 안 씀)
-            inputDate: inputDate,
-            date: new Date().toISOString(),
+          usageHistory: {
+            ZWealthAnalysis: {
+              result: result,
+              saju: saju,
+              gender: gender,
+              ques: selectedQ,
+              ques2: selectedSubQ,
+              language: language,
+            },
           },
         },
         { merge: true },
@@ -459,12 +456,12 @@ export default function Wealth({}) {
     return SAJU_KEYS.every((key) => source[key] === target[key]);
   };
   const isAnalysisDone =
-    userData?.ZWealthAnalysis &&
-    userData.ZWealthAnalysis.language === language &&
-    userData.ZWealthAnalysis.gender === gender &&
-    userData.ZWealthAnalysis.ques === selectedQ &&
-    userData.ZWealthAnalysis.ques2 === selectedSubQ &&
-    checkSajuEqual(userData.ZWealthAnalysis.saju, saju);
+    userData?.usageHistory.ZWealthAnalysis &&
+    userData.usageHistory.ZWealthAnalysis.language === language &&
+    userData.usageHistory.ZWealthAnalysis.gender === gender &&
+    userData.usageHistory.ZWealthAnalysis.ques === selectedQ &&
+    userData.usageHistory.ZWealthAnalysis.ques2 === selectedSubQ &&
+    checkSajuEqual(userData.usageHistory.ZWealthAnalysis.saju, saju);
 
   return (
     <>
@@ -520,11 +517,7 @@ export default function Wealth({}) {
 
               {/* 이미지 경로 확인 필요 */}
               <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-                <img
-                  src="/images/introcard/wealth_1.png"
-                  alt="wealth"
-                  className="w-full h-auto"
-                />
+                <img src="/images/introcard/wealth_1.png" alt="wealth" className="w-full h-auto" />
               </div>
             </div>
           </div>
@@ -761,7 +754,7 @@ export default function Wealth({}) {
               <></>
               {/* 분석 시작 버튼 */}
               <button
-                disabled={!selectedSubQ || loading}
+                disabled={!selectedSubQ || !!loading}
                 onClick={toConfirm}
                 className={`
             flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all shadow-lg
@@ -873,7 +866,7 @@ export default function Wealth({}) {
           <div className="flex justify-center">
             <button
               onClick={() => wealthEnergy2.triggerConsume(handleWealthAnalysis)}
-              disabled={isDisabled || !isAnalysisDone}
+              disabled={isDisabled}
               className={classNames(
                 'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
                 isDisabled
@@ -883,7 +876,7 @@ export default function Wealth({}) {
             >
               <SparklesIcon className="w-5 h-5 animate-pulse" />
               <span>{language === 'en' ? 'Start Analysis' : '분석 시작하기'}</span>
-              {isAnalysisDone ? (
+              {!!isAnalysisDone ? (
                 <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
                   <span className="text-[9px] font-bold text-white uppercase">Free</span>
                   <TicketIcon className="w-3 h-3 text-white" />

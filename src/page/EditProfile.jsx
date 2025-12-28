@@ -79,6 +79,7 @@ export default function EditProfile() {
         isTimeUnknown: formData.isTimeUnknown,
         gender: formData.gender,
         updatedAt: new Date(),
+        saju: manse,
       };
 
       await updateProfileData(updateData);

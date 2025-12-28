@@ -4,7 +4,7 @@ import ViewTarotResult from '../component/ViewTarotResult';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, increment } from 'firebase/firestore';
 import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
@@ -95,7 +95,16 @@ export default function TarotDailyPage() {
           doc(db, 'users', user.uid),
           {
             editCount: newCount,
-            tarotTodayAnalysis: { date: new Date().toISOString() },
+            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            dailyUsage: {
+              [new Date().toLocaleDateString('en-CA')]: increment(1),
+            },
+            usageHistory: {
+              tarotDaily: {
+               
+                [new Date().toLocaleDateString('en-CA')]: increment(1),
+              },
+            },
           },
           { merge: true },
         );

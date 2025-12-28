@@ -2,13 +2,25 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 import { doc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { login, logout, onUserStateChange, db } from '../lib/firebase';
 import { useLanguage } from './useLanguageContext';
+import { getRomanizedIlju } from '../data/sajuInt';
 const AuthContext = createContext();
 
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const { language } = useLanguage();
+  // 1. 안전하게 변수 계산 (userData가 있을 때만)
+  const iljuImagePath = useMemo(() => {
+    if (!userData || !userData.saju) return '/images/ilju/default.png'; // 기본값 설정
 
+    const safeIlju = userData.saju.sky1
+      ? getRomanizedIlju(userData.saju.sky1 + userData.saju.grd1)
+      : 'gapja';
+
+    const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
+
+    return `/images/ilju/${safeIlju}_${safeGender}.png`;
+  }, [userData]); // userData가 바뀔 때만 다시 계산
   const status = useMemo(() => {
     if (!userData)
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
@@ -28,29 +40,31 @@ export function AuthContextProvider({ children }) {
 
     return {
       isMainDone: !!(
-        userData?.ZApiAnalysis &&
-        userData.ZApiAnalysis.language === language &&
-        userData.ZApiAnalysis.gender === gender &&
-        checkSajuMatch(userData.ZApiAnalysis.saju, userData.saju)
+        userData?.usageHistory?.ZApiAnalysis &&
+        userData.usageHistory?.ZApiAnalysis.language === language &&
+        userData.usageHistory?.ZApiAnalysis.gender === gender &&
+        checkSajuMatch(userData.usageHistory?.ZApiAnalysis.saju, userData.saju)
       ),
 
       isYearDone: !!(
-        userData?.ZLastNewYear &&
-        String(userData.ZLastNewYear.year) === nextYear &&
-        userData.ZLastNewYear.language === language &&
-        userData.ZLastNewYear.gender === gender 
-        && checkSajuMatch(userData.ZLastNewYear.saju, userData.saju)
+        userData?.usageHistory?.ZLastNewYear &&
+        String(userData.usageHistory?.ZLastNewYear.year) === nextYear &&
+        userData.usageHistory?.ZLastNewYear.language === language &&
+        userData.usageHistory?.ZLastNewYear.gender === gender &&
+        checkSajuMatch(userData.usageHistory?.ZLastNewYear.saju, userData.saju)
       ),
 
       isDailyDone: !!(
-        userData?.ZLastDaily &&
-        userData.ZLastDaily.date === todayStr &&
-        userData.ZLastDaily.gender === gender &&
-        checkSajuMatch(userData.ZLastDaily.saju, userData.saju) &&
-        userData.ZLastDaily.language === language
+        userData?.usageHistory?.ZLastDaily &&
+        userData.usageHistory?.ZLastDaily.date === todayStr &&
+        userData.usageHistory?.ZLastDaily.gender === gender &&
+        checkSajuMatch(userData.usageHistory?.ZLastDaily.saju, userData.saju) &&
+        userData.usageHistory?.ZLastDaily.language === language
       ),
 
-      isCookieDone: !!(userData?.ZCookie && userData.ZCookie.today === todayStr),
+      isCookieDone: !!(
+        userData?.usageHistory?.ZCookie && userData.usageHistory?.ZCookie.today === todayStr
+      ),
     };
   }, [userData]);
 
@@ -155,7 +169,9 @@ export function AuthContextProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, login, logout, updateProfileData, ...status }}>
+    <AuthContext.Provider
+      value={{ user, userData, iljuImagePath, login, logout, updateProfileData, ...status }}
+    >
       {children}
     </AuthContext.Provider>
   );

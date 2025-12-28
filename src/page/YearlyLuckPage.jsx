@@ -211,7 +211,7 @@ export default function YearlyLuckPage() {
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     try {
-      const data = userData || {};
+      const data = userData.usageHistory || {};
 
       // 2. 신년 운세 캐시 체크 (연도 + 사주 + 언어 + 성별 일치 확인)
       if (data.ZLastNewYear) {
@@ -260,12 +260,14 @@ export default function YearlyLuckPage() {
           saju: saju,
           editCount: newCount,
           lastEditDate: todayDate,
-          ZLastNewYear: {
-            result: result,
-            year: nextYear,
-            saju: saju,
-            language: language,
-            gender: gender,
+          usageHistory: {
+            ZLastNewYear: {
+              result: result,
+              year: nextYear,
+              saju: saju,
+              language: language,
+              gender: gender,
+            },
           },
           dailyUsage: {
             [todayDate]: increment(1),

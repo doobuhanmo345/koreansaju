@@ -212,7 +212,7 @@ export default function TodaysLuckPage() {
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     try {
-      const data = userData || {};
+      const data = userData.usageHistory || {};
 
       // 2. 일일 운세 캐시 체크 (오늘 날짜 + 사주 + 언어 + 성별 일치 확인)
       if (data.ZLastDaily) {
@@ -228,6 +228,7 @@ export default function TodaysLuckPage() {
         const isLangMatch = savedLang === language;
         const isGenderMatch = savedGender === gender;
         const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
+        console.log(isDateMatch, isLangMatch, isGenderMatch, isSajuMatch);
 
         // 모든 조건이 맞고 결과값이 이미 있다면 바로 결과 모달/스텝으로 이동
         if (isDateMatch && isLangMatch && isGenderMatch && isSajuMatch && savedResult) {
@@ -271,12 +272,14 @@ export default function TodaysLuckPage() {
           saju: saju,
           editCount: newCount,
           lastEditDate: todayDate,
-          ZLastDaily: {
-            result: result,
-            date: todayDate,
-            saju: saju,
-            language: language,
-            gender: gender,
+          usageHistory: {
+            ZLastDaily: {
+              result: result,
+              date: todayDate,
+              saju: saju,
+              language: language,
+              gender: gender,
+            },
           },
           dailyUsage: {
             [todayDate]: increment(1),

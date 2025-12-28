@@ -247,7 +247,7 @@ export default function Match({}) {
     };
 
     try {
-      const data = userData || {};
+      const data = userData.usageHistory || {};
       const currentCount = data.editCount || 0;
 
       // ---------------------------------------------------------
@@ -255,8 +255,8 @@ export default function Match({}) {
       // ---------------------------------------------------------
       let isCacheValid = false;
 
-      if (data.ZCompatiAnalysis) {
-        const saved = data.ZCompatiAnalysis;
+      if (data.ZMatchAnalysis) {
+        const saved = data.ZMatchAnalysis;
 
         // 1) 기본 정보 비교 (언어, 관계, 성별)
         const isBasicMatch =
@@ -358,22 +358,18 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
           dailyUsage: {
             [new Date().toLocaleDateString('en-CA')]: increment(1),
           },
-          ZCompatiAnalysis: {
-            result: result,
-
-            // ★ 비교 기준이 되는 사주 데이터 저장
-            saju: saju,
-            saju2: saju2,
-
-            gender: gender,
-            gender2: gender2,
-            relationship: selectedRel,
-            language: language,
-
-            // 참고용 날짜 정보 (비교엔 안 씀)
-            inputDate: inputDate,
-            inputDate2: inputDate2,
-            date: new Date().toISOString(),
+          usageHistory: {
+            ZMatchAnalysis: {
+              result: result,
+              saju: saju,
+              saju2: saju2,
+              gender: gender,
+              gender2: gender2,
+              relationship: selectedRel,
+              language: language,
+              inputDate: inputDate,
+              inputDate2: inputDate2,
+            },
           },
         },
         { merge: true },
@@ -398,12 +394,12 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
     return SAJU_KEYS.every((key) => source[key] === target[key]);
   };
   const isAnalysisDone =
-    userData?.ZCompatiAnalysis &&
-    userData.ZCompatiAnalysis.language === language &&
-    userData.ZCompatiAnalysis.gender === gender &&
-    userData.ZCompatiAnalysis.relationship === selectedRel &&
-    checkSajuEqual(userData.ZCompatiAnalysis.saju, saju) &&
-    checkSajuEqual(userData.ZCompatiAnalysis.saju2, saju2);
+    userData?.usageHistory.ZMatchAnalysis &&
+    userData.usageHistory.ZMatchAnalysis.language === language &&
+    userData.usageHistory.ZMatchAnalysis.gender === gender &&
+    userData.usageHistory.ZMatchAnalysis.relationship === selectedRel &&
+    checkSajuEqual(userData.usageHistory.ZMatchAnalysis.saju, saju) &&
+    checkSajuEqual(userData.usageHistory.ZMatchAnalysis.saju2, saju2);
 
   return (
     <>
@@ -483,18 +479,8 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
               : language === 'ko'
                 ? '궁합 분석 시작하기'
                 : 'Start Match Analysis'}
-
             {/* 이미 분석한 적이 있다면 무료 티켓 표시 */}
-            {isAnalysisDone && (
-              <div className="flex items-center backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
-                <span className="text-[9px] font-bold text-white uppercase tracking-tighter">
-                  Free
-                </span>
-                <TicketIcon className="w-3 h-3 text-white ml-0.5" />
-              </div>
-            )}
           </button>
-
           {isLocked && !isAnalysisDone ? (
             <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
               <ExclamationTriangleIcon className="w-4 h-4" />
@@ -758,7 +744,6 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                 )}
               </p>
             </div>
-
             {/* 2. 선택한 관계 표시 (배지 형태) */}
             <div className="flex justify-center mb-8">
               {(() => {
@@ -807,7 +792,6 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                 );
               })()}
             </div>
-
             {/* 3. 정보 매치업 카드 (나 vs 상대방) */}
             <div className="flex flex-col sm:flex-row gap-4 items-stretch justify-center relative">
               {/* [ME] 카드 (Indigo) */}
@@ -910,7 +894,6 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                 </div>
               </div>
             </div>
-
             {/* 로딩 바 */}
             <div className="my-5 flex justify-center">
               {loading && (
@@ -926,7 +909,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
             <div className="flex justify-center">
               <button
                 onClick={() => compaEnergy2.triggerConsume(handleMatch)}
-                disabled={isDisabled || !isAnalysisDone}
+                disabled={isDisabled}
                 className={classNames(
                   'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
                   isDisabled
@@ -937,7 +920,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
                 <SparklesIcon className="w-5 h-5 animate-pulse" />
                 <span>{language === 'en' ? 'Start Chemistry Analysis' : '궁합 분석 시작하기'}</span>
 
-                {isAnalysisDone ? (
+                {!!isAnalysisDone ? (
                   <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
                     <span className="text-[9px] font-bold text-white uppercase">Free</span>
                     <TicketIcon className="w-3 h-3 text-white" />

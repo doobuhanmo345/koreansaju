@@ -202,7 +202,7 @@ export default function AdminPage() {
                 { key: 'ZLastNewYear', label: '신년 운세 결과', color: 'text-rose-500' },
                 { key: 'ZCookie', label: '포춘 쿠키', color: 'text-emerald-500' },
               ].map((item) => {
-                const hasData = !!userData?.[item.key]; // 데이터 존재 여부 확인
+                const hasData = !!userData?.usageHistory?.[item.key]; // 데이터 존재 여부 확인
 
                 return (
                   <div

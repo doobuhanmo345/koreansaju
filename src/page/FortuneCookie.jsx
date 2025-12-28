@@ -49,7 +49,7 @@ export default function FortuneCookie({}) {
 
   const [step, setStep] = useState(() => {
     // 진입 시점에 이미 오늘 날짜의 쿠키 데이터가 있다면 'selection' 단계로 시작
-    return userData?.ZCookie?.today === todayStr ? 'selection' : 'intro';
+    return userData?.usageHistory?.ZCookie?.today === todayStr ? 'selection' : 'intro';
   });
 
   // 인트로에서 시작하기 버튼 클릭 시
@@ -65,7 +65,7 @@ export default function FortuneCookie({}) {
     setLoading(true);
 
     try {
-      const data = userData || {};
+      const data = userData.usageHistory || {};
       const currentCount = data.editCount || 0;
       const { today: today } = data.ZCookie || {};
 
@@ -89,7 +89,7 @@ export default function FortuneCookie({}) {
         {
           editCount: newCount,
           lastEditDate: new Date().toLocaleDateString('en-CA'),
-          ZCookie: { today: todayStr, msg: resultMsg },
+          usageHistory: { ZCookie: { today: todayStr, msg: resultMsg } },
           dailyUsage: { [new Date().toLocaleDateString('en-CA')]: increment(1) },
         },
         { merge: true },
@@ -154,7 +154,7 @@ export default function FortuneCookie({}) {
         </div>
       ) : (
         <div className="flex items-center justify-center">
-          {!loading && !fortuneMessage && userData?.ZCookie?.today === todayStr ? (
+          {!loading && !fortuneMessage && userData?.usageHistory?.ZCookie?.today === todayStr ? (
             <div className="animate-in fade-in duration-700 flex flex-col items-center my-6">
               <div className="fortune-label mb-2 px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 text-xs font-bold rounded-full shadow-sm border border-amber-200 dark:border-amber-800">
                 {language === 'en' ? "Today's Message" : '오늘의 메시지'}
@@ -165,7 +165,7 @@ export default function FortuneCookie({}) {
                   “
                 </span>
                 <p className="relative z-10 text-gray-700 dark:text-gray-200 text-lg font-medium leading-relaxed break-keep">
-                  {userData.ZCookie.msg}
+                  {userData.usageHistory.ZCookie.msg}
                 </p>
                 <span className="absolute bottom-2 right-4 text-4xl text-amber-200 dark:text-amber-900/50 font-serif leading-none select-none">
                   ”

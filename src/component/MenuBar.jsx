@@ -21,7 +21,7 @@ import { useLanguage } from '../context/useLanguageContext';
 
 export default function MobileNav() {
   const [activeMenu, setActiveMenu] = useState(null);
-  const { userData } = useAuthContext();
+  const { userData, iljuImagePath } = useAuthContext();
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -48,8 +48,8 @@ export default function MobileNav() {
       const [year, month, day] = datePart.split('-');
       const [hour, minute] = (timePart || '00:00').split(':');
       return isKo
-        ? `${year}년 ${month}월 ${day}일 ${hour}:${minute}`
-        : `${month}/${day}/${year} ${hour}:${minute}`;
+        ? `${year}년 ${month}월 ${day}일 </br>${hour}:${minute}`
+        : `${month}/${day}/${year} </br>${hour}:${minute}`;
     } catch (e) {
       return isKo ? '형식 오류' : 'Format Error';
     }
@@ -247,20 +247,73 @@ export default function MobileNav() {
               {activeMenu === 'profile' && (
                 <div className="mb-8">
                   {/* 프로필 카드 UI 영역 */}
-                  <div className="relative overflow-hidden p-6 rounded-[2rem] bg-gradient-to-br from-indigo-600 to-indigo-700 text-white shadow-xl">
-                    {/* ... 프로필 카드 내용 생략 ... */}
-                    <div className="relative z-10 flex flex-col gap-4">
-                      <div className="flex items-center gap-3">
-                        <UserCircleIcon className="w-10 h-10" />
-                        <div>
-                          <p className="text-lg font-black">{userData?.displayName || 'Guest'}</p>
+                  <div className="relative overflow-hidden p-6 rounded-[2rem] bg-white dark:bg-[#1a1a2e] text-slate-800 dark:text-white shadow-xl border border-slate-100 dark:border-white/5 group transition-colors">
+                    {/* 배경 그라데이션 광원 효과 */}
+                  
+                    <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-50 dark:bg-purple-600/10 rounded-full blur-[60px]" />
+
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-6">
+                        {/* 📸 캐릭터 이미지 영역 */}
+                        <div className="relative shrink-0 w-32 h-32">
+                          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100 to-purple-100 dark:from-indigo-500/20 dark:to-purple-500/20 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-500" />
+                          <div className="absolute inset-0 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-3xl border border-white dark:border-white/10 shadow-inner" />
+                          <img
+                            src={iljuImagePath}
+                            className="relative w-full h-full object-contain p-2 transition-all duration-500 scale-110"
+                            alt="ilju character"
+                            onError={(e) => (e.target.style.display = 'none')}
+                          />
                         </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-2">
-                        <p className="text-xs font-bold">
-                          {isKo ? '성별' : 'Gender'}: {userData?.gender}
-                        </p>
-                        <p className="text-xs font-bold">{formatBirth(userData?.birthDate)}</p>
+
+                        {/* 📝 유저 정보 영역 */}
+                        <div className="flex-1 min-w-0">
+                          <div className="mb-3">
+                            <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 tracking-[0.2em] uppercase mb-1">
+                              User Information
+                            </p>
+                            <h2 className="text-2xl font-black truncate tracking-tight text-slate-900 dark:text-white">
+                              {userData?.displayName || 'Guest'}
+                            </h2>
+                          </div>
+
+                          {/* 정보 리스트: 주신 구조 그대로 유지 */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-3 text-[13px]">
+                              <span className="text-slate-400 dark:text-white/40 font-bold w-12">
+                                {isKo ? '성별' : 'Gender'}
+                              </span>
+                              <span className="font-semibold text-slate-700 dark:text-white/90">
+                                {userData?.gender === 'male'
+                                  ? isKo
+                                    ? '남성'
+                                    : 'Male'
+                                  : isKo
+                                    ? '여성'
+                                    : 'Female'}
+                              </span>
+                            </div>
+
+                            <div className="w-full h-[1px] bg-slate-100 dark:bg-white/10" />
+
+                            <div className="flex items-center gap-3 text-[13px]">
+                              <span className="text-slate-400 dark:text-white/40 font-bold w-12">
+                                {isKo ? '생일' : 'Birth'}
+                              </span>
+                              <span className="font-semibold text-slate-700 dark:text-white/90">
+                                {userData?.isTimeUnknown ? (
+                                  formatBirth(userData?.birthDate).slice(0,-10)
+                                ) : (
+                                  <div
+                                    dangerouslySetInnerHTML={{
+                                      __html: formatBirth(userData?.birthDate),
+                                    }}
+                                  />
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -6,11 +6,7 @@ import { doc, setDoc, increment } from 'firebase/firestore';
 import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { SunIcon, HeartIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { FaHorseHead, FaDownload } from 'react-icons/fa';
-import { GiCrystalBall } from 'react-icons/gi';
-
-import { GiGoldBar } from 'react-icons/gi';
 import html2canvas from 'html2canvas';
-import { TbCookieFilled } from 'react-icons/tb';
 
 // 3. Internal Config & API
 import { db } from './lib/firebase';
@@ -29,11 +25,9 @@ import { useModal } from './hooks/useModal';
 
 // 6. Utils & Helpers
 import { getPillars } from './utils/sajuCalculator';
-import processSajuData from './sajuDataProcessor';
 
 // 7. Data & Constants
 import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
-import { getRomanizedIlju } from './data/sajuInt';
 import { UI_TEXT, BD_EDIT_UI, langPrompt, hanja } from './data/constants';
 import {
   STRICT_INSTRUCTION,
@@ -43,22 +37,15 @@ import {
 } from './data/aiResultConstants';
 import { useLoading } from './context/useLoadingContext';
 // 8. Components (UI & Features)
-import NavBar from './component/Navbar';
-import LoginStatus from './component/LoginStatus';
-import FourPillarVis from './component/FourPillarVis';
-import AiSajuModal from './component/AiSajuModal';
 import SajuBlur from './component/SajuBlur';
-import AnalysisButton from './ui/AnalysisButton';
 import ModifyBd from './ui/ModifyBd';
-import LoadingBar from './ui/LoadingBar';
 import BeforeLogin from './page/BeforeLogin';
 import { useNavigate } from 'react-router-dom';
 import MainIcons from './component/MainIcons';
 import SubIcons from './component/SubIcons';
 export default function App() {
   // --- Context Hooks ---
-  const { user, userData, login, isDailyDone, isMainDone, isYearDone, isCookieDone } =
-    useAuthContext();
+  const { user, userData, login, iljuImagePath } = useAuthContext();
   const { language } = useLanguage();
   const {
     editCount,
@@ -213,316 +200,7 @@ export default function App() {
     }
   };
 
-  const handleDailyFortune = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-
-    setLoading(true);
-    setLoadingType('daily');
-    setResultType('daily');
-    setAiResult('');
-
-    const todayDate = new Date().toLocaleDateString('en-CA');
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-
-    try {
-      const data = userData || {};
-      const currentCount = data.editCount || 0;
-
-      // 1. 캐시 체크
-      let isMatch = false;
-      if (data.ZLastDaily) {
-        const {
-          date,
-          language: savedLang,
-          saju: savedSaju,
-          gender: savedGender,
-          result,
-        } = data.ZLastDaily;
-        const isDateMatch = date === todayDate;
-        const isLangMatch = savedLang === language;
-        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
-        const isGenderMatch = savedGender === gender;
-
-        if (isDateMatch && isLangMatch && isSajuMatch && isGenderMatch && result) {
-          isMatch = true;
-          setAiResult(result);
-        }
-      }
-
-      if (isMatch) {
-        openModal(); // viewMode 설정은 ResultModal 내부에서 처리
-        setLoading(false);
-        setLoadingType(null);
-        return;
-      }
-
-      // 2. 횟수 제한 체크
-      if (currentCount >= MAX_EDIT_COUNT) {
-        setLoading(false);
-        setLoadingType(null);
-        return alert(UI_TEXT.limitReached[language]);
-      }
-
-      // 3. API 호출
-      const userSajuText = `${saju.sky3}${saju.grd3}년(Year) ${saju.sky2}${saju.grd2}월(Month) ${saju.sky1}${saju.grd1}일(Day) ${saju.sky0}${saju.grd0}시(Time)`;
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      const todayPillars = getPillars(today);
-      const tomorrowPillars = getPillars(tomorrow);
-
-      if (!todayPillars || !tomorrowPillars) return;
-
-      const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년(Year) ${todayPillars.sky2}${todayPillars.grd2}월(Month) ${todayPillars.sky1}${todayPillars.grd1}일(Day)`;
-      const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년(Year) ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월(Month) ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일(Day)`;
-
-      const genderInfo = `[User Gender] ${gender}`;
-      const sajuInfo = `[User Saju] ${userSajuText} sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야/ [Today: ${todayPillars.date}] ${todaySajuText} / [Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}`;
-      const strictPrompt = STRICT_INSTRUCTION[language];
-      const fullPrompt = `${strictPrompt}\n${DAILY_FORTUNE_PROMPT[language]}\n${genderInfo}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
-
-      const result = await fetchGeminiAnalysis(fullPrompt);
-      const newCount = currentCount + 1;
-
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          editCount: newCount,
-          lastEditDate: todayDate,
-          // fortune_cache: fortuneCache,
-          ZLastDaily: {
-            result: result,
-            date: todayDate,
-            saju: saju,
-            language: language,
-            gender: gender,
-          },
-          dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: increment(1),
-          },
-        },
-        { merge: true },
-      );
-
-      setEditCount(newCount);
-      setAiResult(result);
-      openModal();
-    } catch (e) {
-      console.error(e);
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-  const handleCompaAnalysis = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-    setLoading(true);
-    setLoadingType('compati');
-    setResultType('compati');
-
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-    let isMatch = false;
-
-    try {
-      openModal();
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-  const handleWealthAnalysis = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-    setLoading(true);
-    setLoadingType('wealth');
-    setResultType('wealth');
-
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-    let isMatch = false;
-
-    try {
-      openModal();
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-  const handleFortuneCookie = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-
-    setLoading(true);
-    setLoadingType('fCookie');
-    setResultType('fCookie');
-
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-    let isMatch = false;
-
-    try {
-      openModal();
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-  const handleAiAnalysis = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-    setLoading(true);
-    setLoadingType('main');
-    setResultType('main');
-    setAiResult('');
-
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-    let isMatch = false;
-
-    try {
-      const data = userData || {};
-      const currentCount = data.editCount || 0;
-
-      let isMatch = false;
-      if (data.ZApiAnalysis) {
-        const { language: savedLang, saju: savedSaju, gender: savedGender } = data.ZApiAnalysis;
-        const isLangMatch = savedLang === language;
-        const isGenderMatch = savedGender === gender;
-        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
-
-        if (isLangMatch && isSajuMatch && isGenderMatch) {
-          setAiResult('yoo');
-          openModal();
-          setLoading(false);
-          setLoadingType(null);
-          return;
-        }
-      }
-
-      if (currentCount >= MAX_EDIT_COUNT) {
-        setLoading(false);
-        setLoadingType(null);
-        return alert(UI_TEXT.limitReached[language]);
-      }
-      const newCount = editCount + 1;
-
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          editCount: newCount,
-          lastEditDate: new Date().toLocaleDateString('en-CA'),
-          dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: increment(1),
-          },
-          ZApiAnalysis: {
-            saju: saju,
-            language: language,
-            gender: gender,
-          },
-        },
-        { merge: true },
-      );
-
-      setEditCount(newCount);
-      setAiResult('yoo');
-      openModal();
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
-
-  const handleNewYearFortune = async () => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!isSaved) return alert(UI_TEXT.saveFirst[language]);
-
-    setLoading(true);
-    setLoadingType('year');
-    setResultType('year');
-    setAiResult('');
-
-    const nextYear = new Date().getFullYear() + 1;
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-
-    try {
-      const data = userData || {};
-      const currentCount = data.editCount || 0;
-
-      let isMatch = false;
-      if (data.ZLastNewYear) {
-        const {
-          year,
-          language: savedLang,
-          saju: savedSaju,
-          result,
-          gender: savedGender,
-        } = data.ZLastNewYear;
-        const isYearMatch = String(year) === String(nextYear);
-        const isLangMatch = savedLang === language;
-        const isGenderMatch = savedGender === gender;
-        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
-
-        if (isYearMatch && isLangMatch && isSajuMatch && isGenderMatch && result) {
-          setAiResult(result);
-          openModal();
-          setLoading(false);
-          setLoadingType(null);
-          return;
-        }
-      }
-
-      if (currentCount >= MAX_EDIT_COUNT) {
-        setLoading(false);
-        setLoadingType(null);
-        return alert(UI_TEXT.limitReached[language]);
-      }
-
-      const currentSajuJson = JSON.stringify(saju);
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${inputDate}, 팔자:${currentSajuJson} sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야. 나를 선생님이 아닌 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}. undefined시는 그냥 선생님이라고 해..`;
-      const strictPrompt = STRICT_INSTRUCTION[language];
-      const fullPrompt = `${strictPrompt}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
-
-      const result = await fetchGeminiAnalysis(fullPrompt);
-      const newCount = currentCount + 1;
-
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          saju: saju,
-          editCount: newCount,
-          lastEditDate: new Date().toLocaleDateString('en-CA'),
-          // fortune_cache: fortuneCache,
-          ZLastNewYear: {
-            result: result,
-            year: nextYear,
-            saju: saju,
-            language: language,
-            gender: gender,
-          },
-          dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: increment(1),
-          },
-        },
-        { merge: true },
-      );
-
-      setEditCount(newCount);
-      setAiResult(result);
-      openModal();
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
+  
 
   // 분석 완료 여부 체크 (버튼 상태용)
   const todayStr = new Date().toLocaleDateString('en-CA');
@@ -536,21 +214,7 @@ export default function App() {
 
   const dbUser = userData;
 
-  // 에너지 훅 인스턴스 생성
-  const mainEnergy = useConsumeEnergy();
-  const yearEnergy = useConsumeEnergy();
-  const dailyEnergy = useConsumeEnergy();
-  const compaEnergy = useConsumeEnergy();
-  const wealthEnergy = useConsumeEnergy();
-  const cookieEnergy = useConsumeEnergy();
-  // functions/index.js (부분 예시)
-  // 한글 일주 이름('갑자')을 영어('gabja')로 변환
 
-  const safeIlju = saju.sky1 ? getRomanizedIlju(saju.sky1 + saju.grd1) : 'gapja'; // 일주가 없으면 갑자로 대체
-  const safeGender = gender ? gender.toLowerCase() : 'male'; // 성별 없으면 male로 대체
-
-  // 최종 경로 생성
-  const iljuImagePath = `/images/ilju/${safeIlju}_${safeGender}.png`;
   const handleShareImg = async (id) => {
     const el = document.getElementById(id);
     if (!el) {

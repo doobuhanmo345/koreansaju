@@ -4,7 +4,7 @@ import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, increment } from 'firebase/firestore';
 import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
@@ -105,7 +105,16 @@ export default function TarotMoneyPage() {
           doc(db, 'users', user.uid),
           {
             editCount: newCount,
-            lastMoneyAnalysis: { result, date: new Date().toISOString(), category: categoryLabel },
+            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            dailyUsage: {
+              [new Date().toLocaleDateString('en-CA')]: increment(1),
+            },
+
+            usageHistory: {
+              tarotMoney: {
+                [new Date().toLocaleDateString('en-CA')]: { [categoryLabel]: increment(1) },
+              },
+            },
           },
           { merge: true },
         );
@@ -255,7 +264,7 @@ export default function TarotMoneyPage() {
     <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<TarotLoading cardPicked={cardPicked} />}
-       resultComponent={()=><ViewTarotResult cardPicked={cardPicked}/>}
+      resultComponent={() => <ViewTarotResult cardPicked={cardPicked} />}
       loadingTime={0}
     />
   );

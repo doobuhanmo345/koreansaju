@@ -4,7 +4,7 @@ import ViewTarotResult from '../component/ViewTarotResult';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, increment } from 'firebase/firestore';
 import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
@@ -12,6 +12,7 @@ import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import CreditIcon from '../ui/CreditIcon';
 import { TARO_CARDS } from '../data/tarotConstants';
+
 import {
   ChatBubbleLeftRightIcon,
   SparklesIcon,
@@ -93,11 +94,14 @@ export default function TarotCounselingPage() {
           doc(db, 'users', user.uid),
           {
             editCount: newCount,
-            lastCounseling: {
-              question: userQuestion,
-              result: result,
-              date: new Date().toISOString(),
-              card: pickedCard.kor,
+            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            dailyUsage: {
+              [new Date().toLocaleDateString('en-CA')]: increment(1),
+            },
+            usageHistory: {
+              tarotCounseling: {
+                [new Date().toLocaleDateString('en-CA')]: { [userQuestion]: increment(1) },
+              },
             },
           },
           { merge: true },
@@ -245,7 +249,7 @@ export default function TarotCounselingPage() {
     <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<TarotLoading />}
-      resultComponent={()=><ViewTarotResult cardPicked={cardPicked}/>}
+      resultComponent={() => <ViewTarotResult cardPicked={cardPicked} />}
       loadingTime={0}
     />
   );

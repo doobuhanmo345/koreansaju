@@ -222,7 +222,7 @@ export default function BasicAnaPage() {
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     try {
-      const data = userData || {};
+      const data = userData.usageHistory || {};
 
       // 2. 캐시 체크 (기존 로직 유지)
       if (data.ZApiAnalysis) {
@@ -269,13 +269,16 @@ export default function BasicAnaPage() {
           saju: saju,
           editCount: newCount,
           lastEditDate: todayDate,
-          ZApiAnalysis: {
-            result: result, // 스테이트가 아닌 변수를 직접 저장
-            date: todayDate,
-            saju: saju,
-            language: language,
-            gender: gender,
+          usageHistory: {
+            ZApiAnalysis: {
+              result: result, // 스테이트가 아닌 변수를 직접 저장
+              date: todayDate,
+              saju: saju,
+              language: language,
+              gender: gender,
+            },
           },
+
           dailyUsage: {
             [todayDate]: increment(1),
           },
