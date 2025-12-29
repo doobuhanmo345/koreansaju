@@ -148,7 +148,7 @@ export default function TarotDailyPage() {
             onClick={() => setStep('selection')}
             className="w-full py-4 font-bold rounded-xl shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:-translate-y-1 transition-all"
           >
-            시작하기
+            {language === 'ko' ? '시작하기' : 'Get Started'}
           </button>
         </div>
       );
@@ -160,7 +160,9 @@ export default function TarotDailyPage() {
           {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>
         <p className="text-sm text-slate-500 ">
-          {language === 'ko' ? '가장 마음이 가는 한 장을 클릭하세요.' : ' Follow your heart, pick one of six cards'}
+          {language === 'ko'
+            ? '가장 마음이 가는 한 장을 클릭하세요.'
+            : ' Follow your heart, pick one of six cards'}
         </p>
         <div className="my-3">
           <CreditIcon num={-1} />

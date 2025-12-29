@@ -188,7 +188,7 @@ export default function TarotLovePage() {
               <>From the past to future, Check out the love and relationship status</>
             )}
           </p>
-          Love Fortune
+          
           <button
             onClick={() => setStep('type_select')}
             className="w-full py-4 bg-rose-500 text-white rounded-xl font-bold shadow-lg shadow-rose-100 dark:shadow-none"
