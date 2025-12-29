@@ -403,8 +403,9 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
          (예: 갑자일주가 월주에 관성이 강하면 모범생 기질이 강박으로, 식상이 강하면 응용력 있는 전문가로 변함)
       2. 일주가 가진 태생적 약점이 사주 전체의 오행(${maxOhaeng})이나 신살에 의해 어떻게 보완되거나 심화되는지 입체적으로 서술하세요.
       3. 대운의 흐름을 단순히 나열하지 말고, 일주라는 주인공이 각 대운(환경)을 지나며 어떻게 성장해왔는지 한 편의 이야기처럼 정제하여 서술하세요.
-
+    -언어: ${language === 'en' ? 'English' : 'Korean'}
     [SAJU DATA]
+
     - Birth: ${inputDate} (${inputGender})
     - Day Pillar (Core): ${pillars.day}
     - Month Pillar (Environment): ${pillars.month}

@@ -58,7 +58,7 @@ export default function TarotDailyPage() {
 1. 전체를 <div class="report-container">로 감싸세요.
 
 2. **인트로 영역**:
-   - <h2 class="section-title-h2"> ${language === 'ko' ? '오늘의 운세' : 'Luck of the day'}</h2>
+   - <h2 class="section-title-h2"> ${language === 'ko' ? '오늘의 운세' : 'Tarot Luck of the day'}</h2>
 
 3. **섹션 1: 오늘의 에너지 (Card Symbolism)**
    - <div class="report-card active"> 내부에 작성.
@@ -126,10 +126,20 @@ export default function TarotDailyPage() {
       return (
         <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in duration-700">
           <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4">
-            오늘의 <span className="text-indigo-600">타로 운명</span>
+            {language === 'ko' ? (
+              <>
+                오늘의 <span className="text-indigo-600">타로 운명</span>
+              </>
+            ) : (
+              <>
+                Tarot <span className="text-indigo-600">Luck of the day</span>
+              </>
+            )}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mb-8 text-sm break-keep">
-            무의식이 이끄는 오늘의 조언을 확인해보세요.
+            {language === 'ko'
+              ? '무의식이 이끄는 오늘의 조언을 확인해보세요.'
+              : 'Follow your unconsciousness to check out the advice of the day.'}
           </p>
           <div className="mb-10 flex justify-center">
             <SparklesIcon className="w-20 h-20 text-indigo-400 opacity-50" />
@@ -146,8 +156,12 @@ export default function TarotDailyPage() {
 
     return (
       <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
-        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">카드를 골라주세요</h3>
-        <p className="text-sm text-slate-500 ">가장 마음이 가는 한 장을 클릭하세요.</p>
+        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+          {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
+        </h3>
+        <p className="text-sm text-slate-500 ">
+          {language === 'ko' ? '가장 마음이 가는 한 장을 클릭하세요.' : ' Follow your heart, pick one of six cards'}
+        </p>
         <div className="my-3">
           <CreditIcon num={-1} />
         </div>

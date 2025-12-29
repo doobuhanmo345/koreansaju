@@ -89,7 +89,7 @@ export default function ViewTarotResult({ cardPicked }) {
         100% {
           /* 3. 배경으로 물러남 (작아지면서 흐릿해짐) */
           transform: translate(0, 0) scale(1);
-          opacity: 0.2; /* 배경 느낌을 위해 투명도 낮춤 */
+          opacity: 0.1; /* 배경 느낌을 위해 투명도 낮춤 */
           z-index: -1;   /* 다른 UI 뒤로 보냄 */
         }
       }

@@ -33,26 +33,48 @@ export default function TarotLovePage() {
   const [step, setStep] = useState('intro'); // 'intro' | 'type_select' | 'selection'
   const [loveType, setLoveType] = useState(''); // 'solo' | 'couple' | 'reunion'
 
-  const loveTypes = [
-    {
-      id: 'solo',
-      label: '새로운 인연 (솔로)',
-      icon: <UserMinusIcon className="w-6 h-6" />,
-      desc: '앞으로 다가올 인연과 나의 매력',
-    },
-    {
-      id: 'couple',
-      label: '현재 관계 (커플)',
-      icon: <UserGroupIcon className="w-6 h-6" />,
-      desc: '상대방의 속마음과 우리의 미래',
-    },
-    {
-      id: 'reunion',
-      label: '과거의 인연 (재회)',
-      icon: <ArrowsRightLeftIcon className="w-6 h-6" />,
-      desc: '그 사람의 소식과 다시 만날 가능성',
-    },
-  ];
+  const loveTypes =
+    language === 'ko'
+      ? [
+          {
+            id: 'solo',
+            label: '새로운 인연 (솔로)',
+            icon: <UserMinusIcon className="w-6 h-6" />,
+            desc: '앞으로 다가올 인연과 나의 매력',
+          },
+          {
+            id: 'couple',
+            label: '현재 관계 (커플)',
+            icon: <UserGroupIcon className="w-6 h-6" />,
+            desc: '상대방의 속마음과 우리의 미래',
+          },
+          {
+            id: 'reunion',
+            label: '과거의 인연 (재회)',
+            icon: <ArrowsRightLeftIcon className="w-6 h-6" />,
+            desc: '그 사람의 소식과 다시 만날 가능성',
+          },
+        ]
+      : [
+          {
+            id: 'solo',
+            label: 'New relationship',
+            icon: <UserMinusIcon className="w-6 h-6" />,
+            desc: 'upcoming fate connection and my charm',
+          },
+          {
+            id: 'couple',
+            label: 'Current relationship',
+            icon: <UserGroupIcon className="w-6 h-6" />,
+            desc: ' opponent’s inner thoughts and our future',
+          },
+          {
+            id: 'reunion',
+            label: 'Past relationship',
+            icon: <ArrowsRightLeftIcon className="w-6 h-6" />,
+            desc: 'Possibility of meeting again',
+          },
+        ];
 
   const handleCardPick = async (onStart, index) => {
     if (!user) return alert(UI_TEXT.loginReq[language]);
@@ -153,18 +175,25 @@ export default function TarotLovePage() {
             <HeartIcon className="w-10 h-10 text-rose-500 fill-rose-500 animate-pulse" />
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-4">
-            타로 연애운
+            {language === 'ko' ? '타로 연애운' : 'Love Fortune'}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mb-10 text-sm">
-            새로운 인연에서 부터 현재 인연, 그리고 과거의 인연
-            <br />
-            궁합이나 관계에 대해서 알려드립니다.
+            {language === 'ko' ? (
+              <>
+                새로운 인연에서 부터 현재 인연, 그리고 과거의 인연
+                <br />
+                궁합이나 관계에 대해서 알려드립니다.
+              </>
+            ) : (
+              <>From the past to future, Check out the love and relationship status</>
+            )}
           </p>
+          Love Fortune
           <button
             onClick={() => setStep('type_select')}
             className="w-full py-4 bg-rose-500 text-white rounded-xl font-bold shadow-lg shadow-rose-100 dark:shadow-none"
           >
-            사랑의 해답 찾기
+            {language === 'ko' ? '사랑의 해답 찾기' : 'Finding the answer to love'}
           </button>
         </div>
       );
@@ -203,11 +232,13 @@ export default function TarotLovePage() {
 
     return (
       <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
-        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-          카드를 골라주세요
+        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+          {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          가장 마음이 가는 한 장을 클릭하세요.
+        <p className="text-sm text-slate-500 ">
+          {language === 'ko'
+            ? '가장 마음이 가는 한 장을 클릭하세요.'
+            : ' Follow your heart, pick one of six cards'}
         </p>
         <div className="my-3">
           <CreditIcon num={-1} />

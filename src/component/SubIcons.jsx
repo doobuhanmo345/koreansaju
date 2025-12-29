@@ -32,7 +32,7 @@ const SubIcons = () => {
       ),
     },
     {
-      label: `${ko ? '타로 연애운' : 'Tarot Love'}`,
+      label: `${ko ? '타로 연애운' : 'Tarot Love fortune'}`,
       path: '/tarotlove',
       isReady: true,
       plusCredit: false,
@@ -86,7 +86,7 @@ const SubIcons = () => {
         <button
           key={item.path}
           onClick={() => handleNavigation(item)}
-          className={`flex-shrink-0 mx-2 w-[72px] group flex flex-col items-center gap-2 transition-all outline-none ${
+          className={`group flex flex-col items-center gap-2 transition-all outline-none ${
             !item.isReady ? 'cursor-not-allowed' : ''
           }`}
         >

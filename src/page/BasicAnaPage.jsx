@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
-import ViewResult from './ViewResult';
+
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import EnergyBadge from '../ui/EnergyBadge';
 import { useAuthContext } from '../context/useAuthContext';
@@ -10,10 +10,8 @@ import { setDoc, doc, increment } from 'firebase/firestore';
 import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
-import { classNames } from '../utils/helpers';
+import { classNames, getEng } from '../utils/helpers';
 import { TicketIcon, LockClosedIcon } from '@heroicons/react/24/outline';
-import { langPrompt, hanja } from '../data/constants';
-import { getPillars } from '../utils/sajuCalculator';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
@@ -24,71 +22,84 @@ import CreditIcon from '../ui/CreditIcon';
 
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);
-  const [isFinished, setIsFinished] = useState(false); // 전체 로딩 완료 여부
+  const [isFinished, setIsFinished] = useState(false);
   const containerRef = useRef(null);
-
+  const { language } = useLanguage();
   const pillars = sajuData?.pillars;
-  const age = sajuData?.currentAge || 0;
+  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const daewoonArr = sajuData?.daewoonList || [];
   const currentDae = daewoonArr.find((d) => d.isCurrent)?.name || '현재';
-  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const shinsalList = sajuData?.myShinsal?.map((s) => s.name) || [];
   const primaryShinsal = shinsalList.length > 0 ? shinsalList[0] : '특별한';
 
-  const loadingTexts = [
-    `당신이 태어난 순간의 천기(天氣)를 종이 위에 정밀하게 옮기고 있습니다...`,
-    `본질을 상징하는 '${pillars?.day || '일주'}'의 글자를 통해 당신의 타고난 성질을 읽어냅니다.`,
-    `내면의 에너지를 관장하는 '${pillars?.month || '월지'}'의 계절감을 분석하여 기질의 온도를 측정합니다.`,
-    `나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) — 다섯 기운의 과다와 결핍을 확인합니다.`,
-    `가장 강한 기운인 '${primaryShinsal}'의 에너지가 당신의 성격 형성에 미친 영향력을 추적합니다.`,
-    `겉으로 드러나는 사회적 모습과 내면에 감춰진 본능적인 욕구 사이의 균형점을 살핍니다.`,
-    `당신이 타인에게 비치는 첫인상과 시간이 흐를수록 드러나는 진면목의 차이를 분석 중입니다.`,
-    `사주 원국의 '${pillars?.year || '년주'}'에 새겨진 조상의 기운과 가문으로부터 이어진 성향을 훑습니다.`,
-    `정신적 지향점을 보여주는 천간의 합과 현실적 행동 양식을 보여주는 지지의 충을 대조합니다.`,
-    `인생 전체를 지배하는 10년 단위의 거대한 파동, '${currentDae}' 대운의 위치를 좌표 위에 찍습니다.`,
-    `과거 대운에서 겪었을 심리적 변화의 궤적을 복기하며 현재의 기운과 연결하고 있습니다.`,
-    `잠재된 재능을 깨우는 '${shinsalList.length > 1 ? shinsalList[1] : '특별한'}' 기운이 인생의 어느 시점에 개화할지 계산합니다.`,
-    `당신의 성격이 인간관계와 사회적 성취에 어떤 방식으로 작용하는지 메커니즘을 파악합니다.`,
-    `결핍된 오행을 채우기 위해 당신이 무의식적으로 추구해온 가치관과 행동 패턴을 분석 중입니다.`,
-    `현재 대운 리스트에 기록된 10단계의 운명 궤적을 훑으며 장기적인 성장의 방향성을 잡습니다.`,
-    `타고난 팔자의 한계를 넘어서는 '개운(開運)'의 실마리를 당신의 명식 안에서 찾고 있습니다.`,
-    `논리적인 분석을 넘어 당신의 영혼이 가진 고유한 색깔과 울림을 문장으로 정리합니다.`,
-    `인생의 파도 속에서도 변치 않을 당신만의 강력한 무기와 자산이 무엇인지 특정하고 있습니다.`,
-    `복잡하게 얽힌 운명의 실타래에서 당신이라는 존재의 핵심 키워드를 도출합니다.`,
-    `이제 사자가 기록한 당신의 본질과 평생의 흐름에 대한 종합 분석 보고서를 완성합니다.`,
-  ];
+  const loadingTexts =
+    language === 'ko'
+      ? [
+          `당신이 태어난 순간의 천기(天氣)를 종이 위에 정밀하게 옮기고 있습니다...`,
+          `본질을 상징하는 '${pillars?.day || '일주'}'의 글자를 통해 당신의 타고난 성질을 읽어냅니다.`,
+          `내면의 에너지를 관장하는 '${pillars?.month || '월지'}'의 계절감을 분석하여 기질의 온도를 측정합니다.`,
+          `나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) — 다섯 기운의 과다와 결핍을 확인합니다.`,
+          `가장 강한 기운인 '${primaryShinsal}'의 에너지가 당신의 성격 형성에 미친 영향력을 추적합니다.`,
+          `겉으로 드러나는 사회적 모습과 내면에 감춰진 본능적인 욕구 사이의 균형점을 살핍니다.`,
+          `당신이 타인에게 비치는 첫인상과 시간이 흐를수록 드러나는 진면목의 차이를 분석 중입니다.`,
+          `사주 원국의 '${pillars?.year || '년주'}'에 새겨진 조상의 기운과 가문으로부터 이어진 성향을 훑습니다.`,
+          `정신적 지향점을 보여주는 천간의 합과 현실적 행동 양식을 보여주는 지지의 충을 대조합니다.`,
+          `인생 전체를 지배하는 10년 단위의 거대한 파동, '${currentDae}' 대운의 위치를 좌표 위에 찍습니다.`,
+          `과거 대운에서 겪었을 심리적 변화의 궤적을 복기하며 현재의 기운과 연결하고 있습니다.`,
+          `잠재된 재능을 깨우는 '${shinsalList.length > 1 ? shinsalList[1] : '특별한'}' 기운이 인생의 어느 시점에 개화할지 계산합니다.`,
+          `당신의 성격이 인간관계와 사회적 성취에 어떤 방식으로 작용하는지 메커니즘을 파악합니다.`,
+          `결핍된 오행을 채우기 위해 당신이 무의식적으로 추구해온 가치관과 행동 패턴을 분석 중입니다.`,
+          `현재 대운 리스트에 기록된 10단계의 운명 궤적을 훑으며 장기적인 성장의 방향성을 잡습니다.`,
+          `타고난 팔자의 한계를 넘어서는 '개운(開運)'의 실마리를 당신의 명식 안에서 찾고 있습니다.`,
+          `논리적인 분석을 넘어 당신의 영혼이 가진 고유한 색깔과 울림을 문장으로 정리합니다.`,
+          `인생의 파도 속에서도 변치 않을 당신만의 강력한 무기와 자산이 무엇인지 특정하고 있습니다.`,
+          `복잡하게 얽힌 운명의 실타래에서 당신이라는 존재의 핵심 키워드를 도출합니다.`,
+          `이제 사자가 기록한 당신의 본질과 평생의 흐름에 대한 종합 분석 보고서를 완성합니다.`,
+        ]
+      : [
+          `Precisely transcribing the celestial energies of the moment you were born onto paper...`,
+          `Deciphering your innate nature through the characters of '${getEng(pillars?.day[0]) + getEng(pillars?.day[1]) || 'Day Pillar'}', which symbolizes your essence.`,
+          `Measuring the temperature of your temperament by analyzing the seasonal influence of '${getEng(pillars?.month[0]) + getEng(pillars?.month[1]) || 'Month Pillar'}', the ruler of your inner energy.`,
+          `Wood (${counts.wood}), Fire (${counts.fire}), Earth (${counts.earth}), Metal (${counts.metal}), Water (${counts.water}) — identifying the balance and imbalance of the five elements.`,
+          `Tracing the influence of '${primaryShinsal}', your dominant energy, on the formation of your personality.`,
+          `Examining the equilibrium between your outward social persona and your hidden instinctive desires.`,
+          `Analyzing the difference between the first impression you project and the true self that emerges over time.`,
+          `Tracing ancestral energies and inherited traits etched within the '${getEng(pillars?.year[0]) + getEng(pillars?.year[1]) || 'Year Pillar'}' of your destiny chart.`,
+          `Contrasting the harmony of the 'Heavenly Stems' showing your mental aspirations with the clashes of the 'Earthly Branches' showing your realistic behavior.`,
+          `Mapping your position within the '${getEng(currentDae[0]) + getEng(currentDae[1])}' Daewoon—the great 10-year wave that governs the flow of your life.`,
+          `Connecting current energies by reviewing the trajectory of psychological changes experienced in past cycles.`,
+          `Calculating when the hidden talent of '${shinsalList.length > 1 ? shinsalList[1] : 'Special'}' energy will bloom in your life.`,
+          `Grasping the mechanism of how your personality drives your relationships and social achievements.`,
+          `Analyzing the values and behavioral patterns you subconsciously pursue to compensate for lacking elements.`,
+          `Scanning the 10 stages of your destiny's trajectory recorded in the current Daewoon list to set a long-term direction.`,
+          `Searching within your birth chart for the clues to 'Gae-un' (opening your luck) that transcends the limits of innate fate.`,
+          `Going beyond logical analysis to organize the unique color and resonance of your soul into sentences.`,
+          `Identifying your most powerful weapons and assets that will remain steadfast amidst the waves of life.`,
+          `Deriving the core keywords of your existence from the complex, intertwined threads of destiny.`,
+          `Finalizing a comprehensive analysis report on your essence and lifelong flow, as recorded by the Saju master.`,
+        ];
 
-  // 스크롤 제어
   useEffect(() => {
     if (containerRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = containerRef.current;
-      const threshold = 100;
-      if (scrollHeight > clientHeight + scrollTop - threshold) {
-        containerRef.current.scrollTo({
-          top: scrollHeight - clientHeight + threshold,
-          behavior: 'smooth',
-        });
-      }
+      const { scrollHeight, clientHeight } = containerRef.current;
+      containerRef.current.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: 'smooth',
+      });
     }
   }, [displayedTexts]);
 
-  // 글자 단위 타이핑 로직 (커서 포함)
   useEffect(() => {
     if (!sajuData) return;
-
     let textIdx = 0;
     const addNextSentence = () => {
       if (textIdx >= loadingTexts.length) {
         setIsFinished(true);
         return;
       }
-
       const fullText = loadingTexts[textIdx];
       let charIdx = 0;
-
-      // 새 문장을 위한 빈 공간 추가
       setDisplayedTexts((prev) => [...prev, '']);
-
       const typeChar = () => {
         if (charIdx < fullText.length) {
           setDisplayedTexts((prev) => {
@@ -104,15 +115,13 @@ function SajuLoading({ sajuData }) {
           setTimeout(addNextSentence, 800);
         }
       };
-
       typeChar();
     };
-
     addNextSentence();
   }, [sajuData]);
 
   return (
-    <div className="flex flex-col items-center px-6 overflow-hidden ">
+    <div className="flex flex-col items-center px-6 overflow-hidden">
       <svg className="absolute w-0 h-0 text-transparent">
         <filter id="paper-edge">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
@@ -126,8 +135,8 @@ function SajuLoading({ sajuData }) {
           className="relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-8 md:p-14 border border-stone-200/50 dark:border-slate-800 h-[500px] overflow-y-auto scrollbar-hide"
           style={{ filter: 'url(#paper-edge)' }}
         >
-          {/* 종이 배경 질감 (가로줄 제거됨) */}
-          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] z-0"></div>
+          {/* bg-fixed를 빼고 bg-repeat로 수정해서 스크롤 시 종이가 따라오게 함 */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none z-0"></div>
 
           <div className="relative z-10">
             <div className="flex flex-col items-center mb-10 opacity-40">
@@ -144,7 +153,6 @@ function SajuLoading({ sajuData }) {
                   <div key={idx} className="min-h-[28px] flex items-start py-1">
                     <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed break-keep">
                       {text}
-                      {/* 현재 타이핑 중인 문장에만 커서 표시 */}
                       {isCurrentTyping && (
                         <span className="inline-block w-[2px] h-[1.1em] bg-stone-500 ml-1 align-middle animate-cursor-blink" />
                       )}
@@ -160,29 +168,39 @@ function SajuLoading({ sajuData }) {
 
       <div className="mt-14 text-center">
         <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
-          운명의 실타래를 푸는 중입니다...
+          <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
+            {language === 'ko'
+              ? '운명의 실타래를 푸는 중입니다...'
+              : 'Untangling the threads of destiny...'}
+          </p>
         </p>
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
-        .font-handwriting { font-family: 'Nanum Pen Script', cursive; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  /* 폰트를 조금 더 굵은 '나눔 브러쉬(붓)' 체로 변경 */
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
+  
+  .font-handwriting { 
+    font-family: 'Nanum Brush Script', cursive; 
+    font-weight: 500; /* 조금 더 선명하게 */
+    letter-spacing: 0.02em; /* 가독성을 위해 자간 살짝 넓힘 */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 커서 깜빡임 애니메이션 */
-        @keyframes cursor-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .animate-cursor-blink {
-          animation: cursor-blink 0.8s infinite;
-        }
-      `}</style>
+  /* 커서 깜빡임 애니메이션 */
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-cursor-blink {
+    animation: cursor-blink 0.8s infinite;
+  }
+`}</style>
     </div>
   );
 }
-
 // 2. 메인 페이지 컴포넌트
 export default function BasicAnaPage() {
   const [sajuData, setSajuData] = useState(null);
@@ -256,7 +274,7 @@ export default function BasicAnaPage() {
       // 4. API 호출 및 결과 확보 (핵심: 변수 'result'에 직접 할당)
       const prompt = createPromptForGemini(sajuData, language);
       const result = await fetchGeminiAnalysis(prompt); // API 결과 대기
-      console.log('promp:', prompt); // 확인용
+
       if (!result) {
         throw new Error('API로부터 결과를 받지 못했습니다.');
       }
@@ -304,6 +322,7 @@ export default function BasicAnaPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
+    return <SajuLoading sajuData={sajuData} />;
     if (loading) {
       return <SajuLoading sajuData={sajuData} />;
     }

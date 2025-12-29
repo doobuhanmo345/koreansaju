@@ -151,7 +151,7 @@ export default function MobileNav() {
                 path: '/tarotdaily',
               },
               {
-                name: isKo ? '타로 연애운' : 'Tarot Love',
+                name: isKo ? '타로 연애운' : 'Tarot Love Fortune',
                 desc: isKo ? '사랑과 설렘의 향방' : 'Direction of Love',
                 icon: <SparklesIcon className="w-6 h-6" />,
                 path: '/tarotlove',

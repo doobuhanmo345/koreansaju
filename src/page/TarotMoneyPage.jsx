@@ -189,11 +189,13 @@ export default function TarotMoneyPage() {
 
     return (
       <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
-        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-          카드를 골라주세요
+        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+          {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          가장 마음이 가는 한 장을 클릭하세요.
+        <p className="text-sm text-slate-500 ">
+          {language === 'ko'
+            ? '가장 마음이 가는 한 장을 클릭하세요.'
+            : ' Follow your heart, pick one of six cards'}
         </p>
         <div className="my-3">
           <CreditIcon num={-1} />
