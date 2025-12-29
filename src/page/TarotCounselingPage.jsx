@@ -156,14 +156,21 @@ export default function TarotCounselingPage() {
         <div className="max-w-lg mx-auto pt-10 px-6 animate-in slide-in-from-bottom duration-500">
           <div className="flex items-center gap-2 mb-4 text-purple-600">
             <PencilSquareIcon className="w-5 h-5" />
-            <h3 className="font-bold">당신의 고민을 들려주세요</h3>
+            <h3 className="font-bold">
+              {language === 'ko' ? '당신의 고민을 들려주세요' : 'Tell us what is on your mind'}
+            </h3>
           </div>
           <textarea
             value={userQuestion}
             onChange={(e) => setUserQuestion(e.target.value)}
-            placeholder="예: 요즘 대인관계 때문에 너무 힘들어요. 어떻게 하면 좋을까요?"
+            placeholder={
+              language === 'ko'
+                ? '예: 요즘 대인관계 때문에 너무 힘들어요. 어떻게 하면 좋을까요?'
+                : 'Ex: I am struggling with relationships lately. What should I do?'
+            }
             className="w-full h-40 p-4 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 focus:border-transparent outline-none resize-none text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-inner placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
+
           <button
             onClick={() => userQuestion.trim() && setStep('selection')}
             disabled={!userQuestion.trim()}
@@ -174,7 +181,7 @@ export default function TarotCounselingPage() {
                 : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed',
             )}
           >
-            카드로 해답 찾기
+            {language === 'ko' ? '카드로 해답 찾기' : 'Find answers through cards'}
           </button>
         </div>
       );

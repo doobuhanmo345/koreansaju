@@ -203,7 +203,7 @@ export default function TarotLovePage() {
       return (
         <div className="max-w-lg mx-auto pt-10 px-6 animate-in slide-in-from-right duration-500">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">
-            현재 당신의 상황은?
+            {language === 'ko' ? '현재 당신의 상황은?' : 'What is your current situation?'}
           </h3>
           <div className="space-y-4">
             {loveTypes.map((t) => (
