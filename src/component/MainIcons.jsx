@@ -6,7 +6,7 @@ const MainIcons = () => {
   const ko = language === 'ko';
   const navItems = [
     {
-      label: `${ko ? '오늘의 운세' : 'luck of the day'}`,
+      label: `${ko ? '오늘의 운세' : 'Luck of the day'}`,
       path: '/todaysluck',
       icon: (
         <path

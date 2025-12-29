@@ -360,7 +360,7 @@ export default function TodaysLuckPage() {
               : 'bg-gradient-to-r from-amber-600 to-amber-600 hover:from-amber-500 hover:to-amber-500 text-white shadow-amber-200 hover:-translate-y-1',
           )}
         >
-          {language === 'ko' ? '오늘의 운세 확인하기' : 'Check my luck of the day'}
+          {language === 'ko' ? '오늘의 운세 확인하기' : 'Check my Luck of the day'}
 
           {isDailyDone ? (
             <div className="flex items-center gabackdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
@@ -390,10 +390,7 @@ export default function TodaysLuckPage() {
           <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
             <ExclamationTriangleIcon className="w-4 h-4" />{' '}
             {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
-            {language === 'ko'
-              ? '크레딧이 부족합니다..'
-              : 'not Enough credit'}
-           
+            {language === 'ko' ? '크레딧이 부족합니다..' : 'not Enough credit'}
           </p>
         ) : (
           <p className="mt-4 text-[11px] text-slate-400">
