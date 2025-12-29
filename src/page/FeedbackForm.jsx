@@ -7,6 +7,7 @@ import { useLanguage } from '../context/useLanguageContext';
 export default function FeedbackForm({}) {
   const [formData, setFormData] = useState({
     email: '',
+    country: '',
     disappointing: '',
     liked: '',
     newMenu: '',
@@ -110,6 +111,19 @@ export default function FeedbackForm({}) {
             value={formData.email}
             onChange={handleChange}
             placeholder="example@email.com"
+            required
+          />
+        </div>
+        {/* 2. 국가 입력 필드 추가 */}
+        <div>
+          <label className={labelStyle}>{language === 'ko' ? '국가' : 'Country'}</label>
+          <input
+            type="text"
+            name="country"
+            className={inputStyle}
+            value={formData.country}
+            onChange={handleChange}
+            placeholder={language === 'ko' ? '예: 대한민국' : 'e.g. United States'}
             required
           />
         </div>
