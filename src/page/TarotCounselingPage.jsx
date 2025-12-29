@@ -128,18 +128,24 @@ export default function TarotCounselingPage() {
             <ChatBubbleLeftRightIcon className="w-10 h-10 text-purple-600" />
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4">
-            심층 고민 상담
+            {language === 'ko' ? '심층 고민 상담' : 'In-depth tarot counselling'}
           </h2>
           <p className="text-slate-500 mb-10 text-sm break-keep">
-            말 못 할 고민이 있나요? 78장의 카드가
-            <br />
-            당신의 마음을 읽고 해답을 찾아드립니다.
+            {language === 'ko' ? (
+              <>
+                말 못 할 고민이 있나요? 78장의 카드가
+                <br />
+                당신의 마음을 읽고 해답을 찾아드립니다.
+              </>
+            ) : (
+              'Is there any unspoken concerns? 78 Tarot card will rad your mind and provide answers'
+            )}
           </p>
           <button
             onClick={() => setStep('input')}
             className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold shadow-lg"
           >
-            상담 시작하기
+            {language === 'ko' ? '상담 시작하기' : 'Get Started'}
           </button>
         </div>
       );
@@ -248,7 +254,6 @@ export default function TarotCounselingPage() {
       </div>
     );
   };
-
 
   // 추가: 로딩이 시작될 때도 상단으로 올리고 싶다면 (선택 사항)
   useEffect(() => {

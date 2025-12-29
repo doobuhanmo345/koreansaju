@@ -25,13 +25,22 @@ export default function TarotMoneyPage() {
   const [step, setStep] = useState('intro'); // 'intro' | 'category' | 'selection'
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const moneyCategories = [
-    { id: 'business', label: '사업 및 장사운', icon: '💼' },
-    { id: 'investment', label: '주식 및 재테크', icon: '📈' },
-    { id: 'job', label: '취업 및 승진', icon: '🏆' },
-    { id: 'unexpected', label: '뜻밖의 횡재수', icon: '🎁' },
-    { id: 'general', label: '전반적인 흐름', icon: '💰' },
-  ];
+  const moneyCategories =
+    language === 'ko'
+      ? [
+          { id: 'business', label: '사업 및 장사운', icon: '💼' },
+          { id: 'investment', label: '주식 및 재테크', icon: '📈' },
+          { id: 'job', label: '취업 및 승진', icon: '🏆' },
+          { id: 'unexpected', label: '뜻밖의 횡재수', icon: '🎁' },
+          { id: 'general', label: '전반적인 흐름', icon: '💰' },
+        ]
+      : [
+          { id: 'business', label: 'Business Fortune', icon: '💼' },
+          { id: 'investment', label: 'Financial Management Fortune', icon: '📈' },
+          { id: 'job', label: 'Career Fortune', icon: '🏆' },
+          { id: 'unexpected', label: 'Unexpected windful', icon: '🎁' },
+          { id: 'general', label: 'General wealth flow', icon: '💰' },
+        ];
 
   const getMoneyDeck = () => {
     const pentacles = TARO_CARDS.filter((c) => c.suite === 'Pentacles');
@@ -140,18 +149,24 @@ export default function TarotMoneyPage() {
             <BanknotesIcon className="w-10 h-10 text-amber-600" />
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-4">
-            황금빛 금전운 분석
+            {language === 'ko' ? '황금빛 금전운 분석' : 'Tarot Wealth luck'}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mb-10 text-sm">
-            당신의 재물 흐름과 부의 기회를
-            <br />
-            타로 카드로 정밀하게 진단해 드립니다.
+            {language === 'ko' ? (
+              <>
+                당신의 재물 흐름과 부의 기회를
+                <br />
+                타로 카드로 정밀하게 진단해 드립니다.
+              </>
+            ) : (
+              ' Diagnose my wealth flow and opportunities'
+            )}
           </p>
           <button
             onClick={() => setStep('category')}
             className="w-full py-4 bg-amber-500 text-white rounded-md font-bold shadow-lg shadow-amber-200 dark:shadow-none"
           >
-            나의 재물운 확인하기
+            {language === 'ko' ? '나의 재물운 확인하기' : 'Check my wealth luck'}
           </button>
         </div>
       );
@@ -161,7 +176,9 @@ export default function TarotMoneyPage() {
       return (
         <div className="max-w-lg mx-auto pt-10 px-6 animate-in slide-in-from-right duration-500">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">
-            어떤 금전운이 궁금하신가요?
+            {language === 'ko'
+              ? '어떤 금전운이 궁금하신가요?'
+              : 'What would you like to know about your wealth luck?'}
           </h3>
           <div className="space-y-3">
             {moneyCategories.map((cat) => (
