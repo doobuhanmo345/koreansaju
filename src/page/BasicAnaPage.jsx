@@ -182,8 +182,14 @@ function SajuLoading({ sajuData }) {
   
   .font-handwriting { 
     font-family: 'Nanum Brush Script', cursive; 
-    font-weight: 500; /* 조금 더 선명하게 */
-    letter-spacing: 0.02em; /* 가독성을 위해 자간 살짝 넓힘 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translateZ(0); /* GPU 가속으로 렌더링 최적화 */
+    text-rendering: optimizeLegibility;
+    font-weight: 500; /* 너무 얇으면 모바일에서 깨져 보이니 두께를 올림 */
+    letter-spacing: -0.03em; 
+    line-height: 1.6;
+    word-break: keep-all;
   }
   
   .scrollbar-hide::-webkit-scrollbar { display: none; }
