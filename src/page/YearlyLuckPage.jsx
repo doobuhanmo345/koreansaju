@@ -16,72 +16,79 @@ import { langPrompt, hanja } from '../data/constants';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { classNames } from '../utils/helpers';
-
+import { getEng } from '../utils/helpers';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
 import CreditIcon from '../ui/CreditIcon';
 // 1. 로딩 컴포넌트
-
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);
-  const [isFinished, setIsFinished] = useState(false); // 전체 로딩 완료 여부
+  const [isFinished, setIsFinished] = useState(false);
   const containerRef = useRef(null);
-
+  const { language } = useLanguage();
   const pillars = sajuData?.pillars;
-  const age = sajuData?.currentAge || 0;
+  const age = sajuData?.age;
+  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const daewoonArr = sajuData?.daewoonList || [];
   const currentDae = daewoonArr.find((d) => d.isCurrent)?.name || '현재';
-  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const shinsalList = sajuData?.myShinsal?.map((s) => s.name) || [];
   const primaryShinsal = shinsalList.length > 0 ? shinsalList[0] : '특별한';
 
-  const loadingTexts = [
-    `2026년 병오년(丙午年), 붉은 말의 해가 ${pillars?.year || '해당'}년생 당신에게 오고 있습니다...`,
-    `가장 먼저 당신의 타고난 바탕인 '${pillars?.day || '일주'}'의 고유한 성질을 읽어냅니다.`,
-    `현재 ${age}세의 생애 주기를 관통하는 '${currentDae}' 대운의 거대한 흐름을 확인합니다.`,
-    `사주 원국의 나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) 배합비를 분석합니다.`,
-    `일지 '${pillars?.day?.charAt(1) || ''}'와 2026년의 '오화(午火)'가 만날 때 발생하는 에너지 파동을 계산합니다.`,
-    `당신에게 깃든 '${primaryShinsal}'의 기운이 새해의 성취에 어떤 동력이 될지 살핍니다.`,
-    `사주에 기록된 ${shinsalList.length}가지 신살들이 병오년의 빛을 받아 활성화되는 시점을 찾습니다.`,
-    `현재 대운인 '${currentDae}'의 환경이 2026년이라는 새로운 시간을 어떻게 맞이하는지 분석합니다.`,
-    `일간 '${pillars?.day?.charAt(0) || ''}'과 새해 천간 '병화(丙火)'의 관계를 통해 명예운의 향방을 도출합니다.`,
-    `지지의 글자들이 일으키는 합(合)과 충(沖)의 작용을 통해 올해의 변동성을 미리 시뮬레이션합니다.`,
-    `사주 원국에서 다소 부족했던 오행의 기운이 2026년의 열기로 어떻게 보완되는지 확인합니다.`,
-    `상반기(봄/여름) — 당신의 '${pillars?.month || ''}'월 기운이 새해의 시작과 맺는 인연을 분석 중입니다.`,
-    `하반기(가을/겨울) — '${pillars?.time || ''}'시에 담긴 결과물들이 병오년의 결실로 이어지는지 추적합니다.`,
-    `이제 사자가 기록한 당신만을 위한 2026년 병오년 종합 분석 리포트를 완성합니다.`,
-  ];
+  const loadingTexts =
+    language === 'ko'
+      ? [
+          `2026년 병오년(丙午年), 붉은 말의 해가 ${pillars?.year || '해당'}년생 당신에게 오고 있습니다...`,
+          `가장 먼저 당신의 타고난 바탕인 '${pillars?.day || '일주'}'의 고유한 성질을 읽어냅니다.`,
+          `현재 ${age}세의 생애 주기를 관통하는 '${currentDae}' 대운의 거대한 흐름을 확인합니다.`,
+          `사주 원국의 나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) 배합비를 분석합니다.`,
+          `일지 '${pillars?.day?.charAt(1) || ''}'와 2026년의 '오화(午火)'가 만날 때 발생하는 에너지 파동을 계산합니다.`,
+          `당신에게 깃든 '${primaryShinsal}'의 기운이 새해의 성취에 어떤 동력이 될지 살핍니다.`,
+          `사주에 기록된 ${shinsalList.length}가지 신살들이 병오년의 빛을 받아 활성화되는 시점을 찾습니다.`,
+          `현재 대운인 '${currentDae}'의 환경이 2026년이라는 새로운 시간을 어떻게 맞이하는지 분석합니다.`,
+          `일간 '${pillars?.day?.charAt(0) || ''}'과 새해 천간 '병화(丙火)'의 관계를 통해 명예운의 향방을 도출합니다.`,
+          `지지의 글자들이 일으키는 합(合)과 충(沖)의 작용을 통해 올해의 변동성을 미리 시뮬레이션합니다.`,
+          `사주 원국에서 다소 부족했던 오행의 기운이 2026년의 열기로 어떻게 보완되는지 확인합니다.`,
+          `상반기(봄/여름) — 당신의 '${pillars?.month || ''}'월 기운이 새해의 시작과 맺는 인연을 분석 중입니다.`,
+          `하반기(가을/겨울) — '${pillars?.time || ''}'시에 담긴 결과물들이 병오년의 결실로 이어지는지 추적합니다.`,
+          `이제 사자가 기록한 당신만을 위한 2026년 병오년 종합 분석 리포트를 완성합니다.`,
+        ]
+      : [
+          `2026, the Year of the Red Horse (Byeong-o), is approaching those born in the year of ${getEng(pillars?.year[0]) + getEng(pillars?.year[1]) || 'Day Pillar'}...`,
+          `First, I am reading the unique characteristics of '${getEng(pillars?.day[0]) + getEng(pillars?.day[1]) || 'Day Pillar'}', the very foundation of your existence.`,
+          `Identifying the great flow of the '${getEng(currentDae[0]) + getEng(currentDae[1])}' Daewoon, which penetrates your current life cycle at age ${age}.`,
+          `Analyzing the composition ratio of Wood (${counts.wood}), Fire (${counts.fire}), Earth (${counts.earth}), Metal (${counts.metal}), and Water (${counts.water}) in your original birth chart.`,
+          `Calculating the energy fluctuations that occur when your Day Branch '${getEng(pillars?.day[1]) || ''}' meets the 'Oh-hwa' (Fire energy) of 2026.`,
+          `Observing how the energy of '${primaryShinsal}' within you will serve as a driving force for achievement in the new year.`,
+          `Locating the exact moments when the ${shinsalList.length} different Shinsal (stars) in your chart activate under the light of the Byeong-o year.`,
+          `Analyzing how the environment of your current '${getEng(currentDae[0]) + getEng(currentDae[1])}' Daewoon welcomes the new era of 2026.`,
+          `Tracing the direction of your honor and reputation through the relationship between your Day Stem '${getEng(pillars?.month[0]) || ''}' and the New Year’s Heavenly Stem, 'Byeong-hwa'.`,
+          `Simulating this year's volatility in advance through the interactions of 'Hap' (harmonies) and 'Chung' (clashes) triggered by the Earthly Branches.`,
+          `Checking how the elements that were somewhat lacking in your original chart are supplemented by the intense heat of 2026.`,
+          `First Half (Spring/Summer) — Analyzing the connection between the energy of your '${getEng(pillars?.month[0]) + getEng(pillars?.month[1]) || ''}' month and the beginning of the new year.`,
+          `Second Half (Autumn/Winter) — Tracing whether the potentials contained in your '${getEng(pillars?.time[0]) + getEng(pillars?.time[1]) || ''}' hour lead to the fruits of the Byeong-o year.`,
+          `Finalizing the comprehensive 2026 Byeong-o Year Analysis Report, recorded by the Saju master exclusively for you.`,
+        ];
 
-  // 스크롤 제어
   useEffect(() => {
     if (containerRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = containerRef.current;
-      const threshold = 100;
-      if (scrollHeight > clientHeight + scrollTop - threshold) {
-        containerRef.current.scrollTo({
-          top: scrollHeight - clientHeight + threshold,
-          behavior: 'smooth',
-        });
-      }
+      const { scrollHeight, clientHeight } = containerRef.current;
+      containerRef.current.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: 'smooth',
+      });
     }
   }, [displayedTexts]);
 
-  // 글자 단위 타이핑 로직 (커서 포함)
   useEffect(() => {
     if (!sajuData) return;
-
     let textIdx = 0;
     const addNextSentence = () => {
       if (textIdx >= loadingTexts.length) {
         setIsFinished(true);
         return;
       }
-
       const fullText = loadingTexts[textIdx];
       let charIdx = 0;
-
-      // 새 문장을 위한 빈 공간 추가
       setDisplayedTexts((prev) => [...prev, '']);
-
       const typeChar = () => {
         if (charIdx < fullText.length) {
           setDisplayedTexts((prev) => {
@@ -97,10 +104,8 @@ function SajuLoading({ sajuData }) {
           setTimeout(addNextSentence, 800);
         }
       };
-
       typeChar();
     };
-
     addNextSentence();
   }, [sajuData]);
 
@@ -119,8 +124,8 @@ function SajuLoading({ sajuData }) {
           className="relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-8 md:p-14 border border-stone-200/50 dark:border-slate-800 h-[500px] overflow-y-auto scrollbar-hide"
           style={{ filter: 'url(#paper-edge)' }}
         >
-          {/* 종이 배경 질감 (가로줄 제거됨) */}
-          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] z-0"></div>
+          {/* bg-fixed를 빼고 bg-repeat로 수정해서 스크롤 시 종이가 따라오게 함 */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none z-0"></div>
 
           <div className="relative z-10">
             <div className="flex flex-col items-center mb-10 opacity-40">
@@ -137,7 +142,6 @@ function SajuLoading({ sajuData }) {
                   <div key={idx} className="min-h-[28px] flex items-start py-1">
                     <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed break-keep">
                       {text}
-                      {/* 현재 타이핑 중인 문장에만 커서 표시 */}
                       {isCurrentTyping && (
                         <span className="inline-block w-[2px] h-[1.1em] bg-stone-500 ml-1 align-middle animate-cursor-blink" />
                       )}
@@ -153,28 +157,40 @@ function SajuLoading({ sajuData }) {
 
       <div className="mt-14 text-center">
         <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
-          운명의 실타래를 푸는 중입니다...
+          <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
+            {language === 'ko'
+              ? '운명의 실타래를 푸는 중입니다...'
+              : 'Untangling the threads of destiny...'}
+          </p>
         </p>
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
-        .font-handwriting { font-family: 'Nanum Pen Script', cursive; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  /* 폰트를 조금 더 굵은 '나눔 브러쉬(붓)' 체로 변경 */
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
+  
+  .font-handwriting { 
+    font-family: 'Nanum Brush Script', cursive; 
+    font-weight: 500; /* 조금 더 선명하게 */
+    letter-spacing: 0.02em; /* 가독성을 위해 자간 살짝 넓힘 */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 커서 깜빡임 애니메이션 */
-        @keyframes cursor-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .animate-cursor-blink {
-          animation: cursor-blink 0.8s infinite;
-        }
-      `}</style>
+  /* 커서 깜빡임 애니메이션 */
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-cursor-blink {
+    animation: cursor-blink 0.8s infinite;
+  }
+`}</style>
     </div>
   );
 }
+
 // 2. 메인 페이지 컴포넌트
 export default function YearlyLuckPage() {
   const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
@@ -291,6 +307,7 @@ export default function YearlyLuckPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
+    // return <SajuLoading sajuData={sajuData} />;
     if (loading) {
       return <SajuLoading sajuData={sajuData} />;
     }

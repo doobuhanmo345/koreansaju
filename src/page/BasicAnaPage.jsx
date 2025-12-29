@@ -322,7 +322,6 @@ export default function BasicAnaPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
-    return <SajuLoading sajuData={sajuData} />;
     if (loading) {
       return <SajuLoading sajuData={sajuData} />;
     }

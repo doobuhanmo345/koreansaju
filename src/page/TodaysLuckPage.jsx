@@ -19,69 +19,81 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import CreditIcon from '../ui/CreditIcon';
 import { calculateSajuData } from '../utils/sajuLogic';
+import { getEng } from '../utils/helpers';
 // 1. 로딩 컴포넌트
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);
-  const [isFinished, setIsFinished] = useState(false); // 전체 로딩 완료 여부
+  const [isFinished, setIsFinished] = useState(false);
   const containerRef = useRef(null);
-
+  const { language } = useLanguage();
   const pillars = sajuData?.pillars;
-  const age = sajuData?.currentAge || 0;
+  const age = sajuData?.age;
+  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const daewoonArr = sajuData?.daewoonList || [];
   const currentDae = daewoonArr.find((d) => d.isCurrent)?.name || '현재';
-  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
   const shinsalList = sajuData?.myShinsal?.map((s) => s.name) || [];
   const primaryShinsal = shinsalList.length > 0 ? shinsalList[0] : '특별한';
 
-  const loadingTexts = [
-    `하늘의 시간과 '${pillars?.day || '일주'}'의 기운이 만나는 오늘의 좌표를 계산합니다...`,
-    `본질인 '${pillars?.day || '신묘'}'의 기운과 오늘 일진(日辰)의 합충(合沖)을 정밀 대조 중입니다.`,
-    `오늘 당신의 기운을 보완할 행운의 색상을 찾기 위해 오행의 과다를 분석합니다.`,
-    `나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) 중 오늘 가장 길한 에너지를 선별합니다.`,
-    `당신에게 행운을 가져다줄 '최적의 방향'을 동서남북 방위학적 관점에서 추출하고 있습니다.`,
-    `재물운 분석 — '${pillars?.day?.charAt(0)}'금 일간이 오늘 만나는 편재와 정재의 흐름을 읽습니다.`,
-    `애정운 분석 — 당신에게 깃든 '${primaryShinsal}'의 매력이 오늘 타인에게 어떻게 비칠지 살핍니다.`,
-    `학업/사업운 — 현재의 '${currentDae}' 대운과 오늘 관성(官星)의 조화를 통해 효율성을 측정합니다.`,
-    `건강운 분석 — 오행의 균형이 깨지는 지점을 찾아 조심해야 할 신체 부위와 컨디션을 체크합니다.`,
-    `전체 데이터를 종합하여 당신의 오늘 운세 점수를 100점 만점 기준으로 산출하고 있습니다.`,
-    `현재의 파동이 내일로 이어지는 흐름을 미리 살피며, 내일의 전체적인 운의 고저를 확인합니다.`,
-    `내일의 운세는 수치보다 흐름에 집중하여, 당신이 맞이할 오전과 오후의 기운 변화를 추적합니다.`,
-    `현재 ${age}세의 생애 주기 내에서 오늘 하루가 갖는 운명적인 무게감을 분석 중입니다.`,
-    `당신을 도울 '귀인'의 방위와 에너지를 충전해줄 행운의 아이템을 선별하고 있습니다.`,
-    `오늘의 실수를 방지하고 내일의 기회를 선점할 수 있는 개인화 가이드를 구성합니다.`,
-    `이제 사자가 기록한 당신의 오늘 종합 점수와 내일의 운세 리포트를 완성합니다.`,
-  ];
-  // 스크롤 제어
+  const loadingTexts =
+    language === 'ko'
+      ? [
+          `하늘의 시간과 '${pillars?.day || '일주'}'의 기운이 만나는 오늘의 좌표를 계산합니다...`,
+          `본질인 '${pillars?.day || '신묘'}'의 기운과 오늘 일진(日辰)의 합충(合沖)을 정밀 대조 중입니다.`,
+          `오늘 당신의 기운을 보완할 행운의 색상을 찾기 위해 오행의 과다를 분석합니다.`,
+          `나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) 중 오늘 가장 길한 에너지를 선별합니다.`,
+          `당신에게 행운을 가져다줄 '최적의 방향'을 동서남북 방위학적 관점에서 추출하고 있습니다.`,
+          `재물운 분석 — '${pillars?.day?.charAt(0)}'금 일간이 오늘 만나는 편재와 정재의 흐름을 읽습니다.`,
+          `애정운 분석 — 당신에게 깃든 '${primaryShinsal}'의 매력이 오늘 타인에게 어떻게 비칠지 살핍니다.`,
+          `학업/사업운 — 현재의 '${currentDae}' 대운과 오늘 관성(官星)의 조화를 통해 효율성을 측정합니다.`,
+          `건강운 분석 — 오행의 균형이 깨지는 지점을 찾아 조심해야 할 신체 부위와 컨디션을 체크합니다.`,
+          `전체 데이터를 종합하여 당신의 오늘 운세 점수를 100점 만점 기준으로 산출하고 있습니다.`,
+          `현재의 파동이 내일로 이어지는 흐름을 미리 살피며, 내일의 전체적인 운의 고저를 확인합니다.`,
+          `내일의 운세는 수치보다 흐름에 집중하여, 당신이 맞이할 오전과 오후의 기운 변화를 추적합니다.`,
+          `현재 ${age}세의 생애 주기 내에서 오늘 하루가 갖는 운명적인 무게감을 분석 중입니다.`,
+          `당신을 도울 '귀인'의 방위와 에너지를 충전해줄 행운의 아이템을 선별하고 있습니다.`,
+          `오늘의 실수를 방지하고 내일의 기회를 선점할 수 있는 개인화 가이드를 구성합니다.`,
+          `이제 사자가 기록한 당신의 오늘 종합 점수와 내일의 운세 리포트를 완성합니다.`,
+        ]
+      : [
+          `Calculating today's coordinates where the celestial time meets the energy of your '${getEng(pillars?.day[0]) + getEng(pillars?.day[1]) || 'Day Pillar'}'...`,
+          `Precisely contrasting the harmony and clashes between your essence, '${getEng(pillars?.day[0]) + getEng(pillars?.day[1]) || 'Day Pillar'}', and today's daily energy...`,
+          `Analyzing the balance of the Five Elements to find the lucky color that will supplement your energy today...`,
+          `Selecting today's most auspicious energy among Wood (${counts.wood}), Fire (${counts.fire}), Earth (${counts.earth}), Metal (${counts.metal}), and Water (${counts.water}).`,
+          `Extracting the 'Optimal Direction' that will bring you luck from a compass-based geomantic perspective.`,
+          `Wealth Analysis — Reading the flow of 'Pyeon-jae' (indirect wealth) and 'Jeong-jae' (direct wealth) for your '${getEng(pillars?.day[1])}' Day Stem.`,
+          `Love & Relationship Analysis — Observing how the charm of '${primaryShinsal}' within you will project to others today.`,
+          `Work & Education Analysis — Measuring efficiency through the harmony of your '${getEng(currentDae[0]) + getEng(currentDae[1])}' Daewoon and today’s 'Gwan-seong' (career star).`,
+          `Health Analysis — Checking for potential physical vulnerabilities by identifying where the balance of elements might be disrupted.`,
+          `Synthesizing all data to calculate your daily fortune score on a scale of 100.`,
+          `Checking tomorrow's overall fortune levels by observing how current vibrations carry over into the next day.`,
+          `Tracing the energy shifts between tomorrow's morning and afternoon, focusing on the flow rather than just numbers.`,
+          `Analyzing the fateful significance of today within your current life cycle at age ${age}.`,
+          `Identifying the direction of the 'Gui-in' (Nobleman/Helper) and selecting lucky items to recharge your energy.`,
+          `Constructing a personalized guide to prevent today's mistakes and seize tomorrow's opportunities.`,
+          `Finalizing today's comprehensive score and tomorrow's fortune report, as recorded by the Saju master.`,
+        ];
+
   useEffect(() => {
     if (containerRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = containerRef.current;
-      const threshold = 100;
-      if (scrollHeight > clientHeight + scrollTop - threshold) {
-        containerRef.current.scrollTo({
-          top: scrollHeight - clientHeight + threshold,
-          behavior: 'smooth',
-        });
-      }
+      const { scrollHeight, clientHeight } = containerRef.current;
+      containerRef.current.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: 'smooth',
+      });
     }
   }, [displayedTexts]);
 
-  // 글자 단위 타이핑 로직 (커서 포함)
   useEffect(() => {
     if (!sajuData) return;
-
     let textIdx = 0;
     const addNextSentence = () => {
       if (textIdx >= loadingTexts.length) {
         setIsFinished(true);
         return;
       }
-
       const fullText = loadingTexts[textIdx];
       let charIdx = 0;
-
-      // 새 문장을 위한 빈 공간 추가
       setDisplayedTexts((prev) => [...prev, '']);
-
       const typeChar = () => {
         if (charIdx < fullText.length) {
           setDisplayedTexts((prev) => {
@@ -97,10 +109,8 @@ function SajuLoading({ sajuData }) {
           setTimeout(addNextSentence, 800);
         }
       };
-
       typeChar();
     };
-
     addNextSentence();
   }, [sajuData]);
 
@@ -119,8 +129,8 @@ function SajuLoading({ sajuData }) {
           className="relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-8 md:p-14 border border-stone-200/50 dark:border-slate-800 h-[500px] overflow-y-auto scrollbar-hide"
           style={{ filter: 'url(#paper-edge)' }}
         >
-          {/* 종이 배경 질감 (가로줄 제거됨) */}
-          <div className="absolute inset-0 opacity-[0.15] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] z-0"></div>
+          {/* bg-fixed를 빼고 bg-repeat로 수정해서 스크롤 시 종이가 따라오게 함 */}
+          <div className="absolute inset-0 opacity-[0.15] pointer-events-none z-0"></div>
 
           <div className="relative z-10">
             <div className="flex flex-col items-center mb-10 opacity-40">
@@ -137,7 +147,6 @@ function SajuLoading({ sajuData }) {
                   <div key={idx} className="min-h-[28px] flex items-start py-1">
                     <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed break-keep">
                       {text}
-                      {/* 현재 타이핑 중인 문장에만 커서 표시 */}
                       {isCurrentTyping && (
                         <span className="inline-block w-[2px] h-[1.1em] bg-stone-500 ml-1 align-middle animate-cursor-blink" />
                       )}
@@ -153,25 +162,36 @@ function SajuLoading({ sajuData }) {
 
       <div className="mt-14 text-center">
         <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
-          운명의 실타래를 푸는 중입니다...
+          <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
+            {language === 'ko'
+              ? '운명의 실타래를 푸는 중입니다...'
+              : 'Untangling the threads of destiny...'}
+          </p>
         </p>
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
-        .font-handwriting { font-family: 'Nanum Pen Script', cursive; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  /* 폰트를 조금 더 굵은 '나눔 브러쉬(붓)' 체로 변경 */
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
+  
+  .font-handwriting { 
+    font-family: 'Nanum Brush Script', cursive; 
+    font-weight: 500; /* 조금 더 선명하게 */
+    letter-spacing: 0.02em; /* 가독성을 위해 자간 살짝 넓힘 */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 커서 깜빡임 애니메이션 */
-        @keyframes cursor-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .animate-cursor-blink {
-          animation: cursor-blink 0.8s infinite;
-        }
-      `}</style>
+  /* 커서 깜빡임 애니메이션 */
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-cursor-blink {
+    animation: cursor-blink 0.8s infinite;
+  }
+`}</style>
     </div>
   );
 }
@@ -414,6 +434,7 @@ export default function TodaysLuckPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
+  // return <SajuLoading sajuData={sajuData} />;
 
   return (
     <AnalysisStepContainer
