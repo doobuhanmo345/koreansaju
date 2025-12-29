@@ -95,17 +95,22 @@ export default function AdminPage() {
   const docRef = doc(db, 'users', user.uid);
 
   // --- 데이터 개별 삭제 로직 (요청하신 신규 기능) ---
-  const handleRemoveField = async (fieldName, label) => {
-    if (!confirm(`${label} 데이터를 삭제하시겠습니까?`)) return;
-    try {
-      await updateDoc(docRef, { [fieldName]: deleteField() });
-      alert(`${label} 데이터가 삭제되었습니다.`);
-    } catch (error) {
-      console.error(`${label} 삭제 실패:`, error);
-      alert('삭제 중 오류가 발생했습니다.');
-    }
-  };
+const handleRemoveField = async (fieldName, label) => {
+  // 중첩 경로 생성: "usageHistory.fieldName"
+  const nestedPath = `usageHistory.${fieldName}`;
 
+  if (!confirm(`${label} 데이터를 삭제하시겠습니까?`)) return;
+
+  try {
+    await updateDoc(docRef, {
+      [nestedPath]: deleteField(),
+    });
+    alert(`${label} 데이터가 삭제되었습니다.`);
+  } catch (error) {
+    console.error(`${label} 삭제 실패:`, error);
+    alert('삭제 중 오류가 발생했습니다.');
+  }
+};
   // --- 기존 기능 로직 (유지) ---
   const handleDeleteCookie = async () => {
     if (!confirm('ZCookie를 삭제하시겠습니까?')) return;
