@@ -68,7 +68,7 @@ export default function TarotMoneyPage() {
 1. 전체를 <div class="report-container">로 감싸세요.
 
 2. **인트로 영역**:
-   - <h2 class="section-title-h2">타로 금전운 - ${categoryLabel}</h2>
+   - <h2 class="section-title-h2">${language === 'ko' ? '타로 금전운' : 'Tarot wealth lcuk'} - ${categoryLabel}</h2>
 
 3. **섹션 1: 경제적 상징 (Financial Symbolism)**
    - <div class="report-card active"> 내부에 작성.
@@ -92,7 +92,7 @@ export default function TarotMoneyPage() {
 ### 🚫 절대 규칙
 1. 모든 마크다운(**, # 등) 사용 금지. 오직 순수 HTML 태그만 출력.
 2. 한자(Hanja) 사용 금지.
-3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}.
+3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}. 섹션 제목도 영어로 작성해줘.
 4. 어조: 냉철하고 전문적인 자산 관리사의 어조를 유지하면서도 희망적인 포인트를 짚어줄 것.
 
 [데이터]
@@ -190,12 +190,12 @@ export default function TarotMoneyPage() {
     return (
       <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
         <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
-          황금 카드를 뽑으세요
+          카드를 골라주세요
         </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">
-          무의식이 이끄는 곳에 부의 기회가 있습니다.
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          가장 마음이 가는 한 장을 클릭하세요.
         </p>
-        <div className="mb-4">
+        <div className="my-3">
           <CreditIcon num={-1} />
         </div>
 
@@ -260,6 +260,12 @@ export default function TarotMoneyPage() {
     );
   };
 
+  // 추가: 로딩이 시작될 때도 상단으로 올리고 싶다면 (선택 사항)
+  useEffect(() => {
+    if (loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [loading]);
   return (
     <AnalysisStepContainer
       guideContent={renderContent}

@@ -3,12 +3,14 @@ import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { useAuthContext } from '../context/useAuthContext';
 import { BellIcon, CheckIcon, XMarkIcon, InboxIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from './useLanguageContext';
 
 export default function NotificationList() {
   const { user } = useAuthContext();
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const language = useLanguage();
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -75,7 +77,7 @@ export default function NotificationList() {
           <div className="p-4 bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center">
             <span className="text-xs font-black text-gray-800 dark:text-white flex items-center gap-2">
               <BellIcon className="w-3.5 h-3.5 text-purple-500" />
-              알림
+              {language === 'ko' ? '알림' : 'Notification'}
             </span>
             <button onClick={() => setIsOpen(false)}>
               <XMarkIcon className="w-4 h-4 text-gray-400 hover:text-gray-600" />
@@ -116,7 +118,9 @@ export default function NotificationList() {
             ) : (
               <div className="py-8 flex flex-col items-center justify-center text-center">
                 <InboxIcon className="w-8 h-8 text-gray-200 mb-2" />
-                <p className="text-[11px] font-bold text-gray-400">알림이 없습니다.</p>
+                <p className="text-[11px] font-bold text-gray-400">
+                  {language === 'ko' ? '알림이 없습니다.' : 'No notifications.'}
+                </p>
               </div>
             )}
           </div>

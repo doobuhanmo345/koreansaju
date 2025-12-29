@@ -1,5 +1,8 @@
 import { SparklesIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../context/useLanguageContext';
+
 export default function TarotLoading({ cardPicked }) {
+  const { language } = useLanguage();
   return (
     <div className="flex flex-col items-center  px-6 overflow-hidden min-h-screen">
       {/* 1. 수직 축 회전 컨테이너 */}
@@ -43,8 +46,10 @@ export default function TarotLoading({ cardPicked }) {
         </div>
       </div>
 
-      <p className="mt-20 text-amber-600 font-serif italic text-sm animate-pulse">
-        카드를 해석중입니다...
+      <p className=" text-amber-600 font-serif italic text-sm animate-pulse">
+        <p className="mt-20 text-amber-600 font-serif italic text-sm animate-pulse">
+          {language === 'ko' ? '카드를 해석중입니다...' : 'Interpreting your cards...'}
+        </p>
       </p>
 
       <style

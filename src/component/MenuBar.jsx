@@ -145,16 +145,16 @@ export default function MobileNav() {
             subtitle: isKo ? '신비로운 타로' : 'Mystical Tarot',
             items: [
               {
-                name: isKo ? '타로 연애운' : 'Tarot Love',
-                desc: isKo ? '사랑과 설렘의 향방' : 'Direction of Love',
-                icon: <SparklesIcon className="w-6 h-6" />,
-                path: '/tarotlove',
-              },
-              {
                 name: isKo ? '타로 오늘의 운세' : 'Tarot Luck of the day',
                 desc: isKo ? '카드로 보는 오늘 하루' : 'Daily Tarot Reading',
                 icon: <CalendarDaysIcon className="w-6 h-6" />,
                 path: '/tarotdaily',
+              },
+              {
+                name: isKo ? '타로 연애운' : 'Tarot Love',
+                desc: isKo ? '사랑과 설렘의 향방' : 'Direction of Love',
+                icon: <SparklesIcon className="w-6 h-6" />,
+                path: '/tarotlove',
               },
               {
                 name: isKo ? '타로 금전운' : 'Tarot Wealth Luck',
