@@ -32,15 +32,27 @@ const FortuneBanner = () => {
             </div>
 
             {/* 텍스트 영역 */}
-            <div>
-              <h4 className="text-[15px] font-bold text-slate-900 dark:text-white">
-                포춘쿠키 열고{' '}
-                <span className="text-amber-600 dark:text-yellow-400">무료 크레딧</span> 받기!
-              </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
-                오늘의 행운이 기다리고 있어요
-              </p>
-            </div>
+            {language === 'ko' ? (
+              <div>
+                <h4 className="text-[15px] font-bold text-slate-900 dark:text-white">
+                                  포춘쿠키 열고  
+                  <span className="text-amber-600 dark:text-yellow-400">무료 크레딧</span> 받기!    
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                                  오늘의 행운이 기다리고 있어요
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h4 className="text-[15px] font-bold text-slate-900 dark:text-white">
+                  Open your Fortune Cookie &
+                  <span className="text-amber-600 dark:text-yellow-400"> Get Free Credits!</span>
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Your luck for today is waiting.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 버튼 영역: 노란색 버튼은 유지 (라이트/다크 모두 잘 어울림) */}

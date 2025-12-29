@@ -298,17 +298,23 @@ export default function YearlyLuckPage() {
     return (
       <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-          오행으로 읽는
+          {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}
           <br />
           <span className="relative text-red-600 dark:text-red-400">
-            평생운세 & 10년 대운
+            {language === 'ko' ? '2026 신년운세' : '2026 Fortune Preview'}
             <div className="absolute inset-0 bg-red-200/50 dark:bg-red-900/30 blur-md rounded-full scale-100"></div>
           </span>
         </h2>
         {/* 설명문구 */}
         <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
           <p className="text-sm">
-            <strong>붉은 말의 해</strong>, 사주에 숨겨진 월별 건강운, 재물운, 연애운.
+            {language === 'ko' ? (
+              <>
+                <strong>붉은 말의 해</strong>, 사주에 숨겨진 월별 건강운, 재물운, 연애운.
+              </>
+            ) : (
+              '2026 is Year of the Red Horse, find out the fortune upcoming of yours'
+            )}
           </p>
 
           <div>
@@ -334,8 +340,7 @@ export default function YearlyLuckPage() {
               : 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white shadow-red-200 hover:-translate-y-1',
           )}
         >
-          {loading ? '신년 대운 추출 중...' : '2026 신년 운세 보기'}
-
+          {language === 'ko' ? '2026 신년 운세 보기' : 'Check the 2026 Fortune'}
           {isYearDone ? (
             <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
               <span className="text-[9px] font-bold text-white uppercase">Free</span>
@@ -363,11 +368,13 @@ export default function YearlyLuckPage() {
           <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
             <ExclamationTriangleIcon className="w-4 h-4" />{' '}
             {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
-            크레딧이 부족합니다.
+            {language === 'ko' ? '크레딧이 부족합니다..' : 'not Enough credit'}
           </p>
         ) : (
           <p className="mt-4 text-[11px] text-slate-400">
-            이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+            {language === 'ko'
+              ? '이미 분석된 운세는 크래딧을 재소모하지 않습니다.'
+              : 'Fortunes that have already been analyzed do not use credits.'}
           </p>
         )}
       </div>

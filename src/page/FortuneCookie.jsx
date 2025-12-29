@@ -132,10 +132,12 @@ export default function FortuneCookie({}) {
       {step === 'intro' ? (
         <div className="flex flex-col items-center text-center px-6 animate-in fade-in zoom-in-95 duration-700">
           <p className="mb-2 text-slate-800 dark:text-white mb-space-y-4 text-slate-600 dark:text-slate-400 text-sm leading-relaxed break-keep">
-            포춘쿠키로 운세 보고 최대 5 크레딧 추가 획득!
+            {language === 'ko'
+              ? '포춘쿠키로 운세 보고 최대 5 크레딧 추가 획득!'
+              : 'Check your fortune and get up to 5 bonus credits!'}
           </p>
           <div>
-            <CreditIcon num={`최대 +5`} />
+            <CreditIcon num={language === 'ko' ? '최대 +5' : 'Max +5 '} />
           </div>
           <div className="m-auto max-w-sm rounded-2xl overflow-hidden ">
             <img

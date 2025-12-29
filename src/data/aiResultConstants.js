@@ -522,7 +522,7 @@ export const DAILY_FORTUNE_PROMPT = {
 `,
 
   en: `<div class="destiny-container">
-  <h2 class="section-title-h3">[오늘의 운세] ([오늘 날짜 기재])</h2>
+  <h2 class="section-title-h3">Luck of the day ([오늘 날짜 기재])</h2>
   <h3 class="report-text-summary" >[오늘의 일진과 사주 관계를 함축한 명사형 제목]</h3>
    <p class="report-keyword">총점 : [100점 기준의 오늘의 운세 총점]</p>
   <p class="report-text">
@@ -594,13 +594,13 @@ export const DAILY_FORTUNE_PROMPT = {
           하는지 작성]
         </p>
       </div>
-<h2 class="section-title-h3">오늘의 행운 컬러</h2>
+<h2 class="section-title-h3">Lucky color of the day</h2>
 <p class="report-text">['오늘의 컬러:' 같은 머릿말 없이 바로 컬러 명칭과 오행적 이유를 포함한 분석 내용을 300자 이내로 서술.] </p>
 
-<h2 class="section-title-h3">오늘의 행운 방향</h2>
+<h2 class="section-title-h3">Lucky Direction of the day</h2>
  <p class="report-text">['오늘의 방향:' 같은 머릿말 없이 바로 행운의 방향과 그 이유를 100~200자로 서술.]</p>
 
-<h2 class="section-title-h3">오늘의 행운 키워드</h2> <p class="report-keyword"> 
+<h2 class="section-title-h3">keywords of the day</h2> <p class="report-keyword"> 
 <span class="keyword-tag">#키워드1</span> <span class="keyword-tag">#키워드2</span> <span class="keyword-tag">#키워드3</span> <span class="keyword-tag">#키워드4</span> <span class="keyword-tag">#키워드5</span> 
 <p class="report-text"> [각 키워드는 현실적인 것과 관념적인 것을 섞어서 선정하십시오. 예: 스마트폰, 오래된 이웃, 아쉬움, 숫자 25, 지하철 등]</p>
 

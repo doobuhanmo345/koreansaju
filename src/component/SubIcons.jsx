@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/useLanguageContext';
 
 const SubIcons = () => {
   const navigate = useNavigate();
-
+  const { language } = useLanguage();
+  const ko = language === 'ko';
   const subNavItems = [
     {
-      label: '포춘쿠키',
+      label: `${ko ? '포춘 쿠키' : 'Fortune Cookie'}`,
       path: '/fortunecookie',
       isReady: true,
       plusCredit: true, // 포춘쿠키에만 크레딧 뱃지 활성화
@@ -18,20 +20,7 @@ const SubIcons = () => {
       ),
     },
     {
-      label: '타로 연애운',
-      path: '/tarotlove',
-      isReady: true,
-      plusCredit: false,
-      icon: (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-        />
-      ),
-    },
-    {
-      label: '타로 오늘의운세',
+      label: `${ko ? '타로 오늘의 운세' : 'Tarot Luck of the day'}`,
       path: '/tarotdaily',
       isReady: true,
       icon: (
@@ -43,7 +32,21 @@ const SubIcons = () => {
       ),
     },
     {
-      label: '타로금전운',
+      label: `${ko ? '타로 연애운' : 'Tarot Love'}`,
+      path: '/tarotlove',
+      isReady: true,
+      plusCredit: false,
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+        />
+      ),
+    },
+
+    {
+      label: `${ko ? '타로 금전운' : 'Tarot Wealth Luck'}`,
       path: '/tarotmoney',
       isReady: true,
       icon: (
@@ -56,7 +59,7 @@ const SubIcons = () => {
     },
 
     {
-      label: '타로고민상담',
+      label: `${ko ? '타로 고민상담' : 'Tarot Counseling'}`,
       path: '/tarotcounseling',
       isReady: true,
       icon: (

@@ -115,25 +115,25 @@ export default function MobileNav() {
                 path: '/basic',
               },
               {
-                name: isKo ? '오늘의 운세' : "Today's Luck",
+                name: isKo ? '오늘의 운세' : 'Luck of the day',
                 desc: isKo ? '오늘 하루 나의 기운 확인' : 'Daily Energy Check',
                 icon: <CalendarDaysIcon className="w-6 h-6" />,
                 path: '/todaysluck',
               },
               {
-                name: isKo ? '신년 운세' : 'New Year Luck',
+                name: isKo ? '신년 운세' : '2026 Fortune',
                 desc: isKo ? '병오년 한 해의 흐름' : 'Flow of the Year',
                 icon: <SparklesIcon className="w-6 h-6" />,
                 path: '/2026luck',
               },
               {
-                name: isKo ? '궁합 보기' : 'Compatibility',
+                name: isKo ? '궁합 보기' : 'Chemistry',
                 desc: isKo ? '상대방과의 에너지 조화' : 'Match with Others',
                 icon: <UserPlusIcon className="w-6 h-6" />,
                 path: '/match',
               },
               {
-                name: isKo ? '재물운 분석' : 'Wealth Analysis',
+                name: isKo ? '재물운 분석' : 'Wealth Luck',
                 desc: isKo ? '타고난 재복과 부의 흐름' : 'Your innate wealth and financial flow',
                 // 돈이 쌓이는 느낌의 아이콘 (CircleStackIcon 또는 BanknotesIcon)
                 icon: <CircleStackIcon className="w-6 h-6" />,
@@ -151,13 +151,13 @@ export default function MobileNav() {
                 path: '/tarotlove',
               },
               {
-                name: isKo ? '타로 오늘의 운세' : "Tarot Today's Luck",
+                name: isKo ? '타로 오늘의 운세' : 'Tarot Luck of the day',
                 desc: isKo ? '카드로 보는 오늘 하루' : 'Daily Tarot Reading',
                 icon: <CalendarDaysIcon className="w-6 h-6" />,
                 path: '/tarotdaily',
               },
               {
-                name: isKo ? '타로 금전운' : 'Tarot Wealth',
+                name: isKo ? '타로 금전운' : 'Tarot Wealth Luck',
                 desc: isKo ? '나의 재물과 풍요의 흐름' : 'Flow of Wealth',
                 icon: <CircleStackIcon className="w-6 h-6" />,
                 path: '/tarotmoney',
@@ -249,7 +249,7 @@ export default function MobileNav() {
                   {/* 프로필 카드 UI 영역 */}
                   <div className="relative overflow-hidden p-6 rounded-[2rem] bg-white dark:bg-[#1a1a2e] text-slate-800 dark:text-white shadow-xl border border-slate-100 dark:border-white/5 group transition-colors">
                     {/* 배경 그라데이션 광원 효과 */}
-                  
+
                     <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-50 dark:bg-purple-600/10 rounded-full blur-[60px]" />
 
                     <div className="relative z-10">
@@ -302,7 +302,7 @@ export default function MobileNav() {
                               </span>
                               <span className="font-semibold text-slate-700 dark:text-white/90">
                                 {userData?.isTimeUnknown ? (
-                                  formatBirth(userData?.birthDate).slice(0,-10)
+                                  formatBirth(userData?.birthDate).slice(0, -10)
                                 ) : (
                                   <div
                                     dangerouslySetInnerHTML={{

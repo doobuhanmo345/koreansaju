@@ -200,8 +200,6 @@ export default function App() {
     }
   };
 
-  
-
   // 분석 완료 여부 체크 (버튼 상태용)
   const todayStr = new Date().toLocaleDateString('en-CA');
   const nextYear = new Date().getFullYear() + 1;
@@ -213,7 +211,6 @@ export default function App() {
   };
 
   const dbUser = userData;
-
 
   const handleShareImg = async (id) => {
     const el = document.getElementById(id);
@@ -598,10 +595,14 @@ export default function App() {
       <div class="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 mb-3">
         <div class="mb-6 ml-1 text-left">
           <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-            타고난 기운을 분석한 1:1 정밀 리포트
+            {language === 'ko'
+              ? '타고난 기운을 분석한 1:1 정밀 리포트'
+              : 'Report based on my innate energy '}
           </p>
           <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-            당신의 명식으로 풀어낸 맞춤 운세
+            {language === 'ko'
+              ? '당신의 명식으로 풀어낸 맞춤 운세'
+              : 'Personlised Korean Saju report'}
           </h2>
         </div>
         {/* 아이콘 */}
@@ -610,10 +611,12 @@ export default function App() {
       <div class="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 mb-3">
         <div class="mb-6 ml-1 text-left">
           <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-            내 마음의 소리에 귀 기울이는 시간
+            {language === 'ko'
+              ? '내 마음의 소리에 귀 기울이는 시간'
+              : 'Time to listen to my inner sound'}
           </p>
           <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-            감성 운세
+            {language === 'ko' ? '감성 운세' : 'Emotional Fortune'}
           </h2>
         </div>
         {/* 아이콘 */}

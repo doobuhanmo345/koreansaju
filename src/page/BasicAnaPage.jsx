@@ -314,18 +314,24 @@ export default function BasicAnaPage() {
         <div>
           {/* 타이틀: 매일의 흐름을 강조 */}
           <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-            오행으로 읽는
+            {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}
             <br />
             <span className=" relative text-sky-600 dark:text-sky-500">
-              평생운세 & 10년 대운
+              {language === 'ko' ? '평생운세 & 10년 대운' : 'Saju Analysis'}
               <div className="absolute inset-0 bg-sky-200/50 dark:bg-sky-800/60 blur-md rounded-full scale-100"></div>
             </span>
           </h2>
           {/* 설명문구: 줄줄이 쓰지 않고 핵심만 */}
           <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
             <p className="text-sm">
-              <strong>타고난 운명</strong>과 <strong>10년마다 찾아오는 변화의 시기</strong>, 당신의
-              운명 지도 분석.
+              {language === 'ko' ? (
+                <>
+                  <strong>타고난 운명</strong>과 <strong>10년마다 찾아오는 변화의 시기</strong>,
+                  당신의 운명 지도 분석.
+                </>
+              ) : (
+                'My innate color and the period of change that comes every ten years. Analyzing your destiny map.'
+              )}
             </p>
             <div>
               <CreditIcon num={-1} />
@@ -352,7 +358,7 @@ export default function BasicAnaPage() {
               : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-200 hover:-translate-y-1',
           )}
         >
-          {loading ? '기운 분석 중...' : '평생 운세 보기'}
+          {language === 'ko' ? '평생 운세 보기' : 'Anaysis Saju'}
 
           {isMainDone ? (
             <div className="flex items-center gabackdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
@@ -382,11 +388,13 @@ export default function BasicAnaPage() {
           <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
             <ExclamationTriangleIcon className="w-4 h-4" />{' '}
             {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
-            크레딧이 부족합니다.
+            {language === 'ko' ? '크레딧이 부족합니다..' : 'not Enough credit'}
           </p>
         ) : (
           <p className="mt-4 text-[11px] text-slate-400">
-            이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+            {language === 'ko'
+              ? '이미 분석된 운세는 크래딧을 재소모하지 않습니다.'
+              : 'Fortunes that have already been analyzed do not use credits.'}
           </p>
         )}
       </div>

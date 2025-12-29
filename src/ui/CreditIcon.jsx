@@ -1,5 +1,7 @@
 import { BoltIcon } from '@heroicons/react/24/outline';
-export default function CreditIcon({num}) {
+import { useLanguage } from '../context/useLanguageContext';
+export default function CreditIcon({ num }) {
+  const { language } = useLanguage();
   return (
     <span
       className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 
@@ -10,7 +12,9 @@ export default function CreditIcon({num}) {
 
       <span className="tracking-tight">
         {num}
-        <span className="text-[11px] opacity-80 ml-0.5 font-medium">크레딧</span>
+        <span className="text-[11px] opacity-80 ml-0.5 font-medium">
+          {language === 'ko' ? '크레딧' : 'credit'}
+        </span>
       </span>
     </span>
   );

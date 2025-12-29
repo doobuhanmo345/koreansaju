@@ -551,19 +551,7 @@ export default function Wealth({}) {
             )}
           </button>
 
-          {isLocked && !isAnalysisDone && (
-            <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
-              <ExclamationTriangleIcon className="w-4 h-4" />
-              {language === 'ko' ? '크레딧이 부족합니다.' : 'Not enough credits.'}
-            </p>
-          )}
-          {!isAnalysisDone && !isLocked && (
-            <p className="mt-4 text-[11px] text-slate-400">
-              {language === 'ko'
-                ? '이미 분석된 운세는 크레딧을 재소모하지 않습니다.'
-                : 'Analysis already done does not consume credits again.'}
-            </p>
-          )}
+         
         </div>
       )}
       {/* ================================================= */}
@@ -904,11 +892,13 @@ export default function Wealth({}) {
             <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
               <ExclamationTriangleIcon className="w-4 h-4" />{' '}
               {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
-              크레딧이 부족합니다.
+              {language === 'ko' ? '크레딧이 부족합니다..' : 'not Enough credit'}
             </p>
           ) : (
             <p className="mt-4 text-[11px] text-slate-400">
-              이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+              {language === 'ko'
+                ? '이미 분석된 운세는 크래딧을 재소모하지 않습니다.'
+                : 'Fortunes that have already been analyzed do not use credits.'}
             </p>
           )}
         </div>

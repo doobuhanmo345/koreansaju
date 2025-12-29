@@ -314,19 +314,26 @@ export default function TodaysLuckPage() {
         <div>
           {/* 타이틀: 매일의 흐름을 강조 */}
           <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-            사자가 읽어주는
+            {language === 'ko' ? '사자가 읽어주는' : "by Saza's Saju reading"}
+
             <br />
             <span className=" relative text-amber-600 dark:text-amber-500">
-              당신의 오늘
+              {language === 'ko' ? '당신의 오늘' : 'Luck of the day'}
               <div className="absolute inset-0 bg-amber-200/50 dark:bg-amber-800/60 blur-md rounded-full scale-100"></div>
             </span>
           </h2>
           {/* 설명문구: 줄줄이 쓰지 않고 핵심만 */}
           <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
             <p className="text-sm">
-              사주로 보는
-              <strong>오늘의 재물운, 연애운</strong>부터 <strong>오늘의 방향과 컬러</strong>까지!
-              운명 지도 분석.
+              {language === 'ko' ? (
+                <>
+                  사주로 보는
+                  <strong>오늘의 재물운, 연애운</strong>부터 <strong>오늘의 방향과 컬러</strong>
+                  까지! 운명 지도 분석.
+                </>
+              ) : (
+                'Including ‘Total score’, ‘Daily short report: Wealth, Love etc.’, ‘Lucky color, direction, keywords of the day’'
+              )}
             </p>
             <div>
               <CreditIcon num={-1} />
@@ -353,7 +360,7 @@ export default function TodaysLuckPage() {
               : 'bg-gradient-to-r from-amber-600 to-amber-600 hover:from-amber-500 hover:to-amber-500 text-white shadow-amber-200 hover:-translate-y-1',
           )}
         >
-          {loading ? '기운 분석 중...' : '오늘의 운세 확인하기'}
+          {language === 'ko' ? '오늘의 운세 확인하기' : 'Check my luck of the day'}
 
           {isDailyDone ? (
             <div className="flex items-center gabackdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
@@ -383,11 +390,16 @@ export default function TodaysLuckPage() {
           <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
             <ExclamationTriangleIcon className="w-4 h-4" />{' '}
             {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
-            크레딧이 부족합니다.
+            {language === 'ko'
+              ? '크레딧이 부족합니다..'
+              : 'not Enough credit'}
+           
           </p>
         ) : (
           <p className="mt-4 text-[11px] text-slate-400">
-            이미 분석된 운세는 크래딧을 재소모하지 않습니다.
+            {language === 'ko'
+              ? '이미 분석된 운세는 크래딧을 재소모하지 않습니다.'
+              : 'Fortunes that have already been analyzed do not use credits.'}
           </p>
         )}
       </div>

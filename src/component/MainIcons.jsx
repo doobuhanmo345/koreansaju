@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-
+import { useLanguage } from '../context/useLanguageContext';
 const MainIcons = () => {
   const navigate = useNavigate();
-
+  const { language } = useLanguage();
+  const ko = language === 'ko';
   const navItems = [
     {
-      label: '오늘의 운세',
+      label: `${ko ? '오늘의 운세' : 'luck of the day'}`,
       path: '/todaysluck',
       icon: (
         <path
@@ -16,7 +17,7 @@ const MainIcons = () => {
       ),
     },
     {
-      label: '신년운세',
+      label: `${ko ? '신년 운세' : '2026 Fortune'}`,
       path: '/2026luck',
       isLimited: true, // Limited 표시 여부 추가
       icon: (
@@ -28,7 +29,7 @@ const MainIcons = () => {
       ),
     },
     {
-      label: '궁합보기',
+      label: `${ko ? '궁합 보기' : 'Chemistry'}`,
       path: '/match',
       icon: (
         <path
@@ -39,7 +40,7 @@ const MainIcons = () => {
       ),
     },
     {
-      label: '재물운',
+      label: `${ko ? '재물운' : 'Wealth Luck'}`,
       path: '/wealth',
       icon: (
         <path
