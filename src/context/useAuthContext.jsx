@@ -3,6 +3,7 @@ import { doc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { login, logout, onUserStateChange, db } from '../lib/firebase';
 import { useLanguage } from './useLanguageContext';
 import { getRomanizedIlju } from '../data/sajuInt';
+import { calculateSaju } from '../utils/sajuCalculator';
 const AuthContext = createContext();
 
 export function AuthContextProvider({ children }) {
@@ -10,12 +11,16 @@ export function AuthContextProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const { language } = useLanguage();
   // 1. 안전하게 변수 계산 (userData가 있을 때만)
+
   const iljuImagePath = useMemo(() => {
     if (!userData || !userData.saju) return '/images/ilju/default.png'; // 기본값 설정
-
-    const safeIlju = userData.saju.sky1
-      ? getRomanizedIlju(userData.saju.sky1 + userData.saju.grd1)
-      : 'gapja';
+    const data = calculateSaju(
+      userData?.birthDate,
+      userData?.gender,
+      userData?.isTimeUnknown,
+      language,
+    );
+    const safeIlju = data.sky1 ? getRomanizedIlju(data.sky1 + data.grd1) : 'gapja';
 
     const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
 
@@ -139,7 +144,6 @@ export function AuthContextProvider({ children }) {
             lastLoginDate: todayStr,
             gender: 'female',
             birthDate: '',
-            birthTime: '',
             createdAt: new Date().toISOString(),
           };
 

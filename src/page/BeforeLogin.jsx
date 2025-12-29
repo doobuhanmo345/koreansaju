@@ -16,6 +16,7 @@ import {
 import { useLanguage } from '../context/useLanguageContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { calculateSaju } from '../utils/sajuCalculator';
 
 export default function BeforeLogin() {
   const { user, userData, login } = useAuthContext();
@@ -132,14 +133,18 @@ export default function BeforeLogin() {
     // 3. 데이터 포맷팅
     const pad = (n) => n.toString().padStart(2, '0');
     const formattedBirthdate = `${year}-${pad(month)}-${pad(day)}T${timeUnknown ? '12' : pad(hour)}:${timeUnknown ? '00' : pad(minute)}`;
+    const birthDate = new Date(formattedBirthdate);
+    const saju = calculateSaju(birthDate, gender, timeUnknown, language);
+    console.log(formattedBirthdate, birthData, saju);
 
     try {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
         gender: gender,
         birthDate: formattedBirthdate,
-        timeUnknown: timeUnknown,
+        isTimeUnknown: timeUnknown,
         updatedAt: new Date(),
+        saju: saju,
       });
       window.location.href = '/';
     } catch (error) {
@@ -160,7 +165,7 @@ export default function BeforeLogin() {
   const isInvalid = isDateInvalid || isTimeInvalid;
 
   return (
-    <div className=" bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-white dark:border-slate-800">
         <div className="flex justify-center gap-2 mb-2">
           {[1, 2, 3].map((s) => (
