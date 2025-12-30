@@ -222,7 +222,7 @@ export default function FortuneCookie({}) {
                       ) : (
                         <>
                           <div>
-                            <CreditIcon num={-1} />
+                            <CreditIcon num={+1} />
                           </div>
                         </>
                       )}

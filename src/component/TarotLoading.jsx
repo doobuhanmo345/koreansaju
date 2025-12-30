@@ -6,7 +6,7 @@ export default function TarotLoading({ cardPicked }) {
   return (
     <div className="flex flex-col items-center  px-6 overflow-hidden min-h-screen">
       {/* 1. 수직 축 회전 컨테이너 */}
-      <div className="[perspective:1000px] animate-[vertical-spin_4s_infinite_linear] [transform-style:preserve-3d]">
+      <div className="mt-10 [perspective:1000px] animate-[vertical-spin_4s_infinite_linear] [transform-style:preserve-3d]">
         {/* 2. 30도 기울기 유지 레이어 */}
         <div className="w-32 h-48 -rotate-[30deg] [transform-style:preserve-3d] relative">
           {/* 3. 실제 카드 본체 (앞/뒤를 감싸는 3D 박스) */}
