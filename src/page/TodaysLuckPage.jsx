@@ -371,7 +371,7 @@ export default function TodaysLuckPage() {
       }
     }
     return (
-      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="max-w-lg mx-auto  text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}
         <div>
           {/* 타이틀: 매일의 흐름을 강조 */}

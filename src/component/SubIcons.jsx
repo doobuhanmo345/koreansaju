@@ -62,6 +62,7 @@ const SubIcons = () => {
       label: `${ko ? '타로 고민상담' : 'Tarot Counseling'}`,
       path: '/tarotcounseling',
       isReady: true,
+      isAi: true,
       icon: (
         <path
           strokeLinecap="round"
@@ -81,7 +82,7 @@ const SubIcons = () => {
   };
 
   return (
-    <div className="flex items-center justify-start sm:justify-center overflow-x-auto scrollbar-hide py-2 px-4 gap-2">
+    <div className="flex items-center justify-around">
       {subNavItems.map((item) => (
         <button
           key={item.path}
@@ -99,6 +100,14 @@ const SubIcons = () => {
                 : 'text-slate-300 opacity-50'
             }`}
           >
+            {item.isAi && (
+              <span className="absolute -right-2 -top-1 flex items-center gap-1 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 px-2 py-0.5 text-[8px] font-black tracking-widest text-white ring-2 ring-white dark:ring-slate-900 rounded-full animate-pulse z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                {/* 물방울 느낌의 작은 도트 */}
+                <span className="w-1.5 h-1.5 bg-white rounded-full shadow-[inset_0_-1px_1px_rgba(0,0,0,0.2)]"></span>
+                AI
+              </span>
+            )}
+
             {/* 준비중 배지 */}
             {!item.isReady && (
               <span className="absolute -top-1 flex items-center justify-center bg-slate-500 px-1.5 py-0.5 text-[7px] font-bold text-white ring-1 ring-white rounded-md z-10">

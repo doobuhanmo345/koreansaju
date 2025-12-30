@@ -278,7 +278,7 @@ export default function YearlyLuckPage() {
       if (!basicSnap.exists()) {
         throw new Error('신년운세 기본 뼈대가 DB에 없습니다.');
       }
-      console.log(basicSnap, strictSnap, yearSnap);
+   
       const template = basicSnap.val();
       const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
 
@@ -347,7 +347,7 @@ export default function YearlyLuckPage() {
     }
 
     return (
-      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
           {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}
           <br />

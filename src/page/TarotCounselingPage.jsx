@@ -123,8 +123,8 @@ export default function TarotCounselingPage() {
 
     if (step === 'intro') {
       return (
-        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in duration-700">
-          <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in duration-700">
+          <div className="opacity-40 absolute left-1/2 -translate-x-1/2 w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <ChatBubbleLeftRightIcon className="w-10 h-10 text-purple-600" />
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4">
@@ -141,6 +141,9 @@ export default function TarotCounselingPage() {
               'Is there any unspoken concerns? 78 Tarot card will rad your mind and provide answers'
             )}
           </p>
+          <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+            <img src="/images/introcard/tarot_1.jpg" alt="sazatalk" className="w-full h-auto" />
+          </div>
           <button
             onClick={() => setStep('input')}
             className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold shadow-lg"
@@ -153,7 +156,7 @@ export default function TarotCounselingPage() {
 
     if (step === 'input') {
       return (
-        <div className="max-w-lg mx-auto pt-10 px-6 animate-in slide-in-from-bottom duration-500">
+        <div className="max-w-lg mx-auto px-6 animate-in slide-in-from-bottom duration-500">
           <div className="flex items-center gap-2 mb-4 text-purple-600">
             <PencilSquareIcon className="w-5 h-5" />
             <h3 className="font-bold">
@@ -188,7 +191,7 @@ export default function TarotCounselingPage() {
     }
 
     return (
-      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
+      <div className="max-w-lg mx-auto text-center px-6 animate-in zoom-in-95 duration-500">
         <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
           {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>

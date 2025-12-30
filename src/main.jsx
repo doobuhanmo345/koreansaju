@@ -35,6 +35,7 @@ import TarotCounselingPage from './page/TarotCounselingPage';
 import TarotLovePage from './page/TarotLovePage';
 import FeedbackForm from './page/FeedbackForm';
 import EditPrompt from './page/EditPrompt';
+import SazaTalk from './page/SazaTalk';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -81,7 +82,8 @@ const RootComponent = () => {
           <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
             <Route path="/editprompt" element={<EditPrompt />} />
           </Route>
-         
+          <Route path="/sazatalk" element={<SazaTalk />} />
+
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/tarotmoney" element={<TarotMoneyPage />} />
           <Route path="/tarotlove" element={<TarotLovePage />} />

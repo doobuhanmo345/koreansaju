@@ -12,6 +12,7 @@ import {
   CreditCardIcon,
   PresentationChartLineIcon,
   IdentificationIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 import { useAuthContext } from '../context/useAuthContext';
@@ -145,6 +146,15 @@ export default function MobileNav() {
                 // 돈이 쌓이는 느낌의 아이콘 (CircleStackIcon 또는 BanknotesIcon)
                 icon: <CircleStackIcon className="w-6 h-6" />,
                 path: '/wealth',
+              },
+              {
+                name: isKo ? '사자와의 대화' : 'Chat with SAZA',
+                desc: isKo
+                  ? '무엇이든 물어보세요, 사자가 답해드립니다'
+                  : 'Ask anything, SAZA will answer your questions',
+                // 대화와 통찰을 상징하는 말풍선 또는 전구 아이콘 (ChatBubbleLeftRightIcon 또는 LightBulbIcon)
+                icon: <ChatBubbleLeftRightIcon className="w-6 h-6" />,
+                path: '/sazatalk',
               },
             ],
           },

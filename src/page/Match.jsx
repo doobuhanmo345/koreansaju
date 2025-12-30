@@ -407,7 +407,7 @@ export default function Match({}) {
       )}
 
       {step === 0 && (
-        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+        <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
           <div>
             <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
               {language === 'ko' ? '사주로 보는' : 'Reading the Fate'}

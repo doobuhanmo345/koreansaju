@@ -124,7 +124,7 @@ export default function TarotDailyPage() {
 
     if (step === 'intro') {
       return (
-        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in duration-700">
+        <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in duration-700">
           <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4">
             {language === 'ko' ? (
               <>
@@ -142,7 +142,9 @@ export default function TarotDailyPage() {
               : 'Follow your unconsciousness to check out the advice of the day.'}
           </p>
           <div className="mb-10 flex justify-center">
-            <SparklesIcon className="w-20 h-20 text-indigo-400 opacity-50" />
+            <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+              <img src="/images/introcard/tarot_1.jpg" alt="sazatalk" className="w-full h-auto" />
+            </div>
           </div>
           <button
             onClick={() => setStep('selection')}
@@ -155,7 +157,7 @@ export default function TarotDailyPage() {
     }
 
     return (
-      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
+      <div className="max-w-lg mx-auto text-center px-6 animate-in zoom-in-95 duration-500">
         <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
           {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>

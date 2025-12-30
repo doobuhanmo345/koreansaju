@@ -144,11 +144,11 @@ export default function TarotMoneyPage() {
 
     if (step === 'intro') {
       return (
-        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in duration-700">
-          <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <BanknotesIcon className="w-10 h-10 text-amber-600" />
-          </div>
-          <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-4">
+        <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in duration-700">
+          <h2 className="relative text-3xl font-black text-slate-800 dark:text-slate-100 mb-4">
+            <div className="opacity-40 absolute left-1/2 -translate-x-1/2 w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <BanknotesIcon className="w-10 h-10 text-amber-600" />
+            </div>
             {language === 'ko' ? '황금빛 금전운 분석' : 'Tarot Wealth luck'}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mb-10 text-sm">
@@ -162,6 +162,9 @@ export default function TarotMoneyPage() {
               ' Diagnose my wealth flow and opportunities'
             )}
           </p>
+          <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+            <img src="/images/introcard/tarot_1.jpg" alt="sazatalk" className="w-full h-auto" />
+          </div>
           <button
             onClick={() => setStep('category')}
             className="w-full py-4 bg-amber-500 text-white rounded-md font-bold shadow-lg shadow-amber-200 dark:shadow-none"
@@ -174,7 +177,7 @@ export default function TarotMoneyPage() {
 
     if (step === 'category') {
       return (
-        <div className="max-w-lg mx-auto pt-10 px-6 animate-in slide-in-from-right duration-500">
+        <div className="max-w-lg mx-auto  px-6 animate-in slide-in-from-right duration-500">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">
             {language === 'ko'
               ? '어떤 금전운이 궁금하신가요?'
@@ -205,7 +208,7 @@ export default function TarotMoneyPage() {
     }
 
     return (
-      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
+      <div className="max-w-lg mx-auto  text-center px-6 animate-in zoom-in-95 duration-500">
         <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
           {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>

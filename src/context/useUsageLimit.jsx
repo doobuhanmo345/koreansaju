@@ -34,7 +34,7 @@ export const useUsageLimit = () => {
     const todayDate = new Date().toLocaleDateString('en-CA');
 
     const baseData = {
-      editCount: newCount,
+      editCount: increment(1),
       lastEditDate: todayDate,
       dailyUsage: {
         [todayDate]: increment(1),

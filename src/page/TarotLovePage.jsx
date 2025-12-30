@@ -170,8 +170,8 @@ export default function TarotLovePage() {
 
     if (step === 'intro') {
       return (
-        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in duration-700">
-          <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in duration-700">
+          <div className="opacity-40 absolute left-1/2 -translate-x-1/2 w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <HeartIcon className="w-10 h-10 text-rose-500 fill-rose-500 animate-pulse" />
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-4">
@@ -188,7 +188,10 @@ export default function TarotLovePage() {
               <>From the past to future, Check out the love and relationship status</>
             )}
           </p>
-          
+          <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+            <img src="/images/introcard/tarot_1.jpg" alt="sazatalk" className="w-full h-auto" />
+          </div>
+
           <button
             onClick={() => setStep('type_select')}
             className="w-full py-4 bg-rose-500 text-white rounded-xl font-bold shadow-lg shadow-rose-100 dark:shadow-none"
@@ -201,7 +204,7 @@ export default function TarotLovePage() {
 
     if (step === 'type_select') {
       return (
-        <div className="max-w-lg mx-auto pt-10 px-6 animate-in slide-in-from-right duration-500">
+        <div className="max-w-lg mx-auto  px-6 animate-in slide-in-from-right duration-500">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 text-center">
             {language === 'ko' ? '현재 당신의 상황은?' : 'What is your current situation?'}
           </h3>
@@ -231,7 +234,7 @@ export default function TarotLovePage() {
     }
 
     return (
-      <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in zoom-in-95 duration-500">
+      <div className="max-w-lg mx-auto text-center px-6 animate-in zoom-in-95 duration-500">
         <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
           {language === 'ko' ? '카드를 골라 주세요.' : 'Choose your Card'}
         </h3>

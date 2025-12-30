@@ -217,7 +217,7 @@ export default function Wealth({}) {
   const { user, userData } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
   const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
-  const { MAX_EDIT_COUNT, isLocked } = useUsageLimit();
+  const { MAX_EDIT_COUNT, isLocked, setEditCount, editCount } = useUsageLimit();
 
   // --- States ---
   const [step, setStep] = useState(0);
@@ -385,7 +385,7 @@ export default function Wealth({}) {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-      console.log(fullPrompt);
+
       // 5. API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
 
@@ -467,7 +467,7 @@ export default function Wealth({}) {
       {/* 🟢 STEP 0: 인트로 화면 (추가된 부분) */}
       {/* ================================================= */}
       {step === 0 && (
-        <div className="max-w-lg mx-auto pt-10 text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
+        <div className="max-w-lg mx-auto  text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
           <div>
             <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
               {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}

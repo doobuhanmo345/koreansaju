@@ -50,6 +50,19 @@ const MainIcons = () => {
         />
       ),
     },
+    {
+      label: `${ko ? '사자와의 대화' : 'Chat with SAZA'}`,
+      path: '/sazatalk', // 실제 설정하신 경로로 맞추세요,
+      isAi:true,
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a.596.596 0 01-.733-.305.591.591 0 01.03-.586 7.747 7.747 0 001.018-4.332A8.332 8.332 0 013 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
+        />
+      ),
+    },
   ];
 
   return (
@@ -66,6 +79,14 @@ const MainIcons = () => {
             {item.isLimited && (
               <span className="absolute -right-2 -top-1 flex items-center justify-center bg-red-500 px-1.5 py-0.5 text-[8px] font-black italic tracking-tighter text-white ring-2 ring-white dark:ring-slate-900 rounded-full">
                 LIMITED
+              </span>
+            )}
+            {/* 2. AI 배지 (신규 추가) */}
+            {item.isAi && (
+              <span className="absolute -right-2 -top-1 flex items-center gap-1 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 px-2 py-0.5 text-[8px] font-black tracking-widest text-white ring-2 ring-white dark:ring-slate-900 rounded-full animate-pulse z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
+                {/* 물방울 느낌의 작은 도트 */}
+                <span className="w-1.5 h-1.5 bg-white rounded-full shadow-[inset_0_-1px_1px_rgba(0,0,0,0.2)]"></span>
+                AI
               </span>
             )}
 
