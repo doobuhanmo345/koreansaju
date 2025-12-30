@@ -111,44 +111,62 @@ export function AuthContextProvider({ children }) {
 
     if (user) {
       const userDocRef = doc(db, 'users', user.uid);
+      const todayStr = new Date().toLocaleDateString('en-CA');
 
       unsubscribeSnapshot = onSnapshot(userDocRef, async (docSnap) => {
-        const todayStr = new Date().toLocaleDateString('en-CA');
-
         if (docSnap.exists()) {
           const data = docSnap.data();
 
-          // [일일 초기화 로직] 날짜가 바뀌었으면 카운트 리셋
+          // 1. [일일 리셋 로직] 날짜가 바뀌었으면 카운트 초기화
           if (!data.lastLoginDate || data.lastLoginDate !== todayStr) {
             try {
               await updateDoc(userDocRef, {
                 lastLoginDate: todayStr,
                 editCount: 0,
+                // 여기에 리셋 시 업데이트할 다른 필드가 있다면 추가
               });
             } catch (e) {
               console.error('Daily reset failed:', e);
             }
           } else {
+            // 날짜가 같으면 상태 업데이트
             setUserData(data);
           }
         } else {
-          // [신규 유저 생성] 기본 데이터셋 생성
+          // 2. [신규 유저 생성] 누락되는 필드 없이 전체 기본 데이터 셋업
           const initialData = {
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
+            displayName: user.displayName || '사용자',
+            photoURL: user.photoURL || '',
             role: 'user',
             status: 'active',
             editCount: 0,
             lastLoginDate: todayStr,
-            gender: 'female',
+            gender: 'female', // 기본값
             birthDate: '',
+            isTimeUnknown: false,
+            saju: null,
             createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            // 기록용 객체 초기화 (이게 있어야 에러가 안 남)
+            usageHistory: {
+              ZLastNewYear: null,
+              lastDailyFortune: null,
+              lastWealthFortune: null,
+              lastMatchFortune: null,
+            },
+            question_history: [],
+            dailyUsage: {},
           };
+          console.log(initialData);
 
-          await setDoc(userDocRef, initialData);
-          setUserData(initialData);
+          try {
+            await setDoc(userDocRef, initialData);
+            setUserData(initialData);
+          } catch (e) {
+            console.error('New user creation failed:', e);
+          }
         }
       });
     } else {
@@ -156,7 +174,7 @@ export function AuthContextProvider({ children }) {
     }
 
     return () => {
-      if (typeof unsubscribeSnapshot === 'function') unsubscribeSnapshot();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
     };
   }, [user]);
 

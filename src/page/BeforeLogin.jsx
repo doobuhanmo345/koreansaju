@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuthContext } from '../context/useAuthContext';
 import {
   CheckIcon,
@@ -16,7 +16,8 @@ import {
 import { useLanguage } from '../context/useLanguageContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { calculateSaju } from '../utils/sajuCalculator';
+
+import { useSajuCalculator } from '../hooks/useSajuCalculator';
 
 export default function BeforeLogin() {
   const { user, userData, login } = useAuthContext();
@@ -114,6 +115,20 @@ export default function BeforeLogin() {
     minute: '',
   });
   const [timeUnknown, setTimeUnknown] = useState(false);
+  const memoizedBirthDate = useMemo(() => {
+    const pad = (n) => n?.toString().padStart(2, '0') || '00';
+    const { year, month, day, hour, minute } = birthData;
+
+    // 필수 값이 없으면 null 반환
+    if (!year || !month || !day) return null;
+
+    const formatted = `${year}-${pad(month)}-${pad(day)}T${timeUnknown ? '12' : pad(hour)}:${timeUnknown ? '00' : pad(minute)}`;
+    return new Date(formatted);
+  }, [birthData, timeUnknown]); // birthData나 timeUnknown이 바뀔 때만 다시 계산
+
+  // 2. 훅 호출 (메모이제이션된 날짜 전달)
+  // memoizedBirthDate가 null일 때 훅 내부에서 에러가 날 수 있다면 방어 로직이 필요할 수 있습니다.
+  const { saju } = useSajuCalculator(memoizedBirthDate, timeUnknown);
 
   const handleComplete = async () => {
     if (!user?.uid) return;
@@ -131,24 +146,43 @@ export default function BeforeLogin() {
     }
 
     // 3. 데이터 포맷팅
-    const pad = (n) => n.toString().padStart(2, '0');
-    const formattedBirthdate = `${year}-${pad(month)}-${pad(day)}T${timeUnknown ? '12' : pad(hour)}:${timeUnknown ? '00' : pad(minute)}`;
-    const birthDate = new Date(formattedBirthdate);
-    const saju = calculateSaju(birthDate, gender, timeUnknown, language);
-    console.log(formattedBirthdate, birthData, saju);
 
     try {
       const userRef = doc(db, 'users', user.uid);
+      const pad = (n) => n.toString().padStart(2, '0');
+      const formattedBirthdate = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
+
       await updateDoc(userRef, {
+        // 1. 사용자가 입력한 데이터
         gender: gender,
         birthDate: formattedBirthdate,
         isTimeUnknown: timeUnknown,
-        updatedAt: new Date(),
         saju: saju,
+        updatedAt: new Date(),
+
+        // 2. 혹시 누락되었을지 모르는 기본 필드 강제 주입 (기존 값이 있으면 유지, 없으면 생성)
+        // 주의: 필드명이 정확해야 합니다.
+        role: userData?.role || 'user',
+        status: 'active',
+        editCount: userData?.editCount || 0,
+
+        // 3. 질문 기록 및 히스토리 구조 잡아주기
+        // 필드가 아예 없을 때만 초기화하고 싶다면 로직을 분리할 수 있지만,
+        // 보통 아래처럼 구조를 명시해주는 것이 안전합니다.
+        usageHistory: userData?.usageHistory || {
+          ZLastNewYear: null,
+          lastDailyFortune: null,
+          lastWealthFortune: null,
+          lastMatchFortune: null,
+        },
+        question_history: userData?.question_history || [],
       });
+
+      // 저장 성공 후 이동
       window.location.href = '/';
     } catch (error) {
       console.error('저장 실패:', error);
+      alert('정보 저장 중 오류가 발생했습니다.');
     }
   };
 

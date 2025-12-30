@@ -124,7 +124,7 @@ export default function AdminPage() {
 
   const handleUpdateCount = async () => {
     try {
-     const bonus = ['admin', 'super_admin'].includes(userData?.role) ? 10 : 3;
+      const bonus = ['admin', 'super_admin'].includes(userData?.role) ? 10 : 3;
       await updateDoc(docRef, { editCount: -Number(newCount) + bonus });
       alert('숫자가 업데이트되었습니다.');
     } catch (error) {
@@ -187,7 +187,9 @@ export default function AdminPage() {
                 Current Value
               </span>
               <span className="text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                {userData?.role === 'admin' ? -userData?.editCount + 10 : -userData?.editCount + 3}{' '}
+                {['admin', 'super_admin'].includes(userData?.role)
+                  ? -userData?.editCount + 10
+                  : -userData?.editCount + 3}{' '}
                 회
               </span>
             </div>

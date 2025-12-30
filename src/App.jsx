@@ -29,12 +29,7 @@ import { getPillars } from './utils/sajuCalculator';
 // 7. Data & Constants
 import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
 import { UI_TEXT, BD_EDIT_UI, langPrompt, hanja } from './data/constants';
-import {
-  STRICT_INSTRUCTION,
-  DEFAULT_INSTRUCTION,
-  DAILY_FORTUNE_PROMPT,
-  NEW_YEAR_FORTUNE_PROMPT,
-} from './data/aiResultConstants';
+import { calculateSaju } from './utils/sajuCalculator';
 import { useLoading } from './context/useLoadingContext';
 // 8. Components (UI & Features)
 import SajuBlur from './component/SajuBlur';
