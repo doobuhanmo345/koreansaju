@@ -20,6 +20,8 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import CreditIcon from '../ui/CreditIcon';
 import { calculateSajuData } from '../utils/sajuLogic';
 import { getEng } from '../utils/helpers';
+import { ref, get, child } from 'firebase/database';
+import { database } from '../lib/firebase';
 // 1. 로딩 컴포넌트
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);
@@ -254,7 +256,6 @@ export default function TodaysLuckPage() {
         const isLangMatch = savedLang === language;
         const isGenderMatch = savedGender === gender;
         const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
-        console.log(isDateMatch, isLangMatch, isGenderMatch, isSajuMatch);
 
         // 모든 조건이 맞고 결과값이 이미 있다면 바로 결과 모달/스텝으로 이동
         if (isDateMatch && isLangMatch && isGenderMatch && isSajuMatch && savedResult) {
@@ -271,32 +272,67 @@ export default function TodaysLuckPage() {
       if (currentCount >= MAX_EDIT_COUNT) {
         return alert(UI_TEXT.limitReached[language]);
       }
+      const dbRef = ref(database); // 실시간 DB 참조
+      const [basicSnap, strictSnap, dailySnap] = await Promise.all([
+        get(child(dbRef, 'prompt/daily_basic')), // 전체 뼈대
+        get(child(dbRef, `prompt/default_instruction`)), // 기본 지침
+        get(child(dbRef, `prompt/daily_format_${language}`)), // 일일운세 특화 지침
+      ]);
 
-      // 4. 새로운 분석 데이터 준비 (API 프롬프트 생성용)
+      if (!basicSnap.exists()) {
+        throw new Error('DB에 일일운세 템플릿이 없습니다.');
+      }
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
       const todayPillars = getPillars(today);
       const tomorrowPillars = getPillars(tomorrow);
-
-      if (!todayPillars || !tomorrowPillars) return;
-
       const userSajuText = `${saju.sky3}${saju.grd3}년 ${saju.sky2}${saju.grd2}월 ${saju.sky1}${saju.grd1}일 ${saju.sky0}${saju.grd0}시`;
       const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년 ${todayPillars.sky2}${todayPillars.grd2}월 ${todayPillars.sky1}${todayPillars.grd1}일`;
       const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년 ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월 ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일`;
 
-      const fullPrompt = `${STRICT_INSTRUCTION[language]}\n${DAILY_FORTUNE_PROMPT[language]}\n[User Gender] ${gender}\n[User Saju] ${userSajuText}\n[Today: ${todayPillars.date}] ${todaySajuText}\n[Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}\n${langPrompt(language)}\n${hanja(language)}`;
+      // --- 4. 프롬프트 조립 (템플릿 내 {{key}}를 실제 데이터로 치환) ---
+      const replacements = {
+        '{{STRICT_INSTRUCTION}}': strictSnap.val() || '',
+        '{{DAILY_FORTUNE_PROMPT}}': dailySnap.val() || '',
+        '{{gender}}': gender,
+        '{{userSajuText}}': userSajuText,
+        '{{todayDate}}': todayPillars.date,
+        '{{todaySajuText}}': todaySajuText,
+        '{{tomorrowDate}}': tomorrowPillars.date,
+        '{{tomorrowSajuText}}': tomorrowSajuText,
+        '{{displayName}}': userData?.displayName || (language === 'ko' ? '선생님' : 'User'),
+        '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
+        '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
+      };
 
-      // 5. API 호출 및 DB 업데이트
+      let fullPrompt = basicSnap.val();
+      Object.entries(replacements).forEach(([key, value]) => {
+        fullPrompt = fullPrompt.split(key).join(value || '');
+      });
 
+      // --- 5. Gemini API 호출 ---
       const result = await fetchGeminiAnalysis(fullPrompt);
-      const newCount = currentCount + 1;
+      // 4. 새로운 분석 데이터 준비 (API 프롬프트 생성용)
+
+      // if (!todayPillars || !tomorrowPillars) return;
+
+      // const userSajuText = `${saju.sky3}${saju.grd3}년 ${saju.sky2}${saju.grd2}월 ${saju.sky1}${saju.grd1}일 ${saju.sky0}${saju.grd0}시`;
+      // const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년 ${todayPillars.sky2}${todayPillars.grd2}월 ${todayPillars.sky1}${todayPillars.grd1}일`;
+      // const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년 ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월 ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일`;
+
+      // const fullPrompt = `${STRICT_INSTRUCTION[language]}\n${DAILY_FORTUNE_PROMPT[language]}\n[User Gender] ${gender}\n[User Saju] ${userSajuText}\n[Today: ${todayPillars.date}] ${todaySajuText}\n[Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}\n${langPrompt(language)}\n${hanja(language)}`;
+
+      // // 5. API 호출 및 DB 업데이트
+
+      // const result = await fetchGeminiAnalysis(fullPrompt);
+      // const newCount = currentCount + 1;
 
       await setDoc(
         doc(db, 'users', user.uid),
         {
           saju: saju,
-          editCount: newCount,
+          editCount: increment(1),
           lastEditDate: todayDate,
           usageHistory: {
             ZLastDaily: {
@@ -315,7 +351,7 @@ export default function TodaysLuckPage() {
       );
 
       // 6. 결과 반영 및 이동
-      setEditCount(newCount);
+      setEditCount((prev) => prev + 1);
       setAiResult(result);
       onStart();
     } catch (e) {

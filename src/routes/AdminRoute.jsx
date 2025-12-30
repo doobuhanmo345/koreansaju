@@ -10,7 +10,7 @@ export default function AdminRoute({ children }) {
   }
 
   // 🔹 관리자 아님 → 접근 차단
-  if (userData.role !== 'admin') {
+  if (userData.role !== 'admin' && userData.role !== 'super_admin') {
     return <Navigate to="/" replace />;
   }
 

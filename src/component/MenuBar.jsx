@@ -67,7 +67,7 @@ export default function MobileNav() {
   const menuData = useMemo(() => {
     const profileItems = [];
 
-    if (userData?.role === 'admin') {
+    if (['admin', 'super_admin'].includes(userData?.role)) {
       profileItems.push({
         name: isKo ? '관리자 페이지' : 'Admin Page',
         desc: isKo ? '시스템 제어 및 통계' : 'System Control & Stats',
@@ -75,7 +75,14 @@ export default function MobileNav() {
         path: '/admin',
       });
     }
-
+    if (['super_admin'].includes(userData?.role)) {
+      profileItems.push({
+        name: isKo ? '프롬프트 수정' : 'Edit Prompt',
+        desc: isKo ? '사주 프롬프트 수정' : 'Edit prompt for saju',
+        icon: <RiAdminFill className="w-6 h-6 text-rose-500" />,
+        path: '/editprompt',
+      });
+    }
     if (userData?.role === 'saju_consultant') {
       profileItems.push({
         name: isKo ? '명리학자 대시보드' : 'Consultant Dashboard',

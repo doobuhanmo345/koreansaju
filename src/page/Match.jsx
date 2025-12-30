@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 
 // 2. External Libraries (Firebase, Icons)
 import { doc, setDoc, increment } from 'firebase/firestore';
+import { ref, get, child } from 'firebase/database';
+import { database } from '../lib/firebase';
 import {
   CalendarDaysIcon,
   PencilSquareIcon,
@@ -134,7 +136,7 @@ export default function Match({}) {
   const { user, userData } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
   const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
-  const { editCount, MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
+  const { setEditCount, MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
 
   // --- States ---
   const [step, setStep] = useState(0);
@@ -291,61 +293,44 @@ export default function Match({}) {
         setLoading(false);
         return alert(UI_TEXT.limitReached[language]);
       }
+      const dbRef = ref(database);
+      const [strictSnap, specificSnap, basicSnap] = await Promise.all([
+        get(child(dbRef, 'prompt/match_strict')), // 스타일 규칙
+        get(child(dbRef, 'prompt/match_specific')), // 궁합 전용 분석 비중
+        get(child(dbRef, 'prompt/match_basic')), // 전체 뼈대
+      ]);
 
+      if (!basicSnap.exists()) {
+        throw new Error('DB에 궁합 템플릿이 없습니다.');
+      }
+
+      // 3. 변수 및 텍스트 가공
       const mySajuStr = JSON.stringify(saju);
       const partnerSajuStr = JSON.stringify(saju2);
       const relationLabel = RELATION_TYPES.find((r) => r.id === selectedRel)?.label || 'Unknown';
+      const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
 
-      const strictPrompt = `You are a professional Saju consultant specializing in Wealth and Financial Career analysis.
+      const replacements = {
+        '{{STRICT_PROMPT}}': strictSnap.val() || '',
+        '{{SPECIFIC_PROMPT}}': specificSnap.val() || '',
+        '{{relationLabel}}': `${relationLabel} (${selectedRel})`,
+        '{{gender}}': gender,
+        '{{displayName}}': displayName,
+        '{{mySajuStr}}': `${mySajuStr} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
+        '{{partnerGender}}': gender2,
+        '{{partnerSajuStr}}': `${partnerSajuStr} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
+        '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
+        '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
+      };
 
-🚫 Critical Style Rules (절대적 서식 규칙)
-이 규칙들은 답변의 내용보다 우선순위가 높으며, 반드시 지켜야 합니다.
-1. [Plain Text Only]: 볼드(**), 이탤릭(*), 리스트 기호 등 어떠한 마크다운(Markdown) 강조 문법도 절대 사용하지 마십시오. 오직 순수한 텍스트와 줄바꿈(Enter)만 사용하세요.
-2. [No Hanja]: 한자(Chinese characters)는 절대 출력하지 마십시오. (예: '甲' -> 제거 혹은 '갑목'으로 표기)
-3. [No Greetings]: '안녕하세요', '반갑습니다', '저는 당신의 인생 상담가입니다'와 같은 인사말이나 자기소개로 답변을 시작하지 마십시오. 어떠한 형태의 사전 인사 없이 즉시 사주 분석 결과나 핵심 내용부터 전달하십시오.
-4. [Natural Closing]: 답변을 마칠 때, '[추천 질문]' 같은 딱딱한 제목이나 번호 매기기(1., 2.)를 절대 사용하지 마십시오. 대신, 대화를 자연스럽게 이어가기 위해 의뢰자가 궁금해할 법한 내용 2~3가지를 문장 속에 녹여서 슬쩍 제안하세요. - (예: "이 외에도 타고난 애정운과 특별히 조심해야 할 사람 유형에 대해서도 궁금하신가요? 궁금하신 사항이 있다면 '추가질문'을 눌러주세요.")
-
-### 🗣️ Language & Terminology Guidelines
-1. **용어 순화 (Translation Layer)**
-   - 전문 용어(식신, 상관, 재성, 비겁, 관성 등)를 절대 직접 언급하지 마십시오.
-   - 대신 이를 일상 용어로 풀어서 설명하세요.
-2. **언어별 규칙**
-   - **한국어 답변 시:** 모든 한자는 삭제하고 순수 한글로만 작성하세요.
-   - **영어 답변 시:**
-     - 사주 용어를 그대로 영문 음차(Pyeon-gwan)하지 말고 의미를 번역(Pressure, Challenge)하세요.
-     - 'Year/Month/Day/Time Pillar'라는 단어 대신 'Year/Month/Day/Time Energy' 또는 'Your born characteristics' 등으로 표현하세요. 'Pillar' 단어 사용을 금지합니다.
-
-### 🎯 Content Scope & Balance 
-1. 사용자가 이해하기 힘든 복잡한 이론적 배경(신강/신약 계산 과정 등)은 생략하세요. 
-2. 긍정적인 답변을 쓰더라도 약한 부정적인 답변을 추가하고, 부정적인 답변이 주제인 답변은 긍정적인 답변을 추가해서 반전의 가능성을 시사해주세요.
-3. [Constructive Caution]: 부정적인 답변은 "당신은 이게 나쁘다"고 지적하는 것이 아니라, "이 특성만 보완하면 상대방과의 사이가 2배 좋아진다"**는 식의 '개선 포인트(Quest)'로 전달하세요. 
-4. [Directional Specificity]: - 사용자가 A vs B를 물어보면 5:5 중립을 피하고, 사주상 유리한 쪽을 7:3 이상의 확률로 확실히 집어주세요. - 추상적 조언 대신 현대적 키워드(자연스러운 만남, 쉽게 사랑에 빠지는 타입 등)로 매핑하여 답변하세요.
-`;
-      const specificPrompt = `Analyze the compatibility by prioritizing personality harmony and mutual social growth, incorporating wealth-related insights only as a secondary factor when it significantly impacts the relationship's foundation
-       [Context Weight]: 분석의 80%는 두 사람의 성격적 기질, 가치관의 충돌이나 조화, 사회적 발전을 위한 시너지에 집중하십시오. 재물이나 경제적 측면은 분석 흐름상 반드시 필요한 경우에만 20% 이내의 비중으로만 다루십시오.`;
-
-      const fullPrompt = `
-        ${strictPrompt} ${specificPrompt}
-        
-        Analyze the compatibility (Gunghap) between two people.
-        Relationship Type: "${relationLabel} (${selectedRel})".
-sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pillar, sky0+grd0 : hour pillar
-        [Person 1 (Me)]
-        Gender: ${gender}
-        Saju Chart: ${mySajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
-        나를 선생님이 아닌 ${userData?.displayName}님 이라고 불러줘.영어로는 ${userData?.displayName}. undefined시는 그냥 선생님이라고 해..
-
-        [Person 2 (Partner)]
-        Gender: ${gender2}
-        Saju Chart: ${partnerSajuStr}-sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야
-
-        ${langPrompt(language)}
-        ${hanja(language)}
-      `;
+      // 4. 프롬프트 최종 조립
+      let fullPrompt = basicSnap.val();
+      Object.entries(replacements).forEach(([key, value]) => {
+        fullPrompt = fullPrompt.split(key).join(value || '');
+      });
+      console.log(fullPrompt);
+      // 5. Gemini API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
-
-      const newCount = currentCount + 1;
-
       // ---------------------------------------------------------
       // 4. 저장 (현재의 saju와 saju2를 저장해야 다음 비교 가능)
       // ---------------------------------------------------------
@@ -353,7 +338,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
         doc(db, 'users', user.uid),
         {
           saju: saju,
-          editCount: newCount,
+          editCount: increment(1),
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           dailyUsage: {
             [new Date().toLocaleDateString('en-CA')]: increment(1),
@@ -374,7 +359,7 @@ sajuStr - sky3+grd3 : year pillar, sky2+grd2 : month pillar, sky1+grd1 : day pil
         },
         { merge: true },
       );
-
+      setEditCount((prev) => prev + 1);
       setAiResult(result);
       setStep(4); // 필요시 이동
     } catch (e) {

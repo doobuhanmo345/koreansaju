@@ -77,7 +77,7 @@ export default function AdminPage() {
 
   // 2. 추가된 Effect: 명리학자 신청 대기 목록 실시간 로드 (로직 유지)
   useEffect(() => {
-    if (userData?.role !== 'admin') return;
+    if (userData.role !== 'admin' && userData.role !== 'super_admin') return;
 
     const q = query(collection(db, 'consultant_applications'), where('status', '==', 'pending'));
 
@@ -89,28 +89,28 @@ export default function AdminPage() {
   }, [userData]);
 
   if (!user) return <div className="p-10 text-center">로그인이 필요합니다.</div>;
-  if (userData?.role !== 'admin')
+  if (userData.role !== 'admin' && userData.role !== 'super_admin')
     return <div className="p-10 text-center">접근 권한이 없습니다.</div>;
 
   const docRef = doc(db, 'users', user.uid);
 
   // --- 데이터 개별 삭제 로직 (요청하신 신규 기능) ---
-const handleRemoveField = async (fieldName, label) => {
-  // 중첩 경로 생성: "usageHistory.fieldName"
-  const nestedPath = `usageHistory.${fieldName}`;
+  const handleRemoveField = async (fieldName, label) => {
+    // 중첩 경로 생성: "usageHistory.fieldName"
+    const nestedPath = `usageHistory.${fieldName}`;
 
-  if (!confirm(`${label} 데이터를 삭제하시겠습니까?`)) return;
+    if (!confirm(`${label} 데이터를 삭제하시겠습니까?`)) return;
 
-  try {
-    await updateDoc(docRef, {
-      [nestedPath]: deleteField(),
-    });
-    alert(`${label} 데이터가 삭제되었습니다.`);
-  } catch (error) {
-    console.error(`${label} 삭제 실패:`, error);
-    alert('삭제 중 오류가 발생했습니다.');
-  }
-};
+    try {
+      await updateDoc(docRef, {
+        [nestedPath]: deleteField(),
+      });
+      alert(`${label} 데이터가 삭제되었습니다.`);
+    } catch (error) {
+      console.error(`${label} 삭제 실패:`, error);
+      alert('삭제 중 오류가 발생했습니다.');
+    }
+  };
   // --- 기존 기능 로직 (유지) ---
   const handleDeleteCookie = async () => {
     if (!confirm('ZCookie를 삭제하시겠습니까?')) return;
@@ -124,7 +124,7 @@ const handleRemoveField = async (fieldName, label) => {
 
   const handleUpdateCount = async () => {
     try {
-      const bonus = userData?.role === 'admin' ? 10 : 3;
+     const bonus = ['admin', 'super_admin'].includes(userData?.role) ? 10 : 3;
       await updateDoc(docRef, { editCount: -Number(newCount) + bonus });
       alert('숫자가 업데이트되었습니다.');
     } catch (error) {

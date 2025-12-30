@@ -12,7 +12,7 @@ export const useUsageLimit = () => {
   // 1. user.uid가 변경될 때만 다시 계산하도록 수정
   const MAX_EDIT_COUNT = useMemo(() => {
     // user가 없으면 기본값 3
-    if (userData?.role === 'admin') return 10;
+    if (['admin', 'super_admin'].includes(userData?.role)) return 10;
     else return 3;
   }, [user?.uid, userData]); // 👈 핵심: user 객체 대신 uid 문자열을 감지
 

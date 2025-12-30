@@ -301,7 +301,7 @@ export default function BasicAnaPage() {
         doc(db, 'users', user.uid),
         {
           saju: saju,
-          editCount: newCount,
+          editCount: increment(1),
           lastEditDate: todayDate,
           usageHistory: {
             ZApiAnalysis: {
@@ -321,7 +321,7 @@ export default function BasicAnaPage() {
       );
 
       // 6. 상태 반영 및 화면 전환
-      setEditCount(newCount);
+      setEditCount((prev) => prev + 1);
       setAiAnalysis(result); // UI용 스테이트 업데이트
       setAiResult(result); // SajuResult로 전달될 결과값 설정
 

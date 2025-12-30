@@ -78,7 +78,10 @@ const RootComponent = () => {
       <div className="pb-24">
         <NavBar />
         <Routes>
-          <Route path="/editprompt" element={<EditPrompt />} />
+          <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
+            <Route path="/editprompt" element={<EditPrompt />} />
+          </Route>
+         
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/tarotmoney" element={<TarotMoneyPage />} />
           <Route path="/tarotlove" element={<TarotLovePage />} />
@@ -95,14 +98,10 @@ const RootComponent = () => {
           {/* <Route path="/basic" element={<SajuAnalysisPage />} /> */}
           <Route path="/fortunecookie" element={<FortuneCookie />} />
           <Route path="/editprofile" element={<EditProfile />} />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
-            }
-          />
+
+          <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin']} />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
           {/* /loadingpage 경로는 따로 둘 필요 없이 전역 상태로 관리되지만 유지함 */}
           <Route path="/loadingpage" element={<LoadingPage />} />
           <Route element={<ProtectedRoute allowedRoles={['user']} />}>

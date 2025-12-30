@@ -17,7 +17,9 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { classNames } from '../utils/helpers';
 import { getEng } from '../utils/helpers';
-import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
+import { calculateSajuData } from '../utils/sajuLogic';
+import { ref, get, child } from 'firebase/database';
+import { database } from '../lib/firebase';
 import CreditIcon from '../ui/CreditIcon';
 // 1. 로딩 컴포넌트
 function SajuLoading({ sajuData }) {
@@ -265,11 +267,38 @@ export default function YearlyLuckPage() {
       }
 
       // 4. 프롬프트 생성 (요청하신 호칭 및 사주 텍스트 반영)
-      const currentSajuJson = JSON.stringify(saju);
-      const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
-      const sajuInfo = `[사주정보] 성별:${gender}, 생년월일:${userData.birthDate}, 팔자:${currentSajuJson} sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야. 나를 선생님이 아닌 ${displayName}님 이라고 불러줘. 영어로는 ${displayName}. undefined시는 그냥 선생님이라고 해..`;
-      const fullPrompt = `${STRICT_INSTRUCTION[language]}\n${NEW_YEAR_FORTUNE_PROMPT[language]}\n${sajuInfo}\n${langPrompt(language)}\n${hanja(language)}`;
+      // --- [3. 프롬프트 생성: 당신이 주신 로직 그대로 실행] ---
+      const dbRef = ref(database);
+      const [basicSnap, strictSnap, yearSnap] = await Promise.all([
+        get(child(dbRef, 'prompt/new_year_basic')),
+        get(child(dbRef, `prompt/default_instruction`)),
+        get(child(dbRef, `prompt/new_year_format_${language}`)),
+      ]);
 
+      if (!basicSnap.exists()) {
+        throw new Error('신년운세 기본 뼈대가 DB에 없습니다.');
+      }
+      console.log(basicSnap, strictSnap, yearSnap);
+      const template = basicSnap.val();
+      const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
+
+      const replacements = {
+        '{{STRICT_INSTRUCTION}}': strictSnap.val() || '',
+        '{{NEW_YEAR_FORMAT}}': yearSnap.val() || '',
+        '{{gender}}': gender,
+        '{{birthDate}}': userData.birthDate || '미입력',
+        '{{sajuJson}}': JSON.stringify(saju),
+        '{{displayName}}': displayName,
+        '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
+        '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
+      };
+
+      let fullPrompt = template;
+
+      Object.entries(replacements).forEach(([key, value]) => {
+        fullPrompt = fullPrompt.split(key).join(value || '');
+      });
+      // --- [프롬프트 생성 로직 끝] ---
       // 5. API 호출 및 DB 업데이트 (ZLastNewYear 필드 사용)
 
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -279,7 +308,7 @@ export default function YearlyLuckPage() {
         doc(db, 'users', user.uid),
         {
           saju: saju,
-          editCount: newCount,
+          editCount: increment(1),
           lastEditDate: todayDate,
           usageHistory: {
             ZLastNewYear: {
@@ -298,7 +327,7 @@ export default function YearlyLuckPage() {
       );
 
       // 6. 결과 반영 및 이동
-      setEditCount(newCount);
+      setEditCount((prev) => prev + 1);
       setAiResult(result);
       onStart();
     } catch (e) {
