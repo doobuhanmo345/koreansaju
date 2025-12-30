@@ -34,6 +34,7 @@ import TarotMoneyPage from './page/TarotMoneyPage';
 import TarotCounselingPage from './page/TarotCounselingPage';
 import TarotLovePage from './page/TarotLovePage';
 import FeedbackForm from './page/FeedbackForm';
+import EditPrompt from './page/EditPrompt';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -77,6 +78,7 @@ const RootComponent = () => {
       <div className="pb-24">
         <NavBar />
         <Routes>
+          <Route path="/editprompt" element={<EditPrompt />} />
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/tarotmoney" element={<TarotMoneyPage />} />
           <Route path="/tarotlove" element={<TarotLovePage />} />

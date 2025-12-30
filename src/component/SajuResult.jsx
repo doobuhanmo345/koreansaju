@@ -176,7 +176,6 @@ const SajuResult = ({ aiResult }) => {
       }
     }
   }, [inputDate, inputGender, isTimeUnknown, language]);
-  console.log(aiResult);
 
   const handleShare = async (id) => {
     const el = document.getElementById(id);

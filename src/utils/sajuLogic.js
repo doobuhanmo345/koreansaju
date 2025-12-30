@@ -17,6 +17,8 @@ import {
 import { ILJU_DATA } from '../data/ilju_data';
 import { DEFAULT_FORMAT } from '../data/saju_data_prompt';
 import { DEFAULT_INSTRUCTION } from '../data/aiResultConstants';
+import { ref, get, child } from 'firebase/database';
+import { database } from '../lib/firebase';
 // 한자 변환 헬퍼
 const t = (char, lang = 'ko') => {
   const kor = HANJA_MAP[char] || char;
@@ -164,8 +166,6 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
       });
     }
 
-    // ... (뒷부분: 공망, 합충 로직 등 유지) ...
-
     // 4-4. 공망
     const gongmangStr = lunar.getDayXunKong(); // 예: "戌亥"
     const gmChars = gongmangStr.split('').map((h) => HANJA_MAP[h]);
@@ -298,19 +298,18 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
 };
 
 // Gemini 프롬프트 생성기 (Expression Logic)
-export const createPromptForGemini = (sajuData, language = 'ko') => {
+export const createPromptForGemini = async (sajuData, language = 'ko') => {
   if (!sajuData) return '';
   const { pillars, maxOhaeng, myShinsal, currentDaewoon, inputDate, inputGender, daewoonList } =
     sajuData;
 
-  // 대운 해석 가져오기
+  // 1. 기존 대운 해석 로직 (수정 절대 없음)
   const daewoonDesc = currentDaewoon
     ? PILLAR_DETAILS[currentDaewoon.name]?.[language] || '정보 없음'
     : '정보 없음';
 
   const getDaewoonStory = (selectedDae, language, pillars) => {
     const isEn = language === 'en';
-
     const userGan = pillars.day.charAt(0);
     const name = selectedDae.name || selectedDae.pillar || '';
     const startAge = selectedDae.startAge || selectedDae.age || 0;
@@ -319,17 +318,13 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
     const ganO = selectedDae.ganOhaeng || '';
     const zhiO = selectedDae.zhiOhaeng || '';
 
-    // 1. 십성 계산 (saju_data.js에서 가져온 테이블 사용)
     const calculatedShipSung = SHIP_SUNG_TABLE[userGan]?.[dGanKor] || '대운';
-
-    // 2. 십성 설명 (saju_data.js에서 가져옴)
     const shipSungDetail = SHIP_SUNG_MAP[calculatedShipSung]
       ? isEn
         ? SHIP_SUNG_MAP[calculatedShipSung].en
         : SHIP_SUNG_MAP[calculatedShipSung].ko
       : '개인적 성장';
 
-    // 3. 오행 맵
     const ohaengMap = {
       wood: isEn ? 'Wood' : '나무(木)',
       fire: isEn ? 'Fire' : '불(火)',
@@ -338,7 +333,6 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
       water: isEn ? 'Water' : '물(水)',
     };
 
-    // 4. 60갑자 해석 (saju_data.js에서 가져옴)
     const currentNuance = PILLAR_DETAILS[name]
       ? isEn
         ? PILLAR_DETAILS[name].en
@@ -347,7 +341,6 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
         ? 'Significant transition.'
         : '중요한 변화의 시기입니다.';
 
-    // 5. 텍스트 조립
     const introText = isEn
       ? `<b>Luck Cycle: ${name} (Age ${startAge} - ${endAge})</b>`
       : `<b>${name} 대운 (약 ${startAge}세 ~ ${endAge}세)</b>`;
@@ -356,7 +349,6 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
       ? `The energy of <b>${calculatedShipSung}</b> is the primary driver, focusing on <b>${shipSungDetail}</b>.`
       : `당신의 운명에서 이 구간은 <b>${calculatedShipSung}</b>의 작용력이 가장 크게 나타납니다. 이는 <b>${shipSungDetail}</b>의 흐름이 주도하게 됨을 의미합니다.`;
 
-    // 6. 충 계산 로직
     const clashKey = `${ganO}_${zhiO}`;
     const clashMap = {
       water_wood: 1,
@@ -379,80 +371,58 @@ export const createPromptForGemini = (sajuData, language = 'ko') => {
     return `
       ${selectedDae.name}대운: ${selectedDae.startAge}세~ ${selectedDae.endAge}세 :
         ${introText} ${currentNuance} ${shipSungText}${environmentText}
-    
       `;
   };
 
-  const targetFormat = DEFAULT_FORMAT[language] || DEFAULT_FORMAT['ko'];
-  return `
-  ${DEFAULT_INSTRUCTION}
+  try {
+    const dbRef = ref(database);
 
-    ---
-    !!! SYSTEM ALERT: YOU ARE A PROFESSIONAL MYUNG-RI SCHOLAR & HTML GENERATOR. !!!
-    
-    [YOUR GOAL]
-    - Fill the content inside the provided HTML template based on the SAJU data.
-    - **CRITICAL**: DO NOT CHANGE class names (e.g., class="section-title-h2", class="report-text").
-    - **CRITICAL**: DO NOT REMOVE any <div>, <h2>, <p> tags. Keep the structure EXACTLY as provided.
-    - OUTPUT ONLY THE RAW HTML. No markdown code blocks.
+    const [templateSnap, instructionSnap, formatSnap] = await Promise.all([
+      get(child(dbRef, 'prompt/basic')), // 전체 프롬프트 뼈대
+      get(child(dbRef, 'prompt/default_instruction')), // "당신은 역학자입니다..."
+      get(child(dbRef, `prompt/basic_format_${language}`)), // 사용자님이 주신 HTML
+    ]);
 
-    [MYUNG-RI ANALYSIS LOGIC: THE MASTER'S PERSPECTIVE]
-    - 당신은 '일주(Day Pillar)'를 개인의 핵심 엔진으로 보되, '월주(Month)'와 '연주(Year)'를 그 엔진이 가동되는 환경과 유전적 배경으로 분석합니다.
-    - **핵심 분석법**: 
-      1. 일주(${pillars.day})의 기본 특성이 월주(${pillars.month})의 환경(사회궁)을 만났을 때 어떻게 변주되는지 설명하세요. 
-         (예: 갑자일주가 월주에 관성이 강하면 모범생 기질이 강박으로, 식상이 강하면 응용력 있는 전문가로 변함)
-      2. 일주가 가진 태생적 약점이 사주 전체의 오행(${maxOhaeng})이나 신살에 의해 어떻게 보완되거나 심화되는지 입체적으로 서술하세요.
-      3. 대운의 흐름을 단순히 나열하지 말고, 일주라는 주인공이 각 대운(환경)을 지나며 어떻게 성장해왔는지 한 편의 이야기처럼 정제하여 서술하세요.
-    -언어: ${language === 'en' ? 'English' : 'Korean'}
-    [SAJU DATA]
+    if (!templateSnap.exists() || !formatSnap.exists()) {
+      console.error('DB 데이터 누락: prompt/basic 또는 target_format을 확인하세요.');
+      return '';
+    }
 
-    - Birth: ${inputDate} (${inputGender})
-    - Day Pillar (Core): ${pillars.day}
-    - Month Pillar (Environment): ${pillars.month}
-    - Year Pillar (Root): ${pillars.year}
-    - Key Personality Traits: ${ILJU_DATA[pillars.day].desc[inputGender].join(', ')}
-    - Dominant Element: ${maxOhaeng}
-    - Special Stars: ${myShinsal.map((s) => `${s.name}(${s.desc})`).join(', ')}
-    - Current Daewoon: ${currentDaewoon?.name}
-    - 대운 흐름 정보:
-    ${daewoonList.map((i) => getDaewoonStory(i, language, pillars))}를 참조하여, 사용자의 인생 흐름을 과거부터 현재까지 자세히 서술해줘.
-    내용을 정제하여 더 길고 깊이 있게 작성하되, 제공된 정보는 하나도 빠뜨리지 마세요.
+    const dbInstruction = instructionSnap.val() || '';
+    const dbTargetFormat = formatSnap.val() || '';
+    const template = templateSnap.val();
 
-    [HTML TEMPLATE TO FILL]
-    ${targetFormat}
-  `;
+    // 3. 템플릿 치환용 변수 매핑
+    const replacements = {
+      '{{DEFAULT_INSTRUCTION}}': dbInstruction, // 👈 DB 데이터
+      '{{dayPillar}}': pillars.day,
+      '{{monthPillar}}': pillars.month,
+      '{{yearPillar}}': pillars.year,
+      '{{maxOhaeng}}': maxOhaeng,
+      '{{inputDate}}': inputDate,
+      '{{inputGender}}': inputGender,
+      '{{traits}}': ILJU_DATA[pillars.day].desc[inputGender].join(', '),
+      '{{shinsal}}': myShinsal.map((s) => `- ${s.name}: ${s.desc}`).join('\n'),
+      '{{currentDaewoonName}}': currentDaewoon?.name || '정보없음',
+      '{{daewoonDesc}}': daewoonDesc,
+      '{{daewoonStories}}': daewoonList
+        .map((i) => getDaewoonStory(i, language, pillars)) // 기존 내부함수 사용
+        .join('\n'),
+      '{{targetFormat}}': dbTargetFormat, // 👈 DB 데이터
+      '{{language}}': language === 'en' ? 'English' : 'Korean',
+    };
 
-  return `
-    [시스템 역할]: 당신은 사주 데이터를 분석하여 **정해진 HTML 포맷으로만** 결과를 출력하는 전문 AI입니다.
-    [필수 제약 사항]: 
-    1. ${DEFAULT_INSTRUCTION}
-    2. 인사말이나 부가적인 설명을 덧붙이지 말고, 오직 내용만 채우세요.
-    3. 언어: ${language === 'en' ? 'English' : 'Korean'}
-    **[출력 포맷 (이 구조를 그대로 유지하고 내용만 채울 것)]:**
-    ${DEFAULT_FORMAT}
+    // 4. 최종 프롬프트 생성
+    let finalPrompt = template;
+    Object.entries(replacements).forEach(([key, value]) => {
+      finalPrompt = finalPrompt.split(key).join(value || '');
+    });
 
-    ---
-
-    [분석할 사용자 정보]:
-    1. 생년월일: ${inputDate} (${inputGender})
-    2. 일주(핵심 기운): ${pillars.day}
-       - 성격 분석 지침: "${ILJU_DATA[pillars.day].desc[inputGender].join(', ')}" 키워드를 바탕으로 부드럽고 통찰력 있게 서술.
-    3. 월주(사회궁): ${pillars.month}
-    4. 오행 분석: 가장 강한 오행은 '${maxOhaeng}'입니다.
-       - 해석 지침: 일주의 성격과 강한 오행을 결합하여 내면의 심리를 입체적으로 서술 (예: 겉은 부드러우나 속은 단단함 등).
-
-    [신살 데이터]:
-    ${myShinsal.map((s) => `- ${s.name}: ${s.desc}`).join('\n')}
-
-    [현재 대운]:
-    - 이름: ${currentDaewoon?.name || '정보없음'}
-    - 의미: ${daewoonDesc}
-
-    ---
-    
-    [최종 명령]:
-    위 [분석할 사용자 정보]를 바탕으로, 맨 위 [출력 포맷]의 빈칸을 채워 완성된 HTML 문자열만 반환하세요.
-`;
+    return finalPrompt;
+  } catch (error) {
+    console.error('프롬프트 생성 에러:', error);
+    return '';
+  }
 };
 // 1. 'Who Am I' 섹션: 일주와 강한 오행을 중심으로 성격을 요약해주세요.
 // 2. 'Special Energy' 섹션: 신살이 삶에 미치는 긍정적 영향을 설명해주세요.

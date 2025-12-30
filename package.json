@@ -13,7 +13,7 @@
     "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "^2.2.0",
     "dom-to-image-more": "^3.7.2",
-    "firebase": "^12.6.0",
+    "firebase": "^12.7.0",
     "git": "^0.1.5",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",

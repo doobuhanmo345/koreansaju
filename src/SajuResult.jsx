@@ -176,7 +176,7 @@ const SajuResult = ({ aiResult }) => {
       }
     }
   }, [inputDate, inputGender, isTimeUnknown, language]);
-  console.log(sajuData);
+
   useEffect(() => {
     const runAI = async () => {
       if (!sajuData) return;

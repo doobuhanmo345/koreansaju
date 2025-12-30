@@ -10,6 +10,7 @@ import {
   browserLocalPersistence, // LocalStorage만 사용
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 
 // ✨ Vite 환경 변수 불러오기
 const firebaseConfig = {
@@ -19,6 +20,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  databaseURL: 'https://korean-saju-default-rtdb.asia-southeast1.firebasedatabase.app/',
 };
 
 // 앱 초기화
@@ -27,6 +29,7 @@ const app = initializeApp(firebaseConfig);
 // 인증 및 DB 내보내기
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const database = getDatabase(app);
 
 // ❌ 삭제: 전역에서 SessionStorage를 설정하던 코드를 삭제합니다.
 // setPersistence(auth, browserSessionPersistence)... 부분 삭제

@@ -276,13 +276,23 @@ export default function BasicAnaPage() {
         setLoading(false);
         return alert(UI_TEXT.limitReached[language]);
       }
-
+      let result;
       // 4. API 호출 및 결과 확보 (핵심: 변수 'result'에 직접 할당)
-      const prompt = createPromptForGemini(sajuData, language);
-      const result = await fetchGeminiAnalysis(prompt); // API 결과 대기
+      try {
+        // 1. await를 사용하여 DB에서 프롬프트를 다 가져올 때까지 기다립니다.
+        const prompt = await createPromptForGemini(sajuData, language);
 
-      if (!result) {
-        throw new Error('API로부터 결과를 받지 못했습니다.');
+        // 2. 만약 DB에서 가져온 값이 없으면 여기서 중단시켜야 Gemini 에러가 안 납니다.
+        if (!prompt) {
+          alert('데이터베이스에서 프롬프트를 불러오지 못했습니다.');
+          return;
+        }
+
+        // 3. 이제 정상적인 문자열 프롬프트를 Gemini에게 보냅니다.
+        result = await fetchGeminiAnalysis(prompt);
+        // ... 성공 로직
+      } catch (error) {
+        console.error('발생한 에러:', error);
       }
 
       // 5. DB 업데이트 (aiAnalysis 스테이트 대신, 방금 받은 따끈따끈한 'result' 변수 사용)
@@ -315,7 +325,7 @@ export default function BasicAnaPage() {
       setAiAnalysis(result); // UI용 스테이트 업데이트
       setAiResult(result); // SajuResult로 전달될 결과값 설정
 
-      console.log('분석 완료 데이터:', result); // 확인용
+      console.log('분석 완료 데이터:'); // 확인용
       onStart(); // 이제 안전하게 다음 스테이지로 이동
     } catch (e) {
       console.error('발생한 에러:', e);
@@ -438,7 +448,7 @@ export default function BasicAnaPage() {
       return () => clearTimeout(timer);
     }
   }, [aiResult]); // aiResult 데이터가 들어오는 순간만 감지
-  // 추가: 로딩이 시작될 때도 상단으로 올리고 싶다면 (선택 사항)
+  // 추가: 로딩이 시작될 때도 상단으로f 올리고 싶다면 (선택 사항)
   useEffect(() => {
     if (loading) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
