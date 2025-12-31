@@ -23,6 +23,7 @@ import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
+import ViewSazaResult from './ViewSazaResult';
 
 export default function SazaTalk() {
   const { loading, setLoading, setAiResult } = useLoading();
@@ -57,7 +58,7 @@ export default function SazaTalk() {
       // 2. 텍스트 가공 (기존 로직 유지)
       const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
       const sajuInfo = `성별:${gender}, 생년월일:${inputDate}, 팔자:${saju} (sky3+grd3=연주, sky2+grd2=월주, sky1+grd1=일주, sky0+grd0=시주). 호칭:${displayName}님.`;
-      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2025년=을사년, 2026년=병오년.`;
+      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2026년=병오년.`;
 
       const replacements = {
         '{{STRICT_PROMPT}}': strictSnap.val() || '',
@@ -113,60 +114,87 @@ export default function SazaTalk() {
 
   const Loading = () => {
     return (
-      <div className=" flex flex-col items-center justify-center bg-white/80 dark:bg-slate-900/90 backdrop-blur-sm">
-        <div className="relative">
-          {/* 바깥쪽 회전하는 후광 효과 */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-violet-500 blur-xl animate-spin-slow opacity-30"></div>
+      <>
+        <div className="flex flex-col items-center justify-center min-h-[350px]">
+          <div className="relative flex items-center justify-center w-64 h-64">
+            {/* 1. 배경 회전 링 (매우 은은하게) */}
+            <div className="absolute w-40 h-40 rounded-full border border-indigo-100 dark:border-indigo-900/30 animate-spin-smooth opacity-50"></div>
 
-          {/* 메인 로딩 스피너 */}
-          <div className="relative w-20 h-20 border-4 border-transparent border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin"></div>
+            {/* 2. 공전하는 이모지들 (Orbiting Items) */}
+            {/* ✨ 반짝이: 3초 주기로 크게 회전 */}
+            <div className="absolute w-48 h-48 animate-spin-smooth">
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl">✨</span>
+            </div>
 
-          {/* 안쪽 작은 로딩원 (반대 방향 회전) */}
-          <div className="absolute top-2 left-2 w-16 h-16 border-4 border-transparent border-b-purple-500 dark:border-b-purple-300 rounded-full animate-spin-reverse"></div>
+            {/* ⭐ 별: 5초 주기로 반대 방향 회전 */}
+            <div className="absolute w-32 h-32 animate-spin-reverse-slow">
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">⭐</span>
+            </div>
+
+            {/* 🌙 달: 7초 주기로 천천히 회전 */}
+            <div className="absolute w-56 h-56 animate-spin-slow">
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl">🌙</span>
+            </div>
+
+            {/* 3. 중앙 사자 캐릭터 (고정되어 중심을 잡음) */}
+            <div className="relative flex flex-col items-center z-10">
+              <div className="absolute inset-0 bg-indigo-500/10 blur-2xl rounded-full"></div>
+              <span className="text-7xl select-none drop-shadow-lg">🦁</span>
+              <span className="text-sm font-bold text-indigo-500 mt-2 tracking-tighter animate-pulse">
+                ANALYZING
+              </span>
+            </div>
+          </div>
+
+          {/* 텍스트 구역 */}
+          <div className="mt-4 text-center">
+            <h2 className="text-xl font-black text-slate-700 dark:text-white mb-2">
+              {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
+            </h2>
+            <div className="flex items-center justify-center gap-1">
+              <p className="text-sm text-slate-400 font-medium">
+                {language === 'ko'
+                  ? '사자와 27명의 명리학자가 함께 고민하고 있어요'
+                  : 'Saza and 27 Saju masters are analyzing together'}
+              </p>
+              <span className="flex text-indigo-500">
+                <span className="animate-bounce">.</span>
+                <span className="animate-bounce [animation-delay:0.2s]">.</span>
+                <span className="animate-bounce [animation-delay:0.4s]">.</span>
+              </span>
+            </div>
+          </div>
+
+          {/* 부드러운 공전 애니메이션 스타일 */}
+          <style>{`
+    @keyframes spin-linear {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-reverse-linear {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    .animate-spin-smooth {
+      animation: spin-linear 3s linear infinite;
+    }
+    .animate-spin-slow {
+      animation: spin-linear 7s linear infinite;
+    }
+    .animate-spin-reverse-slow {
+      animation: spin-reverse-linear 5s linear infinite;
+    }
+  `}</style>
         </div>
-
-        {/* 로딩 텍스트 */}
-        <div className="mt-8 flex flex-col items-center space-y-2">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-300 dark:to-purple-300 bg-clip-text text-transparent animate-pulse">
-            하늘의 기운을 읽는 중...
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 tracking-widest">
-            잠시만 기다려 주세요
-          </p>
-        </div>
-
-        {/* Tailwind 확장 스타일 (tailwind.config.js에 추가하거나 일반 CSS에 추가) */}
-        <style jsx>{`
-          @keyframes spin-slow {
-            from {
-              transform: rotate(0deg);
-            }
-            to {
-              transform: rotate(360deg);
-            }
-          }
-          @keyframes spin-reverse {
-            from {
-              transform: rotate(360deg);
-            }
-            to {
-              transform: rotate(0deg);
-            }
-          }
-          .animate-spin-slow {
-            animation: spin-slow 8s linear infinite;
-          }
-          .animate-spin-reverse {
-            animation: spin-reverse 1.5s linear infinite;
-          }
-        `}</style>
-      </div>
+      </>
     );
   };
 
   const renderContent = (onStart) => {
+
     if (loading) return <Loading />;
     const isDisabled = false;
+
     if (step === 'intro') {
       return (
         <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
@@ -335,8 +363,8 @@ export default function SazaTalk() {
   return (
     <AnalysisStepContainer
       guideContent={renderContent}
-      loadingContent={<TarotLoading />}
-      resultComponent={() => <ViewResult />}
+      loadingContent={<Loading />}
+      resultComponent={(p) => <ViewSazaResult {...p} userQuestion={userQuestion} />}
       loadingTime={0}
     />
   );

@@ -13,6 +13,10 @@ const AnalysisStepContainer = ({
     if (onStart) onStart();
     setStage('loading');
   };
+  // [추가] 가이드(처음)로 돌아가는 함수
+  const handleReset = () => {
+    setStage('guide');
+  };
 
   useEffect(() => {
     if (stage === 'loading') {
@@ -38,7 +42,8 @@ const AnalysisStepContainer = ({
       {/* 3. 결과 단계 */}
       {stage === 'result' && (
         <div className="animate-in slide-in-from-bottom-4 fade-in duration-1000">
-          <ResultComponent />
+          {/* [수정] ResultComponent에 초기화 함수(onReset)를 props로 전달 */}
+          <ResultComponent onReset={handleReset} />
         </div>
       )}
     </div>
