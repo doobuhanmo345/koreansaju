@@ -112,86 +112,67 @@ export default function SazaTalk() {
     }
   };
 
-  const Loading = () => {
-    return (
-      <>
-        <div className="flex flex-col items-center justify-center min-h-[350px]">
-          <div className="relative flex items-center justify-center w-64 h-64">
-            {/* 1. 배경 회전 링 (매우 은은하게) */}
-            <div className="absolute w-40 h-40 rounded-full border border-indigo-100 dark:border-indigo-900/30 animate-spin-smooth opacity-50"></div>
+const Loading = () => {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[350px] overflow-hidden">
+      <div className="relative flex items-center justify-center w-64 h-64">
+        {/* 1. 배경 회전 링 - Tailwind 기본 animate-spin 활용 (가장 부드러움) */}
+        <div className="absolute w-40 h-40 rounded-full border border-indigo-100 dark:border-indigo-900/30 animate-[spin_3s_linear_infinite] opacity-50"></div>
 
-            {/* 2. 공전하는 이모지들 (Orbiting Items) */}
-            {/* ✨ 반짝이: 3초 주기로 크게 회전 */}
-            <div className="absolute w-48 h-48 animate-spin-smooth">
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl">✨</span>
-            </div>
-
-            {/* ⭐ 별: 5초 주기로 반대 방향 회전 */}
-            <div className="absolute w-32 h-32 animate-spin-reverse-slow">
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">⭐</span>
-            </div>
-
-            {/* 🌙 달: 7초 주기로 천천히 회전 */}
-            <div className="absolute w-56 h-56 animate-spin-slow">
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl">🌙</span>
-            </div>
-
-            {/* 3. 중앙 사자 캐릭터 (고정되어 중심을 잡음) */}
-            <div className="relative flex flex-col items-center z-10">
-              <div className="absolute inset-0 bg-indigo-500/10 blur-2xl rounded-full"></div>
-              <span className="text-7xl select-none drop-shadow-lg">🦁</span>
-              <span className="text-sm font-bold text-indigo-500 mt-2 tracking-tighter animate-pulse">
-                ANALYZING
-              </span>
-            </div>
-          </div>
-
-          {/* 텍스트 구역 */}
-          <div className="mt-4 text-center">
-            <h2 className="text-xl font-black text-slate-700 dark:text-white mb-2">
-              {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
-            </h2>
-            <div className="flex items-center justify-center gap-1">
-              <p className="text-sm text-slate-400 font-medium">
-                {language === 'ko'
-                  ? '사자와 27명의 명리학자가 함께 고민하고 있어요'
-                  : 'Saza and 27 Saju masters are analyzing together'}
-              </p>
-              <span className="flex text-indigo-500">
-                <span className="animate-bounce">.</span>
-                <span className="animate-bounce [animation-delay:0.2s]">.</span>
-                <span className="animate-bounce [animation-delay:0.4s]">.</span>
-              </span>
-            </div>
-          </div>
-
-          {/* 부드러운 공전 애니메이션 스타일 */}
-          <style>{`
-    @keyframes spin-linear {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    @keyframes spin-reverse-linear {
-      from { transform: rotate(360deg); }
-      to { transform: rotate(0deg); }
-    }
-    .animate-spin-smooth {
-      animation: spin-linear 3s linear infinite;
-    }
-    .animate-spin-slow {
-      animation: spin-linear 7s linear infinite;
-    }
-    .animate-spin-reverse-slow {
-      animation: spin-reverse-linear 5s linear infinite;
-    }
-  `}</style>
+        {/* 2. 공전하는 이모지들 - 임의 값(Arbitrary values) 사용으로 style 태그 제거 */}
+        {/* ✨ 반짝이: 3초 주기 */}
+        <div className="absolute w-48 h-48 animate-[spin_3s_linear_infinite]">
+          <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl">✨</span>
         </div>
-      </>
-    );
-  };
 
+        {/* ⭐ 별: 5초 주기 반대 방향 */}
+        <div className="absolute w-32 h-32 animate-[spin_5s_linear_infinite_reverse]">
+          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">⭐</span>
+        </div>
+
+        {/* 🌙 달: 7초 주기 */}
+        <div className="absolute w-56 h-56 animate-[spin_7s_linear_infinite]">
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl">🌙</span>
+        </div>
+
+        {/* 3. 중앙 사자 캐릭터 */}
+        <div className="relative flex flex-col items-center z-10">
+          <div className="absolute inset-0 bg-indigo-500/10 blur-2xl rounded-full"></div>
+          <span className="text-7xl select-none drop-shadow-lg">🦁</span>
+          <span className="text-sm font-bold text-indigo-500 mt-2 tracking-tighter animate-pulse">
+            ANALYZING
+          </span>
+        </div>
+      </div>
+
+      {/* 텍스트 구역 */}
+      <div className="mt-4 text-center px-4">
+        <h2 className="text-xl font-black text-slate-700 dark:text-white mb-2">
+          {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
+        </h2>
+        <div className="flex flex-col items-center justify-center gap-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-bold break-keep">
+            {language === 'ko'
+              ? '사자와 27명의 명리학자가 함께 고민하고 있어요'
+              : 'Saza and 27 Saju masters are analyzing together'}
+          </p>
+          <div className="flex items-center gap-1">
+            <p className="text-xs text-slate-400 font-medium">
+              {language === 'ko' ? '하늘의 흐름을 읽고 있어요' : 'Reading the celestial flow'}
+            </p>
+            <span className="flex text-indigo-500 font-bold">
+              <span className="animate-bounce">.</span>
+              <span className="animate-bounce [animation-delay:0.2s]">.</span>
+              <span className="animate-bounce [animation-delay:0.4s]">.</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
   const renderContent = (onStart) => {
-
+    return <Loading />;
     if (loading) return <Loading />;
     const isDisabled = false;
 
