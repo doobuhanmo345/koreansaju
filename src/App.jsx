@@ -670,14 +670,14 @@ export default function App() {
         {/* 아이콘 */}
         <MainIcons />
       </div>
-      <div class="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 mb-3">
-        <div class="mb-6 ml-1 text-left">
-          <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+      <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 mb-3">
+        <div className="mb-6 ml-1 text-left">
+          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
             {language === 'ko'
               ? '내 마음의 소리에 귀 기울이는 시간'
               : 'Time to listen to my inner sound'}
           </p>
-          <h2 class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
             {language === 'ko' ? '감성 운세' : 'Emotional Fortune'}
           </h2>
         </div>

@@ -66,7 +66,8 @@ export default function FortuneCookie({}) {
 
     try {
       const data = userData.usageHistory || {};
-      const currentCount = data.editCount || 0;
+      const currentCount = editCount;
+      console.log(currentCount);
       const { today: today } = data.ZCookie || {};
 
       if (today === todayStr) {
@@ -87,7 +88,8 @@ export default function FortuneCookie({}) {
       await setDoc(
         doc(db, 'users', user.uid),
         {
-          editCount: newCount,
+          // result.reduction 값만큼 기존 값에 더함
+          editCount: increment(-result.reduction),
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           usageHistory: { ZCookie: { today: todayStr, msg: resultMsg } },
           dailyUsage: { [new Date().toLocaleDateString('en-CA')]: increment(1) },
@@ -98,6 +100,7 @@ export default function FortuneCookie({}) {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       setEditCount(newCount);
+
       setFortuneMessage(resultMsg);
       setRewardAmount(reductionAmount);
       setShowCoin(true);
@@ -231,7 +234,7 @@ export default function FortuneCookie({}) {
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className=" text-gray-600 dark:text-gray-400 font-medium">
+                  <div className=" text-gray-600 dark:text-gray-400 font-medium">
                     {language === 'en' ? (
                       'Choose a cookie to check your fortune!'
                     ) : (
@@ -242,7 +245,7 @@ export default function FortuneCookie({}) {
                         </p>
                       </>
                     )}
-                  </p>
+                  </div>
                   <div className="m-auto max-w-sm rounded-2xl overflow-hidden">
                     <img
                       src="/images/introcard/cookie_1.png"

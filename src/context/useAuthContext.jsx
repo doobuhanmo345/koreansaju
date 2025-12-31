@@ -33,7 +33,6 @@ export function AuthContextProvider({ children }) {
     const todayStr = new Date().toLocaleDateString('en-CA');
     const nextYear = '2026';
     const gender = userData.gender;
-    const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     // 1️⃣ 사주 정보 일치 확인 헬퍼 함수 (필드별 직접 비교)
     const checkSajuMatch = (prevSaju, targetSaju) => {

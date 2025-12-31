@@ -158,13 +158,13 @@ function SajuLoading({ sajuData }) {
       </div>
 
       <div className="mt-14 text-center">
-        <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
+        <div className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
           <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
             {language === 'ko'
               ? '운명의 실타래를 푸는 중입니다...'
               : 'Untangling the threads of destiny...'}
           </p>
-        </p>
+        </div>
       </div>
 
       <style>{`
