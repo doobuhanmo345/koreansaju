@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ref, get, set, remove, child } from 'firebase/database';
 import { database } from '../lib/firebase';
+import {
+  match_var,
+  saza_var,
+  new_year_var,
+  basic_var,
+  wealth_var,
+  daily_var,
+} from '../data/promptVar';
 
 const EditPrompt = () => {
   const [targetPath, setTargetPath] = useState('basic');
@@ -9,6 +17,7 @@ const EditPrompt = () => {
   const [promptContent, setPromptContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const promptArea = useRef(null);
 
   // 1. 전체 프롬프트 목록 가져오기 (prompt 노드 전체 탐색)
   const fetchPromptList = async () => {
@@ -102,12 +111,39 @@ const EditPrompt = () => {
     fetchPromptContent();
   }, [targetPath]);
 
+  const insertVariable = (variable) => {
+    const textarea = promptArea.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // 기존 텍스트 사이를 갈라 변수를 끼워넣음
+    const newContent = promptContent.substring(0, start) + variable + promptContent.substring(end);
+
+    setPromptContent(newContent);
+
+    // 입력 후 커서를 삽입된 글자 바로 뒤로 옮겨줌
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + variable.length, start + variable.length);
+    }, 0);
+  };
+  const variableMapper = {
+    basic: basic_var,
+    match_basic: match_var,
+    daily_basic: daily_var, // 계속 추가 가능
+    new_year_basic: new_year_var,
+    saza_basic: saza_var,
+    wealth_basic: wealth_var,
+  };
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100">
       <h1 className="text-2xl font-bold mb-6">AI 프롬프트 관리자</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* 선택 및 삭제 섹션 */}
+
         <div className="p-4 border dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
           <label className="block text-sm font-semibold mb-2 text-blue-600 dark:text-blue-400">
             템플릿 선택 및 관리
@@ -134,6 +170,7 @@ const EditPrompt = () => {
         </div>
 
         {/* 새 경로 추가 섹션 */}
+
         <div className="p-4 border dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800">
           <label className="block text-sm font-semibold mb-2 text-green-600 dark:text-green-400">
             새 템플릿 추가
@@ -160,12 +197,40 @@ const EditPrompt = () => {
       <div className="mb-4">
         <div className="flex justify-between items-end mb-2">
           <span className="text-sm font-mono text-blue-500">Path: prompt/{targetPath}</span>
-          <span className="text-[11px] text-orange-500 font-medium">
-            사용 가능한 변수: {'{{dayPillar}}, {{maxOhaeng}}, {{shinsal}}'} 등
-          </span>
         </div>
+        {[
+          'basic',
+          'daily_basic',
+          'match_basic',
+          'new_year_basic',
+          'saza_basic',
+          'wealth_basic',
+        ].includes(targetPath) && (
+          <div className="flex flex-col gap-4 p-4">
+            {/* 1. 클릭 가능한 가이드 섹션 */}
+            <div className="p-4 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-300 font-mono text-sm">
+              <div className="text-blue-500 mb-2">// 항목을 클릭하면 커서 위치에 삽입됩니다.</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {(variableMapper[targetPath] || []).map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => insertVariable(item.key)}
+                    className="text-left p-2 hover:bg-blue-100 dark:hover:bg-slate-700 rounded transition-colors"
+                  >
+                    <span className="text-amber-600 dark:text-amber-400 font-bold">
+                      '{item.key}'
+                    </span>
+                    <span className="text-slate-500 dark:text-slate-400">: '{item.label}'</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         <textarea
           value={promptContent}
+          ref={promptArea}
           onChange={(e) => setPromptContent(e.target.value)}
           className="w-full h-[500px] p-4 font-mono text-sm border rounded shadow-inner focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 outline-none"
           placeholder="프롬프트 내용을 작성하세요..."

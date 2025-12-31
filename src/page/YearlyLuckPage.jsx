@@ -287,7 +287,7 @@ export default function YearlyLuckPage() {
         '{{NEW_YEAR_FORMAT}}': yearSnap.val() || '',
         '{{gender}}': gender,
         '{{birthDate}}': userData.birthDate || '미입력',
-        '{{sajuJson}}': JSON.stringify(saju),
+        '{{sajuJson}}': `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
         '{{displayName}}': displayName,
         '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
         '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',

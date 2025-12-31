@@ -439,7 +439,7 @@ export default function App() {
                   {language === 'ko' ? '무료' : 'FREE'}
                 </span>
                 <span className="text-sm font-bold text-white/90">
-                  {language === 'ko' ? '30,000원 상당' : 'Worth $25'}
+                  {language === 'ko' ? '70,000원 상당' : 'Worth $50'}
                 </span>
               </div>
             </div>

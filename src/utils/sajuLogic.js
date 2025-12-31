@@ -394,7 +394,7 @@ export const createPromptForGemini = async (sajuData, language = 'ko') => {
 
     // 3. 템플릿 치환용 변수 매핑
     const replacements = {
-      '{{DEFAULT_INSTRUCTION}}': dbInstruction, // 👈 DB 데이터
+      // 👈 DB 데이터
       '{{dayPillar}}': pillars.day,
       '{{monthPillar}}': pillars.month,
       '{{yearPillar}}': pillars.year,
@@ -409,6 +409,7 @@ export const createPromptForGemini = async (sajuData, language = 'ko') => {
         .map((i) => getDaewoonStory(i, language, pillars)) // 기존 내부함수 사용
         .join('\n'),
       '{{targetFormat}}': dbTargetFormat, // 👈 DB 데이터
+      '{{DEFAULT_INSTRUCTION}}': dbInstruction,
       '{{language}}': language === 'en' ? 'English' : 'Korean',
     };
 

@@ -373,9 +373,7 @@ export default function Wealth({}) {
         '{{subQuestion}}': subQDetail,
         '{{gender}}': gender,
         '{{todayStr}}': todayStr,
-        '{{mySajuStr}}': JSON.stringify(saju),
-        '{{pillarGuide}}':
-          'sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야',
+        '{{mySajuStr}}': `${mySajuStr} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
         '{{displayName}}': displayName,
         '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
       };

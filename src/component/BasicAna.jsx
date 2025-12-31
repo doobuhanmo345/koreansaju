@@ -480,7 +480,7 @@ const BasicAna = ({ inputDate, saju, inputGender, isTimeUnknown, handleSetViewMo
         (item) =>
           `<li class="flex items-start gap-3 text-slate-700 dark:text-slate-300">
          <span class="shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
-         <span class="leading-relaxed tracking-wide text-[15px]">${item}</span>
+         <span "leading-relaxed tracking-wide text-[15px]">${item}</span>
        </li>`,
       )
       .join('');
