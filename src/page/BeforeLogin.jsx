@@ -34,6 +34,69 @@ export default function BeforeLogin() {
 
   const { saju } = useSajuCalculator(memoizedBirthDate, timeUnknown);
 
+  const handleNextStep = () => {
+    const { year, month, day, hour, minute } = birthData;
+    const y = parseInt(year);
+    const m = parseInt(month);
+    const d = parseInt(day);
+    const h = parseInt(hour);
+    const min = parseInt(minute);
+
+    // 1. 연도 체크 (1900-2030)
+    if (!y || y < 1900 || y > 2030) {
+      alert(
+        language === 'ko'
+          ? '연도를 1900~2030년 사이로 입력해주세요.'
+          : 'Please enter a year between 1900-2030.',
+      );
+      return;
+    }
+
+    // 2. 월 체크 (1-12)
+    if (!m || m < 1 || m > 12) {
+      alert(
+        language === 'ko'
+          ? '월을 1~12월 사이로 입력해주세요.'
+          : 'Please enter a month between 1-12.',
+      );
+      return;
+    }
+
+    // 3. 일 체크 (해당 월의 실제 마지막 날짜 계산)
+    // JavaScript의 Date 객체는 day에 0을 넣으면 '이전 달의 마지막 날'을 반환하는 특성을 이용
+    const lastDayOfMonth = new Date(y, m, 0).getDate();
+    if (!d || d < 1 || d > lastDayOfMonth) {
+      alert(
+        language === 'ko'
+          ? `${m}월은 ${lastDayOfMonth}일까지 있습니다. 다시 확인해주세요.`
+          : `${month}/${m} only has ${lastDayOfMonth} days. Please check again.`,
+      );
+      return;
+    }
+
+    // 4. 시간 체크 (0-23)
+    if (isNaN(h) || h < 0 || h > 23) {
+      alert(
+        language === 'ko'
+          ? ' 시간을 0~23시 사이로 입력해주세요.'
+          : 'Please enter hours between 0-23.',
+      );
+      return;
+    }
+
+    // 5. 분 체크 (0-59)
+    if (isNaN(min) || min < 0 || min > 59) {
+      alert(
+        language === 'ko'
+          ? '분을 0~59분 사이로 입력해주세요.'
+          : 'Please enter minutes between 0-59.',
+      );
+      return;
+    }
+
+    // 모든 검증 통과
+    setStep(3);
+  };
   // [데이터 무결성: 요구하신 Z 필드명 정확히 반영]
   useEffect(() => {
     const saveAndRedirect = async () => {
@@ -50,12 +113,14 @@ export default function BeforeLogin() {
               birthDate: birthDate,
               gender: gender,
               isTimeUnknown: timeUnknown,
+              createdAt: userData?.createdAt || new Date(),
               updatedAt: new Date(),
               status: 'active',
               role: userData?.role || 'user',
               editCount: userData?.editCount || 0,
               lastLoginDate: new Date().toISOString().split('T')[0],
               displayedName: userData?.displayedName || user.displayName || '',
+              email: userData?.email || user.email || '',
               // 요구하신 Z 필드명으로 수정
               usageHistory: userData?.usageHistory || {
                 ZLastDaily: null,
@@ -236,18 +301,24 @@ export default function BeforeLogin() {
                 <input
                   type="number"
                   placeholder="YYYY"
+                  min="1900"
+                  max="2030"
                   className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                   onChange={(e) => setBirthData({ ...birthData, year: e.target.value })}
                 />
                 <input
                   type="number"
                   placeholder="MM"
+                  min="1"
+                  max="12"
                   className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                   onChange={(e) => setBirthData({ ...birthData, month: e.target.value })}
                 />
                 <input
                   type="number"
                   placeholder="DD"
+                  min="1"
+                  max="31"
                   className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                   onChange={(e) => setBirthData({ ...birthData, day: e.target.value })}
                 />
@@ -258,12 +329,16 @@ export default function BeforeLogin() {
                   <input
                     type="number"
                     placeholder="시"
+                    min="0"
+                    max="12"
                     className="flex-1 min-w-0 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) => setBirthData({ ...birthData, hour: e.target.value })}
                   />
                   <span className="font-bold dark:text-white">:</span>
                   <input
                     type="number"
+                    min="0"
+                    max="59"
                     placeholder="분"
                     className="flex-1 min-w-0 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) => setBirthData({ ...birthData, minute: e.target.value })}
@@ -286,7 +361,7 @@ export default function BeforeLogin() {
 
             <button
               disabled={isInvalid}
-              onClick={() => setStep(3)}
+              onClick={handleNextStep}
               className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg disabled:opacity-50 active:scale-95 transition-all"
             >
               {t.complete}
@@ -322,10 +397,7 @@ export default function BeforeLogin() {
               </div>
 
               {/* 일주 분석 텍스트 박스 (5줄 분량) */}
-              <div className="bg-white/80 dark:bg-slate-700/80 backdrop-blur-sm rounded-2xl p-4 text-left border border-indigo-50 shadow-inner">
-                <h3 className="text-lg font-black text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-1">
-                  {language === 'ko' ? '타고난 기운' : 'Innate Energy'}
-                </h3>
+              <div className="">
                 {/* <div onClick={() => setLanguage('en')}>영어</div>
                 <div onClick={() => setLanguage('ko')}>한국</div> */}
 
@@ -416,19 +488,35 @@ export default function BeforeLogin() {
                   </>
                 )}
               </div>
-
-              <p className="mt-4 text-[13px] text-slate-400 font-bold italic tracking-tight">
-                {language === 'ko'
-                  ? '*위 분석은 일주를 기반으로 한 맛보기 요약입니다.'
-                  : '*The analysis above is a preview summary based on your Day Pillar.'}
-              </p>
             </div>
+            <p className="mt-4 text-[13px] text-slate-400 font-bold italic tracking-tight">
+              {language === 'ko' ? (
+                <>
+                  *방금 보신 내용은 사자가 읽어준 짧은 요약이에요. 🦁
+                  <br />
+                  <span className="text-indigo-500 underline decoration-indigo-200 underline-offset-4 hover:text-indigo-600 transition-colors">
+                    로그인하고 들어오시면
+                  </span>{' '}
+                  복잡한 운세 이야기를 훨씬 쉽고 재미있게 풀어서 들려줄게요!
+                </>
+              ) : (
+                <>
+                  *This is just a quick peek from Saza. 🦁
+                  <br />
+                  If you{' '}
+                  <span className="text-indigo-500 underline decoration-indigo-200 underline-offset-4  hover:text-indigo-600 transition-colors">
+                    log in,
+                  </span>{' '}
+                  Saza will explain your destiny in a much simpler and friendlier way!
+                </>
+              )}
+            </p>
 
             <button
               onClick={() => setStep(4)}
               className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
             >
-              {language === 'ko' ? '전체 운세 리포트 저장하기' : 'Save Full Fortune Report'}
+              {language === 'ko' ? '전체 운세 리포트 보러가기' : 'Check Full Fortune Report'}
               <ChevronRightIcon className="w-5 h-5" />
             </button>
           </div>

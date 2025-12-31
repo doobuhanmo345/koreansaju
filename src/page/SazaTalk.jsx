@@ -9,24 +9,16 @@ import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
-import ViewResult from './ViewResult';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
-import {
-  ChatBubbleLeftRightIcon,
-  SparklesIcon,
-  PencilSquareIcon,
-  LockClosedIcon,
-} from '@heroicons/react/24/outline';
+import { PencilSquareIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import CreditIcon from '../ui/CreditIcon';
-
-import TarotLoading from '../component/TarotLoading';
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
 import ViewSazaResult from './ViewSazaResult';
 
 export default function SazaTalk() {
-  const { loading, setLoading, setAiResult } = useLoading();
+  const { setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
   const { saju, gender, birthDate: inputDate } = userData;
   const { language } = useLanguage();
@@ -34,6 +26,7 @@ export default function SazaTalk() {
   const [step, setStep] = useState('intro'); // 'intro' | 'input' | 'selection'
 
   const [userQuestion, setUserQuestion] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // 78장 전체 데크 사용
   const handleAskSaza = async (onStart) => {
@@ -114,24 +107,25 @@ export default function SazaTalk() {
 
   const Loading = () => {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[350px] overflow-hidden">
+      // transform-gpu 클래스로 GPU 가속 활성화
+      <div className="flex flex-col items-center justify-center min-h-[350px] overflow-hidden transform-gpu">
         <div className="relative flex items-center justify-center w-64 h-64">
-          {/* 1. 배경 회전 링 - Tailwind 기본 animate-spin 활용 (가장 부드러움) */}
-          <div className="absolute w-40 h-40 rounded-full border border-indigo-100 dark:border-indigo-900/30 animate-[spin_3s_linear_infinite] opacity-50"></div>
+          {/* 1. 배경 회전 링 - will-change-transform 추가 */}
+          <div className="absolute w-40 h-40 rounded-full border border-indigo-100 dark:border-indigo-900/30 animate-[spin_3s_linear_infinite] opacity-50 will-change-transform"></div>
 
-          {/* 2. 공전하는 이모지들 - 임의 값(Arbitrary values) 사용으로 style 태그 제거 */}
-          {/* ✨ 반짝이: 3초 주기 */}
-          <div className="absolute w-48 h-48 animate-[spin_3s_linear_infinite]">
+          {/* 2. 공전하는 이모지들 - 각각 will-change-transform과 backface-visibility 적용 */}
+          {/* ✨ 반짝이 */}
+          <div className="absolute w-48 h-48 animate-[spin_3s_linear_infinite] will-change-transform">
             <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl">✨</span>
           </div>
 
-          {/* ⭐ 별: 5초 주기 반대 방향 */}
-          <div className="absolute w-32 h-32 animate-[spin_5s_linear_infinite_reverse]">
+          {/* ⭐ 별 */}
+          <div className="absolute w-32 h-32 animate-[spin_5s_linear_infinite_reverse] will-change-transform">
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">⭐</span>
           </div>
 
-          {/* 🌙 달: 7초 주기 */}
-          <div className="absolute w-56 h-56 animate-[spin_7s_linear_infinite]">
+          {/* 🌙 달 */}
+          <div className="absolute w-56 h-56 animate-[spin_7s_linear_infinite] will-change-transform">
             <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl">🌙</span>
           </div>
 
@@ -145,8 +139,8 @@ export default function SazaTalk() {
           </div>
         </div>
 
-        {/* 텍스트 구역 */}
-        <div className="mt-4 text-center px-4">
+        {/* 텍스트 구역 (텍스트 렌더링 부하를 줄이기 위해 레이어 분리) */}
+        <div className="mt-4 text-center px-4 transform-gpu">
           <h2 className="text-xl font-black text-slate-700 dark:text-white mb-2">
             {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
           </h2>
@@ -273,65 +267,61 @@ export default function SazaTalk() {
       );
     }
 
-    if (step === 'input') {
-      return (
-        <div className="max-w-lg mx-auto px-6 animate-in slide-in-from-bottom duration-500">
-          <div className="flex items-center gap-2 mb-4 text-purple-600">
-            <PencilSquareIcon className="w-5 h-5" />
-            <h3 className="font-bold">
-              {language === 'ko' ? '당신의 고민을 들려주세요' : 'Tell me what is on your mind'}
-            </h3>
-          </div>
-          <textarea
-            value={userQuestion}
-            onChange={(e) => setUserQuestion(e.target.value)}
-            placeholder={
-              language === 'ko'
-                ? '예: 요즘 대인관계 때문에 너무 힘들어요. 어떻게 하면 좋을까요?'
-                : 'Ex: I am struggling with relationships lately. What should I do?'
-            }
-            className="w-full h-40 p-4 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 focus:border-transparent outline-none resize-none text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-inner placeholder:text-slate-400 dark:placeholder:text-slate-500"
-          />
-
-          <button
-            onClick={() => userQuestion.trim() && handleAskSaza(onStart)}
-            disabled={!userQuestion.trim()}
-            className={classNames(
-              'w-full gap-3 py-4 mt-6 rounded-xl font-bold transition-all',
-              userQuestion.trim()
-                ? 'bg-purple-600 dark:bg-purple-700 text-white shadow-lg shadow-purple-100 dark:shadow-none'
-                : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed',
-            )}
-          >
-            <div className="flex gap-3 justify-center align-center">
-              <div className="flex justify-center items-center">
-                {language === 'ko' ? '물어보기' : 'Ask Saza'}
-              </div>
-
-              {/* 부모 컨테이너: justify-center 추가 */}
-              <div className="flex justify-center items-center text-center mt-1">
-                {isLocked ? (
-                  <div className="mt-1 flex items-center justify-center gap-1 backdrop-blur-sm px-2 py-1 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40">
-                    <span className="flex items-center justify-center">
-                      <LockClosedIcon className="w-4 h-4 text-amber-500" />
-                    </span>
-                  </div>
-                ) : (
-                  user && (
-                    /* 배지 컨테이너: mx-auto를 넣어 부모 안에서 중앙을 잡도록 설정 */
-                    <div className="relative scale-90 w-10 flex justify-center mx-auto">
-                      <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-          </button>
+    return (
+      <div className="max-w-lg mx-auto px-6 animate-in slide-in-from-bottom duration-500">
+        <div className="flex items-center gap-2 mb-4 text-purple-600">
+          <PencilSquareIcon className="w-5 h-5" />
+          <h3 className="font-bold">
+            {language === 'ko' ? '당신의 고민을 들려주세요' : 'Tell me what is on your mind'}
+          </h3>
         </div>
-      );
-    }
+        <textarea
+          value={userQuestion}
+          onChange={(e) => setUserQuestion(e.target.value)}
+          placeholder={
+            language === 'ko'
+              ? '예: 요즘 대인관계 때문에 너무 힘들어요. 어떻게 하면 좋을까요?'
+              : 'Ex: I am struggling with relationships lately. What should I do?'
+          }
+          className="w-full h-40 p-4 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 focus:border-transparent outline-none resize-none text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-inner placeholder:text-slate-400 dark:placeholder:text-slate-500"
+        />
 
-    return <></>;
+        <button
+          onClick={() => userQuestion.trim() && handleAskSaza(onStart)}
+          disabled={!userQuestion.trim()}
+          className={classNames(
+            'w-full gap-3 py-4 mt-6 rounded-xl font-bold transition-all',
+            userQuestion.trim()
+              ? 'bg-purple-600 dark:bg-purple-700 text-white shadow-lg shadow-purple-100 dark:shadow-none'
+              : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed',
+          )}
+        >
+          <div className="flex gap-3 justify-center align-center">
+            <div className="flex justify-center items-center">
+              {language === 'ko' ? '물어보기' : 'Ask Saza'}
+            </div>
+
+            {/* 부모 컨테이너: justify-center 추가 */}
+            <div className="flex justify-center items-center text-center mt-1">
+              {isLocked ? (
+                <div className="mt-1 flex items-center justify-center gap-1 backdrop-blur-sm px-2 py-1 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40">
+                  <span className="flex items-center justify-center">
+                    <LockClosedIcon className="w-4 h-4 text-amber-500" />
+                  </span>
+                </div>
+              ) : (
+                user && (
+                  /* 배지 컨테이너: mx-auto를 넣어 부모 안에서 중앙을 잡도록 설정 */
+                  <div className="relative scale-90 w-10 flex justify-center mx-auto">
+                    <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </button>
+      </div>
+    );
   };
 
   // 추가: 로딩이 시작될 때도 상단으로 올리고 싶다면 (선택 사항)
