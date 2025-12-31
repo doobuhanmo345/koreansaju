@@ -1,112 +1,20 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuthContext } from '../context/useAuthContext';
-import {
-  CheckIcon,
-  SparklesIcon,
-  DocumentMagnifyingGlassIcon,
-  ShieldCheckIcon,
-} from '@heroicons/react/24/solid';
-import {
-  LanguageIcon,
-  UserCircleIcon,
-  CakeIcon,
-  ChevronRightIcon,
-  StarIcon,
-} from '@heroicons/react/24/outline';
+import { SparklesIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
+import { CakeIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../context/useLanguageContext';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
+import { calculateSajuData } from '../utils/sajuLogic';
+import { getEng } from '../utils/helpers';
 
 export default function BeforeLogin() {
   const { user, userData, login } = useAuthContext();
-  const [step, setStep] = useState(1);
   const { language, setLanguage } = useLanguage();
-
-  const t = {
-    ko: {
-      step1: '반가워요! 언어를 선택해주세요',
-      intro_title: '당신만의 운명 가이드, SAZA SAJU',
-      intro_desc: '단순한 운세를 넘어, 당신의 삶을 기록하고 분석합니다.',
-      features: [
-        {
-          title: '정밀한 사주 분석',
-          desc: '전통 명리학 기반의 깊이 있는 풀이',
-          icon: <DocumentMagnifyingGlassIcon className="w-5 h-5" />,
-        },
-        {
-          title: '운세 기록 보관함',
-          desc: '과거와 현재의 운의 흐름을 한눈에 기록',
-          icon: <SparklesIcon className="w-5 h-5" />,
-        },
-        {
-          title: '안전한 개인 데이터',
-          desc: '나만 볼 수 있는 프라이빗 분석 결과',
-          icon: <ShieldCheckIcon className="w-5 h-5" />,
-        },
-      ],
-      why_login: '로그인이 필요한 이유',
-      login_reason:
-        '분석 결과를 안전하게 보관하고, 언제 어디서든 당신의 운명 리포트를 다시 확인할 수 있기 때문입니다.',
-      step2: '당신을 위한 맞춤 분석',
-      step2_desc: '개인화된 사주 분석과 기록 저장을 위해\n로그인이 필요합니다.',
-      step3: '정확한 사주 풀이를 위해',
-      step3_desc: '성별과 생년월일을 입력해주시면\n당신만의 운명 지도를 그려드릴게요.',
-      gender_m: '남성',
-      gender_f: '여성',
-      google: '구글로 계속하기',
-      next: '다음으로',
-      complete: '운세 보러가기',
-      start: '서비스 시작하기',
-    },
-    en: {
-      step1: 'Welcome! Select Language',
-      intro_title: 'Your Destiny Guide, SAZA SAJU',
-      intro_desc: 'Beyond simple fortune telling, we record and analyze your life.',
-      features: [
-        {
-          title: 'Precise Saju Analysis',
-          desc: 'In-depth reading based on tradition',
-          icon: <DocumentMagnifyingGlassIcon className="w-5 h-5" />,
-        },
-        {
-          title: 'Fortune Archive',
-          desc: 'Track your luck flow from past to present',
-          icon: <SparklesIcon className="w-5 h-5" />,
-        },
-        {
-          title: 'Secure Personal Data',
-          desc: 'Private analysis results only for you',
-          icon: <ShieldCheckIcon className="w-5 h-5" />,
-        },
-      ],
-      why_login: 'Why Login?',
-      login_reason:
-        'So you can safely store results and access your destiny report anytime, anywhere.',
-      step2: 'Personalized Analysis',
-      step2_desc: 'Please log in for personalized Saju analysis\nand to save your fortune records.',
-      step3: 'For Accurate Reading',
-      step3_desc: 'Enter your gender and birth details and we will\nchart your unique destiny map.',
-      gender_m: 'Male',
-      gender_f: 'Female',
-      google: 'Continue with Google',
-      next: 'Next',
-      complete: 'See my Fortune',
-      start: 'Get Started',
-    },
-  }[language];
-
-  const handleLogin = async () => {
-    try {
-      await login();
-      setStep(3);
-    } catch (err) {
-      console.error('Login failed', err);
-    }
-  };
-
-  const [gender, setGender] = useState('male'); // 기본값 남성
+  const [sajuData, setSajuData] = useState();
+  const [step, setStep] = useState(1);
+  const [gender, setGender] = useState('male');
   const [birthData, setBirthData] = useState({
     year: '',
     month: '',
@@ -115,99 +23,162 @@ export default function BeforeLogin() {
     minute: '',
   });
   const [timeUnknown, setTimeUnknown] = useState(false);
+  const pad = (n) => n?.toString().padStart(2, '0') || '00';
   const memoizedBirthDate = useMemo(() => {
-    const pad = (n) => n?.toString().padStart(2, '0') || '00';
     const { year, month, day, hour, minute } = birthData;
-
-    // 필수 값이 없으면 null 반환
     if (!year || !month || !day) return null;
-
+    const pad = (n) => n?.toString().padStart(2, '0') || '00';
     const formatted = `${year}-${pad(month)}-${pad(day)}T${timeUnknown ? '12' : pad(hour)}:${timeUnknown ? '00' : pad(minute)}`;
     return new Date(formatted);
-  }, [birthData, timeUnknown]); // birthData나 timeUnknown이 바뀔 때만 다시 계산
+  }, [birthData, timeUnknown]);
 
-  // 2. 훅 호출 (메모이제이션된 날짜 전달)
-  // memoizedBirthDate가 null일 때 훅 내부에서 에러가 날 수 있다면 방어 로직이 필요할 수 있습니다.
   const { saju } = useSajuCalculator(memoizedBirthDate, timeUnknown);
 
-  const handleComplete = async () => {
-    if (!user?.uid) return;
+  // [데이터 무결성: 요구하신 Z 필드명 정확히 반영]
+  useEffect(() => {
+    const saveAndRedirect = async () => {
+      if (user?.uid && step === 4) {
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const pad = (n) => n.toString().padStart(2, '0');
+          const birthDate = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
 
-    // 1. 필수값 추출
-    const { year, month, day, hour, minute } = birthData;
+          await setDoc(
+            userRef,
+            {
+              saju: saju,
+              birthDate: birthDate,
+              gender: gender,
+              isTimeUnknown: timeUnknown,
+              updatedAt: new Date(),
+              status: 'active',
+              role: userData?.role || 'user',
+              editCount: userData?.editCount || 0,
+              lastLoginDate: new Date().toISOString().split('T')[0],
+              displayedName: userData?.displayedName || user.displayName || '',
+              // 요구하신 Z 필드명으로 수정
+              usageHistory: userData?.usageHistory || {
+                ZLastDaily: null,
+                ZLastNewYear: null,
+                ZApiAnalysis: null,
+                ZWealthAnalysis: null,
+                ZMatchAnalysis: null,
+                ZCookie: null,
+              },
+              question_history: userData?.question_history || [],
+            },
+            { merge: true },
+          );
 
-    // 2. 유효성 검사 (하나라도 비어있으면 중단)
-    const isDateEmpty = !year || !month || !day;
-    const isTimeEmpty = !timeUnknown && (!hour || !minute);
+          window.location.replace('/');
+        } catch (err) {
+          console.error('저장 오류:', err);
+        }
+      }
+    };
+    saveAndRedirect();
+  }, [user, step]);
 
-    if (isDateEmpty || isTimeEmpty) {
-      alert(language === 'ko' ? '모든 정보를 입력해주세요!' : 'Please fill in all information!');
-      return; // 👈 여기서 중단되어야 함
+  const t = {
+    ko: {
+      step1: '언어를 선택해주세요',
+      step2: '정보를 입력해주세요',
+      step3: '분석 완료!',
+      step3_desc: '로그인하시면 결과를 저장하고 리포트를 확인합니다.',
+      gender_m: '남성',
+      gender_f: '여성',
+      google: '구글로 로그인하고 결과 저장하기',
+      complete: '사주 분석하기',
+      time_unknown: '태어난 시간을 몰라요',
+    },
+    en: {
+      step1: 'Select Language',
+      step2: 'Enter Information',
+      step3: 'Analysis Ready!',
+      step3_desc: 'Login to save your data.',
+      gender_m: 'Male',
+      gender_f: 'Female',
+      google: 'Continue with Google',
+      complete: 'Analyze',
+      time_unknown: 'Unknown Time',
+    },
+  }[language];
+
+  const isInvalid =
+    !birthData.year ||
+    !birthData.month ||
+    !birthData.day ||
+    (!timeUnknown && (!birthData.hour || !birthData.minute));
+  useEffect(() => {
+    if (!!memoizedBirthDate) {
+      const date = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
+      const data = calculateSajuData(date, gender, timeUnknown, language) || '';
+      if (data) {
+        setSajuData(data);
+        //   if (data.currentDaewoon) setSelectedDae(data.currentDaewoon);
+      }
     }
-
-    // 3. 데이터 포맷팅
-
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const pad = (n) => n.toString().padStart(2, '0');
-      const formattedBirthdate = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
-
-      await updateDoc(userRef, {
-        // 1. 사용자가 입력한 데이터
-        gender: gender,
-        birthDate: formattedBirthdate,
-        isTimeUnknown: timeUnknown,
-        saju: saju,
-        updatedAt: new Date(),
-        createdAt: userData?.createdAt || new Date(),
-
-        // 2. 혹시 누락되었을지 모르는 기본 필드 강제 주입 (기존 값이 있으면 유지, 없으면 생성)
-        // 주의: 필드명이 정확해야 합니다.
-        role: userData?.role || 'user',
-        status: 'active',
-        editCount: userData?.editCount || 0,
-
-        // 3. 질문 기록 및 히스토리 구조 잡아주기
-        // 필드가 아예 없을 때만 초기화하고 싶다면 로직을 분리할 수 있지만,
-        // 보통 아래처럼 구조를 명시해주는 것이 안전합니다.
-        usageHistory: userData?.usageHistory || {
-          ZLastNewYear: null,
-          lastDailyFortune: null,
-          lastWealthFortune: null,
-          lastMatchFortune: null,
-        },
-        question_history: userData?.question_history || [],
-        //정보
-        email: user.email,
-        photoURL: user.photoURL,
-        uid: user.uid,
-      });
-
-      // 저장 성공 후 이동
-      window.location.href = '/';
-    } catch (error) {
-      console.error('저장 실패:', error);
-      alert('정보 저장 중 오류가 발생했습니다.');
-    }
+  }, [step]);
+  console.log(sajuData);
+  const sajuDict = {
+    // 1. 오행 특성 (Dominant Element)
+    ohaeng: {
+      wood: {
+        ko: '성장과 시작, 곧게 뻗어 나가는 추진력',
+        en: 'growth, beginnings, and forward momentum',
+      },
+      fire: {
+        ko: '열정과 확산, 세상을 밝히는 화려한 에너지',
+        en: 'passion, expansion, and brilliant energy',
+      },
+      earth: {
+        ko: '중재와 신뢰, 모든 것을 포용하는 묵직함',
+        en: 'mediation, trust, and heavy inclusiveness',
+      },
+      metal: {
+        ko: '결단과 숙살, 날카로운 분석력과 강한 의지',
+        en: 'decision, sharp analysis, and strong will',
+      },
+      water: {
+        ko: '지혜와 유연함, 깊은 통찰력과 적응력',
+        en: 'wisdom, flexibility, and deep insight',
+      },
+    },
+    // 2. 천간 (Heavenly Stems)
+    sky: {
+      갑: { ko: '추진력과 리더십', en: 'drive and leadership' },
+      을: { ko: '끈질긴 생명력', en: 'persistent vitality' },
+      병: { ko: '열정과 화려함', en: 'passion and brilliance' },
+      정: { ko: '따뜻한 배려심', en: 'warm consideration' },
+      무: { ko: '듬직한 신뢰감', en: 'reliable trust' },
+      기: { ko: '섬세한 정성', en: 'delicate sincerity' },
+      경: { ko: '단호한 결단력', en: 'firm determination' },
+      신: { ko: '예리한 통찰력', en: 'sharp insight' },
+      임: { ko: '깊은 지혜', en: 'profound wisdom' },
+      계: { ko: '유연한 감수성', en: 'flexible sensitivity' },
+    },
+    // 3. 지지 (Earthly Branches)
+    grd: {
+      자: { ko: '높은 집중력', en: 'high concentration' },
+      축: { ko: '성실한 끈기', en: 'sincere persistence' },
+      인: { ko: '용맹한 기상', en: 'brave spirit' },
+      묘: { ko: '창의적인 감각', en: 'creative talent' },
+      진: { ko: '변화무쌍한 이상', en: 'versatile ideals' },
+      사: { ko: '빠른 행동력', en: 'fast action' },
+      오: { ko: '정열적인 태도', en: 'passionate attitude' },
+      미: { ko: '흔들리지 않는 고집', en: 'unwavering persistence' },
+      신: { ko: '임기응변', en: 'adaptability' },
+      유: { ko: '철저한 완벽주의', en: 'thorough perfectionism' },
+      술: { ko: '책임감 있는 태도', en: 'responsible attitude' },
+      해: { ko: '깊은 이해심', en: 'deep understanding' },
+    },
   };
-
-  // 버튼 비활성화 조건 정의
-  // 1. 년, 월, 일은 무조건 있어야 함
-  // 1. 년, 월, 일은 어떤 경우에도 비어있으면 안 됨
-  const isDateInvalid = !birthData.year || !birthData.month || !birthData.day;
-
-  // 2. 시간을 모르는 게 아닐 때(false)만 시, 분이 비어있는지 체크
-  // (시간을 안다고 했으니 시/분이 비어있으면 Invalid가 됨)
-  const isTimeInvalid = !timeUnknown && (!birthData.hour || !birthData.minute);
-
-  // 3. 최종 판단: 날짜가 잘못됐거나, 시간이 잘못됐으면 버튼 비활성화
-  const isInvalid = isDateInvalid || isTimeInvalid;
-
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 transition-all">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-white dark:border-slate-800">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-slate-100 dark:border-slate-800">
+        {/* Progress Bar */}
         <div className="flex justify-center gap-2 mb-2">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
               className={`h-1.5 rounded-full transition-all duration-500 ${step >= s ? 'w-8 bg-indigo-500' : 'w-2 bg-slate-200 dark:bg-slate-700'}`}
@@ -216,18 +187,15 @@ export default function BeforeLogin() {
         </div>
 
         {step === 1 && (
-          <div className="space-y-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-indigo-50 dark:bg-indigo-900/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <LanguageIcon className="w-8 h-8 text-indigo-500" />
-            </div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white">{t.step1}</h2>
+          <div className="space-y-6 animate-in fade-in">
+            <h2 className="text-2xl font-black text-center dark:text-white">{t.step1}</h2>
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => {
                   setLanguage('ko');
                   setStep(2);
                 }}
-                className={`p-4 rounded-2xl border-2 font-bold transition-all ${language === 'ko' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600' : 'border-slate-100 dark:border-slate-800'}`}
+                className="p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold dark:text-white hover:border-indigo-500 transition-all"
               >
                 한국어
               </button>
@@ -236,7 +204,7 @@ export default function BeforeLogin() {
                   setLanguage('en');
                   setStep(2);
                 }}
-                className={`p-4 rounded-2xl border-2 font-bold transition-all ${language === 'en' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600' : 'border-slate-100 dark:border-slate-800 dark:text-white'}`}
+                className="p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold dark:text-white hover:border-indigo-500 transition-all"
               >
                 English
               </button>
@@ -244,209 +212,241 @@ export default function BeforeLogin() {
           </div>
         )}
 
-        {step === 1.5 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 text-left">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {t.intro_title}
-              </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                {t.intro_desc}
-              </p>
-            </div>
-            <div className="space-y-3">
-              {t.features.map((f, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800"
-                >
-                  <div className="text-indigo-500 bg-white dark:bg-slate-700 p-2 rounded-xl shadow-sm">
-                    {f.icon}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-black text-slate-800 dark:text-slate-200">
-                      {f.title}
-                    </h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold leading-tight">
-                      {f.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
-              <h4 className="text-xs font-black text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-1">
-                <StarIcon className="w-3 h-3" /> {t.why_login}
-              </h4>
-              <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 font-bold">
-                {t.login_reason}
-              </p>
-            </div>
-            <button
-              onClick={() => setStep(2)}
-              className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg flex items-center justify-center gap-2 group transition-all active:scale-95"
-            >
-              {t.start}{' '}
-              <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        )}
-
         {step === 2 && (
-          <div className="space-y-6 text-center animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <UserCircleIcon className="w-8 h-8 text-emerald-500" />
-            </div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white">{t.step2}</h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium whitespace-pre-wrap leading-relaxed">
-              {t.step2_desc}
-            </p>
-            <button
-              onClick={handleLogin}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-black text-slate-700 dark:text-slate-200 hover:bg-slate-50 shadow-sm group"
-            >
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                className="w-5 h-5 group-hover:scale-110 transition-transform"
-                alt="google"
-              />
-              {t.google}
-            </button>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-6 text-left animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="text-center space-y-2">
-              <div className="bg-amber-50 dark:bg-amber-900/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <CakeIcon className="w-8 h-8 text-amber-500" />
-              </div>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white">{t.step3}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">{t.step3_desc}</p>
+          <div className="space-y-6 animate-in slide-in-from-right-4">
+            <div className="text-center">
+              <CakeIcon className="w-12 h-12 text-amber-500 mx-auto mb-2" />
+              <h2 className="text-2xl font-black dark:text-white">{t.step2}</h2>
             </div>
 
             <div className="space-y-4">
-              {/* 성별 선택 섹션 추가 */}
               <div className="flex gap-2">
-                <button
-                  onClick={() => setGender('male')}
-                  className={`flex-1 p-3 rounded-xl border-2 font-bold transition-all ${gender === 'male' ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 dark:border-slate-800 dark:text-white'}`}
-                >
-                  {t.gender_m}
-                </button>
-                <button
-                  onClick={() => setGender('female')}
-                  className={`flex-1 p-3 rounded-xl border-2 font-bold transition-all ${gender === 'female' ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 dark:border-slate-800 dark:text-white'}`}
-                >
-                  {t.gender_f}
-                </button>
+                {['male', 'female'].map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setGender(g)}
+                    className={`flex-1 p-3 rounded-xl border-2 font-bold transition-all ${gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 dark:border-slate-800 dark:text-white'}`}
+                  >
+                    {g === 'male' ? t.gender_m : t.gender_f}
+                  </button>
+                ))}
               </div>
 
-              {/* 연월일 입력 섹션 */}
               <div className="grid grid-cols-3 gap-2">
-                {/* YEAR */}
                 <input
                   type="number"
                   placeholder="YYYY"
-                  min="1900"
-                  max="2100"
-                  value={birthData.year}
-                  className="p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val.length <= 4) setBirthData({ ...birthData, year: val });
-                  }}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                  onChange={(e) => setBirthData({ ...birthData, year: e.target.value })}
                 />
-                {/* MONTH */}
                 <input
                   type="number"
                   placeholder="MM"
-                  min="1"
-                  max="12"
-                  value={birthData.month}
-                  className="p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                  onChange={(e) => {
-                    let val = e.target.value;
-                    if (val === '' || (Number(val) >= 1 && Number(val) <= 12)) {
-                      setBirthData({ ...birthData, month: val });
-                    }
-                  }}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                  onChange={(e) => setBirthData({ ...birthData, month: e.target.value })}
                 />
-                {/* DAY */}
                 <input
                   type="number"
                   placeholder="DD"
-                  min="1"
-                  max="31"
-                  value={birthData.day}
-                  className="p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                  onChange={(e) => {
-                    let val = e.target.value;
-                    if (val === '' || (Number(val) >= 1 && Number(val) <= 31)) {
-                      setBirthData({ ...birthData, day: val });
-                    }
-                  }}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                  onChange={(e) => setBirthData({ ...birthData, day: e.target.value })}
                 />
               </div>
 
-              {/* 시간 입력 섹션 (시/분에도 min, max 추가) */}
               {!timeUnknown && (
-                <div className="flex items-center gap-2 animate-in zoom-in-95 duration-300">
+                <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    placeholder="시 (0-23)"
-                    min="0"
-                    max="23"
-                    value={birthData.hour}
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                    onChange={(e) => {
-                      let val = e.target.value;
-                      if (val === '' || (Number(val) >= 0 && Number(val) <= 23)) {
-                        setBirthData({ ...birthData, hour: val });
-                      }
-                    }}
+                    placeholder="시"
+                    className="flex-1 min-w-0 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    onChange={(e) => setBirthData({ ...birthData, hour: e.target.value })}
                   />
                   <span className="font-bold dark:text-white">:</span>
                   <input
                     type="number"
-                    placeholder="분 (0-59)"
-                    min="0"
-                    max="59"
-                    value={birthData.minute}
-                    className="w-full p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                    onChange={(e) => {
-                      let val = e.target.value;
-                      if (val === '' || (Number(val) >= 0 && Number(val) <= 59)) {
-                        setBirthData({ ...birthData, minute: val });
-                      }
-                    }}
+                    placeholder="분"
+                    className="flex-1 min-w-0 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    onChange={(e) => setBirthData({ ...birthData, minute: e.target.value })}
                   />
                 </div>
               )}
-              <label className="flex items-center gap-3 cursor-pointer group p-1">
+
+              <label className="flex items-center gap-2 cursor-pointer w-fit group">
                 <input
                   type="checkbox"
-                  className="sr-only"
                   checked={timeUnknown}
                   onChange={(e) => setTimeUnknown(e.target.checked)}
+                  className="w-5 h-5 accent-indigo-500"
                 />
-                <div
-                  className={`w-6 h-6 border-2 rounded-md transition-all flex items-center justify-center ${timeUnknown ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 dark:border-slate-600'}`}
-                >
-                  {timeUnknown && <CheckIcon className="w-5 h-5 text-white" />}
-                </div>
-                <span className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-indigo-500 transition-colors">
-                  {language === 'ko' ? '태어난 시간을 잘 몰라요' : "I don't know my birth time"}
+                <span className="text-sm font-bold text-slate-500 group-hover:text-indigo-500 transition-colors">
+                  {t.time_unknown}
                 </span>
               </label>
             </div>
 
             <button
-              className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all mt-4"
-              onClick={handleComplete}
-              disabled={isInvalid} //
+              disabled={isInvalid}
+              onClick={() => setStep(3)}
+              className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-lg disabled:opacity-50 active:scale-95 transition-all"
             >
               {t.complete}
+            </button>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-5 text-center animate-in `slide-in-from-right-4">
+            <div className="space-y-1">
+              <SparklesIcon className="w-10 h-10 text-yellow-400 mx-auto animate-bounce" />
+              <h2 className="text-xl font-black dark:text-white">{t.step3}</h2>
+            </div>
+
+            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-dashed border-indigo-200 dark:border-indigo-900">
+              {/* 8글자 간지 표시 (콤팩트하게 변경) */}
+              <div className="grid grid-cols-4 gap-2 mb-5">
+                {saju?.kanji?.map((k, i) => (
+                  <div
+                    key={i}
+                    className={`flex flex-col p-2 bg-white dark:bg-slate-700 rounded-xl shadow-sm border ${i === 1 ? 'border-rose-300 ring-2 ring-rose-100' : 'border-slate-100 dark:border-slate-600'}`}
+                  >
+                    <span className="text-[9px] text-slate-400 font-bold">
+                      {['시', '일', '월', '년'][3 - i]}
+                    </span>
+                    <span
+                      className={`text-base font-black ${i === 1 ? 'text-rose-500' : 'text-slate-700 dark:text-slate-300'}`}
+                    >
+                      {k}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* 일주 분석 텍스트 박스 (5줄 분량) */}
+              <div className="bg-white/80 dark:bg-slate-700/80 backdrop-blur-sm rounded-2xl p-4 text-left border border-indigo-50 shadow-inner">
+                <h3 className="text-lg font-black text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-1">
+                  {language === 'ko' ? '타고난 기운' : 'Innate Energy'}
+                </h3>
+                {/* <div onClick={() => setLanguage('en')}>영어</div>
+                <div onClick={() => setLanguage('ko')}>한국</div> */}
+
+                {!!sajuData && (
+                  <>
+                    <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed space-y-2 font-medium text-left">
+                      {/* 1. 오행 상세 분석 */}
+                      <p>
+                        •
+                        {language === 'ko' ? (
+                          <>
+                            가장 강한
+                            {sajuData.maxOhaeng[0] === 'fire'
+                              ? '불(火)'
+                              : sajuData.maxOhaeng[0] === 'water'
+                                ? '물(水)'
+                                : sajuData.maxOhaeng[0] === 'wood'
+                                  ? '나무(木)'
+                                  : sajuData.maxOhaeng[0] === 'metal'
+                                    ? '금(金)'
+                                    : '흙(土)'}
+                            의 기운을 타고나 {sajuDict.ohaeng[sajuData.maxOhaeng[0]]?.ko}이(가) 매우
+                            돋보입니다.
+                          </>
+                        ) : (
+                          <>
+                            Your dominant element is {sajuData.maxOhaeng[0].toUpperCase()},
+                            characterized by {sajuDict.ohaeng[sajuData.maxOhaeng[0]]?.en}.
+                          </>
+                        )}
+                      </p>
+                      {/* 2. 일주 상세 분석 */}
+                      <p>
+                        •{' '}
+                        {language === 'ko' ? (
+                          <>
+                            {sajuData.saju?.sky1}
+                            {sajuData.saju?.grd1}일주로서, {sajuDict.sky[sajuData.saju?.sky1]?.ko}와{' '}
+                            {sajuDict.grd[sajuData.saju?.grd1]?.ko}의 조화를 갖춘 성격을 가지고
+                            있습니다.
+                          </>
+                        ) : (
+                          <>
+                            As a {getEng(saju.sky1)}
+                            {getEng(saju.grd1)} person, you possess a mix of
+                            {sajuDict.sky[sajuData.saju?.sky1]?.en} and
+                            {sajuDict.grd[sajuData.saju?.grd1]?.en}.
+                          </>
+                        )}
+                      </p>
+                      {/* 3. 대운/신살/관계 (기존과 동일) */}
+                      <p>
+                        •{' '}
+                        {language === 'ko' ? (
+                          <>
+                            현재 {sajuData.currentDaewoon?.name} 대운의 흐름 속에 있으며, 사주에
+                            깃든 {sajuData.myShinsal?.map((s) => s.name).join(', ')}의 기운이 특별한
+                            능력을 발휘하게 돕습니다.
+                          </>
+                        ) : (
+                          <>
+                            Currently in the {getEng(sajuData.currentDaewoon?.name?.[0])}
+                            {getEng(sajuData.currentDaewoon?.name?.[1])} Luck Cycle.
+                          </>
+                        )}
+                      </p>
+                      {/* the influence of **{sajuData.myShinsal?.map((s) => s.name).join(', ')}**
+                      enhances your unique potential. */}
+                      {/* 4. 주의사항 (충/관계) */}
+                      {sajuData.relations && sajuData.relations.length > 0 && (
+                        <p className="text-rose-500 font-bold">
+                          •{' '}
+                          {language === 'ko' ? (
+                            <>
+                              주의: {sajuData.relations[0].ko.name}의 영향으로{' '}
+                              {sajuData.relations[0].ko.desc.split('니')[0]}니 세심한 관리가
+                              필요합니다.
+                            </>
+                          ) : (
+                            <>
+                              Caution: Due to **{sajuData.relations[0].en.name}**,{' '}
+                              {sajuData.relations[0].en.desc.toLowerCase()}
+                            </>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <p className="mt-4 text-[13px] text-slate-400 font-bold italic tracking-tight">
+                {language === 'ko'
+                  ? '*위 분석은 일주를 기반으로 한 맛보기 요약입니다.'
+                  : '*The analysis above is a preview summary based on your Day Pillar.'}
+              </p>
+            </div>
+
+            <button
+              onClick={() => setStep(4)}
+              className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+            >
+              {language === 'ko' ? '전체 운세 리포트 저장하기' : 'Save Full Fortune Report'}
+              <ChevronRightIcon className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+        {step === 4 && (
+          <div className="space-y-6 animate-in slide-in-from-bottom-4 text-center">
+            <ShieldCheckIcon className="w-12 h-12 text-emerald-500 mx-auto" />
+            <h2 className="text-2xl font-black dark:text-white">결과 저장하기</h2>
+            <button
+              onClick={() => login()}
+              className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-black text-slate-700 dark:text-white hover:bg-slate-50 transition-all shadow-xl"
+            >
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                className="w-6 h-6"
+                alt="google"
+              />
+              {t.google}
             </button>
           </div>
         )}
