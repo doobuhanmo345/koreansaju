@@ -159,6 +159,7 @@ export default function BeforeLogin() {
         isTimeUnknown: timeUnknown,
         saju: saju,
         updatedAt: new Date(),
+        createdAt: userData?.createdAt || new Date(),
 
         // 2. 혹시 누락되었을지 모르는 기본 필드 강제 주입 (기존 값이 있으면 유지, 없으면 생성)
         // 주의: 필드명이 정확해야 합니다.
@@ -176,6 +177,10 @@ export default function BeforeLogin() {
           lastMatchFortune: null,
         },
         question_history: userData?.question_history || [],
+        //정보
+        email: user.email,
+        photoURL: user.photoURL,
+        uid: user.uid,
       });
 
       // 저장 성공 후 이동
@@ -337,45 +342,87 @@ export default function BeforeLogin() {
                 </button>
               </div>
 
+              {/* 연월일 입력 섹션 */}
               <div className="grid grid-cols-3 gap-2">
+                {/* YEAR */}
                 <input
                   type="number"
                   placeholder="YYYY"
+                  min="1900"
+                  max="2100"
+                  value={birthData.year}
                   className="p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                  onChange={(e) => setBirthData({ ...birthData, year: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.length <= 4) setBirthData({ ...birthData, year: val });
+                  }}
                 />
+                {/* MONTH */}
                 <input
                   type="number"
                   placeholder="MM"
+                  min="1"
+                  max="12"
+                  value={birthData.month}
                   className="p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                  onChange={(e) => setBirthData({ ...birthData, month: e.target.value })}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val === '' || (Number(val) >= 1 && Number(val) <= 12)) {
+                      setBirthData({ ...birthData, month: val });
+                    }
+                  }}
                 />
+                {/* DAY */}
                 <input
                   type="number"
                   placeholder="DD"
+                  min="1"
+                  max="31"
+                  value={birthData.day}
                   className="p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                  onChange={(e) => setBirthData({ ...birthData, day: e.target.value })}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val === '' || (Number(val) >= 1 && Number(val) <= 31)) {
+                      setBirthData({ ...birthData, day: val });
+                    }
+                  }}
                 />
               </div>
 
+              {/* 시간 입력 섹션 (시/분에도 min, max 추가) */}
               {!timeUnknown && (
                 <div className="flex items-center gap-2 animate-in zoom-in-95 duration-300">
                   <input
                     type="number"
                     placeholder="시 (0-23)"
+                    min="0"
+                    max="23"
+                    value={birthData.hour}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                    onChange={(e) => setBirthData({ ...birthData, hour: e.target.value })}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (val === '' || (Number(val) >= 0 && Number(val) <= 23)) {
+                        setBirthData({ ...birthData, hour: val });
+                      }
+                    }}
                   />
                   <span className="font-bold dark:text-white">:</span>
                   <input
                     type="number"
                     placeholder="분 (0-59)"
+                    min="0"
+                    max="59"
+                    value={birthData.minute}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 rounded-xl outline-none focus:border-indigo-500 dark:text-white font-bold"
-                    onChange={(e) => setBirthData({ ...birthData, minute: e.target.value })}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (val === '' || (Number(val) >= 0 && Number(val) <= 59)) {
+                        setBirthData({ ...birthData, minute: val });
+                      }
+                    }}
                   />
                 </div>
               )}
-
               <label className="flex items-center gap-3 cursor-pointer group p-1">
                 <input
                   type="checkbox"

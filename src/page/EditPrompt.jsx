@@ -111,6 +111,7 @@ const EditPrompt = () => {
     fetchPromptContent();
   }, [targetPath]);
 
+  // 변수
   const insertVariable = (variable) => {
     const textarea = promptArea.current;
     if (!textarea) return;
@@ -132,7 +133,7 @@ const EditPrompt = () => {
   const variableMapper = {
     basic: basic_var,
     match_basic: match_var,
-    daily_basic: daily_var, // 계속 추가 가능
+    daily_basic: daily_var,
     new_year_basic: new_year_var,
     saza_basic: saza_var,
     wealth_basic: wealth_var,
