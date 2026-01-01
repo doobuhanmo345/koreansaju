@@ -207,41 +207,44 @@ export default function OpenInBrowserPage() {
 
   const handleOpenExternal = () => {
     const userAgent = navigator.userAgent.toLowerCase();
-    const hostUrl = window.location.origin;
-    const encodedUrl = encodeURIComponent(hostUrl);
 
-    // 1. 안드로이드 (인스타/페이스북 유입의 50~60%)
-    // 이건 무조건 됩니다. 클릭하면 크롬으로 바로 쏴버립니다.
+    // 외부 브라우저에서 열릴 목적지 주소 (메인 페이지로 보내고 싶다면 origin 사용)
+    const targetUrl = window.location.origin;
+
+    // 만약 특정 페이지(예: /login)로 보내고 싶다면 아래처럼 작성
+    // const targetUrl = window.location.origin + '/login';
+
+    const encodedUrl = encodeURIComponent(targetUrl);
+
+    // 1. 안드로이드 (크롬 강제 실행)
     if (userAgent.includes('android')) {
-      const intentUrl = `intent://${hostUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      // https:// 제거 후 intent 스키마 생성
+      const intentUrl = `intent://${targetUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
       window.location.href = intentUrl;
       return;
     }
 
-    // 2. 카카오톡 (이미 검증됨)
+    // 2. 카카오톡
     if (userAgent.includes('kakaotalk')) {
       window.location.href = `kakaotalk://web/openExternal?url=${encodedUrl}`;
       return;
     }
 
-    // 3. 아이폰 (인스타/페이스북 유입의 나머지 절반)
-    // 애플이 막아놔서 원클릭은 죽어도 안 됩니다.
-    // 대신 버튼 누르면 "아래 메뉴 눌러라"라고 경고창을 아주 자극적으로 띄워야 합니다.
-    if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
-      const guide = document.getElementById('ios-guide');
-      if (guide) {
-        guide.scrollIntoView({ behavior: 'smooth' });
-        guide.style.border = '5px solid #ff3b30'; // 빨간색 왕테두리
-        guide.style.backgroundColor = '#fff0f0';
-      }
-
-      // 유저가 무시 못 하게 알림을 아주 강하게 띄웁니다.
-      alert(
-        lang === 'ko'
-          ? '⚠️ [중요] 아이폰은 시스템 보안상 자동 이동이 안 됩니다!\n\n화면 상단 [...] -> [외부 브라우저에서 열기]를 눌러야 사주를 볼 수 있어요!'
-          : "⚠️ [Action Required] iPhone security blocks auto-redirect.\n\nTap '...' -> 'Open in external browser' at the right top to continue!",
-      );
+    // 3. iOS (인스타/페이스북) - 자동 전환 불가, 수동 가이드 이동
+    const guideSection = document.getElementById('ios-guide');
+    if (guideSection) {
+      guideSection.scrollIntoView({ behavior: 'smooth' });
+      guideSection.style.border = '4px solid #ff3b30';
+      setTimeout(() => {
+        guideSection.style.border = '2px solid #ff3b30';
+      }, 500);
     }
+
+    alert(
+      lang === 'ko'
+        ? "아이폰은 상단 메뉴의 '외부 브라우저로 열기'를 눌러야 로그인이 가능합니다!"
+        : "For iPhone, please tap 'Open in external' from the top menu to login!",
+    );
   };
 
   const toggleLang = () => {
