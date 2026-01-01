@@ -49,9 +49,9 @@ export default function SazaTalk() {
       if (!basicSnap.exists()) throw new Error('DB에 사자 템플릿이 없습니다.');
 
       // 2. 텍스트 가공 (기존 로직 유지)
-      const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
+      const displayName = userData?.displayName || (language === 'ko' ? '의뢰자' : 'User');
       const sajuInfo = `성별:${gender}, 생년월일:${inputDate}, 팔자:${saju} (sky3+grd3=연주, sky2+grd2=월주, sky1+grd1=일주, sky0+grd0=시주). 호칭:${displayName}님.`;
-      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2026년=병오년.`;
+      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2026년=병오년. `;
 
       const replacements = {
         '{{STRICT_PROMPT}}': strictSnap.val() || '',

@@ -105,77 +105,83 @@ export function AuthContextProvider({ children }) {
   }, []);
 
   // 4️⃣ 두 번째 Effect: 유저 데이터 실시간 동기화 및 초기화 로직
+  // 4️⃣ 두 번째 Effect: 유저 데이터 실시간 동기화 및 초기화 로직
   useEffect(() => {
     let unsubscribeSnapshot;
 
-    if (user) {
-      const userDocRef = doc(db, 'users', user.uid);
-      const todayStr = new Date().toLocaleDateString('en-CA');
+    const setupUser = async () => {
+      if (user) {
+        const userDocRef = doc(db, 'users', user.uid);
+        const todayStr = new Date().toLocaleDateString('en-CA');
 
-      unsubscribeSnapshot = onSnapshot(userDocRef, async (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        try {
+          // 1. 우선 데이터를 한 번만 가져와서 리셋이나 생성이 필요한지 확인
+          const docSnap = await getDoc(userDocRef);
 
-          // 1. [일일 리셋 로직] 날짜가 바뀌었으면 카운트 초기화
-          if (!data.lastLoginDate || data.lastLoginDate !== todayStr) {
-            try {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            // [일일 리셋 로직] 날짜가 다를 때만 업데이트 (onSnapshot 밖이라서 무한루프 안 생김)
+            if (!data.lastLoginDate || data.lastLoginDate !== todayStr) {
               await updateDoc(userDocRef, {
                 lastLoginDate: todayStr,
                 editCount: 0,
-                // 여기에 리셋 시 업데이트할 다른 필드가 있다면 추가
+                updatedAt: new Date().toISOString(),
               });
-            } catch (e) {
-              console.error('Daily reset failed:', e);
+              console.log('Daily reset successful');
             }
           } else {
-            // 날짜가 같으면 상태 업데이트
-            setUserData(data);
-          }
-        } else {
-          // 2. [신규 유저 생성] 누락되는 필드 없이 전체 기본 데이터 셋업
-          const initialData = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || '사용자',
-            photoURL: user.photoURL || '',
-            role: 'user',
-            status: 'active',
-            editCount: 0,
-            lastLoginDate: todayStr,
-            gender: 'female', // 기본값
-            birthDate: '',
-            isTimeUnknown: false,
-            saju: null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            // 기록용 객체 초기화 (이게 있어야 에러가 안 남)
-            usageHistory: {
-              ZLastNewYear: null,
-              lastDailyFortune: null,
-              lastWealthFortune: null,
-              lastMatchFortune: null,
-            },
-            question_history: [],
-            dailyUsage: {},
-          };
-          console.log(initialData);
+            // [신규 유저 생성] 요청하신 모든 필드 누락 없이 셋업
+            const initialData = {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName || '사용자',
+              photoURL: user.photoURL || '',
+              role: 'user',
+              status: 'active',
+              editCount: 0,
+              lastLoginDate: todayStr,
+              gender: 'female', // 기본값
+              birthDate: '',
+              isTimeUnknown: false,
+              saju: null,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              // 기록용 객체 (절대 누락 금지)
+              usageHistory: {
+                ZLastNewYear: null,
+                lastDailyFortune: null,
+                lastWealthFortune: null,
+                lastMatchFortune: null,
+              },
+              question_history: [],
+              dailyUsage: {},
+            };
 
-          try {
             await setDoc(userDocRef, initialData);
-            setUserData(initialData);
-          } catch (e) {
-            console.error('New user creation failed:', e);
+            console.log('New user created with full fields');
           }
+        } catch (e) {
+          console.error('User setup failed:', e);
         }
-      });
-    } else {
-      setUserData(null);
-    }
+
+        // 2. 실시간 동기화 (onSnapshot) - 여기서는 업데이트 로직을 제거하여 깜빡임 방지
+        unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data());
+          }
+        });
+      } else {
+        // 유저 로그아웃 시 데이터 초기화
+        setUserData(null);
+      }
+    };
+
+    setupUser();
 
     return () => {
       if (unsubscribeSnapshot) unsubscribeSnapshot();
     };
-  }, [user]);
+  }, [user]); // 오직 로그인 상태(user)가 변할 때만 실행
 
   // 5️⃣ 프로필 정보 업데이트 함수
   const updateProfileData = async (newData) => {
