@@ -106,6 +106,12 @@ export default function BeforeLogin() {
     login();
   };
   useEffect(() => {
+    if (user && userData?.birthDate) {
+      // CASE 1: 기존 회원
+      window.location.replace('/');
+    }
+  }, [user]);
+  useEffect(() => {
     // 1. 로그인 시도 중이 아니거나 인증 정보가 없으면 아예 실행 안 함
     if (!tryLogin || !user) return;
 
