@@ -20,7 +20,7 @@ export function AuthContextProvider({ children }) {
       userData?.isTimeUnknown,
       language,
     );
-    const safeIlju = data.sky1 ? getRomanizedIlju(data.sky1 + data.grd1) : 'gapja';
+    const safeIlju = data?.sky1 ? getRomanizedIlju(data?.sky1 + data?.grd1) : 'gapja';
 
     const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
 

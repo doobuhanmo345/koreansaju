@@ -98,21 +98,43 @@ export default function BeforeLogin() {
     setStep(3);
   };
   // [데이터 무결성: 요구하신 Z 필드명 정확히 반영]
+  const [tryLogin, setTryLogin] = useState(false);
+  // 1. 로그인 시도 함수 수정
   const hasId = async () => {
+    // 상태값 대신 로컬 스토리지를 사용해 기록을 남깁니다.
+    setTryLogin(true);
     login();
   };
-  // BeforeLogin 컴포넌트 내부에 추가
-  useEffect(() => {
-    if (user && userData) {
-      if (userData.birthDate) {
-        window.location.replace('/');
-      } else {
-        // 2. 데이터가 없으면 (신규 회원) -> 알람 띄우고 정보 입력창(Step 2)으로 이동
-        alert('put birthday'); // "가입된 정보가 없습니다..."
-        setStep(1);
-      }
+useEffect(() => {
+  // 1. 로그인 시도 중이 아니거나 인증 정보가 없으면 아예 실행 안 함
+  if (!tryLogin || !user) return;
+
+  // 2. [가장 중요] 데이터가 실제로 로드되었는지 확인
+  // 만약 userData가 초기값(null)이라면, 잠시 대기해야 합니다.
+  // 이 문제를 피하기 위해 'userData'가 확실히 들어오거나,
+  // 혹은 서버에서 '데이터 없음'이 확정될 때까지 기다리는 조건이 필요합니다.
+
+  const checkUser = async () => {
+    // userData가 아직 없는 경우(null 또는 undefined) 0.5초~1초 정도 짧게 대기하며 재확인
+    if (!userData) {
+      // 만약 훅에서 loading 상태를 제공한다면 그것을 쓰는게 베스트입니다.
+      // 예: if (loading) return;
+      return;
     }
-  }, [user, userData]);
+
+    if (userData.birthDate) {
+      // CASE 1: 기존 회원
+      window.location.replace('/');
+    } else {
+      // CASE 2: 아이디는 있는데 생일만 없는 회원
+      alert(language === 'ko' ? '사주 정보를 입력해주세요.' : 'Please enter info.');
+      setStep(2);
+      setTryLogin(false);
+    }
+  };
+
+  checkUser();
+}, [user, userData, tryLogin]);
   useEffect(() => {
     const saveAndRedirect = async () => {
       if (user?.uid && step === 4) {
@@ -134,7 +156,7 @@ export default function BeforeLogin() {
               role: userData?.role || 'user',
               editCount: userData?.editCount || 0,
               lastLoginDate: new Date().toISOString().split('T')[0],
-              displayName:  user.displayName || '',
+              displayName: user.displayName || '',
               email: userData?.email || user.email || '',
               // 요구하신 Z 필드명으로 수정
               usageHistory: userData?.usageHistory || {
@@ -204,7 +226,7 @@ export default function BeforeLogin() {
       }
     }
   }, [step]);
-  console.log(sajuData);
+
   const sajuDict = {
     // 1. 오행 특성 (Dominant Element)
     ohaeng: {
@@ -273,6 +295,7 @@ export default function BeforeLogin() {
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in">
             <h2 className="text-2xl font-black text-center dark:text-white">{t.step1}</h2>
+            <div className={tryLogin ? 'bg-blue-500' : 'bg-red-500'}>언어선택</div>
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => {
@@ -458,8 +481,8 @@ export default function BeforeLogin() {
                           </>
                         ) : (
                           <>
-                            As a {getEng(saju.sky1)}
-                            {getEng(saju.grd1)} person, you possess a mix of
+                            As a {getEng(saju?.sky1)}
+                            {getEng(saju?.grd1)} person, you possess a mix of
                             {sajuDict.sky[sajuData.saju?.sky1]?.en} and
                             {sajuDict.grd[sajuData.saju?.grd1]?.en}.
                           </>
@@ -543,7 +566,7 @@ export default function BeforeLogin() {
             <ShieldCheckIcon className="w-12 h-12 text-emerald-500 mx-auto" />
             <h2 className="text-2xl font-black dark:text-white">결과 저장하기</h2>
             <button
-              onClick={hasId}
+              onClick={() => login()}
               className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-black text-slate-700 dark:text-white hover:bg-slate-50 transition-all shadow-xl"
             >
               <img
@@ -562,7 +585,7 @@ export default function BeforeLogin() {
             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
               {t.already_member}{' '}
               <button
-                onClick={() => login()}
+                onClick={() => hasId()}
                 className="text-indigo-600 dark:text-indigo-400 font-black hover:underline underline-offset-4 transition-all"
               >
                 {t.login_now}
