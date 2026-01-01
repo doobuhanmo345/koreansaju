@@ -369,7 +369,7 @@ export default function BeforeLogin() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    placeholder="시"
+                    placeholder="hh"
                     min="0"
                     max="12"
                     className="flex-1 min-w-0 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
@@ -380,7 +380,7 @@ export default function BeforeLogin() {
                     type="number"
                     min="0"
                     max="59"
-                    placeholder="분"
+                    placeholder="mm"
                     className="flex-1 min-w-0 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) => setBirthData({ ...birthData, minute: e.target.value })}
                   />
@@ -482,7 +482,7 @@ export default function BeforeLogin() {
                         ) : (
                           <>
                             As a {getEng(saju?.sky1)}
-                            {getEng(saju?.grd1)} person, you possess a mix of
+                            {getEng(saju?.grd1)} person, you possess a mix of{' '}
                             {sajuDict.sky[sajuData.saju?.sky1]?.en} and
                             {sajuDict.grd[sajuData.saju?.grd1]?.en}.
                           </>
@@ -547,7 +547,11 @@ export default function BeforeLogin() {
                   <span className="text-indigo-500 underline decoration-indigo-200 underline-offset-4  hover:text-indigo-600 transition-colors">
                     log in,
                   </span>{' '}
-                  Saza will explain your destiny in a much simpler and friendlier way!
+                  Saza will explain your destiny in a much simpler and friendlier way{' '}
+                  <span className="text-indigo-500 underline decoration-indigo-200 underline-offset-4  hover:text-indigo-600 transition-colors">
+                    for free
+                  </span>
+                  !
                 </>
               )}
             </p>
@@ -564,7 +568,9 @@ export default function BeforeLogin() {
         {step === 4 && (
           <div className="space-y-6 animate-in slide-in-from-bottom-4 text-center">
             <ShieldCheckIcon className="w-12 h-12 text-emerald-500 mx-auto" />
-            <h2 className="text-2xl font-black dark:text-white">결과 저장하기</h2>
+            <h2 className="text-2xl font-black dark:text-white">
+              {language === 'ko' ? '무료 사주 보기' : 'Get Free Report'}
+            </h2>
             <button
               onClick={() => login()}
               className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-black text-slate-700 dark:text-white hover:bg-slate-50 transition-all shadow-xl"
