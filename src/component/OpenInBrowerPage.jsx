@@ -206,12 +206,26 @@ export default function OpenInBrowserPage() {
   const t = messages[lang];
 
   const handleOpenExternal = () => {
-    const baseUrl = window.location.origin;
-    const encodedUrl = encodeURIComponent(baseUrl);
-    window.location.href = `kakaotalk://web/openExternal?url=${encodedUrl}`;
-    setTimeout(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const currentUrl = window.location.origin; // 메인 주소
+    const encodedUrl = encodeURIComponent(currentUrl);
+
+    // 1. 카카오톡 앱 내부인 경우
+    if (userAgent.includes('kakaotalk')) {
+      window.location.href = `kakaotalk://web/openExternal?url=${encodedUrl}`;
+    }
+    // 2. 안드로이드 환경 (인스타그램, 페이스북 포함)
+    else if (userAgent.includes('android')) {
+      // Intent 스키마를 사용하여 크롬 브라우저 강제 실행
+      const intentUrl = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      window.location.href = intentUrl;
+    }
+    // 3. iOS 환경 (인스타그램, 페이스북 등)
+    else {
+      // iOS는 보안상 앱에서 다른 브라우저를 강제로 여는 것이 매우 제한적입니다.
+      // 따라서 "Safari로 열기" 수동 안내 팝업을 띄워주는 것이 최선입니다.
       alert(t.alertFail);
-    }, 1000);
+    }
   };
 
   const toggleLang = () => {
