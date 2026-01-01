@@ -204,7 +204,20 @@ function IconInText({ text, iconComponent, iconStyle, lang }) {
 export default function OpenInBrowserPage() {
   const { language: lang, setLanguage: setLang } = useLanguage();
   const t = messages[lang];
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isInApp =
+      userAgent.includes('kakaotalk') ||
+      userAgent.includes('instagram') ||
+      userAgent.includes('naver') ||
+      userAgent.includes('fb') ||
+      userAgent.includes('line');
 
+    // 인앱 브라우저가 아니라면 (즉, 유저가 'Safari로 열기'를 성공했다면)
+    if (!isInApp) {
+      window.location.replace('/'); // 히스토리를 남기지 않고 메인으로 이동
+    }
+  }, []);
   const handleOpenExternal = () => {
     const userAgent = navigator.userAgent.toLowerCase();
 
