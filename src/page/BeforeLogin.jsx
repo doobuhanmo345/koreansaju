@@ -98,6 +98,21 @@ export default function BeforeLogin() {
     setStep(3);
   };
   // [데이터 무결성: 요구하신 Z 필드명 정확히 반영]
+  const hasId = async () => {
+    login();
+  };
+  // BeforeLogin 컴포넌트 내부에 추가
+  useEffect(() => {
+    if (user && userData) {
+      if (userData.birthDate) {
+        window.location.replace('/');
+      } else {
+        // 2. 데이터가 없으면 (신규 회원) -> 알람 띄우고 정보 입력창(Step 2)으로 이동
+        alert('put birthday'); // "가입된 정보가 없습니다..."
+        setStep(1);
+      }
+    }
+  }, [user, userData]);
   useEffect(() => {
     const saveAndRedirect = async () => {
       if (user?.uid && step === 4) {
@@ -155,6 +170,9 @@ export default function BeforeLogin() {
       google: '구글로 로그인하고 결과 저장하기',
       complete: '사주 분석하기',
       time_unknown: '태어난 시간을 몰라요',
+      // 추가된 문구
+      already_member: '이미 계정이 있으신가요?',
+      login_now: '로그인하기',
     },
     en: {
       step1: 'Select Language',
@@ -166,9 +184,11 @@ export default function BeforeLogin() {
       google: 'Continue with Google',
       complete: 'Analyze',
       time_unknown: 'Unknown Time',
+      // 추가된 문구
+      already_member: 'Already have an account?',
+      login_now: 'Log in',
     },
   }[language];
-
   const isInvalid =
     !birthData.year ||
     !birthData.month ||
@@ -250,7 +270,6 @@ export default function BeforeLogin() {
             />
           ))}
         </div>
-
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in">
             <h2 className="text-2xl font-black text-center dark:text-white">{t.step1}</h2>
@@ -276,7 +295,6 @@ export default function BeforeLogin() {
             </div>
           </div>
         )}
-
         {step === 2 && (
           <div className="space-y-6 animate-in slide-in-from-right-4">
             <div className="text-center">
@@ -368,7 +386,6 @@ export default function BeforeLogin() {
             </button>
           </div>
         )}
-
         {step === 3 && (
           <div className="space-y-5 text-center animate-in `slide-in-from-right-4">
             <div className="space-y-1">
@@ -526,7 +543,7 @@ export default function BeforeLogin() {
             <ShieldCheckIcon className="w-12 h-12 text-emerald-500 mx-auto" />
             <h2 className="text-2xl font-black dark:text-white">결과 저장하기</h2>
             <button
-              onClick={() => login()}
+              onClick={hasId}
               className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-black text-slate-700 dark:text-white hover:bg-slate-50 transition-all shadow-xl"
             >
               <img
@@ -536,6 +553,21 @@ export default function BeforeLogin() {
               />
               {t.google}
             </button>
+          </div>
+        )}
+
+        {/* 하단 로그인 안내 (Step 1, 2에서만 표시) */}
+        {(step === 1 || step === 2) && (
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center animate-in fade-in duration-700">
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+              {t.already_member}{' '}
+              <button
+                onClick={() => login()}
+                className="text-indigo-600 dark:text-indigo-400 font-black hover:underline underline-offset-4 transition-all"
+              >
+                {t.login_now}
+              </button>
+            </p>
           </div>
         )}
       </div>
