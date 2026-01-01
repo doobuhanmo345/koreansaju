@@ -238,8 +238,8 @@ export default function OpenInBrowserPage() {
       // 유저가 무시 못 하게 알림을 아주 강하게 띄웁니다.
       alert(
         lang === 'ko'
-          ? '⚠️ [중요] 아이폰은 시스템 보안상 자동 이동이 안 됩니다!\n\n화면 하단 [공유] -> [Safari로 열기]를 눌러야 사주를 볼 수 있어요!'
-          : "⚠️ [Action Required] iPhone security blocks auto-redirect.\n\nTap 'Share' -> 'Open in Safari' at the bottom to continue!",
+          ? '⚠️ [중요] 아이폰은 시스템 보안상 자동 이동이 안 됩니다!\n\n화면 상단 [...] -> [외부 브라우저에서 열기]를 눌러야 사주를 볼 수 있어요!'
+          : "⚠️ [Action Required] iPhone security blocks auto-redirect.\n\nTap '...' -> 'Open in external browser' at the right top to continue!",
       );
     }
   };
