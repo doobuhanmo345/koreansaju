@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { doc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { login, logout, onUserStateChange, db } from '../lib/firebase';
 import { useLanguage } from './useLanguageContext';
 import { getRomanizedIlju } from '../data/sajuInt';
 import { calculateSaju } from '../utils/sajuCalculator';
+
 const AuthContext = createContext();
 
 export function AuthContextProvider({ children }) {
