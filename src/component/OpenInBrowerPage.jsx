@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IoShareOutline } from 'react-icons/io5';
 import sajaProfile from '../assets/sajaProfile.png';
 import { useLanguage } from '../context/useLanguageContext';
