@@ -32,7 +32,7 @@ export function AuthContextProvider({ children }) {
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
 
     const todayStr = new Date().toLocaleDateString('en-CA');
-    const nextYear = '2026';
+    const nextYear = '2027';
     const gender = userData.gender;
 
     // 1️⃣ 사주 정보 일치 확인 헬퍼 함수 (필드별 직접 비교)

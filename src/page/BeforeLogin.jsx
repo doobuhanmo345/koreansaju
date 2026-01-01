@@ -105,36 +105,36 @@ export default function BeforeLogin() {
     setTryLogin(true);
     login();
   };
-useEffect(() => {
-  // 1. 로그인 시도 중이 아니거나 인증 정보가 없으면 아예 실행 안 함
-  if (!tryLogin || !user) return;
+  useEffect(() => {
+    // 1. 로그인 시도 중이 아니거나 인증 정보가 없으면 아예 실행 안 함
+    if (!tryLogin || !user) return;
 
-  // 2. [가장 중요] 데이터가 실제로 로드되었는지 확인
-  // 만약 userData가 초기값(null)이라면, 잠시 대기해야 합니다.
-  // 이 문제를 피하기 위해 'userData'가 확실히 들어오거나,
-  // 혹은 서버에서 '데이터 없음'이 확정될 때까지 기다리는 조건이 필요합니다.
+    // 2. [가장 중요] 데이터가 실제로 로드되었는지 확인
+    // 만약 userData가 초기값(null)이라면, 잠시 대기해야 합니다.
+    // 이 문제를 피하기 위해 'userData'가 확실히 들어오거나,
+    // 혹은 서버에서 '데이터 없음'이 확정될 때까지 기다리는 조건이 필요합니다.
 
-  const checkUser = async () => {
-    // userData가 아직 없는 경우(null 또는 undefined) 0.5초~1초 정도 짧게 대기하며 재확인
-    if (!userData) {
-      // 만약 훅에서 loading 상태를 제공한다면 그것을 쓰는게 베스트입니다.
-      // 예: if (loading) return;
-      return;
-    }
+    const checkUser = async () => {
+      // userData가 아직 없는 경우(null 또는 undefined) 0.5초~1초 정도 짧게 대기하며 재확인
+      if (!userData) {
+        // 만약 훅에서 loading 상태를 제공한다면 그것을 쓰는게 베스트입니다.
+        // 예: if (loading) return;
+        return;
+      }
 
-    if (userData.birthDate) {
-      // CASE 1: 기존 회원
-      window.location.replace('/');
-    } else {
-      // CASE 2: 아이디는 있는데 생일만 없는 회원
-      alert(language === 'ko' ? '사주 정보를 입력해주세요.' : 'Please enter info.');
-      setStep(2);
-      setTryLogin(false);
-    }
-  };
+      if (userData.birthDate) {
+        // CASE 1: 기존 회원
+        window.location.replace('/');
+      } else {
+        // CASE 2: 아이디는 있는데 생일만 없는 회원
+        alert(language === 'ko' ? '사주 정보를 입력해주세요.' : 'Please enter info.');
+        setStep(2);
+        setTryLogin(false);
+      }
+    };
 
-  checkUser();
-}, [user, userData, tryLogin]);
+    checkUser();
+  }, [user, userData, tryLogin]);
   useEffect(() => {
     const saveAndRedirect = async () => {
       if (user?.uid && step === 4) {
@@ -295,7 +295,7 @@ useEffect(() => {
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in">
             <h2 className="text-2xl font-black text-center dark:text-white">{t.step1}</h2>
-            <div className={tryLogin ? 'bg-blue-500' : 'bg-red-500'}>언어선택</div>
+
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => {
