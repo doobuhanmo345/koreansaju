@@ -209,7 +209,7 @@ function IconInText({ text, iconComponent, iconStyle, lang }) {
 }
 
 export default function OpenInBrowserPage() {
-  const [lang, setLang] = useState('ko');
+  const [lang, setLang] = useState('en');
   const t = messages[lang];
 
   const handleOpenExternal = () => {

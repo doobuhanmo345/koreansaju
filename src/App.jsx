@@ -198,14 +198,11 @@ export default function App() {
   // 분석 완료 여부 체크 (버튼 상태용)
 
   const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-  console.log(userData);
 
   const checkSajuMatch = (targetSaju) => {
     if (!targetSaju) return false;
     return sajuKeys.every((key) => targetSaju[key] === saju[key]);
   };
-
-  const dbUser = userData;
 
   const handleShareImg = async (id) => {
     const el = document.getElementById(id);

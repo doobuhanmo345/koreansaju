@@ -152,7 +152,7 @@ export default function BeforeLogin() {
               isTimeUnknown: timeUnknown,
               createdAt: userData?.createdAt || new Date(),
               updatedAt: new Date(),
-              status: 'active',
+              status: userData?.status || 'active',
               role: userData?.role || 'user',
               editCount: userData?.editCount || 0,
               lastLoginDate: new Date().toISOString().split('T')[0],
