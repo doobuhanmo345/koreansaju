@@ -207,32 +207,41 @@ export default function OpenInBrowserPage() {
 
   const handleOpenExternal = () => {
     const userAgent = navigator.userAgent.toLowerCase();
-    const currentUrl = window.location.href;
     const hostUrl = window.location.origin;
-    const encodedUrl = encodeURIComponent(currentUrl);
+    const encodedUrl = encodeURIComponent(hostUrl);
 
-    // 1. 카카오톡 전용 처리
+    // 1. 안드로이드 (인스타/페이스북 유입의 50~60%)
+    // 이건 무조건 됩니다. 클릭하면 크롬으로 바로 쏴버립니다.
+    if (userAgent.includes('android')) {
+      const intentUrl = `intent://${hostUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+      window.location.href = intentUrl;
+      return;
+    }
+
+    // 2. 카카오톡 (이미 검증됨)
     if (userAgent.includes('kakaotalk')) {
       window.location.href = `kakaotalk://web/openExternal?url=${encodedUrl}`;
       return;
     }
 
-    // 2. 안드로이드 (인스타, 페이스북 포함) - 크롬 강제 실행
-    if (userAgent.includes('android')) {
-      const intentUrl = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
-      window.location.href = intentUrl;
-      return;
-    }
+    // 3. 아이폰 (인스타/페이스북 유입의 나머지 절반)
+    // 애플이 막아놔서 원클릭은 죽어도 안 됩니다.
+    // 대신 버튼 누르면 "아래 메뉴 눌러라"라고 경고창을 아주 자극적으로 띄워야 합니다.
+    if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+      const guide = document.getElementById('ios-guide');
+      if (guide) {
+        guide.scrollIntoView({ behavior: 'smooth' });
+        guide.style.border = '5px solid #ff3b30'; // 빨간색 왕테두리
+        guide.style.backgroundColor = '#fff0f0';
+      }
 
-    // 3. iOS (아이폰 인스타/페이스북) - 자동 전환 불가
-    // 알림창만 띄우지 말고, 아래 '수동 방법' 섹션으로 스크롤 이동
-    const instructionSection = document.getElementById('instruction-section');
-    if (instructionSection) {
-      instructionSection.scrollIntoView({ behavior: 'smooth' });
+      // 유저가 무시 못 하게 알림을 아주 강하게 띄웁니다.
+      alert(
+        lang === 'ko'
+          ? '⚠️ [중요] 아이폰은 시스템 보안상 자동 이동이 안 됩니다!\n\n화면 하단 [공유] -> [Safari로 열기]를 눌러야 사주를 볼 수 있어요!'
+          : "⚠️ [Action Required] iPhone security blocks auto-redirect.\n\nTap 'Share' -> 'Open in Safari' at the bottom to continue!",
+      );
     }
-
-    // 시각적 피드백 제공
-    alert(t.alertFail);
   };
 
   const toggleLang = () => {
