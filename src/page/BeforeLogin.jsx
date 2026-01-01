@@ -134,7 +134,7 @@ export default function BeforeLogin() {
               role: userData?.role || 'user',
               editCount: userData?.editCount || 0,
               lastLoginDate: new Date().toISOString().split('T')[0],
-              displayedName: userData?.displayedName || user.displayName || '',
+              displayName: userData?.displayName || user.displayName || '',
               email: userData?.email || user.email || '',
               // 요구하신 Z 필드명으로 수정
               usageHistory: userData?.usageHistory || {
