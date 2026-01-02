@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import {
@@ -9,11 +9,22 @@ import {
   LanguageIcon,
 } from '@heroicons/react/24/solid';
 import { CakeIcon } from '@heroicons/react/24/outline';
+import FourPillarVis from '../component/FourPillarVis';
+import { useSajuCalculator } from '../hooks/useSajuCalculator';
+import { useLanguage } from '../context/useLanguageContext';
 
 export default function Ad() {
-  const [language, setLanguage] = useState('ko');
+  const { language, setLanguage } = useLanguage();
+
   const [step, setStep] = useState(0);
   const [gender, setGender] = useState('');
+  const birthInit = {
+    year: '',
+    month: '',
+    day: '',
+    hour: '',
+    minute: '',
+  };
   const [birthData, setBirthData] = useState({
     year: '',
     month: '',
@@ -23,12 +34,50 @@ export default function Ad() {
   });
   const [timeUnknown, setTimeUnknown] = useState(false);
   const [email, setEmail] = useState(localStorage.getItem('saved_email') || '');
+  const memoizedBirthDate = useMemo(() => {
+    const { year, month, day, hour, minute } = birthData;
+    if (!year || !month || !day) return null;
+    const pad = (n) => n?.toString().padStart(2, '0') || '00';
+    const formatted = `${year}-${pad(month)}-${pad(day)}T${timeUnknown ? '12' : pad(hour)}:${timeUnknown ? '00' : pad(minute)}`;
+    return new Date(formatted);
+  }, [birthData, timeUnknown]);
+
+  const { saju } = useSajuCalculator(memoizedBirthDate, timeUnknown);
 
   const isYearDone = birthData.year.length === 4;
   const isMonthDone = birthData.month.length >= 1;
   const isDayDone = birthData.day.length >= 1;
   const isHourDone = birthData.hour.length >= 1;
   const isMinuteDone = birthData.minute.length >= 1;
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
+  const startAna = () => {
+    setIsAnalyzing(true);
+
+    // 메시지를 순차적으로 변경하여 분석하는 느낌을 줌
+    const texts =
+      language === 'ko'
+        ? [
+            '천간과 지지를 분석 중입니다...',
+            '오행의 기운을 계산하고 있습니다...',
+            '운명의 흐름을 읽어내는 중...',
+          ]
+        : [
+            'Analyzing Heavenly Stems...',
+            'Calculating Five Elements...',
+            'Reading the flow of destiny...',
+          ];
+
+    setLoadingText(texts[0]);
+    setTimeout(() => setLoadingText(texts[1]), 1000);
+    setTimeout(() => setLoadingText(texts[2]), 2000);
+
+    // 3초 뒤에 다음 단계로 이동
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      setStep(3);
+    }, 3000);
+  };
 
   // 퍼센테이지 계산 로직
   const getProgress = () => {
@@ -66,7 +115,7 @@ export default function Ad() {
       });
 
       localStorage.setItem('saved_email', email);
-      setStep(4);
+      setStep(5);
     } catch (err) {
       console.error('데이터 저장 실패:', err);
       alert(
@@ -75,6 +124,74 @@ export default function Ad() {
           : 'Save failed. Please try again.',
       );
     }
+  };
+  const handleEdit = () => {
+    setBirthData(birthInit);
+    setStep(1);
+  };
+  const handleNextStep = () => {
+    const { year, month, day, hour, minute } = birthData;
+    const y = parseInt(year);
+    const m = parseInt(month);
+    const d = parseInt(day);
+    const h = parseInt(hour);
+    const min = parseInt(minute);
+
+    // 1. 연도 체크 (1900-2030)
+    if (!y || y < 1900 || y > 2030) {
+      alert(
+        language === 'ko'
+          ? '연도를 1900~2030년 사이로 입력해주세요.'
+          : 'Please enter a year between 1900-2030.',
+      );
+      return;
+    }
+
+    // 2. 월 체크 (1-12)
+    if (!m || m < 1 || m > 12) {
+      alert(
+        language === 'ko'
+          ? '월을 1~12월 사이로 입력해주세요.'
+          : 'Please enter a month between 1-12.',
+      );
+      return;
+    }
+
+    // 3. 일 체크 (해당 월의 실제 마지막 날짜 계산)
+    // JavaScript의 Date 객체는 day에 0을 넣으면 '이전 달의 마지막 날'을 반환하는 특성을 이용
+    const lastDayOfMonth = new Date(y, m, 0).getDate();
+    if (!d || d < 1 || d > lastDayOfMonth) {
+      alert(
+        language === 'ko'
+          ? `${m}월은 ${lastDayOfMonth}일까지 있습니다. 다시 확인해주세요.`
+          : `${month}/${m} only has ${lastDayOfMonth} days. Please check again.`,
+      );
+      return;
+    }
+    if (!timeUnknown) {
+      // 4. 시간 체크 (0-23)
+      if (isNaN(h) || h < 0 || h > 23) {
+        alert(
+          language === 'ko'
+            ? ' 시간을 0~23시 사이로 입력해주세요.'
+            : 'Please enter hours between 0-23.',
+        );
+        return;
+      }
+
+      // 5. 분 체크 (0-59)
+      if (isNaN(min) || min < 0 || min > 59) {
+        alert(
+          language === 'ko'
+            ? '분을 0~59분 사이로 입력해주세요.'
+            : 'Please enter minutes between 0-59.',
+        );
+        return;
+      }
+    }
+
+    // 모든 검증 통과
+    setStep(2);
   };
 
   return (
@@ -240,7 +357,7 @@ export default function Ad() {
 
             {isFormValid && (
               <button
-                onClick={() => setStep(2)}
+                onClick={handleNextStep}
                 className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black shadow-lg animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all mt-4"
               >
                 {language === 'ko' ? '무료 분석하기' : 'Get Free Analysis'}
@@ -248,9 +365,113 @@ export default function Ad() {
             )}
           </div>
         )}
-
-        {/* Step 2 ~ 4 (기존 유지) */}
         {step === 2 && (
+          <div className="space-y-5 animate-in slide-in-from-right-4 duration-500 relative min-h-[500px]">
+            {/* --- 분석 중 로딩 오버레이 (돋보기 애니메이션) --- */}
+            {isAnalyzing && (
+              <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-slate-900/95 rounded-[2rem] backdrop-blur-md animate-in fade-in duration-300">
+                <div className="relative mb-6">
+                  {/* 돋보기 아이콘 애니메이션 */}
+                  <div className="text-7xl animate-bounce drop-shadow-2xl">🔍</div>
+                  {/* 하단 그림자/빛 효과 */}
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-3 bg-indigo-500/20 rounded-[100%] blur-lg animate-pulse"></div>
+                </div>
+
+                <div className="text-center space-y-2">
+                  <p className="text-xl font-black dark:text-white tracking-tight animate-pulse">
+                    {loadingText}
+                  </p>
+                  <div className="flex justify-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* --- 상단 타이틀 --- */}
+            <div className="text-center">
+              <h2 className="text-xl font-black dark:text-white">
+                {language === 'ko' ? '입력 정보 확인' : 'Check Your Info'}
+              </h2>
+              <p className="text-xs font-bold text-slate-500 mt-1">
+                {language === 'ko'
+                  ? '사주 풀이에 사용될 정보입니다.'
+                  : 'This info will be used for your reading.'}
+              </p>
+            </div>
+
+            {/* --- 정보 확인 카드 --- */}
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
+              <div className="grid grid-cols-2 gap-y-4 gap-x-2">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                    Gender / 성별
+                  </p>
+                  <p className="text-sm font-black dark:text-white">
+                    {gender === 'male'
+                      ? language === 'ko'
+                        ? '남성 ♂'
+                        : 'Male ♂'
+                      : language === 'ko'
+                        ? '여성 ♀'
+                        : 'Female ♀'}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                    Birth Date / 생년월일
+                  </p>
+                  <p className="text-sm font-black dark:text-white">
+                    {birthData.year}.{birthData.month}.{birthData.day}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                    Birth Time / 시분
+                  </p>
+                  <p className="text-sm font-black dark:text-white">
+                    {timeUnknown
+                      ? language === 'ko'
+                        ? '시간 모름'
+                        : 'Unknown'
+                      : `${birthData.hour}:${birthData.minute}`}
+                  </p>
+                </div>
+                <div className="flex items-end justify-end">
+                  <button
+                    onClick={handleEdit}
+                    className="px-3 py-1.5 bg-white dark:bg-slate-700 rounded-lg text-[11px] font-black text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-100 dark:border-slate-600 active:scale-95 transition-all"
+                  >
+                    {language === 'ko' ? '정보 수정' : 'Edit Info'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* --- 시각화 및 분석 버튼 영역 --- */}
+            <div className="relative h-[340px] overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-inner">
+              {/* 사주 오행 그래프 컴포넌트 */}
+              {saju && <FourPillarVis saju={saju} isTimeUnknown={timeUnknown} />}
+
+              {/* 분석 실행 버튼 오버레이 (로딩 중이 아닐 때만 노출) */}
+              {!isAnalyzing && (
+                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-transparent flex items-center justify-center px-6 pt-8">
+                  <button
+                    onClick={startAna}
+                    className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-[0_10px_25px_-5px_rgba(79,70,229,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
+                    <SparklesIcon className="w-5 h-5" />
+                    {language === 'ko' ? '이 정보로 분석 시작' : 'Analyze My Destiny'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {/* Step 2 ~ 4 (기존 유지) */}
+        {step === 3 && (
           <div className="space-y-5 animate-in slide-in-from-right-4 duration-500">
             <h2 className="text-xl font-black text-center dark:text-white">
               {language === 'ko' ? '분석 결과 요약' : 'Analysis Preview'}
@@ -286,7 +507,7 @@ export default function Ad() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(4)}
                   className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-[0_10px_20px_rgba(79,70,229,0.3)] active:scale-95 transition-all"
                 >
                   {language === 'ko' ? '전체 리포트 열람하기' : 'Unlock Full Report'}
@@ -295,7 +516,7 @@ export default function Ad() {
             </div>
           </div>
         )}
-        {step === 3 && (
+        {step === 4 && (
           <div className="space-y-5 animate-in slide-in-from-bottom-4 duration-500 text-center">
             <EnvelopeIcon className="w-10 h-10 text-indigo-500 mx-auto" />
             <h2 className="text-xl font-black dark:text-white">
@@ -317,7 +538,7 @@ export default function Ad() {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <div className="space-y-5 animate-in zoom-in-95 duration-500 text-center">
             <div className="p-5 bg-emerald-50 dark:bg-emerald-900/20 rounded-[1.5rem] border-2 border-emerald-100 dark:border-emerald-900">
               <ShieldCheckIcon className="w-10 h-10 text-emerald-500 mx-auto mb-1" />
