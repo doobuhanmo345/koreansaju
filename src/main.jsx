@@ -36,6 +36,7 @@ import TarotLovePage from './page/TarotLovePage';
 import FeedbackForm from './page/FeedbackForm';
 import EditPrompt from './page/EditPrompt';
 import SazaTalk from './page/SazaTalk';
+import Ad from './page/Ad';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -56,26 +57,47 @@ const RootComponent = () => {
   if (isAppLoading) {
     return <SplashScreen />;
   }
-
+  const isAdPage = window.location.pathname.startsWith('/ad');
   // 2. 분석 중 로딩 화면 (전역 loading이 true일 때 모든 화면 덮기)
   // 어느 페이지에서든 setLoading(true)만 하면 이 화면이 뜹니다.
   // if (loading) {
   //   return <LoadingPage />;
   // }
-
+  if (isAdPage) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+        <Routes>
+          <Route path="/ad" element={<Ad />} />
+          {/* ad 페이지에서 혹시 모를 리다이렉트 대비 */}
+          <Route path="*" element={<Ad />} />
+        </Routes>
+      </div>
+    );
+  }
   // 3. 생년월일 데이터가 없는 경우
-  if (!userData?.birthDate) {
+  if (!isAdPage && !userData?.birthDate) {
     return (
       <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
         <BeforeLogin />
       </div>
     );
   }
-
+  if (isAdPage) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+        <Routes>
+          <Route path="/ad" element={<Ad />} />
+          {/* ad 페이지에서 혹시 모를 리다이렉트 대비 */}
+          <Route path="*" element={<Ad />} />
+        </Routes>
+      </div>
+    );
+  }
   // 4. 정상 상태
   return (
     <div className="min-h-screen relative px-3 py-6 bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
       <ScrollToTop />
+
       <div className="pb-24">
         <NavBar />
         <Routes>
