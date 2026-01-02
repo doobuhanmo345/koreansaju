@@ -40,7 +40,6 @@ import Ad from './page/Ad';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
-  const { loading } = useLoading(); // 👈 2. 전역 로딩 상태 가져오기
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,14 +48,13 @@ const RootComponent = () => {
 
     return () => clearTimeout(timer);
   }, []);
-  const isAdPage = window.location.pathname.startsWith('/ad');
-  const isBrowserGuide = window.location.pathname === '/open-in-browser';
+  // 수정 제안
+  const pathname = window.location.pathname;
+  const isAdPage = pathname.startsWith('/ad');
+  const isBrowserGuide = pathname === '/open-in-browser';
 
-  // ⭐ 0순위: 광고 페이지 (모든 검사 건너뛰고 즉시 렌더링)
+  // 1. 광고 페이지라면 무조건 여기서 끝냄 (최우선순위 보장)
   if (isAdPage) {
-    // 광고 페이지 진입 시 로딩 상태 강제 해제 (스플래시 방지)
-    if (isAppLoading) setIsAppLoading(false);
-
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950">
         <Routes>
@@ -67,12 +65,11 @@ const RootComponent = () => {
     );
   }
 
-  // ⭐ 1순위: 브라우저 유도 페이지 (광고 페이지가 아닐 때만 작동)
+  // 2. 광고 페이지가 아닐 때만 나머지 로직 수행
   if (isBrowserGuide) {
     return <OpenInBrowserPage />;
   }
 
-  // ⭐ 2순위: 일반 페이지 스플래시 로딩
   if (isAppLoading) {
     return <SplashScreen />;
   }
