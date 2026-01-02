@@ -935,8 +935,8 @@ export default function Ad() {
               {[
                 { id: '2026', icon: '📅', ko: '2026 신년운세', en: '2026 Fortune' },
                 { id: 'love', icon: '💖', ko: '애정/결혼운', en: 'Love & Romance' },
-                { id: 'money', icon: '💰', ko: '재물/성공운', en: 'Wealth & Career' },
-                { id: 'health', icon: '🌿', ko: '건강/심리분석', en: 'Health & Mind' },
+                { id: 'money', icon: '💰', ko: '재물운', en: 'Wealth' },
+                { id: 'saju', icon: '🌿', ko: '나의 오행 분석', en: 'My 5 Elements' },
               ].map((item) => {
                 // 현재 아이템이 선택되었는지 확인
                 const isSelected = selectedReport === item.id;
