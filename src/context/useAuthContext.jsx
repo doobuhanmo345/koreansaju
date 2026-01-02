@@ -74,15 +74,21 @@ export function AuthContextProvider({ children }) {
   }, [userData]);
 
   // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
+  // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
+
+    // 🚀 [추가] 광고 페이지 예외 처리
+    const isAdPage = window.location.pathname.startsWith('/ad');
+
     const isInApp =
       userAgent.includes('kakaotalk') ||
       userAgent.includes('instagram') ||
       userAgent.includes('naver');
     const currentUrl = window.location.href;
 
-    if (isInApp) {
+    // 🚀 [수정] 광고 페이지가 아닐 때만 인앱 브라우저 감지 로직 실행
+    if (isInApp && !isAdPage) {
       if (userAgent.match(/android/)) {
         const intentUrl = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
         window.location.href = intentUrl;
