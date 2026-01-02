@@ -611,10 +611,10 @@ export default function Ad() {
                 </label>
               </div>
             </div>
-            <div className="flex justify-between items-center px-1">
+            <div>
               <div className="flex items-center gap-1.5 animate-pulse">
                 <ChatBubbleLeftRightIcon className="w-4 h-4 text-indigo-500" />
-                <span className="text-[13px] font-black text-indigo-600 dark:text-indigo-400">
+                <span className="text-[18px] font-black text-indigo-600 dark:text-indigo-400">
                   {language === 'ko'
                     ? !gender
                       ? guideMessages.ko.putGender
@@ -644,6 +644,8 @@ export default function Ad() {
                                 : guideMessages.en.ready}
                 </span>
               </div>
+            </div>
+            <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-1">
                 <CakeIcon className="w-4 h-4 text-indigo-500" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
@@ -989,27 +991,75 @@ export default function Ad() {
             </div>
 
             {/* 입력 및 전송 섹션 */}
-            <div className="space-y-3 pt-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
-                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center   transition-all shadow-inner"
-              />
-              <button
-                onClick={handleFinalSubmit}
-                disabled={selectedReports.length === 0} // 아무것도 선택 안하면 비활성화
-                className={`w-full py-4 rounded-2xl font-black text-lg shadow-xl transition-all active:scale-95 ${
-                  selectedReports.length > 0
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                }`}
-              >
+            <div className="mt-8 px-2">
+              <div className="bg-indigo-50/50 dark:bg-slate-800/50 p-6 rounded-[2.5rem] border-2 border-dashed border-indigo-200 dark:border-indigo-900/50">
+                {/* 안내 문구: 배지 스타일 */}
+                <div className="flex justify-center mb-4">
+                  <span className="bg-indigo-600 text-white text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">
+                    Final Step
+                  </span>
+                </div>
+
+                <div className="text-center space-y-1 mb-5">
+                  <h3 className="text-lg font-extrabold text-slate-800 dark:text-slate-100">
+                    {language === 'ko' ? '리포트를 받을 이메일' : 'Recipient Email'}
+                  </h3>
+                  <p className="text-[12px] text-slate-500 font-medium">
+                    {language === 'ko'
+                      ? '분석 결과를 이 주소로 전송해 드려요'
+                      : 'We will send the results to this address'}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* 입력창: 그림자와 강조 컬러 사용 */}
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="example@email.com"
+                      className="w-full py-5 px-6 bg-white dark:bg-slate-900 rounded-2xl border-2 border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none font-black text-center text-lg shadow-[0_10px_20px_-10px_rgba(79,70,229,0.3)] transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                    />
+
+                    {/* 입력창 위 아이콘 배치 (시각적 포인트) */}
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 px-2 text-indigo-500">
+                      <EnvelopeIcon className="w-6 h-6" />
+                    </div>
+                  </div>
+
+                  {/* 전송 버튼: 더 크고 입체감 있게 */}
+                  <button
+                    onClick={handleFinalSubmit}
+                    disabled={selectedReports.length === 0 || !email.includes('@')}
+                    className={`w-full py-5 rounded-2xl font-black text-xl shadow-2xl transition-all active:scale-[0.97] flex items-center justify-center gap-2 ${
+                      selectedReports.length > 0 && email.includes('@')
+                        ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-indigo-500/30'
+                        : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                    }`}
+                  >
+                    <span>
+                      {language === 'ko'
+                        ? `무료 리포트 ${selectedReports.length}개 받기`
+                        : `Get ${selectedReports.length} Reports`}
+                    </span>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-4 text-[11px] text-slate-400 text-center break-keep opacity-80">
                 {language === 'ko'
-                  ? `${selectedReports.length}개의 리포트 무료로 받기`
-                  : `Get ${selectedReports.length} Free Reports`}
-              </button>
+                  ? '개인정보 보호를 위해 리포트 발송 후 이메일 정보는 즉시 파기됩니다.'
+                  : 'Your email will be deleted immediately after sending the report.'}
+              </p>
             </div>
           </div>
         )}
