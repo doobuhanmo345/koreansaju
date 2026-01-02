@@ -614,7 +614,7 @@ export default function Ad() {
             <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-1.5 animate-pulse">
                 <ChatBubbleLeftRightIcon className="w-4 h-4 text-indigo-500" />
-                <span className="text-[12px] font-black text-indigo-600 dark:text-indigo-400">
+                <span className="text-[13px] font-black text-indigo-600 dark:text-indigo-400">
                   {language === 'ko'
                     ? !gender
                       ? guideMessages.ko.putGender
@@ -787,7 +787,7 @@ export default function Ad() {
                         {language === 'ko' ? 'Identity' : 'Identity'}
                       </h3>
                     </div>
-                    <p className="text-[10px] font-black dark:text-slate-100 leading-relaxed break-keep tracking-[0.1em]">
+                    <p className="text-[13px] font-black dark:text-slate-100 leading-relaxed break-keep tracking-[0.1em]">
                       {preview.coreText} {preview.dominantText}
                     </p>
                   </section>
@@ -887,7 +887,7 @@ export default function Ad() {
                     </div>
                   </div>
                 </div>
-                <div className="text-[13px] leading-relaxed dark:text-slate-300"> {me_exp}</div>
+                <div className="text-[15px] leading-relaxed dark:text-slate-300"> {me_exp}</div>
                 {/* 반복문을 사용하여 50줄 분량의 더미 텍스트 생성 */}
               </div>
 
@@ -904,7 +904,7 @@ export default function Ad() {
                   onClick={() => setStep(4)}
                   className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-[0_10px_20px_rgba(79,70,229,0.3)] active:scale-95 transition-all"
                 >
-                  {language === 'ko' ? '전체 리포트 열람하기' : 'Unlock Full Report'}
+                  {language === 'ko' ? '전체 리포트 받기' : 'Get Full Report'}
                 </button>
               </div>
             </div>
@@ -1023,7 +1023,7 @@ export default function Ad() {
                 {language === 'ko' ? '분석 완료!' : 'Success!'}
               </h2>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <a
                 href="#"
                 className="flex items-center justify-center gap-2 py-3 bg-[#25D366] text-white rounded-xl font-black"
@@ -1036,7 +1036,7 @@ export default function Ad() {
               >
                 Telegram
               </a>
-            </div>
+            </div> */}
             <button
               onClick={restart}
               className="text-xs font-bold text-slate-400 underline dark:text-slate-500"
