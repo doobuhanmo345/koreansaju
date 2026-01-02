@@ -428,7 +428,7 @@ export default function Ad() {
     !!gender && !!birthData?.year && !!birthData?.month && !!birthData?.day && timeUnknown;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-2">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-2 text-black dark:text-white  ">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl p-5 border border-slate-100 dark:border-slate-800">
         {/* 뒤로가기 버튼: Step 0이 아닐 때만 노출 */}
         {/* 뒤로가기 버튼: 시인성 강화 버전 */}
@@ -459,7 +459,7 @@ export default function Ad() {
           <div className="space-y-6 py-4 animate-in fade-in duration-500">
             <div className="text-center">
               <LanguageIcon className="w-12 h-12 text-indigo-500 mx-auto mb-3" />
-              <h2 className="text-xl font-black dark:text-white">Select Language / 언어 선택</h2>
+              <h2 className="text-xl font-black  ">Select Language / 언어 선택</h2>
             </div>
             <div className="grid grid-cols-1 gap-3">
               <button
@@ -467,7 +467,7 @@ export default function Ad() {
                   setLanguage('ko');
                   setStep(1);
                 }}
-                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-lg dark:text-white border-2 border-transparent hover:border-indigo-500 transition-all"
+                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-lg   border-2 border-transparent hover:border-indigo-500 transition-all"
               >
                 한국어
               </button>
@@ -476,7 +476,7 @@ export default function Ad() {
                   setLanguage('en');
                   setStep(1);
                 }}
-                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-lg dark:text-white border-2 border-transparent hover:border-indigo-500 transition-all"
+                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-lg   border-2 border-transparent hover:border-indigo-500 transition-all"
               >
                 English
               </button>
@@ -488,7 +488,7 @@ export default function Ad() {
             <div className="text-center">
               {/* 우측 상단 프로그레스 바 배치 */}
 
-              <h2 className="text-md font-black dark:text-white flex items-center justify-center gap-2">
+              <h2 className="text-md font-black   flex items-center justify-center gap-2">
                 {language === 'ko'
                   ? '생년월일을 바탕으로 나의 오행을 분석합니다'
                   : 'Analyzing your Five Elements based on your birth date.'}
@@ -501,7 +501,7 @@ export default function Ad() {
                   <button
                     key={g}
                     onClick={() => setGender(g)}
-                    className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 dark:border-slate-800 dark:text-white'}`}
+                    className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 dark:border-slate-800  '}`}
                   >
                     {g === 'male'
                       ? language === 'ko'
@@ -522,7 +522,7 @@ export default function Ad() {
                   <input
                     type="number"
                     placeholder={language === 'ko' ? '태어난 연도 (YYYY)' : 'Birth Year (YYYY)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) =>
                       setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                     }
@@ -538,7 +538,7 @@ export default function Ad() {
                   <input
                     type="number"
                     placeholder={language === 'ko' ? '태어난 월 (MM)' : 'Birth Month (MM)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) =>
                       setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                     }
@@ -554,7 +554,7 @@ export default function Ad() {
                   <input
                     type="number"
                     placeholder={language === 'ko' ? '태어난 일 (DD)' : 'Birth Day (DD)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) =>
                       setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                     }
@@ -570,7 +570,7 @@ export default function Ad() {
                   <input
                     type="number"
                     placeholder={language === 'ko' ? '태어난 시 (HH)' : 'Birth Hour (HH)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) =>
                       setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
                     }
@@ -586,7 +586,7 @@ export default function Ad() {
                   <input
                     type="number"
                     placeholder={language === 'ko' ? '태어난 분 (mm)' : 'Birth Minute (mm)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                     onChange={(e) =>
                       setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
                     }
@@ -685,9 +685,7 @@ export default function Ad() {
                 </div>
 
                 <div className="text-center space-y-2">
-                  <p className="text-xl font-black dark:text-white tracking-tight animate-pulse">
-                    {loadingText}
-                  </p>
+                  <p className="text-xl font-black   tracking-tight animate-pulse">{loadingText}</p>
                   <div className="flex justify-center gap-1">
                     <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                     <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
@@ -699,7 +697,7 @@ export default function Ad() {
 
             {/* --- 상단 타이틀 --- */}
             <div className="text-center">
-              <h2 className="text-xl font-black dark:text-white">
+              <h2 className="text-xl font-black  ">
                 {language === 'ko' ? '입력 정보 확인' : 'Check Your Info'}
               </h2>
               <p className="text-xs font-bold text-slate-500 mt-1.5 px-4 leading-relaxed">
@@ -716,7 +714,7 @@ export default function Ad() {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
                     {language === 'en' ? 'Gender' : '성별'}
                   </p>
-                  <p className="text-sm font-black dark:text-white">
+                  <p className="text-sm font-black  ">
                     {gender === 'male'
                       ? language === 'ko'
                         ? '남성 ♂'
@@ -730,7 +728,7 @@ export default function Ad() {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
                     {language === 'en' ? 'Birth of Date' : '생년월일'}
                   </p>
-                  <p className="text-sm font-black dark:text-white">
+                  <p className="text-sm font-black  ">
                     {birthData.year}.{birthData.month}.{birthData.day}
                   </p>
                 </div>
@@ -738,7 +736,7 @@ export default function Ad() {
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
                     {language === 'en' ? 'Birth Time' : '시분'}
                   </p>
-                  <p className="text-sm font-black dark:text-white">
+                  <p className="text-sm font-black  ">
                     {timeUnknown
                       ? language === 'ko'
                         ? '시간 모름'
@@ -774,7 +772,7 @@ export default function Ad() {
 
                 {saju && <FourPillarVis saju={saju} isTimeUnknown={timeUnknown} />}
               </div>
-              <div className="mt-3 bg-slate-50 dark:text-white text-sm dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
+              <div className="mt-3 bg-slate-50   text-sm dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                 {/* 프리뷰 리포트 컨테이너 - 박스 중첩 없이 여백으로 구분 */}
                 <div className="py-2 space-y-8 text-left animate-in fade-in slide-in-from-bottom-3 duration-1000">
                   {/* 1. 핵심 정체성 - 가장 크게 강조 */}
@@ -811,7 +809,7 @@ export default function Ad() {
         {/* Step 2 ~ 4 (기존 유지) */}
         {step === 3 && (
           <div className="space-y-5 animate-in slide-in-from-right-4 duration-500">
-            <h2 className="text-xl font-black text-center dark:text-white">
+            <h2 className="text-xl font-black text-center  ">
               {language === 'ko' ? '분석 결과 요약' : 'Analysis Preview'}
             </h2>
 
@@ -820,11 +818,11 @@ export default function Ad() {
               <div className="space-y-3  opacity-80 select-none">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  <p className="text-sm font-black dark:text-white">
+                  <p className="text-sm font-black  ">
                     {language === 'ko' ? '종합 운세 분석 리포트' : 'Comprehensive Fortune Report'}
                   </p>
                 </div>
-                <div className="mt-3 bg-slate-50 dark:text-white text-sm dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
+                <div className="mt-3 bg-slate-50   text-sm dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
                   {/* 프리뷰 리포트 컨테이너 - 박스 중첩 없이 여백으로 구분 */}
                   <div className="py-2 space-y-8 text-left animate-in fade-in slide-in-from-bottom-3 duration-1000">
                     {/* 1. 핵심 정체성 - 가장 크게 강조 */}
@@ -837,7 +835,7 @@ export default function Ad() {
                           {language === 'ko' ? 'Identity' : 'Identity'}
                         </h3>
                       </div>
-                      <p className="text-lg font-black dark:text-white leading-snug break-keep">
+                      <p className="text-lg font-black   leading-snug break-keep">
                         {preview.coreText}
                       </p>
                     </section>
@@ -887,7 +885,7 @@ export default function Ad() {
                     </div>
                   </div>
                 </div>
-                <div className="text-[15px] leading-relaxed dark:text-slate-300"> {me_exp}</div>
+                <div className="text-[15px] leading-relaxed dark:text-slate-300 "> {me_exp}</div>
                 {/* 반복문을 사용하여 50줄 분량의 더미 텍스트 생성 */}
               </div>
 
@@ -920,7 +918,7 @@ export default function Ad() {
 
             {/* 제목 섹션 */}
             <div className="space-y-2">
-              <h2 className="text-xl font-bold dark:text-white tracking-tight">
+              <h2 className="text-xl font-bold   tracking-tight">
                 {language === 'ko' ? '맞춤 리포트 구성' : 'Customize Your Report'}
               </h2>
               <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 px-4 break-keep">
@@ -997,7 +995,7 @@ export default function Ad() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@email.com"
-                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center dark:text-white transition-all shadow-inner"
+                className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center   transition-all shadow-inner"
               />
               <button
                 onClick={handleFinalSubmit}

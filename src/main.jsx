@@ -49,34 +49,33 @@ const RootComponent = () => {
 
     return () => clearTimeout(timer);
   }, []);
-const isAdPage = window.location.pathname.startsWith('/ad');
-const isBrowserGuide = window.location.pathname === '/open-in-browser';
+  const isAdPage = window.location.pathname.startsWith('/ad');
+  const isBrowserGuide = window.location.pathname === '/open-in-browser';
 
+  // ⭐ 0순위: 광고 페이지 (모든 검사 건너뛰고 즉시 렌더링)
+  if (isAdPage) {
+    // 광고 페이지 진입 시 로딩 상태 강제 해제 (스플래시 방지)
+    if (isAppLoading) setIsAppLoading(false);
 
-// ⭐ 0순위: 광고 페이지 (모든 검사 건너뛰고 즉시 렌더링)
-if (isAdPage) {
-  // 광고 페이지 진입 시 로딩 상태 강제 해제 (스플래시 방지)
-  if (isAppLoading) setIsAppLoading(false);
+    return (
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+        <Routes>
+          <Route path="/ad" element={<Ad />} />
+          <Route path="*" element={<Ad />} />
+        </Routes>
+      </div>
+    );
+  }
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      <Routes>
-        <Route path="/ad" element={<Ad />} />
-        <Route path="*" element={<Ad />} />
-      </Routes>
-    </div>
-  );
-}
+  // ⭐ 1순위: 브라우저 유도 페이지 (광고 페이지가 아닐 때만 작동)
+  if (isBrowserGuide) {
+    return <OpenInBrowserPage />;
+  }
 
-// ⭐ 1순위: 브라우저 유도 페이지 (광고 페이지가 아닐 때만 작동)
-if (isBrowserGuide) {
-  return <OpenInBrowserPage />;
-}
-
-// ⭐ 2순위: 일반 페이지 스플래시 로딩
-if (isAppLoading) {
-  return <Splash />;
-}
+  // ⭐ 2순위: 일반 페이지 스플래시 로딩
+  if (isAppLoading) {
+    return <SplashScreen />;
+  }
   if (isAdPage) {
     if (isAppLoading) {
       setIsAppLoading(false);
