@@ -76,21 +76,7 @@ const RootComponent = () => {
   if (isAppLoading) {
     return <SplashScreen />;
   }
-  if (isAdPage) {
-    if (isAppLoading) {
-      setIsAppLoading(false);
-    }
 
-    return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
-        <Routes>
-          <Route path="/ad" element={<Ad />} />
-          {/* ad 페이지에서 혹시 모를 리다이렉트 대비 */}
-          <Route path="*" element={<Ad />} />
-        </Routes>
-      </div>
-    );
-  }
   // 3. 생년월일 데이터가 없는 경우
   if (!isAdPage && !userData?.birthDate) {
     return (
