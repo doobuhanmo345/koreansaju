@@ -46,24 +46,42 @@ const RootComponent = () => {
     const timer = setTimeout(() => {
       setIsAppLoading(false);
     }, 2500);
+
     return () => clearTimeout(timer);
   }, []);
-  // ⭐ 0순위: 브라우저 유도 페이지 (인앱 브라우저 차단용)
-  // 주소창이 이 경로라면 다른 어떤 로직보다 먼저 이 페이지를 보여줘야 합니다.
-  if (window.location.pathname === '/open-in-browser') {
-    return <OpenInBrowserPage />;
-  }
-  // 1. 스플래시 화면 (앱 초기 로딩)
-  if (isAppLoading) {
-    return <SplashScreen />;
-  }
-  const isAdPage = window.location.pathname.startsWith('/ad');
-  // 2. 분석 중 로딩 화면 (전역 loading이 true일 때 모든 화면 덮기)
-  // 어느 페이지에서든 setLoading(true)만 하면 이 화면이 뜹니다.
-  // if (loading) {
-  //   return <LoadingPage />;
-  // }
+const isAdPage = window.location.pathname.startsWith('/ad');
+const isBrowserGuide = window.location.pathname === '/open-in-browser';
+
+
+// ⭐ 0순위: 광고 페이지 (모든 검사 건너뛰고 즉시 렌더링)
+if (isAdPage) {
+  // 광고 페이지 진입 시 로딩 상태 강제 해제 (스플래시 방지)
+  if (isAppLoading) setIsAppLoading(false);
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-slate-950">
+      <Routes>
+        <Route path="/ad" element={<Ad />} />
+        <Route path="*" element={<Ad />} />
+      </Routes>
+    </div>
+  );
+}
+
+// ⭐ 1순위: 브라우저 유도 페이지 (광고 페이지가 아닐 때만 작동)
+if (isBrowserGuide) {
+  return <OpenInBrowserPage />;
+}
+
+// ⭐ 2순위: 일반 페이지 스플래시 로딩
+if (isAppLoading) {
+  return <Splash />;
+}
   if (isAdPage) {
+    if (isAppLoading) {
+      setIsAppLoading(false);
+    }
+
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950">
         <Routes>
@@ -82,17 +100,7 @@ const RootComponent = () => {
       </div>
     );
   }
-  if (isAdPage) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
-        <Routes>
-          <Route path="/ad" element={<Ad />} />
-          {/* ad 페이지에서 혹시 모를 리다이렉트 대비 */}
-          <Route path="*" element={<Ad />} />
-        </Routes>
-      </div>
-    );
-  }
+
   // 4. 정상 상태
   return (
     <div className="min-h-screen relative px-3 py-6 bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
