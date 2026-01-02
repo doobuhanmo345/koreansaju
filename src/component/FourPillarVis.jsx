@@ -235,7 +235,7 @@ export default function FourPillarVis({ isTimeUnknown, saju }) {
             </div>
           </div>
         )}
-        
+
         <div
           className={classNames(
             pillarStyle,
