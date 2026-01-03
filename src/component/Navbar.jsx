@@ -26,7 +26,7 @@ import logoKorDark from '../assets/Logo_Kor_DarkMode.png';
 import logoEngDark from '../assets/Logo_Eng_DarkMode.png';
 import logoKor from '../assets/Logo_Kor.png';
 import logoEng from '../assets/Logo_Eng.png';
-
+import CreditModal from './CreditModal';
 const MAIN_MENUS = [
   { id: 'home', ko: '홈', en: 'Home', path: '/', icon: HomeIcon },
   { id: 'fortune', ko: '사주란?', en: 'Saju?', path: '/sajuexp', icon: SparklesIcon },
@@ -110,7 +110,12 @@ export default function NavBar() {
       setLoading(false);
     }
   };
-
+  const isOutOfCredit = MAX_EDIT_COUNT - editCount === 0;
+  const [creditModal, setCreditModal] = useState(true);
+  const handleCloseModal = () => {
+    console.log(close);
+    setCreditModal(false);
+  };
   return (
     <div className="flex items-center justify-between py-3 max-w-xl m-auto relative z-20 px-2">
       {isContactModalOpen && (
@@ -136,7 +141,12 @@ export default function NavBar() {
           className="h-[40px] object-cover"
         />
       </div>
-
+      <CreditModal
+        isOpen={isOutOfCredit && creditModal}
+        onWatchAd={() => setCreditModal(false)}
+        onClose={handleCloseModal}
+        language={language} // "ko" 또는 "en"
+      />
       {/* [오른쪽] 유틸 버튼 그룹 */}
       <div className="flex items-center gap-1">
         {/* 크레딧 & 포춘쿠키 미니바 */}
@@ -151,6 +161,7 @@ export default function NavBar() {
               {MAX_EDIT_COUNT - editCount}
             </span>
           </div>
+
           <button
             onClick={() => navigate('/fortunecookie')}
             disabled={isCookieDone}

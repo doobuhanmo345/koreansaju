@@ -115,11 +115,8 @@ export default function BeforeLogin() {
   const [tryLogin, setTryLogin] = useState(false);
   const me = saju?.sky1;
 
-  const me_exp =
-    language === 'ko'
-      ? dayStem.find((i) => i.name_kr === me)?.full_text_ko
-      : dayStem.find((i) => i.name_kr === me)?.full_text_en;
-  // 1. 로그인 시도 함수 수정
+  const me_exp = dayStem.find((i) => i.name_kr === me);
+
   const hasId = async () => {
     // 상태값 대신 로컬 스토리지를 사용해 기록을 남깁니다.
     setTryLogin(true);
@@ -436,7 +433,7 @@ export default function BeforeLogin() {
     }
     return score;
   };
-  console.log(me, sajuData);
+
   const isFormValid = getProgress() === 100;
   const sajuDict = {
     // 1. 오행 특성 (Dominant Element)
@@ -949,7 +946,23 @@ export default function BeforeLogin() {
                     </div>
                   </div>
                 </div>
-                <div className="text-[15px] leading-relaxed dark:text-slate-300 "> {me_exp}</div>
+                <div className="text-[15px] leading-relaxed dark:text-slate-300 ">
+                  {(language === 'ko' ? me_exp?.full_text_kr : me_exp?.full_text_en)
+                    ?.split('\n')
+                    ?.filter((text) => text.trim() !== '')
+                    .map((sentence, index) => (
+                      <p
+                        key={index}
+                        style={{
+                          fontWeight: index === 0 ? 'bold' : 'normal',
+                          fontSize: index === 0 ? '1.1rem' : '1rem', // 첫 줄만 살짝 키울 수도 있습니다
+                          marginBottom: '0.8rem',
+                        }}
+                      >
+                        {sentence}
+                      </p>
+                    ))}
+                </div>
                 {/* 반복문을 사용하여 50줄 분량의 더미 텍스트 생성 */}
               </div>
 

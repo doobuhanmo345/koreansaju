@@ -50,7 +50,7 @@ const RootComponent = () => {
   }, []);
   // 수정 제안
   const pathname = window.location.pathname;
-  const isAdPage = pathname.startsWith('/ad');
+  const isAdPage = /^\/ad(\/|$)/.test(pathname);
   const isBrowserGuide = pathname === '/open-in-browser';
 
   // 1. 광고 페이지라면 무조건 여기서 끝냄 (최우선순위 보장)

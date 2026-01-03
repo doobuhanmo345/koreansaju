@@ -11,7 +11,7 @@ import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
 import { TicketIcon, LockClosedIcon } from '@heroicons/react/24/outline';
-import { STRICT_INSTRUCTION, NEW_YEAR_FORTUNE_PROMPT } from '../data/aiResultConstants';
+
 import { langPrompt, hanja } from '../data/constants';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
@@ -200,7 +200,8 @@ function SajuLoading({ sajuData }) {
 
 // 2. 메인 페이지 컴포넌트
 export default function YearlyLuckPage() {
-  const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
+  const { setLoadingType, aiResult, setAiResult } = useLoading();
+  const [loading, setLoading] = useState(false);
   const [sajuData, setSajuData] = useState(null);
   const { userData, user, isYearDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
@@ -278,7 +279,7 @@ export default function YearlyLuckPage() {
       if (!basicSnap.exists()) {
         throw new Error('신년운세 기본 뼈대가 DB에 없습니다.');
       }
-   
+
       const template = basicSnap.val();
       const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
 
@@ -294,7 +295,7 @@ export default function YearlyLuckPage() {
       };
 
       let fullPrompt = template;
-
+      console.log(fullPrompt);
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });

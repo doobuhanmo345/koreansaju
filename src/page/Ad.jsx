@@ -400,32 +400,7 @@ export default function Ad() {
   };
   const me = saju?.sky1;
 
-  const me_exp =
-    language === 'ko'
-      ? dayStem.find((i) => i.name_kr === me)?.full_text_ko
-      : dayStem.find((i) => i.name_kr === me)?.full_text_en;
-  const putGender = !gender;
-  const putYear = !!gender && !birthData?.year;
-  const putMonth = !!gender && !!birthData?.year && !birthData?.month;
-  const putDay = !!gender && !!birthData?.year && !!birthData?.month && !birthData?.day;
-  const putHour =
-    !!gender && !!birthData?.year && !!birthData?.month && !!birthData?.day && !birthData?.hour;
-  const putMin =
-    !!gender &&
-    !!birthData?.year &&
-    !!birthData?.month &&
-    !!birthData?.day &&
-    !!birthData?.hour &&
-    !birthData?.minute;
-  const putComp =
-    !!gender &&
-    !!birthData?.year &&
-    !!birthData?.month &&
-    !!birthData?.day &&
-    !!birthData?.hour &&
-    !!birthData?.minute;
-  const putTimeUnknown =
-    !!gender && !!birthData?.year && !!birthData?.month && !!birthData?.day && timeUnknown;
+  const me_exp = dayStem.find((i) => i.name_kr === me);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-2 text-black dark:text-white  ">
@@ -447,7 +422,7 @@ export default function Ad() {
             <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
           </button>
         )}
-    
+
         {step === 0 && (
           <div className="space-y-6 py-4 animate-in fade-in duration-500">
             <div className="text-center">
@@ -893,7 +868,24 @@ export default function Ad() {
                     </div>
                   </div>
                 </div>
-                <div className="text-[15px] leading-relaxed dark:text-slate-300 "> {me_exp}</div>
+                <div className="text-[15px] leading-relaxed dark:text-slate-300 ">
+                  {' '}
+                  {(language === 'ko' ? me_exp?.full_text_kr : me_exp?.full_text_en)
+                    ?.split('\n')
+                    ?.filter((text) => text.trim() !== '')
+                    .map((sentence, index) => (
+                      <p
+                        key={index}
+                        style={{
+                          fontWeight: index === 0 ? 'bold' : 'normal',
+                          fontSize: index === 0 ? '1.1rem' : '1rem', // 첫 줄만 살짝 키울 수도 있습니다
+                          marginBottom: '0.8rem',
+                        }}
+                      >
+                        {sentence}
+                      </p>
+                    ))}
+                </div>
                 {/* 반복문을 사용하여 50줄 분량의 더미 텍스트 생성 */}
               </div>
 
