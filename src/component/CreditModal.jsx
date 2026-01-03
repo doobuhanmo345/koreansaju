@@ -1,19 +1,24 @@
 import React from 'react';
-
+import { useAuthContext } from '../context/useAuthContext';
+import { useNavigate } from 'react-router-dom';
 const CreditModal = ({ isOpen, onClose, onWatchAd, language = 'ko' }) => {
   // 다국어 데이터
+  const { isCookieDone } = useAuthContext();
+  const navigate = useNavigate();
   const content = {
     ko: {
       title: '앗! 오늘의 무료 크레딧을 다 썼어요',
       body: '매일밤 12시에 무료 크레딧 3개가 자동으로 충전됩니다. 내일 아침에 다시 만나요!',
       btnConfirm: '확인(내일 다시 오기)',
       btnAd: '광고보고 1개 충전하기',
+      fortunecookie: '포춘쿠키 보고 크레딧 최대 다섯개 충전',
     },
     en: {
       title: 'Oops! Out of Free Credits',
       body: '3 free credits are automatically recharged every midnight. See you tomorrow morning!',
       btnConfirm: 'OK (See you tomorrow)',
       btnAd: 'Watch Ad for +1 Credit',
+      fortunecookie: 'Open a Fortune Cookie and get up to 5 credits!',
     },
   };
 
@@ -56,6 +61,17 @@ const CreditModal = ({ isOpen, onClose, onWatchAd, language = 'ko' }) => {
             >
               {t.btnConfirm}
             </button>
+            {isCookieDone || (
+              <button
+                onClick={() => {
+                  navigate('/fortunecookie');
+                  onClose();
+                }}
+                className="w-full py-4 px-6 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-2xl transition-all"
+              >
+                {t.fortunecookie}
+              </button>
+            )}
 
             {/* <button
               onClick={onWatchAd}
