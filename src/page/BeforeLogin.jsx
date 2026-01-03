@@ -436,6 +436,7 @@ export default function BeforeLogin() {
     }
     return score;
   };
+  console.log(me, sajuData);
   const isFormValid = getProgress() === 100;
   const sajuDict = {
     // 1. 오행 특성 (Dominant Element)

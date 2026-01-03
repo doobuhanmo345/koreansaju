@@ -8,11 +8,15 @@ import {
   LISTS,
   RELATION_RULES,
   PILLAR_DETAILS,
-  GWIN_MAP,
+  GUIN_MAP,
   NOBLE_DESCRIPTIONS,
   GONGMANG_DESCRIPTIONS,
   SHIP_SUNG_MAP,
   SHIP_SUNG_TABLE,
+  NAKJEONG_MAP,
+  SAMJAE_MAP,
+  WONJIN_PAIRS,
+  YANGIN_MAP,
 } from '../data/saju_data';
 import { ILJU_DATA } from '../data/ilju_data';
 import { DEFAULT_FORMAT } from '../data/saju_data_prompt';
@@ -32,13 +36,18 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
     const [datePart, timePart] = inputDate.split('T');
     const [year, month, day] = datePart.split('-').map(Number);
     const [hour, min] = timePart.split(':').map(Number);
+    const isEn = language === 'en';
 
-    // 1. 만세력 인스턴스 생성
+    // ---------------------------------------------------------
+    // 1. 만세력 인스턴스 생성 (lunar-javascript 라이브러리 가정)
+    // ---------------------------------------------------------
     const solar = Solar.fromYmdHms(year, month, day, isTimeUnknown ? 0 : hour, min, 0);
     const lunar = solar.getLunar();
     const eightChar = lunar.getEightChar();
 
-    // 2. 사주 명식(Pillars) 추출
+    // ---------------------------------------------------------
+    // 2. 사주 명식(Pillars) 추출 및 한글 변환
+    // ---------------------------------------------------------
     const saju = {
       sky3: HANJA_MAP[eightChar.getYearGan()],
       grd3: HANJA_MAP[eightChar.getYearZhi()],
@@ -57,10 +66,13 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
       time: saju.sky0 + saju.grd0,
     };
 
+    // 계산 편의를 위한 지지(branches)와 천간(stems) 객체
     const branches = { year: saju.grd3, month: saju.grd2, day: saju.grd1, time: saju.grd0 };
     const stems = { year: saju.sky3, month: saju.sky2, day: saju.sky1, time: saju.sky0 };
 
-    // 3. 오행 계산
+    // ---------------------------------------------------------
+    // 3. 오행(Ohaeng) 계산
+    // ---------------------------------------------------------
     const allChars = [saju.sky3, saju.grd3, saju.sky2, saju.grd2, saju.sky1, saju.grd1];
     if (!isTimeUnknown) allChars.push(saju.sky0, saju.grd0);
 
@@ -69,10 +81,11 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
       const type = OHAENG_MAP[char];
       if (type) ohaengCount[type]++;
     });
+
     const dayTypes = [OHAENG_MAP[allChars[4]], OHAENG_MAP[allChars[5]]];
     const monthTypes = [OHAENG_MAP[allChars[2]], OHAENG_MAP[allChars[3]]];
 
-    // 가장 강한 오행
+    // 가장 강한 오행 판단 로직
     const maxOhaeng = Object.entries(ohaengCount).reduce((a, b) => {
       if (a[1] !== b[1]) {
         return a[1] > b[1] ? a : b;
@@ -85,161 +98,219 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
       return getScore(a[0]) >= getScore(b[0]) ? a : b;
     });
 
-    // 4. 신살(Shinsal) 계산
+    // ---------------------------------------------------------
+    // 4. 신살(Shinsal) 통합 계산
+    // ---------------------------------------------------------
     let myShinsal = [];
-    const isEn = language === 'en';
 
-    // 4-1. 삼합 기준 (역마, 도화, 화개)
+    // [4-1] 12신살 (삼합 기준)
     const checkSamhap = (criteria, label) => {
       const group = SAMHAP_MAP[criteria];
       if (!group) return;
-      const [el, yeokma, dohwa, hwagae] = group;
+      const [el, yeokma, dohwa, hwagae, mangsin, cheonsal, yukhae, geobsal] = group;
 
-      Object.values(branches).forEach((b) => {
+      Object.entries(branches).forEach(([position, b]) => {
         if (!b) return;
-        if (b === yeokma)
-          myShinsal.push({
+
+        // 기준이 된 자리(label)는 화개/망신/겁살 판정에서 제외 (자기참조 버그 방지)
+        const isBasePosition =
+          label.includes('Year') || label.includes('년') ? position === 'year' : position === 'day';
+
+        let newShinsal = null;
+
+        if (b === yeokma) {
+          newShinsal = {
             name: isEn ? 'Yeokma' : '역마살',
-            type: label,
-            desc: isEn ? 'Movement/Travel' : '이동수, 변동',
-          });
-        if (b === dohwa)
-          myShinsal.push({
+            desc: isEn ? 'Movement/Travel' : '이동수, 주거 및 직장 변동, 활발한 활동',
+          };
+        } else if (b === dohwa) {
+          newShinsal = {
             name: isEn ? 'Dohwa' : '도화살',
-            type: label,
-            desc: isEn ? 'Popularity/Charm' : '인기, 매력',
-          });
-        if (b === hwagae)
-          myShinsal.push({
+            desc: isEn ? 'Charm/Popularity' : '타인의 시선을 끄는 매력, 인기, 끼',
+          };
+        } else if (b === hwagae && !isBasePosition) {
+          newShinsal = {
             name: isEn ? 'Hwagae' : '화개살',
-            type: label,
-            desc: isEn ? 'Art/Religion' : '예술, 종교, 복귀',
-          });
+            desc: isEn ? 'Art/Religion' : '예술적 재능, 종교, 학문, 화려함 뒤의 고독',
+          };
+        } else if (b === mangsin && !isBasePosition) {
+          newShinsal = {
+            name: isEn ? 'Mangsin' : '망신살',
+            desc: isEn ? 'Exposure/Fame' : '자신을 드러내어 얻는 이득 혹은 구설수',
+          };
+        } else if (b === cheonsal && !isBasePosition) {
+          newShinsal = {
+            name: isEn ? 'Cheonsal' : '천살',
+            desc: isEn ? 'Higher Power' : '하늘의 뜻, 감당하기 어려운 목표나 기회',
+          };
+        } else if (b === yukhae && !isBasePosition) {
+          newShinsal = {
+            name: isEn ? 'Yukhae' : '육해살',
+            desc: isEn ? 'Quick Wit' : '빠른 문제 해결 능력, 예리한 직관',
+          };
+        } else if (b === geobsal && !isBasePosition) {
+          newShinsal = {
+            name: isEn ? 'Geobsal' : '겁살',
+            desc: isEn ? 'Competition' : '빼앗거나 뺏기는 경쟁심, 강한 투쟁심',
+          };
+        }
+
+        if (newShinsal) {
+          newShinsal.type = `${label}`; // 예: 년지기준, 일지기준
+
+          // 이름 중복 방지 (같은 살이 년/일 기준 둘 다 나오면 하나만 표시)
+          const isDuplicate = myShinsal.some((s) => s.name === newShinsal.name);
+          if (!isDuplicate) {
+            myShinsal.push(newShinsal);
+          }
+        }
       });
     };
+
     checkSamhap(branches.year, isEn ? 'Year Base' : '년지기준');
     checkSamhap(branches.day, isEn ? 'Day Base' : '일지기준');
 
-    // 4-2. 백호, 괴강
-    if (LISTS.baekho.includes(pillars.day))
+    // [4-2] 백호살 / 괴강살
+    if (LISTS.baekho.includes(pillars.day)) {
       myShinsal.push({
         name: isEn ? 'Baekho' : '백호살',
-        type: isEn ? 'Day' : '일주',
-        desc: isEn ? 'Strong Energy/Pro' : '강한 기운, 프로페셔널',
+        type: isEn ? 'Day Pillar' : '일주',
+        desc: isEn ? 'Strong Energy' : '강한 추진력과 기세, 프로페셔널한 능력',
       });
-    if (LISTS.goegang.includes(pillars.day))
+    }
+    if (LISTS.goegang.includes(pillars.day)) {
       myShinsal.push({
         name: isEn ? 'Goegang' : '괴강살',
-        type: isEn ? 'Day' : '일주',
-        desc: isEn ? 'Leadership' : '총명, 우두머리 기질',
+        type: isEn ? 'Day Pillar' : '일주',
+        desc: isEn ? 'Leadership' : '우두머리 기질, 총명함, 강력한 리더십',
       });
+    }
 
-    // (3) 천을귀인 - 위치별 해석 적용 (수정됨)
-    const nobleTargets = GWIN_MAP[saju.sky1];
+    // [4-3] 천을귀인 (Nobleman)
+    const nobleChars = GUIN_MAP[stems.day];
+    if (nobleChars) {
+      Object.entries(branches).forEach(([pos, char]) => {
+        if (nobleChars.includes(char)) {
+          const posName =
+            pos === 'year' ? '년지' : pos === 'month' ? '월지' : pos === 'day' ? '일지' : '시지';
+          const newShinsal = {
+            name: isEn ? 'Nobleman' : '천을귀인',
+            type: isEn ? `Nobleman in ${pos}` : `${posName}`,
+            desc: isEn ? 'Great Help' : '최고의 길신, 위기에서 돕는 조력자',
+          };
+          // 중복 체크
+          if (!myShinsal.some((s) => s.name === newShinsal.name)) {
+            myShinsal.push(newShinsal);
+          }
+        }
+      });
+    }
 
-    if (nobleTargets) {
-      // 위치 한글 매핑 (UI_TEXT 제거하고 직접 정의)
-      const posNameMap = { year: '년주', month: '월주', day: '일주', time: '시주' };
-
-      Object.entries(branches).forEach(([pos, branchChar]) => {
-        if (nobleTargets.includes(branchChar)) {
-          // 1. 위치별 설명 가져오기 (데이터 파일 활용)
-          const detailDesc = NOBLE_DESCRIPTIONS[pos]
-            ? isEn
-              ? NOBLE_DESCRIPTIONS[pos].en
-              : NOBLE_DESCRIPTIONS[pos].ko
-            : isEn
-              ? 'Great Help'
-              : '귀인의 도움';
-
-          // 2. 제목 설정 (UI_TEXT 없이 안전하게 변환)
-          // 예: 천을귀인 (년주)
-          const label = isEn ? pos : posNameMap[pos];
-          const nobleTitle = isEn ? `Noble Star (${label})` : `천을귀인 (${label})`;
-
+    // [4-4] 양인살 (Yangin)
+    const yanginChar = YANGIN_MAP[stems.day];
+    if (yanginChar) {
+      Object.entries(branches).forEach(([pos, char]) => {
+        if (char === yanginChar) {
+          const posName =
+            pos === 'year' ? '년지' : pos === 'month' ? '월지' : pos === 'day' ? '일지' : '시지';
           myShinsal.push({
-            name: nobleTitle,
-            type: isEn ? 'Auspicious' : '대길신',
-            desc: detailDesc,
+            name: isEn ? 'Yangin' : '양인살',
+            type: isEn ? `Yangin in ${pos}` : `${posName}`,
+            desc: isEn ? 'Strong Authority' : '강한 고집과 권위, 칼을 쥔 듯한 전문성',
           });
         }
       });
     }
 
-    // 4-4. 공망
-    const gongmangStr = lunar.getDayXunKong(); // 예: "戌亥"
+    // [4-5] 원진살 (Wonjin)
+    const wonjinTarget = WONJIN_PAIRS[branches.day];
+    if (wonjinTarget) {
+      Object.entries(branches).forEach(([pos, char]) => {
+        if (pos !== 'day' && char === wonjinTarget) {
+          const posName = pos === 'year' ? '년지' : pos === 'month' ? '월지' : '시지';
+          myShinsal.push({
+            name: isEn ? 'Wonjin' : '원진살',
+            type: isEn ? `Day <-> ${pos}` : `일지 <-> ${posName}`,
+            desc: isEn ? 'Disharmony' : '이유 없는 미움, 예민함, 애증 관계',
+          });
+        }
+      });
+    }
+
+    // [4-6] 공망 (Gongmang)
+    const gongmangStr = lunar.getDayXunKong(); // "戌亥"
     const gmChars = gongmangStr.split('').map((h) => HANJA_MAP[h]);
 
-    // 위치 이름 한글 매핑 (UI_TEXT 의존성 제거)
-    const posNameMap = { year: '년주', month: '월주', day: '일주', time: '시주' };
-
-    Object.entries(branches).forEach(([pos, branchChar]) => {
-      // 일지(day)는 공망 기준이므로 제외
-      if (pos !== 'day' && gmChars.includes(branchChar)) {
-        // 1. 위치별 설명 가져오기
-        const detailDesc = GONGMANG_DESCRIPTIONS[pos]
-          ? isEn
-            ? GONGMANG_DESCRIPTIONS[pos].en
-            : GONGMANG_DESCRIPTIONS[pos].ko
-          : isEn
-            ? 'Empty Void'
-            : '비어있음, 채워지지 않는 갈증';
-
-        // 2. 제목 설정 (UI_TEXT 대신 posNameMap 사용)
-        const label = isEn ? pos : posNameMap[pos];
-        const title = isEn ? `Gongmang (${label})` : `공망 (${label})`;
-
+    Object.entries(branches).forEach(([pos, char]) => {
+      // 일지는 공망 기준점이므로 제외
+      if (pos !== 'day' && gmChars.includes(char)) {
+        const posName = pos === 'year' ? '년지' : pos === 'month' ? '월지' : '시지';
         myShinsal.push({
-          name: title,
-          type: isEn ? 'Void' : '공허',
-          desc: detailDesc,
+          name: isEn ? 'Gongmang' : '공망',
+          type: isEn ? `${pos} Void` : `${posName}`,
+          desc: isEn ? 'Void/Empty' : '채워지지 않는 갈증, 비어있음으로 인한 아쉬움',
         });
       }
     });
 
-    // 중복 제거
-    myShinsal = [...new Map(myShinsal.map((item) => [item.name + item.desc, item])).values()];
+    // [4-7] 특수 신살: 천라지망 (Cheonrajimang) & 낙정관살
+    const branchList = Object.values(branches);
+    const hasJin = branchList.includes('辰');
+    const hasSa = branchList.includes('巳');
+    const hasSul = branchList.includes('戌');
+    const hasHae = branchList.includes('亥');
 
-    // 5. 합충(Relations) 계산
+    if (hasJin && hasSa) {
+      myShinsal.push({
+        name: isEn ? 'Cheonrajimang (Earth)' : '천라지망 (지망)',
+        type: 'Special',
+        desc: isEn ? 'Restricted Movement' : '하늘과 땅의 그물. 활인업/수성(守成)이 길함',
+      });
+    }
+    if (hasSul && hasHae) {
+      myShinsal.push({
+        name: isEn ? 'Cheonrajimang (Heaven)' : '천라지망 (천라)',
+        type: 'Special',
+        desc: isEn ? 'Spiritual Potential' : '하늘의 그물. 정신적/종교적/예술적 분야 대성',
+      });
+    }
+
+    const nakTarget = NAKJEONG_MAP[stems.day];
+    if (branchList.includes(nakTarget)) {
+      myShinsal.push({
+        name: isEn ? 'Nakjeonggwansal' : '낙정관살',
+        type: 'Special',
+        desc: isEn ? 'Unexpected Trap' : '예기치 못한 함정이나 수재(水災) 주의, 신중함 필요',
+      });
+    }
+
+    // 신살 배열 중복 제거 (최종 클린업)
+    myShinsal = [...new Map(myShinsal.map((item) => [item.name + item.type, item])).values()];
+
+    // ---------------------------------------------------------
+    // 5. 합충(Hap/Chung) 관계 계산
+    // ---------------------------------------------------------
     const relations = [];
-
     const checkPair = (b1, b2, targetName) => {
-      // 1. 두 가지 키 조합 생성 (순서 무관하게 찾기 위함)
-      const key1 = [b1, b2].join(''); // 예: 갑기
-      const key2 = [b2, b1].join(''); // 예: 기갑
-
-      // 2. 딕셔너리 조회 (OR 연산자 사용)
-      // key1에 정의된게 있으면 그걸 쓰고, 없으면 key2를 찾아봅니다.
+      const key1 = [b1, b2].join('');
+      const key2 = [b2, b1].join('');
       const rule = RELATION_RULES[key1] || RELATION_RULES[key2];
-
-      // 3. 룰이 존재하면 배열에 '한 번만' 추가
       if (rule) {
         relations.push({ ...rule, target: targetName });
       }
     };
 
-    checkPair(
-      branches.day,
-      branches.month,
-      language === 'ko' ? '월지(사회)' : 'Month Branch (Society)',
-    );
+    checkPair(branches.day, branches.month, language === 'ko' ? '월지(사회)' : 'Month(Society)');
+    checkPair(branches.day, branches.time, language === 'ko' ? '시지(자녀)' : 'Time(Children)');
+    checkPair(branches.day, branches.year, language === 'ko' ? '년지(조상)' : 'Year(Ancestors)');
 
-    checkPair(
-      branches.day,
-      branches.time,
-      language === 'ko' ? '시지(자녀)' : 'Time Branch (Children)',
-    );
+    checkPair(stems.day, stems.month, language === 'ko' ? '월간(사회)' : 'Month Stem');
+    checkPair(stems.day, stems.time, language === 'ko' ? '시간(자녀)' : 'Time Stem');
+    checkPair(stems.day, stems.year, language === 'ko' ? '년간(조상)' : 'Year Stem');
 
-    checkPair(
-      branches.day,
-      branches.year,
-      language === 'ko' ? '년지(조상)' : 'Year Branch (Ancestors)',
-    );
-    checkPair(stems.day, stems.month, language === 'ko' ? '월간(사회)' : 'Month Stem (Society)');
-    checkPair(stems.day, stems.time, language === 'ko' ? '시간(자녀)' : 'Time Stem (Children)');
-    checkPair(stems.day, stems.year, language === 'ko' ? '년간(조상)' : 'Year Stem (Ancestors)');
-
+    // ---------------------------------------------------------
     // 6. 대운(Daewoon) 계산
+    // ---------------------------------------------------------
     const daewoonList = [];
     let currentDaewoon = null;
     const currentAge = new Date().getFullYear() - year + 1; // 한국 나이
@@ -247,18 +318,54 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
 
     try {
       const yun = eightChar.getYun(genderNum);
-      const dyRaw = yun.getDaYun();
-      const arr = dyRaw;
+      const arr = yun.getDaYun();
+
+      // 대운수(진짜 대운이 시작되는 나이)를 가져옵니다.
+      const daewoonSu = arr[1] ? arr[1].getStartAge() : 10;
 
       for (let i = 0; i < arr.length; i++) {
         const dy = arr[i];
+        let ganZhi = dy.getGanZhi();
         const start = dy.getStartAge();
         const end = dy.getEndAge();
-        const gan = HANJA_MAP[dy.getGanZhi()[0]];
-        const zhi = HANJA_MAP[dy.getGanZhi()[1]];
+
+        // 1. 대운 시작 전 구간(1세 ~ 대운수 전) 처리
+        if (!ganZhi || ganZhi.length < 2) {
+          if (start < daewoonSu) {
+            // 대운 시작 전에는 '월주'의 기운을 쓰거나 '대운 진입 전'으로 표시
+            // 여기서는 월주의 간지를 가져와서 대운 시작 전 기운으로 설정합니다.
+            const monthGan = eightChar.getMonthGan();
+            const monthZhi = eightChar.getMonthZhi();
+
+            const gan = HANJA_MAP[monthGan];
+            const zhi = HANJA_MAP[monthZhi];
+
+            const item = {
+              startAge: 1, // 1세부터 시작하도록 고정
+              endAge: daewoonSu - 1,
+              name: `${gan}${zhi}`,
+              ganKor: gan,
+              zhiKor: zhi,
+              ganOhaeng: OHAENG_MAP[gan],
+              zhiOhaeng: OHAENG_MAP[zhi],
+              isCurrent: currentAge >= 1 && currentAge < daewoonSu,
+              isPreDaewoon: true, // 대운 시작 전임을 나타내는 플래그
+            };
+
+            if (item.isCurrent) currentDaewoon = item;
+            daewoonList.push(item);
+            continue;
+          }
+          continue;
+        }
+
+        // 2. 실제 대운 구간 처리
+        const gan = HANJA_MAP[ganZhi[0]];
+        const zhi = HANJA_MAP[ganZhi[1]];
         const name = gan + zhi;
 
-        const nextStart = arr[i + 1] ? arr[i + 1].getStartAge() : 999;
+        // 현재 나이가 이 구간에 있는지 확인
+        const nextStart = arr[i + 1] ? arr[i + 1].getStartAge() : end + 1;
         const isCurrent = currentAge >= start && currentAge < nextStart;
 
         const item = {
@@ -271,6 +378,7 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
           zhiOhaeng: OHAENG_MAP[zhi],
           isCurrent,
         };
+
         if (isCurrent) currentDaewoon = item;
         daewoonList.push(item);
       }
@@ -278,16 +386,49 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
       console.error('Daewoon Calc Error', e);
     }
 
+    // ---------------------------------------------------------
+    // 7. 추가 데이터: 명궁, 삼재
+    // ---------------------------------------------------------
+    let myeongGung = '-';
+    try {
+      const mg = lunar.getMingGong(); // "己丑"
+      myeongGung = HANJA_MAP[mg[0]] + HANJA_MAP[mg[1]];
+    } catch (e) {
+      /* ignore */
+    }
+
+    const samjaeYears = SAMJAE_MAP[branches.year] || [];
+
+    // ---------------------------------------------------------
+    // 8. 최종 결과 반환
+    // ---------------------------------------------------------
     return {
       saju,
       pillars,
       ohaengCount,
       maxOhaeng,
+
+      // 통합된 신살 리스트 (12신살, 귀인, 양인, 원진, 공망, 특수신살 포함)
       myShinsal,
+
+      // 관계 (합, 충)
       relations,
+
+      // 대운 정보
       daewoonList,
       currentDaewoon,
       currentAge,
+
+      // 추가 정보
+      myeongGung,
+      samjae: {
+        years: samjaeYears,
+        // 현재 연도가 삼재인지 체크 (현재 년지 오행이 samjaeYears에 포함되는지)
+        // *주의: 여기선 현재 년도(2026)를 자동으로 가져오거나 인자로 받아야 함.
+        // 편의상 리스트만 제공
+      },
+      gongmang: gmChars, // ['인', '묘']
+
       inputDate,
       inputGender,
     };
