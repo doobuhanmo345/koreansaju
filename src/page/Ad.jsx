@@ -446,15 +446,8 @@ export default function Ad() {
           >
             <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
           </button>
-        )}{' '}
-        {step > 0 && !isAnalyzing && (
-          <button
-            onClick={handleBack}
-            className="absolute left-6 top-7 z-10 p-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 transition-colors"
-          >
-            <ChevronLeftIcon className="w-5 h-5" />
-          </button>
         )}
+    
         {step === 0 && (
           <div className="space-y-6 py-4 animate-in fade-in duration-500">
             <div className="text-center">
@@ -486,8 +479,6 @@ export default function Ad() {
         {step === 1 && (
           <div className="space-y-4">
             <div className="text-center">
-              {/* 우측 상단 프로그레스 바 배치 */}
-
               <h2 className="text-md font-black   flex items-center justify-center gap-2">
                 {language === 'ko'
                   ? '생년월일을 바탕으로 나의 오행을 분석합니다'
@@ -516,13 +507,18 @@ export default function Ad() {
 
               {/* 연도 */}
               <div
-                className={`grid transition-all duration-500 ease-in-out ${gender ? 'grid-rows-[1fr] opacity-100 mb-2' : 'grid-rows-[0fr] opacity-0'}`}
+                className={`grid transition-all duration-500 ease-in-out ${gender ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
               >
                 <div className="overflow-hidden">
                   <input
                     type="number"
-                    placeholder={language === 'ko' ? '태어난 연도 (YYYY)' : 'Birth Year (YYYY)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    placeholder={
+                      language === 'ko'
+                        ? '태어난 연도를 입력해주세요'
+                        : 'Please put your birth year'
+                    }
+                    value={birthData.year}
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                     onChange={(e) =>
                       setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                     }
@@ -530,15 +526,20 @@ export default function Ad() {
                 </div>
               </div>
 
-              {/* 월 */}
+              {/* 3. 월 */}
               <div
-                className={`grid transition-all duration-500 ease-in-out ${isYearDone ? 'grid-rows-[1fr] opacity-100 mb-2' : 'grid-rows-[0fr] opacity-0'}`}
+                className={`grid transition-all duration-500 ease-in-out ${isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
               >
                 <div className="overflow-hidden">
                   <input
                     type="number"
-                    placeholder={language === 'ko' ? '태어난 월 (MM)' : 'Birth Month (MM)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    placeholder={
+                      language === 'ko'
+                        ? '태어난 월을 선택해주세요'
+                        : 'Please put your month of birth'
+                    }
+                    value={birthData.month}
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                     onChange={(e) =>
                       setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                     }
@@ -546,15 +547,20 @@ export default function Ad() {
                 </div>
               </div>
 
-              {/* 일 */}
+              {/* 4. 일 */}
               <div
-                className={`grid transition-all duration-500 ease-in-out ${isMonthDone ? 'grid-rows-[1fr] opacity-100 mb-2' : 'grid-rows-[0fr] opacity-0'}`}
+                className={`grid transition-all duration-500 ease-in-out ${isMonthDone && isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
               >
                 <div className="overflow-hidden">
                   <input
                     type="number"
-                    placeholder={language === 'ko' ? '태어난 일 (DD)' : 'Birth Day (DD)'}
-                    className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                    placeholder={
+                      language === 'ko'
+                        ? '태어난 날을 선택해주세요'
+                        : 'Please put your day of birth'
+                    }
+                    value={birthData.day}
+                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                     onChange={(e) =>
                       setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                     }
