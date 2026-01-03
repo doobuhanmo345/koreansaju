@@ -371,6 +371,7 @@ export default function Match({}) {
   };
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = (loading && !compaEnergy2.isConsuming) || !user || loading;
+     const isDisabled2 = !isAnalysisDone && isLocked;
   const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
 
   const checkSajuEqual = (source, target) => {
@@ -894,7 +895,7 @@ export default function Match({}) {
             <div className="flex justify-center">
               <button
                 onClick={() => compaEnergy2.triggerConsume(handleMatch)}
-                disabled={isDisabled}
+                disabled={isDisabled||isDisabled2}
                 className={classNames(
                   'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
                   isDisabled

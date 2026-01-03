@@ -211,6 +211,8 @@ export default function YearlyLuckPage() {
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = !user || loading;
+  const isDisabled2 = !isYearDone && isLocked;
+
   useEffect(() => {
     if (inputDate) {
       const data = calculateSajuData(inputDate, gender, isTimeUnknown, language);
@@ -384,7 +386,7 @@ export default function YearlyLuckPage() {
         {/* 시작 버튼: handleYearlyStartClick (가칭) 연결 */}
         <button
           onClick={() => handleStartClick(onStart)}
-          disabled={isDisabled && !isYearDone}
+          disabled={isDisabled || isDisabled2}
           className={classNames(
             'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
             isDisabled

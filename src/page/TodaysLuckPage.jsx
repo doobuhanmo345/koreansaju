@@ -216,6 +216,7 @@ export default function TodaysLuckPage() {
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = !user || loading;
+  const isDisabled2 = !isDailyDone && isLocked;
   useEffect(() => {
     if (inputDate) {
       const data = calculateSajuData(inputDate, gender, isTimeUnknown, language);
@@ -414,7 +415,7 @@ export default function TodaysLuckPage() {
         {/* 시작 버튼: handleDailyStartClick 연결 */}
         <button
           onClick={() => handleStartClick(onStart)} // 일일 운세용 함수 호출
-          disabled={isDisabled && !isDailyDone}
+          disabled={isDisabled || isDisabled2}
           className={classNames(
             'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
             isDisabled
