@@ -381,7 +381,11 @@ export default function App() {
                   {userData.birthDate.split('T')[0].replace(/-/g, '.')}
                 </span>
                 <span className="text-slate-400 dark:text-slate-600 text-xs font-light">
-                  {userData?.isTimeUnknown ? '시간 모름' : userData.birthDate.split('T')[1]}
+                  {userData?.isTimeUnknown
+                    ? language === 'en'
+                      ? 'Time Unknown'
+                      : '시간 모름'
+                    : userData.birthDate.split('T')[1]}
                 </span>
               </div>
 

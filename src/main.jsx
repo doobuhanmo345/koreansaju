@@ -37,6 +37,7 @@ import FeedbackForm from './page/FeedbackForm';
 import EditPrompt from './page/EditPrompt';
 import SazaTalk from './page/SazaTalk';
 import Ad from './page/Ad';
+import BasicAna from './page/BasicAna';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -95,6 +96,7 @@ const RootComponent = () => {
             <Route path="/editprompt" element={<EditPrompt />} />
           </Route>
           <Route path="/sazatalk" element={<SazaTalk />} />
+          <Route path="/ana" element={<BasicAna />} />
 
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/tarotmoney" element={<TarotMoneyPage />} />
