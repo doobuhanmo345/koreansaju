@@ -146,7 +146,9 @@ export const HANJA_ENG_MAP = {
   亥: 'Hae',
 };
 export const langPrompt = (language) => {
-  return language === 'ko' ? '답변은 한국어로. 300단어 이내.' : 'Answer in English. 300 WORDS.';
+  return language === 'ko'
+    ? '답변은 한국어로. 300단어 근처로 작성.'
+    : 'Answer in English. nearly 300 WORDS.';
 };
 
 const hantoeng = `[Terminology Reference]
