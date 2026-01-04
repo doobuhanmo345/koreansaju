@@ -328,7 +328,7 @@ export default function Match({}) {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-   
+
       // 5. Gemini API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
       // ---------------------------------------------------------
@@ -369,6 +369,12 @@ export default function Match({}) {
       setLoading(false);
     }
   };
+  const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
+  const checkSajuEqual = (source, target) => {
+    if (!source || !target) return false;
+    // 8개 키 중 하나라도 값이 다르면 false 리턴
+    return SAJU_KEYS.every((key) => source[key] === target[key]);
+  };
   const isAnalysisDone =
     userData?.usageHistory.ZMatchAnalysis &&
     userData.usageHistory.ZMatchAnalysis.language === language &&
@@ -379,13 +385,6 @@ export default function Match({}) {
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = (loading && !compaEnergy2.isConsuming) || !user || loading;
   const isDisabled2 = !isAnalysisDone && isLocked;
-  const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
-
-  const checkSajuEqual = (source, target) => {
-    if (!source || !target) return false;
-    // 8개 키 중 하나라도 값이 다르면 false 리턴
-    return SAJU_KEYS.every((key) => source[key] === target[key]);
-  };
 
   return (
     <>
