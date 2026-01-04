@@ -369,16 +369,6 @@ export default function Match({}) {
       setLoading(false);
     }
   };
-  const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
-  const isDisabled = (loading && !compaEnergy2.isConsuming) || !user || loading;
-     const isDisabled2 = !isAnalysisDone && isLocked;
-  const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
-
-  const checkSajuEqual = (source, target) => {
-    if (!source || !target) return false;
-    // 8개 키 중 하나라도 값이 다르면 false 리턴
-    return SAJU_KEYS.every((key) => source[key] === target[key]);
-  };
   const isAnalysisDone =
     userData?.usageHistory.ZMatchAnalysis &&
     userData.usageHistory.ZMatchAnalysis.language === language &&
@@ -386,6 +376,16 @@ export default function Match({}) {
     userData.usageHistory.ZMatchAnalysis.relationship === selectedRel &&
     checkSajuEqual(userData.usageHistory.ZMatchAnalysis.saju, saju) &&
     checkSajuEqual(userData.usageHistory.ZMatchAnalysis.saju2, saju2);
+  const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
+  const isDisabled = (loading && !compaEnergy2.isConsuming) || !user || loading;
+  const isDisabled2 = !isAnalysisDone && isLocked;
+  const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
+
+  const checkSajuEqual = (source, target) => {
+    if (!source || !target) return false;
+    // 8개 키 중 하나라도 값이 다르면 false 리턴
+    return SAJU_KEYS.every((key) => source[key] === target[key]);
+  };
 
   return (
     <>
@@ -895,7 +895,7 @@ export default function Match({}) {
             <div className="flex justify-center">
               <button
                 onClick={() => compaEnergy2.triggerConsume(handleMatch)}
-                disabled={isDisabled||isDisabled2}
+                disabled={isDisabled || isDisabled2}
                 className={classNames(
                   'w-full sm:w-auto px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
                   isDisabled

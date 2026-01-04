@@ -425,6 +425,14 @@ export default function Wealth({}) {
       setLoading(false);
     }
   };
+   const isAnalysisDone =
+     userData?.usageHistory.ZWealthAnalysis &&
+     userData.usageHistory.ZWealthAnalysis.language === language &&
+     userData.usageHistory.ZWealthAnalysis.gender === gender &&
+     userData.usageHistory.ZWealthAnalysis.ques === selectedQ &&
+     userData.usageHistory.ZWealthAnalysis.ques2 === selectedSubQ &&
+     checkSajuEqual(userData.usageHistory.ZWealthAnalysis.saju, saju);
+
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = (loading && !wealthEnergy2.isConsuming) || !user || loading;
    const isDisabled2 = !isAnalysisDone && isLocked;
@@ -435,14 +443,7 @@ export default function Wealth({}) {
     // 8개 키 중 하나라도 값이 다르면 false 리턴
     return SAJU_KEYS.every((key) => source[key] === target[key]);
   };
-  const isAnalysisDone =
-    userData?.usageHistory.ZWealthAnalysis &&
-    userData.usageHistory.ZWealthAnalysis.language === language &&
-    userData.usageHistory.ZWealthAnalysis.gender === gender &&
-    userData.usageHistory.ZWealthAnalysis.ques === selectedQ &&
-    userData.usageHistory.ZWealthAnalysis.ques2 === selectedSubQ &&
-    checkSajuEqual(userData.usageHistory.ZWealthAnalysis.saju, saju);
-
+ 
   return (
     <>
       {/* 상단 단계 표시바 (Stepper) */}
