@@ -297,7 +297,7 @@ export default function YearlyLuckPage() {
       };
 
       let fullPrompt = template;
-      console.log(fullPrompt);
+
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });

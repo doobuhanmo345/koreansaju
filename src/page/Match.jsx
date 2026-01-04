@@ -328,7 +328,7 @@ export default function Match({}) {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-      console.log(fullPrompt);
+   
       // 5. Gemini API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
       // ---------------------------------------------------------
