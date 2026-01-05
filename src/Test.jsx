@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import dayStem from '../src/data/dayStem.json';
 import dayBranch from '../src/data/dayBranch.json';
 import { useLanguage } from './context/useLanguageContext';
+
 export default function Test() {
   const [sky1, setSky1] = useState();
   const [grd1, setGrd1] = useState();
