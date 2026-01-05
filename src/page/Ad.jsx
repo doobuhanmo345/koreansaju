@@ -21,8 +21,8 @@ export default function Ad() {
   const [sajuData, setSajuData] = useState();
   const [step, setStep] = useState(0);
   const [gender, setGender] = useState('');
-  const [selectedReports, setSelectedReports] = useState(['general']);
   const [selectedReport, setSelectedReport] = useState();
+
   const birthInit = {
     year: '',
     month: '',
@@ -152,19 +152,44 @@ export default function Ad() {
     const coreInfo = sajuTranslations.elements[coreKey];
 
     const coreText = isKo
-      ? `당신은 ${coreInfo.ko}의 기질을 타고난 사람입니다.`
-      : `You are naturally gifted with the spirit of ${coreInfo.en}.`;
-
+      ? `당신의 사주에서 나를 상징하는 기운은 '${coreInfo.ko}'입니다.`
+      : `In your natal chart, the element representing 'Self' is '${coreInfo.en}'.`;
     // 2. 가장 강한 오행 (Dominant Energy)
     const maxOhaengKey = sajuData.maxOhaeng?.[0] || 'wood';
     const maxValue = sajuData.maxOhaeng?.[1] || 0;
     const maxInfo = sajuTranslations.elements[maxOhaengKey];
+    const dominantIntensity =
+      language === 'ko'
+        ? `당신의 본질은 ${coreInfo.emoji}${coreInfo.ko}입니다. 사주 구성상 이 ${coreInfo.ko}를 배경으로 ${maxInfo.emoji}${maxInfo.ko}의 기운이 은은한 조명처럼 깔려 있습니다. ${maxInfo.ko}에너지는 8개의 요소 중 ${maxValue}개를 차지하며,` +
+          (maxValue >= 3
+            ? ` 특히 당신에게는 '${maxInfo.ko}'의 기운이 압도적으로 몰려 있습니다. 이 거대한 에너지를 다스리는 것이 인생의 최대 미션입니다.`
+            : ` 다른 에너지들과 적절히 어우러져 당신만의 다채로운 무대를 완성하고 있습니다.`)
+        : `Your essence is ${coreInfo.emoji}${coreInfo.en}. Against the backdrop of ${coreInfo.en}, the energy of '${maxInfo.emoji}${maxInfo.en}' sets the stage like subtle lighting. Occupying ${maxValue} out of 8 elements,` +
+          (maxValue >= 3
+            ? ` it overwhelmingly dominates your chart. Mastering this immense power is your ultimate mission.`
+            : ` it harmonizes with other forces to create a versatile and balanced stage.`);
 
     const dominantText = isKo
-      ? `${maxInfo.emoji}${maxInfo.ko} 에너지가 압도적입니다 (강도: ${maxValue}/8).`
-      : `Your ${maxInfo.emoji}${maxInfo.en} energy is overwhelming (Intensity: ${maxValue}/8).`;
+      ? `${dominantIntensity} (강도: ${maxValue}/8).`
+      : `${dominantIntensity} (Intensity: ${maxValue}/8).`;
 
     // 3. 신살/잠재 능력 (Hidden Powers)
+    const keywordText =
+      sajuData.myShinsal && sajuData.myShinsal.length > 0
+        ? sajuData.myShinsal
+            .map((s) => {
+              // 데이터의 s.name이 "Dohwa" 혹은 "도화"로 올 때를 대비
+              const t = sajuTranslations.shinsal[s.name];
+              if (t) {
+                return isKo ? t.desc_ko : t.desc_en;
+              }
+              // 사전에 없는 신살이면 데이터 그대로 노출
+              return s.desc;
+            })
+            .join(' ')
+        : isKo
+          ? '특별한 잠재력을 분석 중입니다.'
+          : 'Analyzing your hidden potentials...';
     const talentText =
       sajuData.myShinsal && sajuData.myShinsal.length > 0
         ? sajuData.myShinsal
@@ -185,14 +210,14 @@ export default function Ad() {
     // 4. 대운 (Life Cycle)
     const dw = sajuData.currentDaewoon;
     const daewoonText = isKo
-      ? `${dw.startAge}세부터 ${dw.endAge}세까지 인생의 큰 전환점이 시작됩니다.`
-      : `A major turning point in your life begins from age ${dw.startAge} to ${dw.endAge}.`;
-
+      ? `${dw.startAge}세~${dw.endAge}세: 이전과는 다른 삶의 궤적이 그려지는 시기입니다. 당신을 둘러싼 사회적 조건과 외부 환경이 이 구간을 기점으로 새롭게 재설정됩니다.`
+      : `Age ${dw.startAge}-${dw.endAge}: A distinct phase where your life path shifts. Your social conditions and environment are being reset specifically for this period.`;
     return {
       coreText,
       dominantText,
       talentText,
       daewoonText,
+      keywordText,
       coreColor: coreInfo.color,
       coreEmoji: coreInfo.emoji,
     };
@@ -218,7 +243,38 @@ export default function Ad() {
       ready: 'Ready to move to the next step!',
     },
   };
+  const handleShare = async () => {
+    const isKo = language === 'ko';
+    const shareData = {
+      title: isKo ? '사자사주 (Saza Saju)' : 'Saza Saju: The Art of Destiny',
 
+      // 2. 설명: 오행의 신비로움과 '무료'라는 혜택, 그리고 전문성을 강조
+      text: isKo
+        ? '오행으로 읽어내는 나의 본질, 사자사주에서 정교한 무료 분석 리포트를 확인해보세요. ✨'
+        : 'Discover your true self through the Five Elements. Get your precise, free Saju analysis report now. ✨',
+      url: window.location.href, // 현재 주소 공유
+    };
+
+    try {
+      // 1. 모바일 기기의 네이티브 공유 창 시도
+      if (navigator.share) {
+        await navigator.share(shareData);
+
+        console.log(`${language === 'ko' ? '공유 성공' : 'Success!'}`);
+      } else {
+        // 2. 지원하지 않는 브라우저(PC 등)는 클립보드 복사
+        await navigator.clipboard.writeText(window.location.href);
+        alert(
+          language === 'ko'
+            ? '링크가 복사되었습니다! 소중한 사람들에게 공유해보세요. ✨'
+            : 'Link copied! Share your destiny with your loved ones. ✨',
+        );
+        // *Tip: alert 대신 Toast 컴포넌트를 쓰면 더 우아합니다.
+      }
+    } catch (error) {
+      console.error(language === 'ko' ? '공유 중 에러 발생:' : 'Error during sharing:', error);
+    }
+  };
   const handleBack = () => {
     if (step === 2) {
       setBirthData(birthInit);
@@ -289,7 +345,7 @@ export default function Ad() {
     }
 
     // 2. 리포트 선택 여부 검사 (최소 1개 이상)
-    if (selectedReports.length === 0) {
+    if (!selectedReport) {
       alert(
         language === 'ko'
           ? '받아보실 리포트 항목을 하나 이상 선택해주세요.'
@@ -769,7 +825,7 @@ export default function Ad() {
                       </h3>
                     </div>
                     <p className="text-[13px] font-black dark:text-slate-100 leading-relaxed break-keep tracking-[0.1em]">
-                      {preview.coreText} {preview.dominantText}
+                      {preview.dominantText}
                     </p>
                   </section>
                 </div>
@@ -840,17 +896,16 @@ export default function Ad() {
                       <section className="relative ">
                         <div className="absolute  -left-[31px] top-1 w-2 h-2 rounded-full bg-emerald-500" />
                         <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">
-                          {language === 'ko' ? 'Hidden Talents' : 'Hidden Talents'}
+                          {language === 'ko' ? '나의 키워드' : 'Life Action Keywords'}
                         </h4>
                         <div className="text-[14px] font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
-                          {preview.talentText
-                            .split(']')
-                            .filter((t) => t.trim())
-                            .map((item, idx) => (
-                              <div key={idx} className="flex items-start gap-1">
-                                <span>•</span>
-                                <span>{item.replace('[', '')}</span>
-                              </div>
+                          {preview.keywordText
+                            ?.split(' ')
+                            ?.filter((t) => t.trim())
+                            ?.map((i) => (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">
+                                #{i}
+                              </span>
                             ))}
                         </div>
                       </section>
@@ -919,12 +974,12 @@ export default function Ad() {
             {/* 제목 섹션 */}
             <div className="space-y-2">
               <h2 className="text-xl font-bold   tracking-tight">
-                {language === 'ko' ? '맞춤 리포트 구성' : 'Customize Your Report'}
+                {language === 'ko' ? '나만의 상세 리포트 받기' : 'Customize Your Report'}
               </h2>
               <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 px-4 break-keep">
                 {language === 'ko'
-                  ? '이메일로 받아보고 싶은 상세 분석 항목을 모두 선택해주세요.'
-                  : 'Please select all the detailed analysis items you wish to receive.'}
+                  ? '명리학자 27명의 빅데이터를 담은 시스템이 당신의 고유한 에너지를 분석합니다. 상레 리포트는 24시간 이내에 발송됩니다.'
+                  : 'Our system, powered by the collective wisdom of 27 Saju masters and vast datasets, is analyzing your unique energy. Your detailed report will be delivered to your inbox within 24 hours.'}
               </p>
             </div>
 
@@ -1029,17 +1084,15 @@ export default function Ad() {
                   {/* 전송 버튼: 더 크고 입체감 있게 */}
                   <button
                     onClick={handleFinalSubmit}
-                    disabled={selectedReports.length === 0 || !email.includes('@')}
+                    disabled={!selectedReport || !email.includes('@')}
                     className={`w-full py-5 rounded-2xl font-black text-xl shadow-2xl transition-all active:scale-[0.97] flex items-center justify-center gap-2 ${
-                      selectedReports.length > 0 && email.includes('@')
+                      !!selectedReport && email.includes('@')
                         ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-indigo-500/30'
                         : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
                     }`}
                   >
                     <span>
-                      {language === 'ko'
-                        ? `무료 리포트 ${selectedReports.length}개 받기`
-                        : `Get ${selectedReports.length} Reports`}
+                      {language === 'ko' ? `무료 리포트 받기` : `Get Full Report for Free`}
                     </span>
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
@@ -1063,12 +1116,38 @@ export default function Ad() {
         )}
         {step === 5 && (
           <div className="space-y-5 animate-in zoom-in-95 duration-500 text-center">
+            <img
+              src="/images/ad_1.jpg"
+              className="w-72 object-contain mx-auto rounded-2xl shadow-2xl shadow-gray-200/50"
+              alt="Analysis Result"
+            />
             <div className="p-5 bg-emerald-50 dark:bg-emerald-900/20 rounded-[1.5rem] border-2 border-emerald-100 dark:border-emerald-900">
               <ShieldCheckIcon className="w-10 h-10 text-emerald-500 mx-auto mb-1" />
               <h2 className="text-lg font-black text-emerald-900 dark:text-emerald-400">
-                {language === 'ko' ? '분석 완료!' : 'Success!'}
+                {language === 'ko' ? '신청 완료!' : 'Success!'}
               </h2>
+              <div className="text-emerald-900 dark:text-emerald-400 p-1">
+                {language === 'ko'
+                  ? '사자의 상세 리포트가 24시간 이내에 전달됩니다.'
+                  : 'Your detailed Report will be sent within the next 24 hours.'}
+              </div>
             </div>
+            <button
+              onClick={handleShare}
+              className={
+                'w-full py-5 rounded-2xl font-black text-xl shadow-2xl transition-all active:scale-[0.97] flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-indigo-500/30'
+              }
+            >
+              <span>{language === 'ko' ? `친구에게 공유하기` : `Share with Friends`}</span>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </button>
             {/* <div className="space-y-2">
               <a
                 href="#"
