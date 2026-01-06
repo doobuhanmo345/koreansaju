@@ -232,9 +232,10 @@ const EditPrompt = () => {
         <textarea
           value={promptContent}
           ref={promptArea}
+          
           onChange={(e) => setPromptContent(e.target.value)}
-          className="w-full h-[500px] p-4 font-mono text-sm border rounded shadow-inner focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 outline-none"
-          placeholder="프롬프트 내용을 작성하세요..."
+          /* caret-black(라이트)과 dark:caret-white(다크)를 직접 명시 */
+          className="w-full h-[500px] p-4 font-mono text-sm border rounded shadow-inner focus:ring-2 focus:ring-blue-500 bg-white text-black caret-black dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:caret-white outline-none"
         />
       </div>
 

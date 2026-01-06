@@ -348,7 +348,7 @@ export default function YearlyLuckPage() {
     if (loading) {
       return <SajuLoading sajuData={sajuData} />;
     }
-
+   
     return (
       <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">

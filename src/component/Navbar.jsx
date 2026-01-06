@@ -165,7 +165,7 @@ export default function NavBar() {
           <button
             onClick={() => navigate('/fortunecookie')}
             disabled={isCookieDone}
-            className={`relative flex items-center justify-center transition-transform active:scale-90 ${isCookieDone ? 'opacity-40 grayscale' : 'animate-bounce'}`}
+            className={`relative flex text-sm items-center justify-center transition-transform active:scale-90 ${isCookieDone ? 'opacity-40 grayscale' : 'animate-bounce cursor-pointer'}`}
           >
             <span className="text-sm">🥠</span>
             {!isCookieDone && (

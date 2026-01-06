@@ -71,7 +71,7 @@ export function AuthContextProvider({ children }) {
         userData?.usageHistory?.ZCookie && userData.usageHistory?.ZCookie.today === todayStr
       ),
     };
-  }, [userData]);
+  }, [userData,language]);
 
   // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
   // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
