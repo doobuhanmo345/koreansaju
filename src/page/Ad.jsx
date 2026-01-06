@@ -509,9 +509,7 @@ export default function Ad() {
             </div>
           </div>
         )}
-        {step === 0.5 && (
-          <SajuIntroSection setStep={setStep} language={language}/>
-        )}
+        {step === 0.5 && <SajuIntroSection setStep={setStep} language={language} />}
         {step === 1 && (
           <div className="space-y-4">
             <div className="text-center">
@@ -549,9 +547,7 @@ export default function Ad() {
                   <input
                     type="number"
                     placeholder={
-                      language === 'ko'
-                        ? '태어난 연도를 입력해주세요'
-                        : 'Please put your birth year'
+                      language === 'ko' ? '태어난 연도를 입력해주세요' : 'Birth Year(YYYY)'
                     }
                     value={birthData.year}
                     className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
@@ -569,11 +565,7 @@ export default function Ad() {
                 <div className="overflow-hidden">
                   <input
                     type="number"
-                    placeholder={
-                      language === 'ko'
-                        ? '태어난 월을 선택해주세요'
-                        : 'Please put your month of birth'
-                    }
+                    placeholder={language === 'ko' ? '태어난 월을 선택해주세요' : 'Birth Month(MM)'}
                     value={birthData.month}
                     className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                     onChange={(e) =>
@@ -590,11 +582,7 @@ export default function Ad() {
                 <div className="overflow-hidden">
                   <input
                     type="number"
-                    placeholder={
-                      language === 'ko'
-                        ? '태어난 날을 선택해주세요'
-                        : 'Please put your day of birth'
-                    }
+                    placeholder={language === 'ko' ? '태어난 날을 선택해주세요' : 'Birth Day(DD)'}
                     value={birthData.day}
                     className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                     onChange={(e) =>
@@ -647,8 +635,8 @@ export default function Ad() {
                     onChange={(e) => setTimeUnknown(e.target.checked)}
                     className="w-4 h-4 accent-indigo-500"
                   />
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    {language === 'ko' ? '시간을 몰라요' : "I don't know time"}
+                  <span className="text-lg font-bold text-slate-500 dark:text-slate-400">
+                    {language === 'ko' ? '시간을 몰라요' : 'time unknown'}
                   </span>
                 </label>
               </div>
