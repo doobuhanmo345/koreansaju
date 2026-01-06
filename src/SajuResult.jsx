@@ -235,7 +235,6 @@ const SajuResult = ({ aiResult }) => {
       ref={scrollElRef}
     >
       {/* 1. 명식 카드 */}
-
       <div className="bg-white dark:bg-slate-800 w-full rounded-xl shadow-xl overflow-hidden mb-8 border border-slate-100 dark:border-slate-700">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         <div className="p-4">
@@ -307,8 +306,8 @@ const SajuResult = ({ aiResult }) => {
           </div>
         </div>
       </div>
-
       {/* 2. AI 분석 결과 */}
+      
       <div
         id="share-card"
         className="w-full bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 mb-6 text-center border border-indigo-50 dark:border-slate-700"
@@ -338,7 +337,6 @@ const SajuResult = ({ aiResult }) => {
           )}
         </div>
       </div>
-
       {/* 
       <button
         onClick={() => handleShare('share-card')}

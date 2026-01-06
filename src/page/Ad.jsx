@@ -18,13 +18,13 @@ import { calculateSajuData } from '../utils/sajuLogic';
 import SajuIntroSection from '../component/SajuIntroSection';
 
 export default function Ad() {
-  // const { language, setLanguage } = useLanguage();
-  const [language, setLanguage] = useState('en');
+  const { language, setLanguage } = useLanguage();
+  // const [language, setLanguage] = useState('en');
   const [sajuData, setSajuData] = useState();
   const [step, setStep] = useState(0.5);
   const [gender, setGender] = useState('');
   const [selectedReport, setSelectedReport] = useState();
-
+  useEffect(() => setLanguage('en'), [step]);
   const birthInit = {
     year: '',
     month: '',
@@ -846,7 +846,7 @@ export default function Ad() {
               {language === 'ko' ? '분석 결과 요약' : 'Analysis Preview'}
             </h2>
 
-            <div className="relative  overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <div className="relative h-[800px]  overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
               {/* 50줄 분량의 텍스트 영역 (70%만 보이게 설정) */}
               <div className="space-y-3  opacity-80 select-none">
                 <div className="flex items-center gap-2 mb-4">

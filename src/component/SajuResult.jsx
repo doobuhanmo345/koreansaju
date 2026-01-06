@@ -276,7 +276,7 @@ const SajuResult = ({ aiResult }) => {
             {Object.entries(ohaengCount).map(([type, count]) => (
               <div
                 key={type}
-                style={{ width: `${(count / 8) * 100}%` }}
+                style={{ width: `${(count / (isTimeUnknown ? 6 : 8)) * 100}%` }}
                 className={getBarColor(type)}
               />
             ))}
@@ -284,7 +284,11 @@ const SajuResult = ({ aiResult }) => {
           <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
             {Object.keys(ohaengCount).map((k) => (
               <span key={k}>
-                {k.toUpperCase()} {ohaengCount[k]}
+                {ohaengCount[k] !== 0 && (
+                  <>
+                    {k.toUpperCase()} {ohaengCount[k]}
+                  </>
+                )}
               </span>
             ))}
           </div>
