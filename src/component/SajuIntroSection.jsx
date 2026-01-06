@@ -26,7 +26,7 @@ const SajuIntroSection = ({ language, setStep }) => {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col gap-20 py-12 px-6 bg-white overflow-hidden text-slate-900"
+      className="dark:text-white flex flex-col gap-20 py-12 px-6 overflow-hidden text-slate-900"
     >
       {/* SECTION 1 */}
       <div
