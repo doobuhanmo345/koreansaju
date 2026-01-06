@@ -15,6 +15,7 @@ import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { useLanguage } from '../context/useLanguageContext';
 import dayStem from '../data/dayStem.json';
 import { calculateSajuData } from '../utils/sajuLogic';
+import SajuIntroSection from '../component/SajuIntroSection';
 
 export default function Ad() {
   const { language, setLanguage } = useLanguage();
@@ -186,7 +187,7 @@ export default function Ad() {
               // 사전에 없는 신살이면 데이터 그대로 노출
               return s.desc;
             })
-            .join(' ')
+            .join(',')
         : isKo
           ? '특별한 잠재력을 분석 중입니다.'
           : 'Analyzing your hidden potentials...';
@@ -285,7 +286,8 @@ export default function Ad() {
       setStep(2);
     } else if (step === 4) setStep(3);
     else if (step === 5) setStep(0);
-    else if (step === 1) setStep(0);
+    else if (step === 1) setStep(0.5);
+    else if (step === 0.5) setStep(0);
   };
   const startAna = () => {
     setIsAnalyzing(true);
@@ -489,7 +491,7 @@ export default function Ad() {
               <button
                 onClick={() => {
                   setLanguage('ko');
-                  setStep(1);
+                  setStep(0.5);
                 }}
                 className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-lg   border-2 border-transparent hover:border-indigo-500 transition-all"
               >
@@ -498,7 +500,7 @@ export default function Ad() {
               <button
                 onClick={() => {
                   setLanguage('en');
-                  setStep(1);
+                  setStep(0.5);
                 }}
                 className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl font-bold text-lg   border-2 border-transparent hover:border-indigo-500 transition-all"
               >
@@ -506,6 +508,9 @@ export default function Ad() {
               </button>
             </div>
           </div>
+        )}
+        {step === 0.5 && (
+          <SajuIntroSection setStep={setStep} language={language}/>
         )}
         {step === 1 && (
           <div className="space-y-4">
@@ -900,7 +905,7 @@ export default function Ad() {
                         </h4>
                         <div className="text-[14px] font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
                           {preview.keywordText
-                            ?.split(' ')
+                            ?.split(',')
                             ?.filter((t) => t.trim())
                             ?.map((i) => (
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">

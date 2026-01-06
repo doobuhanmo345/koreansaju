@@ -212,16 +212,16 @@ export default function BasicAnaPage() {
   const [sajuData, setSajuData] = useState(null);
   const [aiAnalysis, setAiAnalysis] = useState('');
   const { loading, setLoading, loadingType, setLoadingType, aiResult, setAiResult } = useLoading();
-
   const { userData, user, isMainDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { saju, sajul } = useSajuCalculator(inputDate, isTimeUnknown);
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = !user || loading;
   const isDisabled2 = !isMainDone && isLocked;
+
   useEffect(() => {
     if (inputDate) {
       const data = calculateSajuData(inputDate, gender, isTimeUnknown, language);
@@ -341,6 +341,8 @@ export default function BasicAnaPage() {
     if (loading) {
       return <SajuLoading sajuData={sajuData} />;
     }
+   
+    
 
     return (
       <div className="max-w-lg mx-auto  text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">

@@ -4,8 +4,7 @@ import dayBranch from '../src/data/dayBranch.json';
 import { useLanguage } from './context/useLanguageContext';
 
 export default function Test() {
-  const [sky1, setSky1] = useState();
-  const [grd1, setGrd1] = useState();
+
   const [saju, setSaju] = useState({ sky: '', ground: '' });
   const groundRef = useRef(null);
 

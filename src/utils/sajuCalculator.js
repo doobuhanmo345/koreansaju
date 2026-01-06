@@ -1,4 +1,4 @@
-import { Solar } from 'lunar-javascript';
+import { Solar,Lunar } from 'lunar-javascript';
 
 const HANJA_MAP = {
   甲: '갑',
@@ -98,4 +98,62 @@ export const calculateSaju = (inputDate, isTimeUnknown = false) => {
     sky0: isTimeUnknown ? '' : pillarsData.sky0,
     grd0: isTimeUnknown ? '' : pillarsData.grd0, // 시
   };
+};
+
+
+// ... 기존 HANJA_MAP 및 getPillars 코드는 동일 ...
+
+/**
+ * 음력 입력을 받아 사주 팔자를 계산합니다.
+ * @param {string} inputDate - "YYYY-MM-DD HH:mm:ss" 형식
+ * @param {boolean} isLeapMonth - 윤달 여부 (true면 윤달)
+ * @param {boolean} isTimeUnknown - 시간 모름 여부
+ */
+export const calculateSajuLunar = (inputDate, isLeapMonth = false, isTimeUnknown = false) => {
+  if (!inputDate) return null;
+  const dateObj = new Date(inputDate);
+  if (isNaN(dateObj.getTime())) return null;
+
+  try {
+    // 1. 음력 객체 생성 (년, 월, 일, 시, 분, 초)
+    const lunar = Lunar.fromYmdHms(
+      dateObj.getFullYear(),
+      dateObj.getMonth() + 1,
+      dateObj.getDate(),
+      dateObj.getHours(),
+      dateObj.getMinutes(),
+      dateObj.getSeconds(),
+    );
+
+    // 2. 만약 윤달(isLeapMonth)이라면 처리 (라이브러리 지원 기능)
+    // Lunar 객체는 생성 시점의 날짜를 음력으로 보지만,
+    // 실제 입력이 '윤달'인 경우에 대한 처리가 필요하면 해당 API를 확인해야 합니다.
+    // 기본적으로 lunar.getBaZi()는 해당 음력 시점의 정확한 간지를 반환합니다.
+
+    const baZi = lunar.getBaZi();
+
+    const parsePillar = (ganjiHanja) => {
+      const skyHanja = ganjiHanja[0];
+      const grdHanja = ganjiHanja[1];
+      return { sky: HANJA_MAP[skyHanja] || skyHanja, grd: HANJA_MAP[grdHanja] || grdHanja };
+    };
+
+    const yearP = parsePillar(baZi[0]);
+    const monthP = parsePillar(baZi[1]);
+    const dayP = parsePillar(baZi[2]);
+    const hourP = parsePillar(baZi[3]);
+
+    return {
+      sky3: yearP.sky,
+      grd3: yearP.grd,
+      sky2: monthP.sky,
+      grd2: monthP.grd,
+      sky1: dayP.sky,
+      grd1: dayP.grd,
+      sky0: isTimeUnknown ? '' : hourP.sky,
+      grd0: isTimeUnknown ? '' : hourP.grd,
+    };
+  } catch (error) {
+    return null;
+  }
 };

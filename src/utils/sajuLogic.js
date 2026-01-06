@@ -9,8 +9,6 @@ import {
   RELATION_RULES,
   PILLAR_DETAILS,
   GUIN_MAP,
-  NOBLE_DESCRIPTIONS,
-  GONGMANG_DESCRIPTIONS,
   SHIP_SUNG_MAP,
   SHIP_SUNG_TABLE,
   NAKJEONG_MAP,
@@ -19,8 +17,6 @@ import {
   YANGIN_MAP,
 } from '../data/saju_data';
 import { ILJU_DATA } from '../data/ilju_data';
-import { DEFAULT_FORMAT } from '../data/saju_data_prompt';
-import { DEFAULT_INSTRUCTION } from '../data/aiResultConstants';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 // 한자 변환 헬퍼
@@ -566,6 +562,3 @@ export const createPromptForGemini = async (sajuData, language = 'ko') => {
     return '';
   }
 };
-// 1. 'Who Am I' 섹션: 일주와 강한 오행을 중심으로 성격을 요약해주세요.
-// 2. 'Special Energy' 섹션: 신살이 삶에 미치는 긍정적 영향을 설명해주세요.
-// 3. 'Flow of Luck' 섹션: 현재 대운의 흐름을 설명하고 조언을 해주세요.

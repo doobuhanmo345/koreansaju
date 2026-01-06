@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { calculateSaju } from '../utils/sajuCalculator';
+import { calculateSaju, calculateSajuLunar } from '../utils/sajuCalculator';
 import { useLanguage } from '../context/useLanguageContext';
 
 /**
@@ -11,6 +11,7 @@ import { useLanguage } from '../context/useLanguageContext';
  */
 export function useSajuCalculator(inputDate, isTimeUnknown) {
   const [saju, setSaju] = useState({});
+  const [sajul, setSajul] = useState({});
   const { language } = useLanguage();
   useEffect(() => {
     // 1. 입력 유효성 검사
@@ -48,11 +49,17 @@ export function useSajuCalculator(inputDate, isTimeUnknown) {
       // 주의: calculateSaju가 Date 객체를 받도록 구현되어 있어야 합니다.
       // 만약 문자열만 받는다면 processingDate.toISOString() 등으로 변환이 필요할 수 있습니다.
       const calculatedSaju = calculateSaju(processingDate, isTimeUnknown);
+      const calculatedSajuL = calculateSajuLunar(processingDate, false, isTimeUnknown);
 
       if (calculatedSaju) {
         setSaju(calculatedSaju);
       } else {
         setSaju({});
+      }
+      if (calculatedSajuL) {
+        setSajul(calculatedSajuL);
+      } else {
+        setSajul({});
       }
     } catch (error) {
       console.warn('사주 계산 중 오류 발생:', error);
@@ -60,5 +67,5 @@ export function useSajuCalculator(inputDate, isTimeUnknown) {
     }
   }, [inputDate, isTimeUnknown, language]); // ⭐️ language 의존성 추가
 
-  return { saju, setSaju };
+  return { saju, setSaju, sajul, setSajul };
 }
