@@ -18,9 +18,10 @@ import { calculateSajuData } from '../utils/sajuLogic';
 import SajuIntroSection from '../component/SajuIntroSection';
 
 export default function Ad() {
-  const { language, setLanguage } = useLanguage();
+  // const { language, setLanguage } = useLanguage();
+  const [language, setLanguage] = useState('en');
   const [sajuData, setSajuData] = useState();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(0.5);
   const [gender, setGender] = useState('');
   const [selectedReport, setSelectedReport] = useState();
 
@@ -285,7 +286,7 @@ export default function Ad() {
     } else if (step === 3) {
       setStep(2);
     } else if (step === 4) setStep(3);
-    else if (step === 5) setStep(0);
+    else if (step === 5) setStep(1);
     else if (step === 1) setStep(0.5);
     else if (step === 0.5) setStep(0);
   };
@@ -320,7 +321,7 @@ export default function Ad() {
     setGender('');
     setTimeUnknown(false);
     setBirthData(birthInit);
-    setStep(0);
+    setStep(0.5);
   };
   // 퍼센테이지 계산 로직
   const getProgress = () => {
@@ -465,7 +466,7 @@ export default function Ad() {
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl p-5 border border-slate-100 dark:border-slate-800">
         {/* 뒤로가기 버튼: Step 0이 아닐 때만 노출 */}
         {/* 뒤로가기 버튼: 시인성 강화 버전 */}
-        {step > 0 && !isAnalyzing && (
+        {step >= 1 && !isAnalyzing && (
           <button
             onClick={handleBack}
             className="absolute left-5 top-6 z-20 p-2 rounded-full 
