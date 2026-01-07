@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import SajuIntroSection from '../component/SajuIntroSection';
+import SajuIntroSection from '../component/SajuIntroSection2';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { ChatBubbleLeftRightIcon, CakeIcon, ChevronLeftIcon } from '@heroicons/react/24/solid';
@@ -536,9 +536,7 @@ const PayWall = () => {
                     Progress
                   </span>
                 </div>
-                <span className="text-indigo-600 text-xs font-black">
-                  {getProgress()}%
-                </span>
+                <span className="text-indigo-600 text-xs font-black">{getProgress()}%</span>
               </div>
 
               {/* 바 본체 */}
