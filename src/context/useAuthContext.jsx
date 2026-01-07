@@ -10,6 +10,7 @@ const AuthContext = createContext();
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const { language } = useLanguage();
   // 1. 안전하게 변수 계산 (userData가 있을 때만)
 
@@ -104,6 +105,7 @@ export function AuthContextProvider({ children }) {
 
     const unsubscribe = onUserStateChange((firebaseUser) => {
       setUser(firebaseUser);
+      if (!firebaseUser) setLoadingUser(false);
     });
 
     return () => {
@@ -176,6 +178,7 @@ export function AuthContextProvider({ children }) {
           if (docSnap.exists()) {
             setUserData(docSnap.data());
           }
+          setLoadingUser(false);
         });
       } else {
         // 유저 로그아웃 시 데이터 초기화
@@ -204,7 +207,7 @@ export function AuthContextProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, userData, iljuImagePath, login, logout, updateProfileData, ...status }}
+      value={{ user, userData, loadingUser,iljuImagePath, login, logout, updateProfileData, ...status }}
     >
       {children}
     </AuthContext.Provider>

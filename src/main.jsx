@@ -40,16 +40,9 @@ import Ad from './page/Ad';
 import BasicAna from './page/BasicAna';
 import PayWall from './page/PayWall';
 const RootComponent = () => {
-  const [isAppLoading, setIsAppLoading] = useState(true);
-  const { user, userData } = useAuthContext();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAppLoading(false);
-    }, 2500);
+  const { user, userData ,loadingUser} = useAuthContext();
 
-    return () => clearTimeout(timer);
-  }, []);
   // 수정 제안
   const pathname = window.location.pathname;
   const isSpecialPage = /^\/(ad|paywall)(\/|$)/.test(pathname);
@@ -75,7 +68,7 @@ if (isSpecialPage) {
     return <OpenInBrowserPage />;
   }
 
-  if (isAppLoading) {
+  if (loadingUser) {
     return <SplashScreen />;
   }
 

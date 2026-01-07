@@ -15,20 +15,27 @@ const PayWall = () => {
   const [sajuData, setSajuData] = useState();
   const [step, setStep] = useState('0.5'); // '0.5' '1', 'result'
   const { language, setLanguage } = useLanguage();
-  const { user, userData } = useAuthContext();
+  const { user, userData, loadingUser } = useAuthContext();
 
   // 1. 비회원용 익명 ID 생성 및 관리
   useEffect(() => {
+    // 1. 로그인 정보를 아직 불러오는 중이라면 아무것도 하지 않고 대기
+    if (loadingUser) return;
+
+    // 2. 로딩이 끝났는데 userData가 있다면 (회원이면) 로그를 남기지 않음
+    if (userData) return;
+
+    // 3. 비회원임이 확실할 때만 ID 생성 및 로그 실행
     let id = localStorage.getItem('guest_id');
     if (!id) {
-      id = `guest_${Math.random().toString(36).substr(2, 9)}`; // 간단한 ID 생성
+      id = `guest_${Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem('guest_id', id);
     }
     setGuestId(id);
 
-    // [STEP 1] 비회원 방문 로그
+    // [STEP 1] 확실한 비회원 방문 로그
     logStep(step, id);
-  }, [step]);
+  }, [step, userData, loadingUser]); // 의존성 배열에 loading과 userData 추가
 
   // 공통 로그 저장 함수
   const logStep = async (stepName, currentGuestId, extraData = {}) => {
