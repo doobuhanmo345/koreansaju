@@ -339,7 +339,7 @@ const PayWall = () => {
   const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
 
   return (
-    <>
+    <div className="bg-white">
       {step !== 0.5 && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -355,7 +355,7 @@ const PayWall = () => {
           <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
         </button>
       )}
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto px-6">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
             <SajuIntroSection setStep={setStep} language={language} />
@@ -807,7 +807,7 @@ const PayWall = () => {
           </main>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
