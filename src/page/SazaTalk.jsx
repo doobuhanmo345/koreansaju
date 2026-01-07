@@ -23,7 +23,7 @@ export default function SazaTalk() {
   const { saju, gender, birthDate: inputDate } = userData;
   const { language } = useLanguage();
   const { setEditCount, MAX_EDIT_COUNT, editCount, isLocked } = useUsageLimit();
-  const [step, setStep] = useState('intro'); // 'intro' | 'input' | 'selection'
+  const [step, setStep] = useState('input'); // 'intro' | 'input' | 'selection'
 
   const [userQuestion, setUserQuestion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -269,6 +269,47 @@ export default function SazaTalk() {
 
     return (
       <div className="max-w-lg mx-auto px-6 animate-in slide-in-from-bottom duration-500">
+        <div className="text-center">
+          <div className="flex justify-center mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 shadow-sm">
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+              </div>
+              <span className="text-[10px] font-bold tracking-wider text-violet-600 dark:text-violet-400 uppercase">
+                AI Intelligence Analysis
+              </span>
+            </div>
+          </div>
+          <h2 className=" text-2xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+            {language === 'ko' ? '어떠한 고민도 명쾌하게' : 'Clear Solutions for Any Concern'}
+            <br />
+            <span className="relative text-violet-600 dark:text-violet-400">
+              {language === 'ko' ? '1:1 맞춤 사주 솔루션' : 'Personalized 1:1 Saju Solution'}
+              <div className="absolute inset-0 bg-violet-200/50 dark:bg-violet-900/30 blur-md rounded-full scale-100"></div>
+            </span>
+          </h2>
+          {/* 설명문구 */}
+          <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
+            <p className="text-sm">
+              {language === 'ko' ? (
+                <>
+                  <p>27인의 명리 해석을 학습한 AI가 </p>
+                  <p>어떤 고민도 차분하게 듣고 해결책을 드려요</p>
+                </>
+              ) : (
+                <>
+                  <p>AI trained on 27 expert Myeongni interpretations</p>
+                  <p>listens calmly to your concerns and provides solutions.</p>
+                </>
+              )}
+            </p>
+
+            <div>
+              <CreditIcon num={-1} />
+            </div>
+          </div>
+        </div>
         <div className="flex items-center gap-2 mb-4 text-purple-600">
           <PencilSquareIcon className="w-5 h-5" />
           <h3 className="font-bold">
@@ -280,8 +321,8 @@ export default function SazaTalk() {
           onChange={(e) => setUserQuestion(e.target.value)}
           placeholder={
             language === 'ko'
-              ? '예: 요즘 대인관계 때문에 너무 힘들어요. 어떻게 하면 좋을까요?'
-              : 'Ex: I am struggling with relationships lately. What should I do?'
+              ? '예: 과 동아리 선배 한명이랑 유독 안 맞는데, 제 올해 대인관계 운이 궁금해요!"'
+              : "Ex: I really don't get along with one of the seniors in my college club. I'm curious about my relationship luck for this year!"
           }
           className="w-full h-40 p-4 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 focus:border-transparent outline-none resize-none text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-inner placeholder:text-slate-400 dark:placeholder:text-slate-500"
         />
