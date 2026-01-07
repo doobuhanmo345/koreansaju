@@ -7,13 +7,15 @@ import { calculateSajuData } from '../utils/sajuLogic';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthContext } from '../context/useAuthContext';
+import dayStem from '../data/dayStem.json';
+import dayBranch from '../data/dayBranch.json';
 const PayWall = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [guestId, setGuestId] = useState('');
   const [sajuData, setSajuData] = useState();
-  const [step, setStep] = useState('0.5'); // '0.5' '1', 'result'
+  const [step, setStep] = useState(0.5); // '0.5' '1', 'result'
   const { language, setLanguage } = useLanguage();
   const { user, userData, loadingUser } = useAuthContext();
 
@@ -63,6 +65,7 @@ const PayWall = () => {
         eventType: 'PAYMENT_BUTTON_CLICK',
         saju: saju,
         page: 'report_paywall',
+        selected: selectedReport,
         price: 29,
         timestamp: serverTimestamp(),
       });
@@ -83,6 +86,7 @@ const PayWall = () => {
         email: email,
         saju: saju,
         source: 'report_paywall', // 유입 경로
+        selected: selectedReport,
         status: 'pending',
         timestamp: serverTimestamp(),
       });
@@ -304,10 +308,15 @@ const PayWall = () => {
     // 모든 검증 통과
     setStep('result');
   };
+  //result
+    const me = saju?.sky1;
+    const meg = saju?.grd1;
+  
+    const me_exp = dayStem.find((i) => i.name_kr === me);
+    const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
 
   return (
     <>
-      {' '}
       {step >= 1 && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -582,8 +591,11 @@ const PayWall = () => {
             <h1 className="text-4xl font-extrabold tracking-tight mb-4">Your Cosmic Blueprint</h1>
             <div className="flex items-center gap-4 text-sm text-slate-500 border-l-2 border-indigo-200 pl-4">
               <div>
-                <span className="block font-medium text-slate-800">Alex Kim</span>
-                <span>May 24, 1995 • 14:30</span>
+                {/* <span className="block font-medium text-slate-800">Alex Kim</span> */}
+                <span>
+                  {birthData.month}/{birthData.day}/{birthData.year}
+                  {timeUnknown ? '' : `${birthData.hour}:${birthData.minute}`}
+                </span>
               </div>
               <div className="h-8 w-[1px] bg-slate-200"></div>
               <p className="italic text-xs">Analysis based on Classic Myeongni Theory</p>
@@ -598,16 +610,19 @@ const PayWall = () => {
                 1. Core Personality Architecture
               </h2>
               <div className="space-y-4 leading-relaxed text-slate-600">
-                <p>
-                  Your dominant element is <strong>Yang Wood (Gap-Mok)</strong>. Much like a
-                  towering oak tree, you possess an innate drive for growth and a strong sense of
-                  justice. You are naturally inclined to lead and protect those around you.
-                </p>
-                <p>
-                  However, the presence of 'Metal' in your chart suggests you often face internal
-                  pressure to be perfect. This creates a dynamic where you are constantly pruning
-                  your own potential to meet societal standards.
-                </p>
+                {/* 텍스트 10줄 제한 출력 부분 */}
+                <div
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 10,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'pre-line', // 줄바꿈 유지
+                  }}
+                >
+                  {me_exp.full_text_en}
+                </div>
               </div>
             </section>
 
@@ -615,15 +630,21 @@ const PayWall = () => {
             <section className="bg-white rounded-2xl p-8 shadow-sm mb-8 border border-slate-100">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <span className="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                2. Relationship & Social Dynamics
+                2. You Tend to...
               </h2>
               <div className="space-y-4 leading-relaxed text-slate-600">
-                <p>
-                  In relationships, you seek 'In-Seong' (Resource) energy—meaning you value
-                  intellectual connection and emotional support over pure passion. You are most
-                  compatible with individuals who can provide a stable "soil" for your "tree" to
-                  root in.
-                </p>
+                <div
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 10,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'pre-line', // 줄바꿈 유지
+                  }}
+                >
+                  {me_exp_g.full_text_en}
+                </div>
               </div>
             </section>
 
