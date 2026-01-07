@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import SajuIntroSection from '../component/SajuIntroSection';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
-import { ChatBubbleLeftRightIcon, CakeIcon } from '@heroicons/react/24/solid';
+import { ChatBubbleLeftRightIcon, CakeIcon, ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { calculateSajuData } from '../utils/sajuLogic';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -159,6 +159,16 @@ const PayWall = () => {
       ready: 'Ready to move to the next step!',
     },
   };
+  // 초기값은 null 혹은 첫 번째 항목의 ID
+  const [selectedReport, setSelectedReport] = useState(null);
+
+  const reportOptions = [
+    { id: 'patterns', title: 'Relationship Patterns', ko: '연애 패턴', icon: '❤️' },
+    { id: 'blindspots', title: 'Emotional Blind Spots', ko: '정서적 사각지대', icon: '🌙' },
+    { id: 'career', title: 'Career Decision Style', ko: '커리어 결정 스타일', icon: '💼' },
+    { id: 'money', title: 'Money Psychology', ko: '금전 심리', icon: '💰' },
+    { id: 'burnout', title: 'Burnout Life Cycle', ko: '번아웃 라이프 사이클', icon: '⏳' },
+  ];
   const startAna = () => {
     setIsAnalyzing(true);
 
@@ -217,6 +227,7 @@ const PayWall = () => {
       setStep(1);
     } else if (step === 1) {
       setStep(0.5);
+      console.log(step);
     }
   };
   const isFormValid = getProgress() === 100;
@@ -281,6 +292,14 @@ const PayWall = () => {
         return;
       }
     }
+    if (!selectedReport) {
+      alert(
+        language === 'ko'
+          ? '분석할 리포트를 하나 선택해주세요.'
+          : 'Please select one report to start your analysis.',
+      );
+      return;
+    }
 
     // 모든 검증 통과
     setStep('result');
@@ -288,8 +307,24 @@ const PayWall = () => {
 
   return (
     <>
+      {' '}
+      {step >= 1 && !isAnalyzing && (
+        <button
+          onClick={handleBack}
+          className="absolute left-5 top-6 z-20 p-2 rounded-full 
+                   bg-white dark:bg-slate-800 
+                   text-indigo-600 dark:text-indigo-400 
+                   shadow-[0_4px_12px_rgba(0,0,0,0.1)] 
+                   border border-slate-100 dark:border-slate-700
+                   hover:bg-slate-50 dark:hover:bg-slate-700 
+                   active:scale-90 transition-all duration-200"
+          aria-label="Go back"
+        >
+          <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
+        </button>
+      )}
       <div className="max-w-3xl mx-auto">
-        {step === '0.5' && (
+        {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
             <SajuIntroSection setStep={setStep} language={language} />
           </div>
@@ -482,8 +517,52 @@ const PayWall = () => {
                 />
               </div>
               {isFormValid && (
+                <div className="mt-8 p-6 bg-white rounded-2xl border border-indigo-100 shadow-sm">
+                  <h3 className="text-xl font-bold mb-4 text-gray-800">
+                    {language === 'ko' ? '집중 분석할 리포트 선택' : 'Choose Your Main Insight'}
+                  </h3>
+
+                  <div className="grid gap-3">
+                    {reportOptions.map((report) => (
+                      <div
+                        key={report.id}
+                        onClick={() => setSelectedReport(report.id)} // 클릭 시 해당 ID로 교체
+                        className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedReport === report.id
+                            ? 'border-indigo-500 bg-indigo-50 shadow-md'
+                            : 'border-gray-100 opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <span className="text-2xl mr-4">{report.icon}</span>
+                        <div className="flex-1">
+                          <p
+                            className={`font-bold ${selectedReport === report.id ? 'text-indigo-700' : 'text-gray-700'}`}
+                          >
+                            {language === 'ko' ? report.ko : report.title}
+                          </p>
+                        </div>
+
+                        {/* 선택 표시 동그라미 (Radio 스타일) */}
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            selectedReport === report.id
+                              ? 'border-indigo-500 bg-indigo-500'
+                              : 'border-gray-300'
+                          }`}
+                        >
+                          {selectedReport === report.id && (
+                            <div className="w-2 h-2 bg-white rounded-full" />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {isFormValid && selectedReport && (
                 <button
                   onClick={handleNextStep}
+                  disabled={!selectedReport}
                   className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black shadow-lg animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all mt-4"
                 >
                   {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
