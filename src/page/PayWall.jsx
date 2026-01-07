@@ -602,7 +602,7 @@ const PayWall = () => {
           </>
         )}
         {isAnalyzing && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 rounded-[2rem] backdrop-blur-md animate-in fade-in duration-300">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md animate-in fade-in duration-300">
             <div className="relative mb-6">
               {/* 돋보기 아이콘 애니메이션 */}
               <div className="text-7xl animate-bounce drop-shadow-2xl">🔍</div>
@@ -656,16 +656,16 @@ const PayWall = () => {
                 {/* 텍스트 10줄 제한 출력 부분 */}
                 <div
                   style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 6,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'pre-line', // 줄바꿈 유지
-                    borderBottom: '1px dashed #e5e7eb', // 아주 얇은 점선으로 "더 있음" 표시
+                    whiteSpace: 'pre-line',
+                    borderBottom: '1px dashed #e5e7eb', // 말씀하신 점선 그대로 유지
+                    paddingBottom: '10px', // 점선과 텍스트 사이 간격 살짝 추가
+                    marginBottom: '10px', // 점선 아래 요소와의 간격
+                    color: '#374151', // 텍스트 가독성을 위한 진한 회색
                   }}
                 >
-                  {me_exp.full_text_en}
+                  {me_exp.full_text_en.length > 600
+                    ? me_exp.full_text_en.slice(0, 600) + '...'
+                    : me_exp.full_text_en}
                 </div>
                 <div className="text-[10px] text-gray-400 mt-1 font-mono tracking-widest text-center">
                   --- FULL ANALYSIS LOCKED ---
@@ -682,16 +682,16 @@ const PayWall = () => {
               <div className="space-y-4 leading-relaxed text-slate-600">
                 <div
                   style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 6,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'pre-line', // 줄바꿈 유지
-                    borderBottom: '1px dashed #e5e7eb', // 아주 얇은 점선으로 "더 있음" 표시
+                    whiteSpace: 'pre-line',
+                    borderBottom: '1px dashed #e5e7eb', // 말씀하신 점선 그대로 유지
+                    paddingBottom: '10px', // 점선과 텍스트 사이 간격 살짝 추가
+                    marginBottom: '10px', // 점선 아래 요소와의 간격
+                    color: '#374151', // 텍스트 가독성을 위한 진한 회색
                   }}
                 >
-                  {me_exp_g.full_text_en}
+                  {me_exp_g.full_text_en.length > 600
+                    ? me_exp_g.full_text_en.slice(0, 600) + '...'
+                    : me_exp_g.full_text_en}
                 </div>
               </div>
               <div className="text-[10px] text-gray-400 mt-1 font-mono tracking-widest text-center">
