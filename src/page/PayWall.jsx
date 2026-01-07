@@ -344,11 +344,11 @@ const PayWall = () => {
         <button
           onClick={handleBack}
           className="absolute left-5 top-6 z-20 p-2 rounded-full 
-                   bg-white dark:bg-slate-800 
-                   text-indigo-600 dark:text-indigo-400 
+                   bg-white  
+                   text-indigo-600 
                    shadow-[0_4px_12px_rgba(0,0,0,0.1)] 
-                   border border-slate-100 dark:border-slate-700
-                   hover:bg-slate-50 dark:hover:bg-slate-700 
+                   border border-slate-100 
+                   hover:bg-slate-50  
                    active:scale-90 transition-all duration-200"
           aria-label="Go back"
         >
@@ -378,7 +378,7 @@ const PayWall = () => {
                     <button
                       key={g}
                       onClick={() => setGender(g)}
-                      className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 dark:border-slate-800  '}`}
+                      className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100'}`}
                     >
                       {g === 'male'
                         ? language === 'ko'
@@ -402,7 +402,7 @@ const PayWall = () => {
                         language === 'ko' ? '태어난 연도를 입력해주세요' : 'Birth Year(YYYY)'
                       }
                       value={birthData.year}
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
+                      className="w-full p-4 bg-slate-50 rounded-xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                       onChange={(e) =>
                         setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                       }
@@ -421,7 +421,7 @@ const PayWall = () => {
                         language === 'ko' ? '태어난 월을 선택해주세요' : 'Birth Month(MM)'
                       }
                       value={birthData.month}
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
+                      className="w-full p-4 bg-slate-50  rounded-xl  border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                       onChange={(e) =>
                         setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                       }
@@ -438,7 +438,7 @@ const PayWall = () => {
                       type="number"
                       placeholder={language === 'ko' ? '태어난 날을 선택해주세요' : 'Birth Day(DD)'}
                       value={birthData.day}
-                      className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
+                      className="w-full p-4 bg-slate-50 rounded-xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
                       onChange={(e) =>
                         setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                       }
@@ -454,7 +454,7 @@ const PayWall = () => {
                     <input
                       type="number"
                       placeholder={language === 'ko' ? '태어난 시 (HH)' : 'Birth Hour (HH)'}
-                      className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                      className="w-full py-4 bg-slate-50 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                       onChange={(e) =>
                         setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
                       }
@@ -470,7 +470,7 @@ const PayWall = () => {
                     <input
                       type="number"
                       placeholder={language === 'ko' ? '태어난 분 (mm)' : 'Birth Minute (mm)'}
-                      className="w-full py-4 bg-slate-50 dark:bg-slate-800 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                      className="w-full py-4 bg-slate-50 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
                       onChange={(e) =>
                         setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
                       }
@@ -489,7 +489,7 @@ const PayWall = () => {
                       onChange={(e) => setTimeUnknown(e.target.checked)}
                       className="w-4 h-4 accent-indigo-500"
                     />
-                    <span className="text-lg font-bold text-slate-500 dark:text-slate-400">
+                    <span className="text-lg font-bold text-slate-500">
                       {language === 'ko' ? '시간을 몰라요' : 'time unknown'}
                     </span>
                   </label>
@@ -498,7 +498,7 @@ const PayWall = () => {
               <div>
                 <div className="flex items-center gap-1.5 animate-pulse">
                   <ChatBubbleLeftRightIcon className="w-4 h-4 text-indigo-500" />
-                  <span className="text-[18px] font-black text-indigo-600 dark:text-indigo-400">
+                  <span className="text-[18px] font-black text-indigo-600 ">
                     {language === 'ko'
                       ? !gender
                         ? guideMessages.ko.putGender
@@ -536,13 +536,13 @@ const PayWall = () => {
                     Progress
                   </span>
                 </div>
-                <span className="text-indigo-600 dark:text-indigo-400 text-xs font-black">
+                <span className="text-indigo-600 text-xs font-black">
                   {getProgress()}%
                 </span>
               </div>
 
               {/* 바 본체 */}
-              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+              <div className="w-full h-2 bg-slate-100  rounded-full overflow-hidden shadow-inner">
                 <div
                   className="h-full bg-indigo-500 transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(79,70,229,0.4)]"
                   style={{ width: `${getProgress()}%` }}
@@ -604,7 +604,7 @@ const PayWall = () => {
           </>
         )}
         {isAnalyzing && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-slate-900/95 rounded-[2rem] backdrop-blur-md animate-in fade-in duration-300">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 rounded-[2rem] backdrop-blur-md animate-in fade-in duration-300">
             <div className="relative mb-6">
               {/* 돋보기 아이콘 애니메이션 */}
               <div className="text-7xl animate-bounce drop-shadow-2xl">🔍</div>
@@ -624,7 +624,7 @@ const PayWall = () => {
         )}
       </div>
       {step === 'result' && (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
+        <div className=" px-6 min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
           {/* 1. Hero / Header Area */}
           <header className="max-w-3xl mx-auto pt-16 pb-10">
             <div className="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider text-indigo-600 uppercase bg-indigo-50 rounded-full">
@@ -633,10 +633,13 @@ const PayWall = () => {
             <h1 className="text-4xl font-extrabold tracking-tight mb-4">Your Cosmic Blueprint</h1>
             <div className="flex items-center gap-4 text-sm text-slate-500 border-l-2 border-indigo-200 pl-4">
               <div>
-                {/* <span className="block font-medium text-slate-800">Alex Kim</span> */}
+                <span className="block font-medium text-slate-800">Dear Guest</span>
                 <span>
-                  {birthData.month}/{birthData.day}/{birthData.year}
-                  {timeUnknown ? '' : `${birthData.hour}:${birthData.minute}`}
+                  {new Date(0, parseInt(birthData.month) - 1).toLocaleString('en-US', {
+                    month: 'short',
+                  })}
+                  /{birthData.day}/{birthData.year}
+                  {timeUnknown ? '' : ` ${birthData.hour}:${birthData.minute}`}
                 </span>
               </div>
               <div className="h-8 w-[1px] bg-slate-200"></div>
@@ -656,14 +659,18 @@ const PayWall = () => {
                 <div
                   style={{
                     display: '-webkit-box',
-                    WebkitLineClamp: 10,
+                    WebkitLineClamp: 6,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'pre-line', // 줄바꿈 유지
+                    borderBottom: '1px dashed #e5e7eb', // 아주 얇은 점선으로 "더 있음" 표시
                   }}
                 >
                   {me_exp.full_text_en}
+                </div>
+                <div className="text-[10px] text-gray-400 mt-1 font-mono tracking-widest text-center">
+                  --- FULL ANALYSIS LOCKED ---
                 </div>
               </div>
             </section>
@@ -678,15 +685,19 @@ const PayWall = () => {
                 <div
                   style={{
                     display: '-webkit-box',
-                    WebkitLineClamp: 10,
+                    WebkitLineClamp: 6,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'pre-line', // 줄바꿈 유지
+                    borderBottom: '1px dashed #e5e7eb', // 아주 얇은 점선으로 "더 있음" 표시
                   }}
                 >
                   {me_exp_g.full_text_en}
                 </div>
+              </div>
+              <div className="text-[10px] text-gray-400 mt-1 font-mono tracking-widest text-center">
+                --- FULL ANALYSIS LOCKED ---
               </div>
             </section>
 
