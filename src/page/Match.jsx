@@ -40,7 +40,7 @@ import Step from '../ui/Step';
 import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
-import CreditIcon from '../ui/CreditIcon';
+
 export default function Match({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -432,9 +432,7 @@ export default function Match({}) {
                   : ', Precise Relationship Map Analysis.'}
               </p>
 
-              <div className="flex justify-center">
-                <CreditIcon num={-1} />
-              </div>
+              
 
               {/* 궁합용 이미지 경로 (필요시 수정) */}
               <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">

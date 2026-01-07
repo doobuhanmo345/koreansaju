@@ -16,7 +16,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
-import CreditIcon from '../ui/CreditIcon';
+
 
 // 1. 로딩 컴포넌트
 
@@ -369,9 +369,7 @@ export default function BasicAnaPage() {
                 'My innate color and the period of change that comes every ten years. Analyzing your destiny map.'
               )}
             </p>
-            <div>
-              <CreditIcon num={-1} />
-            </div>
+           
 
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
               <img

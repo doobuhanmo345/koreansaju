@@ -41,7 +41,6 @@ import Step from '../ui/Step';
 import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
-import CreditIcon from '../ui/CreditIcon';
 export default function Wealth({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -490,11 +489,6 @@ export default function Wealth({}) {
                 </strong>
                 {language === 'ko' ? ', 당신의 재물 지도 분석.' : ', Analyzing your financial map.'}
               </p>
-
-              <div className="flex justify-center">
-                {/* 에너지 배지 또는 크레딧 아이콘 */}
-                <CreditIcon num={-1} />
-              </div>
 
               {/* 이미지 경로 확인 필요 */}
               <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">

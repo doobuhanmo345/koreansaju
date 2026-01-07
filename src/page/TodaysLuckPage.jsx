@@ -17,7 +17,7 @@ import { langPrompt, hanja } from '../data/constants';
 import { getPillars } from '../utils/sajuCalculator';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-import CreditIcon from '../ui/CreditIcon';
+
 import { calculateSajuData } from '../utils/sajuLogic';
 import { getEng } from '../utils/helpers';
 import { ref, get, child } from 'firebase/database';
@@ -398,9 +398,7 @@ export default function TodaysLuckPage() {
                 'Including ‘Total score’, ‘Daily short report: Wealth, Love etc.’, ‘Lucky color, direction, keywords of the day’'
               )}
             </p>
-            <div>
-              <CreditIcon num={-1} />
-            </div>
+            
 
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
               <img

@@ -12,7 +12,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import { PencilSquareIcon, LockClosedIcon } from '@heroicons/react/24/outline';
-import CreditIcon from '../ui/CreditIcon';
+
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
 import ViewSazaResult from './ViewSazaResult';
@@ -204,9 +204,7 @@ export default function SazaTalk() {
               )}
             </p>
 
-            <div>
-              <CreditIcon num={-1} />
-            </div>
+         
 
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
               <img
@@ -305,9 +303,7 @@ export default function SazaTalk() {
               )}
             </p>
 
-            <div>
-              <CreditIcon num={-1} />
-            </div>
+           
           </div>
         </div>
         <div className="flex items-center gap-2 mb-4 text-purple-600">

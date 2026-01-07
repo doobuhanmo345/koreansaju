@@ -20,7 +20,7 @@ import { getEng } from '../utils/helpers';
 import { calculateSajuData } from '../utils/sajuLogic';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
-import CreditIcon from '../ui/CreditIcon';
+
 // 1. 로딩 컴포넌트
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);
@@ -371,9 +371,7 @@ export default function YearlyLuckPage() {
             )}
           </p>
 
-          <div>
-            <CreditIcon num={-1} />
-          </div>
+       
 
           <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
             <img
