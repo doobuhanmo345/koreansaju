@@ -39,13 +39,14 @@ import SazaTalk from './page/SazaTalk';
 import Ad from './page/Ad';
 import BasicAna from './page/BasicAna';
 import PayWall from './page/PayWall';
+import SazaTalkAd from './page/SazaTalkAd';
 const RootComponent = () => {
 
   const { user, userData ,loadingUser} = useAuthContext();
 
   // 수정 제안
   const pathname = window.location.pathname;
-  const isSpecialPage = /^\/(ad|paywall)(\/|$)/.test(pathname);
+  const isSpecialPage = /^\/(ad|paywall|sazatalkad)(\/|$)/.test(pathname);
   const isAdPage = /^\/ad(\/|$)/.test(pathname);
   const isBrowserGuide = pathname === '/open-in-browser';
 
@@ -56,6 +57,7 @@ if (isSpecialPage) {
       <Routes>
         <Route path="/ad" element={<Ad />} />
         <Route path="/paywall" element={<PayWall />} />
+        <Route path="/sazatalkad" element={<SazaTalkAd />} />
         {/* 없는 주소로 들어오면 기본적으로 Ad로 보낼지 PayWall로 보낼지 결정 */}
         <Route path="*" element={<Ad />} />
       </Routes>
