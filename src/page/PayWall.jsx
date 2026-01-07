@@ -304,20 +304,43 @@ const PayWall = () => {
       );
       return;
     }
+    setIsAnalyzing(true);
 
+    // 메시지를 순차적으로 변경하여 분석하는 느낌을 줌
+    const texts =
+      language === 'ko'
+        ? [
+            '천간과 지지를 분석 중입니다...',
+            '오행의 기운을 계산하고 있습니다...',
+            '운명의 흐름을 읽어내는 중...',
+          ]
+        : [
+            'Analyzing Heavenly Stems...',
+            'Calculating Five Elements...',
+            'Reading the flow of destiny...',
+          ];
+
+    setLoadingText(texts[0]);
+    setTimeout(() => setLoadingText(texts[1]), 1000);
+    setTimeout(() => setLoadingText(texts[2]), 2000);
+
+    // 3초 뒤에 다음 단계로 이동
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      setStep('result');
+    }, 3000);
     // 모든 검증 통과
-    setStep('result');
   };
   //result
-    const me = saju?.sky1;
-    const meg = saju?.grd1;
-  
-    const me_exp = dayStem.find((i) => i.name_kr === me);
-    const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
+  const me = saju?.sky1;
+  const meg = saju?.grd1;
+
+  const me_exp = dayStem.find((i) => i.name_kr === me);
+  const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
 
   return (
     <>
-      {step >= 1 && !isAnalyzing && (
+      {step !== 0.5 && !isAnalyzing && (
         <button
           onClick={handleBack}
           className="absolute left-5 top-6 z-20 p-2 rounded-full 
@@ -338,7 +361,7 @@ const PayWall = () => {
             <SajuIntroSection setStep={setStep} language={language} />
           </div>
         )}
-        {step === 1 && (
+        {step === 1 && !isAnalyzing && (
           <>
             <div className="space-y-4 py-10 min-h-screen  font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700 px-6">
               <div className="text-center">
@@ -579,6 +602,25 @@ const PayWall = () => {
               )}
             </div>
           </>
+        )}
+        {isAnalyzing && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-slate-900/95 rounded-[2rem] backdrop-blur-md animate-in fade-in duration-300">
+            <div className="relative mb-6">
+              {/* 돋보기 아이콘 애니메이션 */}
+              <div className="text-7xl animate-bounce drop-shadow-2xl">🔍</div>
+              {/* 하단 그림자/빛 효과 */}
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-3 bg-indigo-500/20 rounded-[100%] blur-lg animate-pulse"></div>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-xl font-black   tracking-tight animate-pulse">{loadingText}</p>
+              <div className="flex justify-center gap-1">
+                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
+              </div>
+            </div>
+          </div>
         )}
       </div>
       {step === 'result' && (

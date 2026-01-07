@@ -13,7 +13,7 @@ import { CakeIcon } from '@heroicons/react/24/outline';
 import FourPillarVis from '../component/FourPillarVis';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { useLanguage } from '../context/useLanguageContext';
-import dayStem from '../data/dayStem.json';
+
 import { calculateSajuData } from '../utils/sajuLogic';
 import SajuIntroSection from '../component/SajuIntroSection';
 
