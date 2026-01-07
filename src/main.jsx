@@ -38,6 +38,7 @@ import EditPrompt from './page/EditPrompt';
 import SazaTalk from './page/SazaTalk';
 import Ad from './page/Ad';
 import BasicAna from './page/BasicAna';
+import PayWall from './page/PayWall';
 const RootComponent = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const { user, userData } = useAuthContext();
@@ -51,20 +52,23 @@ const RootComponent = () => {
   }, []);
   // 수정 제안
   const pathname = window.location.pathname;
+  const isSpecialPage = /^\/(ad|paywall)(\/|$)/.test(pathname);
   const isAdPage = /^\/ad(\/|$)/.test(pathname);
   const isBrowserGuide = pathname === '/open-in-browser';
 
   // 1. 광고 페이지라면 무조건 여기서 끝냄 (최우선순위 보장)
-  if (isAdPage) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
-        <Routes>
-          <Route path="/ad" element={<Ad />} />
-          <Route path="*" element={<Ad />} />
-        </Routes>
-      </div>
-    );
-  }
+if (isSpecialPage) {
+  return (
+    <div className="min-h-screen bg-white dark:bg-slate-950">
+      <Routes>
+        <Route path="/ad" element={<Ad />} />
+        <Route path="/paywall" element={<PayWall />} />
+        {/* 없는 주소로 들어오면 기본적으로 Ad로 보낼지 PayWall로 보낼지 결정 */}
+        <Route path="*" element={<Ad />} />
+      </Routes>
+    </div>
+  );
+}
 
   // 2. 광고 페이지가 아닐 때만 나머지 로직 수행
   if (isBrowserGuide) {
@@ -97,7 +101,7 @@ const RootComponent = () => {
           </Route>
           <Route path="/sazatalk" element={<SazaTalk />} />
           <Route path="/ana" element={<BasicAna />} />
-
+   
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/tarotmoney" element={<TarotMoneyPage />} />
           <Route path="/tarotlove" element={<TarotLovePage />} />

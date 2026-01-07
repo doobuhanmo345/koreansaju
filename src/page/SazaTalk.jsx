@@ -282,7 +282,7 @@ export default function SazaTalk() {
             </div>
           </div>
           <h2 className=" text-2xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-            {language === 'ko' ? '어떠한 고민도 명쾌하게' : 'Clear Solutions for Any Concern'}
+            {language === 'ko' ? '무엇이든 물어보사자' : 'Clear Solutions for Any Concern'}
             <br />
             <span className="relative text-violet-600 dark:text-violet-400">
               {language === 'ko' ? '1:1 맞춤 사주 솔루션' : 'Personalized 1:1 Saju Solution'}
