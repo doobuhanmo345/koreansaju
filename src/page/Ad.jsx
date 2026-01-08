@@ -457,9 +457,9 @@ export default function Ad() {
     // 모든 검증 통과
     setStep(2);
   };
-  const me = saju?.sky1;
+  // const me = saju?.sky1;
 
-  const me_exp = dayStem.find((i) => i.name_kr === me);
+  // const me_exp = dayStem.find((i) => i.name_kr === me);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-2 text-black dark:text-white  ">
@@ -918,7 +918,7 @@ export default function Ad() {
                   </div>
                 </div>
                 <div className="text-[15px] leading-relaxed dark:text-slate-300 ">
-                  {' '}
+                  {/*                   
                   {(language === 'ko' ? me_exp?.full_text_kr : me_exp?.full_text_en)
                     ?.split('\n')
                     ?.filter((text) => text.trim() !== '')
@@ -933,7 +933,7 @@ export default function Ad() {
                       >
                         {sentence}
                       </p>
-                    ))}
+                    ))} */}
                 </div>
                 {/* 반복문을 사용하여 50줄 분량의 더미 텍스트 생성 */}
               </div>
