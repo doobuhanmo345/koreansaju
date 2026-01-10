@@ -146,7 +146,7 @@ export default function FortuneCookie({}) {
             <img
               src="/images/introcard/cookie_2.png"
               alt="cookie started"
-              className="w-full h-auto"
+              className="w-60 h-auto mx-auto"
             />
           </div>
 
@@ -250,7 +250,7 @@ export default function FortuneCookie({}) {
                     <img
                       src="/images/introcard/cookie_1.png"
                       alt="select cookie"
-                      className="w-full h-auto"
+                      className="w-60 h-auto mx-auto"
                     />
                   </div>
                   <div className="flex gap-8 items-center justify-center ">
