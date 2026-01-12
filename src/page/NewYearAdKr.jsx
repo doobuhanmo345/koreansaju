@@ -181,8 +181,6 @@ const NewYearAdKr = () => {
   const isFormValid = getProgress() === 100;
   const handleNewYear = async () => {
     // 1. 기본 방어 로직
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!userData?.birthDate) return alert(UI_TEXT.saveFirst[language]);
 
     setLoading(true);
     setAiResult('');
