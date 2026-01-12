@@ -212,7 +212,6 @@ const NewYearAdKr = () => {
         '{{NEW_YEAR_FORMAT}}':
           '2026년 병오년의 운세를 개략적으로 말해줘. 소제목은 <b>로 감싸주고 내용은 <p>.  그렇게 한거를 세개정도 만들어줘.',
         '{{gender}}': gender,
-        '{{birthDate}}': userData.birthDate || '미입력',
         '{{sajuJson}}': `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
         '{{displayName}}': displayName,
         '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
