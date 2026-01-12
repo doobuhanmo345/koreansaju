@@ -4,9 +4,13 @@ import dayBranch from '../src/data/dayBranch.json';
 import { useLanguage } from './context/useLanguageContext';
 
 export default function Test() {
-
   const [saju, setSaju] = useState({ sky: '', ground: '' });
   const groundRef = useRef(null);
+
+const a = '3'
+const b = () =>{
+  
+}
 
   const handleChange = (e, part) => {
     const value = e.target.value.slice(-1); // 마지막 한 글자만 허용
@@ -22,6 +26,7 @@ export default function Test() {
   const { language } = useLanguage();
   return (
     <>
+
       <div className="flex flex-col items-center gap-4 py-6">
         <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
           Input Your Saju (일주 입력)
@@ -66,6 +71,7 @@ export default function Test() {
             : '한 글자씩 입력해주세요.'}
         </p>
       </div>
+
       <div className="text-[15px] leading-relaxed dark:text-slate-300 ">
         {(language === 'ko' ? me_exp?.full_text_kr : me_exp?.full_text_en)
           ?.split('\n')

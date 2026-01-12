@@ -11,6 +11,7 @@ import {
   ChevronLeftIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/solid';
+import { Zap, Brain, Cpu, ChevronRight, Check, Search, Database, Users } from 'lucide-react';
 import { calculateSajuData } from '../utils/sajuLogic';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -19,7 +20,8 @@ import dayStem from '../data/dayStem.json';
 import dayBranch from '../data/dayBranch.json';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
-const SazaTalkAd = () => {
+import AmaKr from './AmaKr';
+const SazaTalkAdKr = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(false);
@@ -30,6 +32,7 @@ const SazaTalkAd = () => {
   const { user, userData, loadingUser } = useAuthContext();
   const [userQuestion, setUserQuestion] = useState('');
   const [loading, setLoading] = useState(false);
+  const [question, setQuestion] = useState('');
 
   // 1. 비회원용 익명 ID 생성 및 관리
   useEffect(() => {
@@ -69,28 +72,7 @@ const SazaTalkAd = () => {
     }
   };
 
-  // 2. 이메일 제출 시 실행 (이메일 저장)
-  const handleWaitlistSubmit = async (e) => {
-    e.preventDefault();
-    if (!email) return;
-
-    try {
-      // 'waitlist' 컬렉션에 이메일 정보 저장
-      await addDoc(collection(db, 'sazatalk_waitlist'), {
-        email: email,
-        saju: saju,
-        source: 'sazatalk', // 유입 경로
-        selected: selectedReport,
-        status: 'pending',
-        timestamp: serverTimestamp(),
-      });
-      setIsSubmitted(true);
-    } catch (e) {
-      console.error('Error adding document: ', e);
-      alert('잠시 후 다시 시도해주세요.');
-    }
-  };
-  useEffect(() => setLanguage('en'), [step]);
+  useEffect(() => setLanguage('ko'), [step]);
   //생일 넣기
   const [gender, setGender] = useState('');
 
@@ -199,7 +181,75 @@ const SazaTalkAd = () => {
     }
   };
   const isFormValid = getProgress() === 100;
+  const handleAskSaza = async () => {
+    const myQuestion = userQuestion;
+    if (!myQuestion.trim()) return alert('질문을 입력해주세요.');
 
+    setLoading(true);
+
+    try {
+      const dbRef = ref(database);
+      const [basicSnap, strictSnap, formatSnap] = await Promise.all([
+        get(child(dbRef, 'prompt/saza_basic')),
+        get(child(dbRef, `prompt/saza_strict`)),
+        get(child(dbRef, `prompt/saza_format`)),
+      ]);
+
+      if (!basicSnap.exists()) throw new Error('DB에 사자 템플릿이 없습니다.');
+
+      // 2. 텍스트 가공 (기존 로직 유지)
+      const displayName = userData?.displayName || (language === 'ko' ? '의뢰자' : 'guest');
+      const sajuInfo = `성별:${gender}, 생년${birthData.year} 생월${birthData.month} 생일${birthData.day}, 팔자:${JSON.stringify(saju)} (sky3+grd3=연주, sky2+grd2=월주, sky1+grd1=일주, sky0+grd0=시주). 호칭:${displayName}`;
+      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2026년=병오년. `;
+
+      const replacements = {
+        '{{STRICT_PROMPT}}': strictSnap.val() || '',
+        '{{SAZA_FORMAT}}': formatSnap.val() || '',
+        '{{myQuestion}}': myQuestion,
+        '{{sajuInfo}}': sajuInfo,
+        '{{todayInfo}}': todayInfo,
+        '{{langPrompt}}': '**한국어로 150~200 단어로**',
+        '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
+      };
+
+      // 3. 프롬프트 조립
+      let fullPrompt = basicSnap.val();
+      Object.entries(replacements).forEach(([key, value]) => {
+        fullPrompt = fullPrompt.split(key).join(value || '');
+      });
+
+      // 4. API 호출
+      const result = await fetchGeminiAnalysis(fullPrompt);
+    
+
+      const newQuestionLog = {
+        question: myQuestion,
+        sajuKey: saju,
+        timestamp: new Date().toISOString(),
+        id: Date.now(),
+      };
+
+      // DB 업데이트 (카운트 + 질문로그)
+
+      await setDoc(
+        doc(db, 'sazatalkad_logs', guestId || user?.uid),
+        {
+          saju: saju,
+          usageHistory: { question_history: arrayUnion(newQuestionLog) },
+        },
+        { merge: true },
+      );
+
+      // App 상태 업데이트
+
+      setAiResult(result);
+      setStep('result');
+    } catch (e) {
+      alert(e);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleNextStep = () => {
     const { year, month, day, hour, minute } = birthData;
     const y = parseInt(year);
@@ -260,8 +310,7 @@ const SazaTalkAd = () => {
         return;
       }
     }
-
-    setStep('input');
+    userQuestion.trim() && handleAskSaza();
   };
   //내 일주
   const me = saju?.sky1;
@@ -269,131 +318,89 @@ const SazaTalkAd = () => {
 
   const me_exp = dayStem.find((i) => i.name_kr === me);
   const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
-  const handleAskSaza = async () => {
-    const myQuestion = userQuestion;
-    if (!myQuestion.trim()) return alert('질문을 입력해주세요.');
 
-    setLoading(true);
-
-    try {
-      const dbRef = ref(database);
-      const [basicSnap, strictSnap, formatSnap] = await Promise.all([
-        get(child(dbRef, 'prompt/saza_basic')),
-        get(child(dbRef, `prompt/saza_strict`)),
-        get(child(dbRef, `prompt/saza_format`)),
-      ]);
-
-      if (!basicSnap.exists()) throw new Error('DB에 사자 템플릿이 없습니다.');
-
-      // 2. 텍스트 가공 (기존 로직 유지)
-      const displayName = userData?.displayName || (language === 'ko' ? '의뢰자' : 'guest');
-      const sajuInfo = `성별:${gender}, 생년${birthData.year} 생월${birthData.month} 생일${birthData.day}, 팔자:${JSON.stringify(saju)} (sky3+grd3=연주, sky2+grd2=월주, sky1+grd1=일주, sky0+grd0=시주). 호칭:${displayName}`;
-      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2026년=병오년. `;
-
-      const replacements = {
-        '{{STRICT_PROMPT}}': strictSnap.val() || '',
-        '{{SAZA_FORMAT}}': formatSnap.val() || '',
-        '{{myQuestion}}': myQuestion,
-        '{{sajuInfo}}': sajuInfo,
-        '{{todayInfo}}': todayInfo,
-        '{{langPrompt}}': '**answer this question in english about 150~200 words**',
-        '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
-      };
-
-      // 3. 프롬프트 조립
-      let fullPrompt = basicSnap.val();
-      Object.entries(replacements).forEach(([key, value]) => {
-        fullPrompt = fullPrompt.split(key).join(value || '');
-      });
-
-      // 4. API 호출
-      const result = await fetchGeminiAnalysis(fullPrompt);
-
-      const newQuestionLog = {
-        question: myQuestion,
-        sajuKey: saju,
-        timestamp: new Date().toISOString(),
-        id: Date.now(),
-      };
-
-      // DB 업데이트 (카운트 + 질문로그)
-
-      await setDoc(
-        doc(db, 'sazatalkad_logs', guestId || user?.uid),
-        {
-          saju: saju,
-          usageHistory: { question_history: arrayUnion(newQuestionLog) },
-        },
-        { merge: true },
-      );
-
-      // App 상태 업데이트
-
-      setAiResult(result);
-      setStep('result');
-    } catch (e) {
-      alert(e);
-    } finally {
-      setLoading(false);
-    }
-  };
   const Loading = () => {
     return (
-      // transform-gpu 클래스로 GPU 가속 활성화
-      <div className="bg-white min-h-screen flex flex-col items-center justify-center min-h-[350px] overflow-hidden transform-gpu">
-        <div className="relative flex items-center justify-center w-64 h-64">
-          {/* 1. 배경 회전 링 - will-change-transform 추가 */}
-          <div className="absolute w-40 h-40 rounded-full border border-indigo-100  animate-[spin_3s_linear_infinite] opacity-50 will-change-transform"></div>
+      <div className="bg-[#FDF5F0] min-h-screen flex flex-col items-center justify-center overflow-hidden transform-gpu px-6">
+        <div className="relative flex items-center justify-center w-72 h-72">
+          {/* 1. 배경 회전 링 - 사자사주 오렌지 톤으로 변경 */}
+          <div className="absolute w-44 h-44 rounded-full border-2 border-orange-200 border-dashed animate-[spin_10s_linear_infinite] opacity-40 will-change-transform"></div>
+          <div className="absolute w-52 h-52 rounded-full border border-orange-100 animate-[spin_15s_linear_infinite_reverse] opacity-30 will-change-transform"></div>
 
-          {/* 2. 공전하는 이모지들 - 각각 will-change-transform과 backface-visibility 적용 */}
+          {/* 2. 공전하는 이모지들 (천체 흐름 컨셉) */}
           {/* ✨ 반짝이 */}
-          <div className="absolute w-48 h-48 animate-[spin_3s_linear_infinite] will-change-transform">
+          <div className="absolute w-56 h-56 animate-[spin_4s_linear_infinite] will-change-transform">
             <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl">✨</span>
           </div>
 
-          {/* ⭐ 별 */}
-          <div className="absolute w-32 h-32 animate-[spin_5s_linear_infinite_reverse] will-change-transform">
-            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">⭐</span>
+          {/* 🧭 나침반/팔괘 느낌 */}
+          <div className="absolute w-40 h-40 animate-[spin_6s_linear_infinite_reverse] will-change-transform">
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">☀️</span>
           </div>
 
           {/* 🌙 달 */}
-          <div className="absolute w-56 h-56 animate-[spin_7s_linear_infinite] will-change-transform">
+          <div className="absolute w-64 h-64 animate-[spin_8s_linear_infinite] will-change-transform">
             <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl">🌙</span>
           </div>
 
           {/* 3. 중앙 사자 캐릭터 */}
           <div className="relative flex flex-col items-center z-10">
-            <div className="absolute inset-0 bg-indigo-500/10 blur-2xl rounded-full"></div>
-            <span className="text-7xl select-none drop-shadow-lg">🦁</span>
-            <span className="text-sm font-bold text-indigo-500 mt-2 tracking-tighter animate-pulse">
-              ANALYZING
+            {/* 중앙 글로우 효과 */}
+            <div className="absolute inset-0 bg-orange-400/20 blur-3xl rounded-full scale-150"></div>
+            <span className="text-8xl select-none drop-shadow-[0_10px_10px_rgba(0,0,0,0.1)] mb-2">
+              🦁
             </span>
-          </div>
-        </div>
-
-        {/* 텍스트 구역 (텍스트 렌더링 부하를 줄이기 위해 레이어 분리) */}
-        <div className="mt-4 text-center px-4 transform-gpu">
-          <h2 className="text-xl font-black text-slate-700  mb-2">
-            {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
-          </h2>
-          <div className="flex flex-col items-center justify-center gap-1">
-            <p className="text-sm text-slate-500  font-bold break-keep">
-              {language === 'ko'
-                ? '사자와 27명의 명리학자가 함께 고민하고 있어요'
-                : 'Saza and 27 Saju masters are analyzing together'}
-            </p>
-            <div className="flex items-center gap-1">
-              <p className="text-xs text-slate-400 font-medium">
-                {language === 'ko' ? '하늘의 흐름을 읽고 있어요' : 'Reading the celestial flow'}
-              </p>
-              <span className="flex text-indigo-500 font-bold">
-                <span className="animate-bounce">.</span>
-                <span className="animate-bounce [animation-delay:0.2s]">.</span>
-                <span className="animate-bounce [animation-delay:0.4s]">.</span>
-              </span>
+            <div className="bg-[#F47521] text-white text-[10px] font-black px-3 py-1 rounded-full tracking-widest animate-pulse">
+              ANALYZING
             </div>
           </div>
         </div>
+
+        {/* 텍스트 구역 */}
+        <div className="mt-8 text-center px-4 transform-gpu max-w-[300px]">
+          <h2 className="text-2xl font-black text-[#4A3428] mb-3">
+            {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
+          </h2>
+          <div className="flex flex-col items-center justify-center gap-2">
+            <p className="text-[15px] text-[#8B6E5E] font-bold break-keep leading-snug">
+              {language === 'ko'
+                ? '사자와 27명의 명리학자가 함께 당신의 사주를 풀고 있어요'
+                : 'Saza and 27 Saju masters are analyzing together'}
+            </p>
+
+            {/* 로딩 바 섹션 (약 30초 애니메이션) */}
+            <div className="w-full mt-6 space-y-2">
+              <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-orange-100 shadow-inner">
+                <div
+                  className="h-full bg-[#F47521] rounded-full shadow-[0_0_10px_rgba(244,117,33,0.5)] animate-[loading_30s_linear_forwards]"
+                  style={{ width: '0%' }}
+                ></div>
+              </div>
+              <div className="flex items-center justify-center gap-1">
+                <p className="text-xs text-[#C4B5A9] font-bold uppercase tracking-widest">
+                  {language === 'ko' ? '하늘의 흐름을 읽는 중' : 'Reading the celestial flow'}
+                </p>
+                <span className="flex text-[#F47521] font-bold">
+                  <span className="animate-bounce">.</span>
+                  <span className="animate-bounce [animation-delay:0.2s]">.</span>
+                  <span className="animate-bounce [animation-delay:0.4s]">.</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 로딩바 애니메이션을 위한 스타일 태그 (Tailwind config 수정 없이 사용 가능) */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+    @keyframes loading {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+  `,
+          }}
+        />
       </div>
     );
   };
@@ -418,27 +425,43 @@ const SazaTalkAd = () => {
       <div className="max-w-3xl mx-auto px-6">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
-            <SajuIntroSection setStep={setStep} language={language} />
+            <AmaKr
+              setStep={() => setStep(1)}
+              question={userQuestion}
+              setQuestion={setUserQuestion}
+            />
           </div>
         )}
         {step === 1 && !isAnalyzing && (
           <>
-            <div className="space-y-4 py-10 min-h-screen  font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700 px-6">
-              <div className="text-center">
-                <h2 className="text-md font-black   flex items-center justify-center gap-2">
+            <div className="min-h-screen bg-[#FDF5F0] font-sans text-[#4A3428] px-6 py-10 selection:bg-orange-100 selection:text-orange-700">
+              {/* 상단 타이틀 섹션 */}
+              <div className="text-center mb-8">
+                <div className="flex justify-center items-center gap-1.5 mb-4">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-xl">
+                    🦁
+                  </div>
+                  <span className="text-xl font-bold tracking-tight text-[#333]">사자사주</span>
+                </div>
+                <h2 className="text-lg font-black leading-tight break-keep">
                   {language === 'ko'
                     ? '생년월일을 바탕으로 나의 오행을 분석합니다'
                     : 'Analyzing your Five Elements based on your birth date.'}
                 </h2>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
+                {/* 성별 선택 */}
                 <div className="flex gap-2 mb-4">
                   {['male', 'female'].map((g) => (
                     <button
                       key={g}
                       onClick={() => setGender(g)}
-                      className={`flex-1 py-3 rounded-xl border-2 font-bold transition-all ${gender === g ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100'}`}
+                      className={`flex-1 py-4 rounded-2xl border-2 font-bold transition-all shadow-sm ${
+                        gender === g
+                          ? 'border-[#F47521] bg-white text-[#F47521]'
+                          : 'border-white bg-white/50 text-[#C4B5A9]'
+                      }`}
                     >
                       {g === 'male'
                         ? language === 'ko'
@@ -451,7 +474,7 @@ const SazaTalkAd = () => {
                   ))}
                 </div>
 
-                {/* 연도 */}
+                {/* 연도 입력 */}
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${gender ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
@@ -462,7 +485,7 @@ const SazaTalkAd = () => {
                         language === 'ko' ? '태어난 연도를 입력해주세요' : 'Birth Year(YYYY)'
                       }
                       value={birthData.year}
-                      className="w-full p-4 bg-slate-50 rounded-xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                       }
@@ -470,7 +493,7 @@ const SazaTalkAd = () => {
                   </div>
                 </div>
 
-                {/* 3. 월 */}
+                {/* 월 입력 */}
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
@@ -478,10 +501,10 @@ const SazaTalkAd = () => {
                     <input
                       type="number"
                       placeholder={
-                        language === 'ko' ? '태어난 월을 선택해주세요' : 'Birth Month(MM)'
+                        language === 'ko' ? '태어난 월을 입력해주세요' : 'Birth Month(MM)'
                       }
                       value={birthData.month}
-                      className="w-full p-4 bg-slate-50  rounded-xl  border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                       }
@@ -489,16 +512,16 @@ const SazaTalkAd = () => {
                   </div>
                 </div>
 
-                {/* 4. 일 */}
+                {/* 일 입력 */}
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${isMonthDone && isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder={language === 'ko' ? '태어난 날을 선택해주세요' : 'Birth Day(DD)'}
+                      placeholder={language === 'ko' ? '태어난 날을 입력해주세요' : 'Birth Day(DD)'}
                       value={birthData.day}
-                      className="w-full p-4 bg-slate-50 rounded-xl border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                       }
@@ -506,15 +529,15 @@ const SazaTalkAd = () => {
                   </div>
                 </div>
 
-                {/* 시간(시) - 개별 분리 */}
+                {/* 시간(시) */}
                 <div
-                  className={`grid transition-all duration-500 ease-in-out ${isDayDone && !timeUnknown ? 'grid-rows-[1fr] opacity-100 mb-2' : 'grid-rows-[0fr] opacity-0'}`}
+                  className={`grid transition-all duration-500 ease-in-out ${isDayDone && !timeUnknown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <div className="overflow-hidden">
+                  <div className="overflow-hidden px-0.5">
                     <input
                       type="number"
                       placeholder={language === 'ko' ? '태어난 시 (HH)' : 'Birth Hour (HH)'}
-                      className="w-full py-4 bg-slate-50 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
                       }
@@ -522,15 +545,15 @@ const SazaTalkAd = () => {
                   </div>
                 </div>
 
-                {/* 시간(분) - 개별 분리 */}
+                {/* 시간(분) */}
                 <div
-                  className={`grid transition-all duration-500 ease-in-out ${isHourDone && !timeUnknown ? 'grid-rows-[1fr] opacity-100 mb-2' : 'grid-rows-[0fr] opacity-0'}`}
+                  className={`grid transition-all duration-500 ease-in-out ${isHourDone && !timeUnknown ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <div className="overflow-hidden">
+                  <div className="overflow-hidden px-0.5">
                     <input
                       type="number"
                       placeholder={language === 'ko' ? '태어난 분 (mm)' : 'Birth Minute (mm)'}
-                      className="w-full py-4 bg-slate-50 rounded-xl   border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
                       }
@@ -540,25 +563,27 @@ const SazaTalkAd = () => {
 
                 {/* 시간 모름 체크박스 */}
                 <div
-                  className={`grid transition-all duration-500 ease-in-out ${isDayDone ? 'grid-rows-[1fr] opacity-100 mb-2' : 'grid-rows-[0fr] opacity-0'}`}
+                  className={`grid transition-all duration-500 ease-in-out ${isDayDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <label className="flex items-center gap-2 cursor-pointer w-fit mx-auto pb-1 overflow-hidden">
+                  <label className="flex items-center gap-2 cursor-pointer w-fit mx-auto py-2 overflow-hidden group">
                     <input
                       type="checkbox"
                       checked={timeUnknown}
                       onChange={(e) => setTimeUnknown(e.target.checked)}
-                      className="w-4 h-4 accent-indigo-500"
+                      className="w-5 h-5 accent-[#F47521] cursor-pointer"
                     />
-                    <span className="text-lg font-bold text-slate-500">
+                    <span className="text-md font-bold text-[#C4B5A9] group-hover:text-[#F47521] transition-colors">
                       {language === 'ko' ? '시간을 몰라요' : 'time unknown'}
                     </span>
                   </label>
                 </div>
               </div>
-              <div>
-                <div className="flex items-center gap-1.5 animate-pulse">
-                  <ChatBubbleLeftRightIcon className="w-4 h-4 text-indigo-500" />
-                  <span className="text-[18px] font-black text-indigo-600 ">
+
+              {/* 가이드 메시지 영역 */}
+              <div className="mt-8 mb-4">
+                <div className="flex items-center justify-center gap-2 animate-pulse">
+                  <div className="w-2 h-2 bg-[#F47521] rounded-full" />
+                  <span className="text-[16px] font-bold text-[#F47521]">
                     {language === 'ko'
                       ? !gender
                         ? guideMessages.ko.putGender
@@ -589,28 +614,30 @@ const SazaTalkAd = () => {
                   </span>
                 </div>
               </div>
-              <div className="flex justify-between items-center px-1">
-                <div className="flex items-center gap-1">
-                  <CakeIcon className="w-4 h-4 text-indigo-500" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
-                    Progress
-                  </span>
+
+              {/* 프로그레스 바 섹션 */}
+              <div className="space-y-2 mb-8">
+                <div className="flex justify-between items-center px-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] font-black text-[#C4B5A9] uppercase tracking-wider">
+                      Progress
+                    </span>
+                  </div>
+                  <span className="text-[#F47521] text-xs font-black">{getProgress()}%</span>
                 </div>
-                <span className="text-indigo-600 text-xs font-black">{getProgress()}%</span>
+                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden shadow-sm border border-orange-50">
+                  <div
+                    className="h-full bg-[#F47521] transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(244,117,33,0.3)]"
+                    style={{ width: `${getProgress()}%` }}
+                  />
+                </div>
               </div>
 
-              {/* 바 본체 */}
-              <div className="w-full h-2 bg-slate-100  rounded-full overflow-hidden shadow-inner">
-                <div
-                  className="h-full bg-indigo-500 transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(79,70,229,0.4)]"
-                  style={{ width: `${getProgress()}%` }}
-                />
-              </div>
-
+              {/* 최종 버튼 */}
               {isFormValid && (
                 <button
                   onClick={handleNextStep}
-                  className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black shadow-lg animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all mt-4"
+                  className="w-full py-5 bg-[#F47521] text-white rounded-full font-bold text-lg shadow-[0_4px_15px_rgba(244,117,33,0.3)] animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all"
                 >
                   {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
                 </button>
@@ -717,57 +744,76 @@ const SazaTalkAd = () => {
         </div>
       )}
       {step === 'result' && (
-        <div className="gap-3 min-h-screen m-10">
-          {/* 사용자의 질문 (오른쪽 정렬 말풍선) */}
-          {userQuestion && (
-            <div className="flex justify-end">
-              <div className="max-w-[80%] bg-indigo-600 text-white p-4 rounded-2xl rounded-tr-none shadow-md">
-                <p className="text-sm font-bold">{userQuestion}</p>
+        <div className="flex flex-col min-h-screen bg-[#FDF5F0] font-sans text-[#4A3428]">
+          {/* 1. 상단 네비게이션 로고바 (새로 추가) */}
+          <nav className="w-full bg-white/80 backdrop-blur-sm sticky top-0 z-10 border-b border-orange-100 px-6 py-4 flex justify-center items-center gap-1.5">
+            <div className="w-7 h-7 bg-orange-100 rounded-full flex items-center justify-center text-lg shadow-sm">
+              🦁
+            </div>
+            <span className="text-lg font-bold tracking-tight text-[#333]">사자사주</span>
+          </nav>
+
+          <div className="flex-1 p-6 flex flex-col gap-6">
+            {/* 3. 사용자의 질문 (오른쪽 정렬 말풍선) */}
+            {userQuestion && (
+              <div className="flex justify-end">
+                <div className="max-w-[85%] bg-[#F47521] text-white p-5 rounded-[24px] rounded-tr-none shadow-lg shadow-orange-200/50">
+                  <p className="text-[15px] font-bold leading-relaxed">{userQuestion}</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* AI의 사주 분석 답변 (왼쪽 정렬 말풍선) */}
-          <div className="flex justify-start mt-6">
-            <div className="leading-8 w-full bg-slate-100 p-5 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 ">
-              {/* 주입되는 HTML 스타일링 제어 */}
-              <div
-                className="prose prose-sm  max-w-none"
-                dangerouslySetInnerHTML={{ __html: pureHtml }}
-              />
-            </div>
-          </div>
-          {/* 사이트 이동 안내 및 링크 복사 섹션 */}
-          <div className="mt-8 p-6 bg-white border-2 border-dashed border-indigo-200 rounded-2xl text-center">
-            <p className="text-gray-600 font-medium mb-4">
-              {language === 'ko'
-                ? "더 자세한 사주 분석은 '사자사주'에서 확인하세요!"
-                : 'For a deeper analysis, visit Saza Saju!'}
-            </p>
-
-            <div className="flex flex-col gap-3">
-              {/* 복사 버튼 + 주소 표시 */}
-              <div
-                onClick={() => {
-                  navigator.clipboard.writeText('https://koreansaju.vercel.app');
-                  alert(language === 'ko' ? '주소가 복사되었습니다!' : 'Link copied to clipboard!');
-                }}
-                className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-indigo-50 transition-colors group"
-              >
-                <span className="text-indigo-600 font-mono text-sm">koreansaju.vercel.app</span>
-                <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-bold group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                  COPY
-                </span>
+            {/* 4. AI의 사주 분석 답변 (디자인 개선) */}
+            <div className="flex flex-col gap-3 mt-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-100 text-lg">
+                  🦁
+                </div>
+                <span className="text-sm font-bold text-gray-600">사자사주 분석팀</span>
               </div>
 
-              {/* 다른 브라우저 이용 안내 */}
-              <div className="flex items-start space-x-2 text-left bg-amber-50 p-3 rounded-lg">
-                <span className="text-amber-500 text-sm">💡</span>
-                <p className="text-xs text-amber-800 leading-normal">
-                  {language === 'ko'
-                    ? '위 주소를 복사한 뒤, 크롬이나 사파리 브라우저 주소창에 붙여넣어 접속해주세요.'
-                    : 'Please copy the link above and paste it into your browser (Chrome/Safari) to continue.'}
-                </p>
+              <div className="leading-8 w-full bg-white p-6 rounded-[24px] rounded-tl-none shadow-sm border border-[#E8DCCF]/50">
+                <div
+                  className="prose prose-sm max-w-none prose-strong:text-[#F47521] prose-strong:font-black prose-headings:text-[#4A3428] text-[#4A3428]"
+                  dangerouslySetInnerHTML={{ __html: pureHtml }}
+                />
+              </div>
+            </div>
+
+            {/* 5. 하단 CTA 및 안내 섹션 */}
+            <div className="mt-10 p-8 bg-white/60 border-2 border-dashed border-[#E8DCCF] rounded-[32px] text-center">
+              <p className="text-[#4A3428] font-bold mb-6 break-keep">
+                {language === 'ko'
+                  ? "더 자세한 사주 분석은 '사자사주'에서 확인하세요!"
+                  : 'For a deeper analysis, visit Saza Saju!'}
+              </p>
+
+              <div className="flex flex-col gap-4">
+                <div
+                  onClick={() => {
+                    navigator.clipboard.writeText('https://koreansaju.vercel.app');
+                    alert(
+                      language === 'ko' ? '주소가 복사되었습니다!' : 'Link copied to clipboard!',
+                    );
+                  }}
+                  className="flex items-center justify-between bg-white p-4 rounded-2xl border border-[#E8DCCF] cursor-pointer hover:border-[#F47521] transition-all group active:scale-[0.98]"
+                >
+                  <span className="text-[#F47521] font-mono text-sm font-bold">
+                    koreansaju.vercel.app
+                  </span>
+                  <span className="text-[11px] bg-orange-50 text-[#F47521] px-3 py-1.5 rounded-full font-black group-hover:bg-[#F47521] group-hover:text-white transition-colors">
+                    COPY
+                  </span>
+                </div>
+
+                <div className="flex items-start space-x-2 text-left bg-orange-50/50 p-4 rounded-2xl border border-orange-100/50">
+                  <span className="text-[#F47521] text-sm mt-0.5">💡</span>
+                  <p className="text-[12px] text-orange-800/80 font-medium leading-normal break-keep">
+                    {language === 'ko'
+                      ? '위 주소를 복사한 뒤, 브라우저 주소창에 붙여넣어 접속해주세요.'
+                      : 'Please copy the link above and paste it into your browser to continue.'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -777,4 +823,4 @@ const SazaTalkAd = () => {
   );
 };
 
-export default SazaTalkAd;
+export default SazaTalkAdKr;
