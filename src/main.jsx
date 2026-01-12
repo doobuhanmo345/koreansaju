@@ -40,7 +40,7 @@ import Ad from './page/Ad';
 import BasicAna from './page/BasicAna';
 import PayWall from './page/PayWall';
 import SazaTalkAd from './page/SazaTalkAd';
-import AmaKr from './page/AmaKr';
+import NewYearAdKr from './page/NewYearAdKr';
 import SazaTalkAdKr from './page/SazaTalkAdKr';
 
 const RootComponent = () => {
@@ -48,7 +48,7 @@ const RootComponent = () => {
 
   // 수정 제안
   const pathname = window.location.pathname;
-  const isSpecialPage = /^\/(ad|paywall|sazatalkad|sazatalkadkr)(\/|$)/.test(pathname);
+  const isSpecialPage = /^\/(ad|paywall|sazatalkad|sazatalkadkr|newyearadkr)(\/|$)/.test(pathname);
   const isAdPage = /^\/ad(\/|$)/.test(pathname);
   const isBrowserGuide = pathname === '/open-in-browser';
 
@@ -61,6 +61,7 @@ const RootComponent = () => {
           <Route path="/sazatalkadkr" element={<SazaTalkAdKr />} />
           <Route path="/paywall" element={<PayWall />} />
           <Route path="/sazatalkad" element={<SazaTalkAd />} />
+          <Route path="/newyearadkr" element={<NewYearAdKr />} />
           {/* 없는 주소로 들어오면 기본적으로 Ad로 보낼지 PayWall로 보낼지 결정 */}
           <Route path="*" element={<Ad />} />
         </Routes>
