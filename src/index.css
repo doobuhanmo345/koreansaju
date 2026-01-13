@@ -371,3 +371,34 @@ input {
   display: block;
   margin: 0 auto 8px;
 }
+/* 리포트 맛보기 효과를 위한 스타일 */
+.sjsj-blur-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.sjsj-blur-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to bottom, transparent, #fff 90%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.sjsj-locked-msg {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px 25px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: #F47521;
+  border: 1px solid #F47521/20;
+}

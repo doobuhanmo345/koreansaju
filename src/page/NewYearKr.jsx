@@ -14,9 +14,9 @@ import {
   Heart,
   Sparkles,
   AlertCircle,
-
   Flame,
   Puzzle,
+  Lock,
 } from 'lucide-react';
 
 export default function NewYearKr({ setStep }) {
@@ -114,250 +114,393 @@ export default function NewYearKr({ setStep }) {
           </div>
         </div>
       </>
-      <>
-        <div className="max-w-2xl mx-auto bg-[#FDF8F5] min-h-screen p-6 font-sans text-[#4A3428]">
-          {/* 헤더 섹션 */}
-          <header className="text-center mb-10">
-            <h1 className="text-2xl font-black mb-2">2026년 병오년 한 해 요약</h1>
-            <p className="text-sm text-[#4A3428]/80 leading-relaxed">
-              사자가 요약하는 올해 운세
-              <br />
-              키워드와 활용/조심할 요소를 한 눈에
+      {/* 예시 */}
+      <div></div>
+
+      {/* 더미포멧 */}
+      <div>
+        {/* 세련된 안내 배너 디자인 */}
+        <div className="mx-4 mb-10 flex flex-col items-center">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-200 bg-orange-50/50 mb-3">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+            </span>
+            <span className="text-[11px] font-bold text-orange-600 tracking-tight uppercase">
+              Preview Mode
+            </span>
+          </div>
+
+          <div className="text-center">
+            <h3 className="text-lg font-bold text-slate-800 mb-2">사자사주 정밀 리포트 맛보기</h3>
+
+            <div className="space-y-3">
+              <p className="text-sm text-slate-500 leading-relaxed">
+                본 내용은 사자사주 사이트에서 제공하는 <br />
+                <span className="text-slate-800 font-semibold underline underline-offset-4 decoration-orange-300">
+                  핵심 데이터 기반의 정식 무료 리포트
+                </span>
+                입니다.
+              </p>
+
+              {/* 현재 페이지 상태를 알려주는 디바이더 겸 안내 */}
+              <div className="flex items-center justify-center gap-3">
+                <div className="h-[1px] w-8 bg-slate-200"></div>
+                <p className="text-[13px] font-medium text-orange-600 bg-orange-50 px-3 py-1 rounded-md">
+                  현재 페이지는 '간편 요약 버전'으로 노출 중입니다
+                </p>
+                <div className="h-[1px] w-8 bg-slate-200"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="sjsj-report-container">
+          <div></div>
+          <header className="sjsj-header">
+            <h1 className="sjsj-main-title">2026년 병오년 종합 리포트</h1>
+
+            <p className="sjsj-header-sub">
+              병오년은 불의 기운이 강하게 작동하는 해로, 선택과 속도가 삶의 흐름을 좌우하는
+              시기입니다. 본 페이지는 실제 개인 맞춤 리포트의 일부 흐름을 체험할 수 있는 무료 맛보기
+              리포트입니다.
             </p>
+
+            <div className="sjsj-badge-summary">1분 핵심 요약</div>
           </header>
-
-          {/* 3단 요약 카드 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-            {/* 올해의 키워드 */}
-            <div className="bg-white/60 p-5 rounded-[24px] border border-[#E8DCCF] shadow-sm relative overflow-hidden">
-              <Calendar className="w-10 h-10 text-[#F47521]/20 absolute -top-1 -right-1" />
-              <h3 className="font-bold mb-4 flex items-center gap-2">올해의 키워드</h3>
-              <ul className="text-sm space-y-2 font-medium">
-                <li>#키워드1</li>
-                <li>#키워드2</li>
-                <li>#키워드3</li>
-              </ul>
-            </div>
-
-            {/* 활용할 요소 */}
-            <div className="bg-white/60 p-5 rounded-[24px] border border-[#E8DCCF] shadow-sm relative overflow-hidden">
-              <Search className="w-10 h-10 text-[#F47521]/20 absolute -top-1 -right-1" />
-              <h3 className="font-bold mb-4 flex items-center gap-2">활용할 요소</h3>
-              <ul className="text-sm space-y-2">
-                <li className="flex items-center gap-2">✔️ 요소1</li>
-                <li className="flex items-center gap-2">✔️ 요소2</li>
-                <li className="flex items-center gap-2">✔️ 요소3</li>
-              </ul>
-            </div>
-
-            {/* 주의할 요소 */}
-            <div className="bg-white/60 p-5 rounded-[24px] border border-[#E8DCCF] shadow-sm relative overflow-hidden">
-              <AlertTriangle className="w-10 h-10 text-[#F47521]/20 absolute -top-1 -right-1" />
-              <h3 className="font-bold mb-4 flex items-center gap-2">주의할 요소</h3>
-              <ul className="text-sm space-y-2">
-                <li className="flex items-center gap-2 text-orange-600">✔️ 요소1</li>
-                <li className="flex items-center gap-2 text-orange-600">✔️ 요소2</li>
-                <li className="flex items-center gap-2 text-orange-600">✔️ 요소3</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* 한 줄 요약 박스 */}
-          <div className="bg-[#F47521]/5 py-6 px-4 rounded-2xl text-center mb-12 border border-[#F47521]/10">
-            <p className="font-bold text-lg">
-              "당신은 올해 <span className="text-[#F47521]">변화의 파도</span>를 타야 합니다."
-            </p>
-          </div>
-
-          {/* 월별 상세 운세 섹션 */}
-          <section>
-            <div className="text-center mb-8">
-              <h2 className="text-xl font-black mb-2">월별 상세 운세</h2>
-              <p className="text-xs text-[#4A3428]/70">
-                사주로 알아보는 월별 재물, 건강, 직업, 애정운 상세 분석!
+          <section className="relative sjsj-section">
+            <div className="sjsj-section-label">
+              <h2 className="sjsj-subTitle">책임과 도전 속에서 빛나는 성장과 변화의 해</h2>
+              <p className="sjsj-label-main">
+                열정적인 불꽃이 두부한모삼님을 단련하여 새로운 가치를 창조하는 한 해가 될 것입니다.
               </p>
             </div>
 
-            {/* 운세 아이콘 그룹 */}
-            <div className="flex justify-center gap-8 mb-8">
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#F47521]">
-                  <Coins size={20} />
+            <div className="sjsj-grid sjsj-grid-3">
+              <div className="sjsj-premium-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="sjsj-icon">
+                  <path
+                    d="M12 2C12 2 7 8 7 12C7 14.7614 9.23858 17 12 17C14.7614 17 17 14.7614 17 12C17 8 12 2 12 2Z"
+                    fill="#E65100"
+                  />
+                  <path
+                    d="M12 6C12 6 9 10 9 13C9 14.6569 10.3431 16 12 16C13.6569 16 15 14.6569 15 13C15 10 12 6 12 6Z"
+                    fill="#FFB74D"
+                  />
+                </svg>
+                <div className="sjsj-card-title">속도</div>
+                <div className="sjsj-card-desc">
+                  병오년은 기회가 빠르게 지나가며, 망설임이 곧 손실이 되는 흐름을 만듭니다.
                 </div>
-                <span className="text-[10px] font-bold">재물운</span>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#F47521]">
-                  <Briefcase size={20} />
-                </div>
-                <span className="text-[10px] font-bold">직업운</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#F47521]">
-                  <GraduationCap size={20} />
-                </div>
-                <span className="text-[10px] font-bold">학업운</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#F47521]">
-                  <Heart size={20} />
-                </div>
-                <span className="text-[10px] font-bold">애정운</span>
-              </div>
-            </div>
 
-            {/* 월 선택 슬라이더 (간이 구현) */}
-            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar mb-6">
-              {[...Array(12)].map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveMonth(i + 1)}
-                  className={`flex-shrink-0 w-10 h-10 rounded-full font-bold text-sm transition-all ${
-                    activeMonth === i + 1 ? 'bg-[#F47521] text-white' : 'bg-white text-[#4A3428]/40'
-                  }`}
+              <div className="sjsj-premium-card">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#8D6E63"
+                  strokeWidth="1.2"
+                  className="sjsj-icon"
                 >
-                  {i + 1}월
-                </button>
-              ))}
+                  <path d="M3 7h18M12 3v18M7 7l-2 10h4l-2-10zm12 0l-2 10h4l-2-10z" />
+                </svg>
+                <div className="sjsj-card-title">선택</div>
+                <div className="sjsj-card-desc">
+                  여러 갈래가 동시에 열리지만, 모든 길을 다 잡을 수는 없습니다.
+                </div>
+              </div>
+
+              <div className="sjsj-premium-card">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#BF360C"
+                  strokeWidth="1.2"
+                  className="sjsj-icon"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path
+                    d="M16.2426 7.75736L10.5858 10.5858L7.75736 16.2426L13.4142 13.4142L16.2426 7.75736Z"
+                    fill="#BF360C"
+                  />
+                </svg>
+                <div className="sjsj-card-title">방향성</div>
+                <div className="sjsj-card-desc">
+                  올해의 핵심은 노력보다 ‘어디로 가는가’에 있습니다.
+                </div>
+              </div>
             </div>
+            <div className="absolute bottom-0 left-0 w-full h-[400px] bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10"></div>
 
-            {/* 운세 상세 내역 */}
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-[#E8DCCF]/50 space-y-6 relative">
-              <div className="flex items-start gap-4">
-                <span className="text-[#F47521] font-bold text-sm whitespace-nowrap mt-1">
-                  ✦ 재물운 |
-                </span>
-                <p className="text-sm leading-relaxed font-medium">
-                  유입보다 지출 관리 중요. 계획적인 소비가 필요한 시기입니다.
+            {/* (선택) 가림막 위에 띄울 안내 문구 */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+              <div className="max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  당신의 올해의 키워드를 한눈에 분석해 드립니다.
+                </h3>
+                <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                  병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
+                  맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
                 </p>
-              </div>
-              <div className="flex items-start gap-4">
-                <span className="text-[#F47521] font-bold text-sm whitespace-nowrap mt-1">
-                  ✦ 직업운 |
-                </span>
-                <p className="text-sm leading-relaxed font-medium">
-                  큰 투자보다는 내실을 다질 때. 현재 구조를 점검해 보세요.
-                </p>
-              </div>
-              <div className="flex items-start gap-4">
-                <span className="text-[#F47521] font-bold text-sm whitespace-nowrap mt-1">
-                  ✦ 학업운 |
-                </span>
-                <p className="text-sm leading-relaxed font-medium">
-                  기초 업무 재정비가 성과로 이어집니다.
-                </p>
-              </div>
-              <div className="flex items-start gap-4">
-                <span className="text-[#F47521] font-bold text-sm whitespace-nowrap mt-1">
-                  ✦ 애정운 |
-                </span>
-                <p className="text-sm leading-relaxed font-medium">
-                  단기적인 관계보다 깊은 신뢰를 쌓는 것에 집중하세요.
-                </p>
-              </div>
-
-              {/* 하단 유도 (앞서 말씀하신 블러 처리 응용 가능) */}
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FDF8F5] to-transparent flex items-end justify-center pb-4 pointer-events-none">
-                {/* 필요 시 여기에 '더 보기' 버튼 추가 */}
               </div>
             </div>
           </section>
-        </div>
-      </>
-      <>
-        <div className="max-w-2xl mx-auto bg-[#FDF8F5] p-6 font-sans text-[#4A3428]">
-          {/* 1. 활용, 조심할 달 섹션 (잠금 처리된 영역) */}
-          <section className="mb-12">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-black mb-2">활용, 조심할 달</h2>
-              <p className="text-sm text-[#4A3428]/70 leading-relaxed">
-                일년 내내 좋을 수도, 나쁠 수도 없습니다.
-                <br />
-                사자사주는 흐름에 따라 활용 가능한 달을 추천합니다.
-              </p>
-            </div>
 
-            <div className="relative p-6 bg-white/40 rounded-[32px] border border-[#E8DCCF] overflow-hidden">
-              {/* 블러 처리된 컨텐츠 */}
-              <div className="select-none pointer-events-none space-y-8">
-                <div>
-                  <h3 className="font-bold mb-3 flex items-center gap-2 text-sm">
-                    ✨ 활용하면 좋은 달
-                  </h3>
-                  <div className="flex gap-2">
-                    <div className="bg-white px-4 py-2 rounded-full border border-[#E8DCCF] text-xs font-bold flex items-center gap-2">
-                      5월 <span className="text-[#F47521] text-[10px]">⚠️ 부딪힘 주의</span>
-                    </div>
-                    <div className="bg-white px-4 py-2 rounded-full border border-[#E8DCCF] text-xs font-bold">
-                      8월
-                    </div>
+          <div className="sjsj-content-inner">
+            <section className="relative sjsj-section">
+              <div className="sjsj-section-label">
+                <h2 className="sjsj-subTitle">2026년 병오년 종합 분석</h2>
+              </div>
+
+              <div className="sjsj-info-banner">
+                불의 기운은 기회를 만들지만, 동시에 과열과 소진을 부릅니다.
+              </div>
+
+              <div className="sjsj-analysis-box">
+                <div className="sjsj-keyword-grid">
+                  <div className="sjsj-keyword-col">
+                    <div className="sjsj-col-title text-fire">🔥 성장의 키워드</div>
+                    <ul className="sjsj-list">
+                      <li>결단력</li>
+                      <li>속도감</li>
+                    </ul>
+                  </div>
+
+                  <div className="sjsj-keyword-col">
+                    <div className="sjsj-col-title text-earth">💡 활용할 요소</div>
+                    <ul className="sjsj-list">
+                      <li>
+                        <span className="sjsj-check">✓</span> 빠른 판단
+                      </li>
+                      <li>
+                        <span className="sjsj-check">✓</span> 우선순위 설정
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="sjsj-keyword-col">
+                    <div className="sjsj-col-title text-earth">⚠️ 주의할 요소</div>
+                    <ul className="sjsj-list">
+                      <li>
+                        <span className="sjsj-delta">△</span> 과도한 확장
+                      </li>
+                      <li>
+                        <span className="sjsj-delta">△</span> 감정적 결정
+                      </li>
+                    </ul>
                   </div>
                 </div>
-                <div>
-                  <h3 className="font-bold mb-3 flex items-center gap-2 text-sm">
-                    ⚠️ 조심해야 하는 달
+              </div>
+
+              <div>
+                <p className="sjsj-main-content">
+                  이 요약은 병오년의 전체적인 분위기와 흐름만을 담고 있습니다. 실제 리포트에서는
+                  개인의 사주 구조에 따라 작용 시점과 강도가 달라집니다. 지금 느껴지는 공기감이
+                  있다면, 그것이 올해의 핵심 신호입니다.
+                </p>
+              </div>
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
                   </h3>
-                  <div className="flex gap-2">
-                    <div className="bg-white px-4 py-2 rounded-full border border-[#E8DCCF] text-xs font-bold flex items-center gap-2">
-                      5월 <span className="text-[#F47521] text-[10px]">⚠️ 부딪힘 주의</span>
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
+                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
+                  </p>
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-[500px] bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10"></div>
+
+              {/* (선택) 가림막 위에 띄울 안내 문구 */}
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
+                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
+                  </p>
+                </div>
+              </div>
+            </section>
+            <section className="relative sjsj-section">
+              <div className="sjsj-section-label">
+                <h2 className="sjsj-subTitle">월별 운세 상세 분석</h2>
+              </div>
+
+              <div className="sjsj-month-card">
+                <div className="sjsj-month-header">
+                  <div className="sjsj-month-title">
+                    <h3>
+                      1월 <span className="sjsj-sub-month">기축월</span>
+                    </h3>
+                    <div className="sjsj-progress-bar">
+                      <div className="sjsj-progress-fill" style={{ width: '62%' }} />
                     </div>
+                  </div>
+                  <div className="sjsj-star-rating">★★★☆☆</div>
+                </div>
+
+                <div className="sjsj-month-summary-chips">
+                  <div>
+                    <span className="sjsj-check">✓</span> 방향: 정비
+                  </div>
+                  <div>
+                    <span className="sjsj-check">✓</span> 주의: 무리
+                  </div>
+                  <div>▷ 활용: 흐름 관찰</div>
+                </div>
+
+                <p className="sjsj-long-text">
+                  새해의 시작인 1월은 안정과 내실을 다지기에 좋은 시기입니다. 연초의 분위기 속에서
+                  차분하게 한 해의 계획을 세우고, 부족한 부분을 보완하는 데 집중하는 것이 좋습니다.
+                  기축월의 기운은 두부한모삼님의 마음을 평온하게 만들고, 현실적인 판단력을 높여줄
+                  것입니다. 과거의 경험을 바탕으로 미래를 설계하고, 불필요한 것들을 정리하는 시간을
+                  가지세요. 특히 재물적인 면에서는 보수적인 자세를 유지하며, 충동적인 소비나 투자를
+                  자제하는 것이 중요합니다. 주변 사람들과의 관계에서는 묵묵히 자신의 역할을 수행하는
+                  것이 좋지만, 때로는 자신의 의견을 분명하게 표현할 필요도 있습니다. 너무 자기
+                  생각에만 갇히지 않도록 유연한 사고방식을 가지려 노력해 보세요. 건강적인 측면에서는
+                  규칙적인 생활 습관을 유지하고, 충분한 휴식을 취하는 것이 중요합니다. 새로운 것을
+                  시작하기보다는 기존의 것을 점검하고 다지는 데 힘쓰세요. 새로운 인연보다는 오랜
+                  친구나 가족과의 유대감을 강화하는 것이 심리적 안정감을 가져다줄 것입니다. 이
+                  시기는 앞으로의 활발한 활동을 위한 준비 단계이니, 서두르지 말고 차분하게 자신의
+                  길을 모색하는 것이 현명합니다. 직업적으로는 새로운 프로젝트의 시작보다는 기존
+                  업무의 마무리에 집중하며 성과를 내는 것이 유리합니다. 자신의 내면을 들여다보고
+                  성장할 기회를 만드세요.
+                </p>
+
+                <div className="sjsj-card-footer">
+                  <div className="sjsj-footer-msg">
+                    차분하게 기반을 다지고 계획을 세우는 데 집중하세요.
                   </div>
                 </div>
               </div>
 
-             
-              
-            </div>
-          </section>
-
-          {/* 2. 사자사주 해석 방식 안내 */}
-          <section className="bg-white/60 p-8 rounded-[32px] border border-[#E8DCCF] text-center mb-10">
-            <h2 className="text-lg font-black mb-3">사자사주의 신년운세는 이렇게 해석합니다</h2>
-            <p className="text-xs text-[#4A3428]/80 leading-relaxed mb-8">
-              27명의 명리학자가 미리 제공한 데이터를 기반으로
-              <br />
-              의뢰자에 맞게 맞춤 구성합니다.
-            </p>
-
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 bg-[#FDF8F5] rounded-2xl flex items-center justify-center border border-[#E8DCCF]">
-                  <Database className="text-[#F47521]" size={24} />
+              <div className="sjsj-month-card">
+                <div className="sjsj-month-header">
+                  <div className="sjsj-month-title">
+                    <h3>
+                      2월 <span className="sjsj-sub-month">경인월</span>
+                    </h3>
+                    <div className="sjsj-progress-bar">
+                      <div className="sjsj-progress-fill" style={{ width: '70%' }} />
+                    </div>
+                  </div>
+                  <div className="sjsj-star-rating">★★★☆☆</div>
                 </div>
-                <span className="text-[10px] font-bold leading-tight">대운·세운 흐름</span>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 bg-[#FDF8F5] rounded-2xl flex items-center justify-center border border-[#E8DCCF]">
-                  <Flame className="text-[#F47521]" size={24} />
-                </div>
-                <span className="text-[10px] font-bold leading-tight">병오년 화(火)의 작용</span>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 bg-[#FDF8F5] rounded-2xl flex items-center justify-center border border-[#E8DCCF]">
-                  <Puzzle className="text-[#F47521]" size={24} />
-                </div>
-                <span className="text-[10px] font-bold leading-tight">
-                  개인 사주와의
-                  <br />
-                  맞춤/조화
-                </span>
-              </div>
-            </div>
-          </section>
 
-          {/* 3. 하단 최종 CTA 버튼 */}
-          <footer className="text-center space-y-4">
-            <p className="text-sm font-medium text-[#4A3428]/80">
-              2026년, 감으로 보내지 마세요.
-              <br />
-              사주로 정리해보세요.
-            </p>
-            <button className="w-full bg-[#F47521] text-white py-4 rounded-full font-black text-lg shadow-lg shadow-[#F47521]/20 hover:bg-[#E0651B] transition-all active:scale-[0.98]">
-              2026년 전체 흐름 무료로 보기
-            </button>
-          </footer>
+                <div className="sjsj-month-summary-chips">
+                  <div>
+                    <span className="sjsj-check">✓</span> 방향: 시동
+                  </div>
+                  <div>
+                    <span className="sjsj-check">✓</span> 주의: 조급
+                  </div>
+                  <div>▷ 활용: 선택 보류</div>
+                </div>
+
+                <p className="sjsj-long-text">
+                  새로운 기회가 보이기 시작하지만 아직은 확정 구간이 아닙니다. 움직일 수는 있으나
+                  확신을 갖기에는 정보가 부족합니다. 방향을 정하기보다는 가능성을 비교하는 시기로
+                  보는 것이 적절합니다. 실제 리포트에서는 개인별로 작동 시점이 달라집니다.
+                </p>
+
+                <div className="sjsj-card-footer">
+                  <div className="sjsj-footer-msg">아직은 탐색</div>
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-[500px] bg-gradient-to-t from-white via-white to-transparent pointer-events-none z-10"></div>
+
+              {/* (선택) 가림막 위에 띄울 안내 문구 */}
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
+                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
+                  </p>
+                </div>
+              </div>
+            </section>
+            <section className="relative sjsj-section">
+              <div className="sjsj-section-label">
+                <h2 className="sjsj-subTitle">주의할 점</h2>
+                <p className="sjsj-label-main">
+                  병오년은 흐름이 빠른 만큼, 특정 시기에는 조절이 필요합니다.
+                </p>
+              </div>
+
+              <div className="sjsj-grid sjsj-grid-2">
+                <div className="sjsj-premium-card">
+                  <div className="sjsj-card-title">활용하면 좋은 달</div>
+                  <div className="sjsj-premium-card">
+                    <ul>
+                      <li className="sjsj-check">
+                        <strong>6월</strong>
+                        <p className="sjsj-long-text">
+                          이 달은 두부한모삼님의 리더십과 추진력이 최고조에 달하여 중요한 성과를 낼
+                          수 있습니다. 새로운 프로젝트를 과감하게 시작하고, 자신의 아이디어를 현실로
+                          만들어보세요.
+                        </p>
+                        <strong>2월</strong>
+                        <p className="sjsj-long-text">
+                          이 달은 활발한 활동과 새로운 기회가 찾아와 두부한모삼님의 에너지가 넘칠
+                          것입니다. 적극적으로 움직이며 새로운 기회를 포착하고, 자신의 역량을 마음껏
+                          펼치세요.
+                        </p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="sjsj-premium-card">
+                  <div className="sjsj-card-title">주의해야 할 달</div>
+                  <div className="sjsj-premium-card">
+                    <ul>
+                      <li className="sjsj-check">
+                        <strong>9월</strong>
+                        <p className="sjsj-long-text">
+                          판단이 흔들리기 쉬운 시기입니다. 중요한 결정은 미루는 전략이 유리합니다.
+                        </p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-[800px] bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10"></div>
+
+              {/* (선택) 가림막 위에 띄울 안내 문구 */}
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+                <div className="max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
+                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 전송 버튼 */}
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="w-full bg-[#F47521] text-white font-bold py-5 rounded-full text-[18px] shadow-[0_4px_15px_rgba(244,117,33,0.3)] flex items-center justify-center gap-1 active:scale-[0.98] transition-all hover:bg-[#e0661a]"
+          >
+            2026년 전체 흐름 보기 <ChevronRight size={22} strokeWidth={3} />
+          </button>
         </div>
-      </>
+      </div>
     </div>
   );
 }
