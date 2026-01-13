@@ -36,14 +36,8 @@ export default function AmaKr({ question, setQuestion, setStep }) {
             <div className="w-full relative aspect-[4/3] bg-gradient-to-b from-[#F3E9E0] to-transparent rounded-3xl mb-10 overflow-hidden flex items-center justify-center border border-[#E8DCCF]/50 shadow-sm">
               {/* 일러스트 자리 (이미지 파일이 있다면 <img> 태그로 교체) */}
               <div className="text-center">
-                <div className="text-6xl mb-4">👫</div>
                 <div className="flex flex-col gap-2">
-                  <span className="bg-white/80 px-3 py-1 rounded-full text-xs text-orange-700 shadow-sm font-bold animate-bounce">
-                    "이직해도 괜찮을까?"
-                  </span>
-                  <span className="bg-white/80 px-3 py-1 rounded-full text-xs text-orange-700 shadow-sm font-bold">
-                    "지금 집 살 때 맞을까?"
-                  </span>
+                  <img src="images/adImage/sazatalk/main_result.png" />
                 </div>
               </div>
             </div>
@@ -77,7 +71,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
             <div className="w-full flex justify-between items-center mt-12 px-2 py-4 border-t border-[#E8DCCF]">
               <div className="flex flex-col items-center gap-1.5 opacity-70">
                 <Users size={18} className="text-[#F47521]" />
-                <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
+                <span className="text-[13px] font-black text-gray-500 leading-tight text-center">
                   27명 명리학자 참여
                   <br />
                   <span className="font-medium text-[9px]">직접 검증 데이터 기반</span>
@@ -88,7 +82,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
 
               <div className="flex flex-col items-center gap-1.5 opacity-70">
                 <Database size={18} className="text-[#F47521]" />
-                <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
+                <span className="text-[13px] font-black text-gray-500 leading-tight text-center">
                   수만 건 해석 데이터 구조화
                   <br />
                   <span className="font-medium text-[9px]">방대한 DB 활용 분석</span>
@@ -99,7 +93,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
 
               <div className="flex flex-col items-center gap-1.5 opacity-70">
                 <Brain size={18} className="text-[#F47521]" />
-                <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
+                <span className="text-[13px] font-black text-gray-500 leading-tight text-center">
                   질문 맞춤
                   <br />
                   <span className="font-bold">AI 분석</span>
@@ -124,7 +118,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
             <div className="grid grid-cols-2 gap-3 mb-6">
               {/* 일반 사주 서비스 */}
               <div className="bg-white/40 p-5 rounded-[2rem] border border-white/60">
-                <h3 className="text-xs font-bold text-gray-400 mb-4 text-center">
+                <h3 className="text-md font-bold text-gray-400 mb-4 text-center">
                   일반 사주 서비스
                 </h3>
                 <ul className="space-y-4">
@@ -132,7 +126,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
                     (text, i) => (
                       <li
                         key={i}
-                        className="text-[10px] text-gray-400 flex items-start gap-1 leading-tight"
+                        className="text-[12px] text-gray-400 flex items-start gap-1 leading-tight"
                       >
                         <span className="mt-0.5">✓</span> {text}
                       </li>
@@ -143,13 +137,13 @@ export default function AmaKr({ question, setQuestion, setStep }) {
 
               {/* 사자사주 */}
               <div className="bg-[#FFF8F3] p-5 rounded-[2rem] border border-[#F37321]/20">
-                <h3 className="text-xs font-bold text-[#F37321] mb-4 text-center">사자사주</h3>
+                <h3 className="text-md font-bold text-[#F37321] mb-4 text-center">사자사주</h3>
                 <ul className="space-y-4">
                   {['질문 하나에 집중', '필요한 사주 요소만 분석', '해석 → 행동 지침까지 제시'].map(
                     (text, i) => (
                       <li
                         key={i}
-                        className="text-[10px] font-bold text-[#4A3427] flex items-start gap-1 leading-tight"
+                        className="text-[12px] font-bold text-[#4A3427] flex items-start gap-1 leading-tight"
                       >
                         <Check size={12} className="text-[#F37321] mt-0.5 flex-shrink-0" /> {text}
                       </li>
@@ -177,38 +171,40 @@ export default function AmaKr({ question, setQuestion, setStep }) {
             </div>
 
             {/* 프로세스 3단계 */}
-            <div className="grid grid-cols-3 gap-2 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
               {[
                 {
                   step: '1',
                   title: '다양한 해석 관점',
                   desc: '패턴 수집',
                   icon: <Users size={20} />,
+                  img: `images/adImage/sazatalk/27-1.png`,
                 },
                 {
                   step: '2',
                   title: '사주 해석의',
                   desc: '빅 데이터 구축',
                   icon: <Search size={20} />,
+                  img: `images/adImage/sazatalk/27-2.png`,
                 },
                 {
                   step: '3',
                   title: '질문-답변 중심',
                   desc: 'AI 분석 시스템 구축',
                   icon: <Cpu size={20} />,
+                  img: `images/adImage/sazatalk/27-3.png`,
                 },
               ].map((item, idx) => (
                 <div key={idx} className="flex flex-col items-center text-center">
-                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-[#F37321] mb-3 relative border border-gray-50">
-                    <span className="absolute -top-1 -left-1 w-4 h-4 bg-[#F3F3F3] rounded-full text-[9px] flex items-center justify-center text-gray-400 font-bold border border-white">
-                      {item.step}
-                    </span>
-                    {item.icon}
-                  </div>
                   <p className="text-[10px] font-bold text-[#4A3427] mb-0.5 break-keep">
-                    {item.title}
+                    <img
+                      src={`${item.img}`}
+                      alt="description"
+                      className="w-full h-32 object-cover "
+                    />
                   </p>
-                  <p className="text-[9px] text-gray-400">{item.desc}</p>
+                  <p className="text-[15px] text-gray-800 font-bold">{item.title}</p>
+                  <p className="text-[12px] text-gray-400">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -242,12 +238,12 @@ export default function AmaKr({ question, setQuestion, setStep }) {
                 '올해 재물에서 조심할 부분은?',
                 '그 사람을 다시 만날 수 있을까?',
               ].map((chip, i) => (
-                <button
+                <div
                   key={i}
-                  className="bg-white border border-gray-100 px-4 py-2 rounded-full text-[11px] font-medium text-gray-500 shadow-sm hover:border-[#F37321] hover:text-[#F37321] transition-all"
+                  className="bg-white border border-gray-100 px-4 py-2 rounded-full text-[12px] font-medium text-gray-500 shadow-sm hover:border-[#F37321] hover:text-[#F37321] transition-all"
                 >
                   {chip}
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -259,10 +255,10 @@ export default function AmaKr({ question, setQuestion, setStep }) {
       <header className="pt-12 pb-8 text-center px-6">
         <h1 className="text-2xl font-bold mb-4 leading-tight">사자사주는 이렇게 답을 줍니다</h1>
         <p className="text-[15px] leading-relaxed text-gray-700">
-          일주상 금의 기운이 강하니 이직을 추천하지만
-          <span className="text-orange-600 font-bold">자존심보다는</span>
+          당신의 사주를 분석한 후 당신의{' '}
+          <span className="text-orange-600 font-bold"> 질문에 대해 </span>
           <br />
-          올해는 자존심보다 인간관걔를 우선하는 결정을 추천해요
+          심층적으로 답변합니다.
         </p>
       </header>
 
@@ -304,7 +300,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
 
           {/* 사자 캐릭터 아이콘 (대체용) */}
           <div className="absolute -bottom-4 -right-4 opacity-10">
-            <div className="w-32 h-32 bg-orange-900 rounded-full" />
+            <img src="images/adImage/sazatalk/saza.png" className="w-60 h-60" />
           </div>
         </div>
 
