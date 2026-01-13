@@ -693,11 +693,58 @@ const NewYearAdKr = () => {
                 <span className="text-sm font-bold text-gray-600">사자사주 분석팀</span>
               </div>
 
-              <div className="leading-8 w-full bg-white p-6 rounded-[24px] rounded-tl-none shadow-sm border border-[#E8DCCF]/50">
+              <div className="w-full bg-white p-6 rounded-[24px] rounded-tl-none shadow-sm border border-[#E8DCCF]/50">
+                {/* 1. 기존 컨텐츠 (전체 노출) */}
                 <div
                   className="prose prose-sm max-w-none prose-strong:text-[#F47521] prose-strong:font-black prose-headings:text-[#4A3428] text-[#4A3428]"
                   dangerouslySetInnerHTML={{ __html: pureHtml }}
                 />
+
+                {/* 2. 구분선 */}
+                <div className="my-8 border-t-2 border-dashed border-[#E8DCCF]/40" />
+
+                {/* 3. 유료/전용 컨텐츠 티저 섹션 (블러 처리) */}
+                <div className="relative">
+                  <div className="space-y-6 select-none pointer-events-none filter blur-[5px] opacity-40">
+                    <div>
+                      <h3 className="text-lg font-bold text-[#4A3428] mb-3">
+                        📅 2026년 활용하면 좋을 달
+                      </h3>
+                      <div className="bg-[#FDFBF9] p-4 rounded-xl border border-[#E8DCCF]">
+                        <p>이 시기에는 이동수와 재물운이 함께 들어옵니다. 특히 0월과 0월은...</p>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#4A3428] mb-3">
+                        ⚠️ 2026년 주의해야 할 달
+                      </h3>
+                      <div className="bg-[#FDFBF9] p-4 rounded-xl border border-[#E8DCCF]">
+                        <p>
+                          주변 사람과의 구설수를 조심해야 하는 달입니다. 0월에는 특히 말조심을...
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. 오버레이 레이어 (가운데 안내 문구와 버튼) */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-white via-white/20 to-transparent">
+                    <div className="text-center px-4 py-8 bg-white/80 backdrop-blur-md rounded-2xl border border-[#E8DCCF] shadow-xl">
+                      <p className="text-[#4A3428] font-bold text-lg mb-1">
+                        나에게 딱 맞는 <span className="text-[#F47521]">성공 타이밍</span>이
+                        궁금하다면?
+                      </p>
+                      <p className="text-[#4A3428]/70 text-sm mb-5">
+                        활용할 달과 피해야 할 달을 '사자차'에서 바로 확인해 보세요.
+                      </p>
+                      <button
+                        onClick={() => (window.location.href = '/your-target-page')}
+                        className="bg-[#4A3428] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-[#2A1D16] transition-all transform hover:scale-105"
+                      >
+                        상세 월별 운세 확인하기 🦁
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             {/* 5. 하단 CTA 및 안내 섹션 */}
