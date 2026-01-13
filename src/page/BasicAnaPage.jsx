@@ -16,7 +16,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
-
+import LoadingFourPillar from '../component/LoadingFourPillar';
 
 // 1. 로딩 컴포넌트
 
@@ -338,11 +338,9 @@ export default function BasicAnaPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
-   if (loading) {
-        return <LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />;
-      }
-   
-    
+    if (loading) {
+      return <LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />;
+    }
 
     return (
       <div className="max-w-lg mx-auto  text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
@@ -369,7 +367,6 @@ export default function BasicAnaPage() {
                 'My innate color and the period of change that comes every ten years. Analyzing your destiny map.'
               )}
             </p>
-           
 
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
               <img

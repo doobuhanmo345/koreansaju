@@ -17,11 +17,11 @@ import { langPrompt, hanja } from '../data/constants';
 import { getPillars } from '../utils/sajuCalculator';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-
 import { calculateSajuData } from '../utils/sajuLogic';
 import { getEng } from '../utils/helpers';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
+import LoadingFourPillar from '../component/LoadingFourPillar';
 // 1. 로딩 컴포넌트
 function SajuLoading({ sajuData }) {
   const [displayedTexts, setDisplayedTexts] = useState([]);

@@ -11,7 +11,6 @@ import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
 import { useLanguage } from '../context/useLanguageContext';
 import { TicketIcon, LockClosedIcon } from '@heroicons/react/24/outline';
-
 import { langPrompt, hanja } from '../data/constants';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
