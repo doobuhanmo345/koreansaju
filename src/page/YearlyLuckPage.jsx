@@ -20,6 +20,7 @@ import { getEng } from '../utils/helpers';
 import { calculateSajuData } from '../utils/sajuLogic';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
+import LoadingFourPillar from '../component/LoadingFourPillar';
 
 // 1. 로딩 컴포넌트
 function SajuLoading({ sajuData }) {
@@ -346,9 +347,9 @@ export default function YearlyLuckPage() {
   const sajuGuide = (onStart) => {
     // return <SajuLoading sajuData={sajuData} />;
     if (loading) {
-      return <SajuLoading sajuData={sajuData} />;
+      return <LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />;
     }
-   
+
     return (
       <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         <h2 className=" text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
@@ -370,8 +371,6 @@ export default function YearlyLuckPage() {
               '2026 is Year of the Red Horse, find out the fortune upcoming of yours'
             )}
           </p>
-
-       
 
           <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
             <img

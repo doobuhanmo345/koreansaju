@@ -21,6 +21,7 @@ import dayBranch from '../data/dayBranch.json';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import NewYearKr from './NewYearKr';
+import LoadingFourPillar from '../component/LoadingFourPillar';
 const NewYearAdKr = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -415,6 +416,7 @@ const NewYearAdKr = () => {
       </div>
     );
   };
+
   if (loading) return <Loading />;
   return (
     <div className="bg-white">

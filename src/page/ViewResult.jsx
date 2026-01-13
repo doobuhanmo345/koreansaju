@@ -1,6 +1,6 @@
 import { useLoading } from '../context/useLoadingContext';
-import { aiSajuStyle } from '../data/aiResultConstants';
-import { useMemo, useEffect, useRef } from 'react';
+import { aiSajuStyle, reportStyle } from '../data/aiResultConstants';
+import react, { useMemo, useEffect, useRef } from 'react';
 
 export default function ViewResult({}) {
   const { loading, aiResult } = useLoading();
@@ -62,6 +62,7 @@ export default function ViewResult({}) {
       {/* 3. ref를 여기에 반드시 연결해야 querySelector가 작동합니다 */}
       <div ref={scrollElRef} className="max-w-lg m-auto">
         <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
+        <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
         <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} />
       </div>
     </>

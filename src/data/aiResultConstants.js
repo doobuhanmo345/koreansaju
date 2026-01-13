@@ -815,7 +815,307 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
 
 `,
 };
+export const reportStyle = `
+<style>/* 사자사주 리포트 전용 스타일 */
+.sjsj-report-container {
+  background-color: #fdf8f4;
+  min-height: 100vh;
+  font-family:
+    'Pretendard',
+    -apple-system,
+    sans-serif;
+  color: #4a3a31;
+  padding-bottom: 80px;
+  line-height: 1.6;
+}
 
+/* 헤더 영역 */
+.sjsj-header {
+  padding-top: 48px;
+  padding-bottom: 32px;
+  text-align: center;
+  background: linear-gradient(to bottom, #f9efe7, transparent);
+}
+
+.sjsj-main-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.025em;
+}
+
+.sjsj-header-sub {
+  font-size: 0.875rem;
+  color: #8c7a70;
+  margin-bottom: 24px;
+}
+
+.sjsj-badge-summary {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #efe0d5;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  color: #8c7a70;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.sjsj-badge-highlight {
+  font-weight: 700;
+  margin-left: 4px;
+  color: #4a3a31;
+}
+
+/* 중앙 정렬 컨테이너 */
+.sjsj-content-inner {
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* 섹션 공통 */
+.sjsj-section {
+  margin-bottom: 48px;
+}
+
+.sjsj-section-label {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.sjsj-subTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #a68b7c;
+  margin-bottom: 4px;
+}
+
+.sjsj-label-main {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4a3a31;
+}
+
+/* 그리드 시스템 */
+.sjsj-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.sjsj-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* 프리미엄 카드 */
+.sjsj-premium-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid #f3e5dc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+.sjsj-premium-card.active {
+  border-bottom: 2px solid #e65100;
+}
+
+.sjsj-card-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 4px;
+}
+
+.sjsj-card-desc {
+  font-size: 0.75rem;
+  color: #8c7a70;
+}
+
+/* 분석 정보 박스 */
+.sjsj-analysis-box {
+  background-color: #ffffff;
+  border: 1px solid #f3e5dc;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.sjsj-info-banner {
+  background-color: #f9f4f0;
+  border-radius: 9999px;
+  padding: 8px 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #8c7a70;
+  margin-bottom: 24px;
+  border: 1px solid #efe0d5;
+}
+
+.sjsj-keyword-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.sjsj-keyword-col {
+  padding-left: 16px;
+  border-left: 1px solid #f3e5dc;
+}
+
+.sjsj-keyword-col:first-child {
+  border-left: none;
+  padding-left: 8px;
+}
+
+.sjsj-col-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.text-fire {
+  color: #d84315;
+}
+.text-earth {
+  color: #8d6e63;
+}
+
+.sjsj-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.sjsj-list li {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.sjsj-check {
+  color: #f97316;
+  margin-right: 4px;
+}
+.sjsj-delta {
+  color: #fb923c;
+  margin-right: 4px;
+}
+
+/* 월별 카드 스타일 */
+.sjsj-month-card {
+  background-color: #ffffff;
+  border: 1px solid #f3e5dc;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sjsj-month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.sjsj-month-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sjsj-month-title h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sjsj-sub-month {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #8c7a70;
+}
+
+.sjsj-progress-bar {
+  width: 128px;
+  height: 6px;
+  background-color: #f3e5dc;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.sjsj-progress-fill {
+  width: 33%;
+  height: 100%;
+  background-color: #d84315;
+}
+
+.sjsj-star-rating {
+  font-size: 0.75rem;
+  color: #d84315;
+  font-weight: 700;
+}
+
+.sjsj-month-summary-chips {
+  background-color: #fff9f5;
+  border: 1px solid #fbe9e7;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8c7a70;
+}
+
+.sjsj-long-text {
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: #5d4037;
+  margin-bottom: 32px;
+}
+
+.sjsj-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid #f3e5dc;
+}
+
+.sjsj-footer-msg {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #d84315;
+}
+
+.sjsj-more-link {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8c7a70;
+  cursor: pointer;
+}
+
+.sjsj-more-link:hover {
+  text-decoration: underline;
+}
+
+/* SVG 아이콘 공통 */
+.sjsj-icon {
+  display: block;
+  margin: 0 auto 8px;
+}
+ </style>
+`;
 export const aiSajuStyle = `<style>
 @import url('https://fonts.googleapis.com/css2?family=Song+Myung&display=swap');  
 /* =================================================== */
