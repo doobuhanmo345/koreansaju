@@ -366,11 +366,9 @@ export default function TodaysLuckPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
-    if (loading) {
-      if (loading) {
-        return <SajuLoading sajuData={sajuData} />;
-      }
-    }
+     if (loading) {
+          return <LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />;
+        }
     return (
       <div className="max-w-lg mx-auto  text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
         {/* 상단 비주얼: 🔮 대신 오늘을 상징하는 해/달 또는 달력 이모지 */}

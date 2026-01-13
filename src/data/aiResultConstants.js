@@ -1016,6 +1016,7 @@ export const reportStyle = `
   border: 1px solid #f3e5dc;
   border-radius: 24px;
   padding: 32px;
+  margin-bottom: 5px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 

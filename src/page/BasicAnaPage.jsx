@@ -338,9 +338,9 @@ export default function BasicAnaPage() {
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
-    if (loading) {
-      return <SajuLoading sajuData={sajuData} />;
-    }
+   if (loading) {
+        return <LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />;
+      }
    
     
 

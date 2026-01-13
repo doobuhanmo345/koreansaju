@@ -67,8 +67,23 @@ input {
   font-size: 0.875rem;
   color: #8c7a70;
   margin-bottom: 24px;
+  margin-top: 24px;
 }
-
+ .sjsj-sub-section-title {
+    font-size: 18px;
+    color: #8c7a70;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-left: 4px solid #d84315; /* Main Indigo accent */
+    padding-left: 10px;
+    font-weight: 600;
+  }
+.sjsj-main-content {
+  font-size: 1rem;
+  color: hsl(21, 11%, 49%);
+  margin-bottom: 24px;
+  margin-top: 24px;
+}
 .sjsj-badge-summary {
   display: inline-flex;
   align-items: center;
@@ -126,10 +141,22 @@ input {
   gap: 16px;
 }
 
+/* .sjsj-grid-3: 모바일 우선 및 우선순위 강화 */
 .sjsj-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
+  display: grid !important;
+  grid-template-columns: 1fr !important; /* 모바일에서는 무조건 1열 */
+  gap: 24px !important; /* 모바일에서 적당한 간격 */
+  width: 100% !important;
+  margin: 0 auto;
 }
 
+/* 태블릿 및 데스크톱 (768px 이상) */
+@media (min-width: 768px) {
+  .sjsj-grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important; /* 화면 커지면 3열 */
+    gap: 32px !important; /* PC에서는 좀 더 넓은 간격 */
+  }
+}
 /* 프리미엄 카드 */
 .sjsj-premium-card {
   background-color: #ffffff;
@@ -176,10 +203,20 @@ input {
   border: 1px solid #efe0d5;
 }
 
+/* .sjsj-keyword-grid 가 적용되지 않는다면 부모 클래스를 같이 적어주세요 */
 .sjsj-keyword-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  display: grid !important;
+  grid-template-columns: 1fr !important; /* 모바일 우선: 무조건 1열 */
+  gap: 24px;
+  width: 100%;
+}
+
+/* 화면 너비가 768px 이상일 때만 3열로 변경 */
+@media (min-width: 768px) {
+  .sjsj-keyword-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px;
+  }
 }
 
 .sjsj-keyword-col {
@@ -235,7 +272,7 @@ input {
   border: 1px solid #f3e5dc;
   border-radius: 24px;
   padding: 32px;
-  margin-bottom: 5px;
+  margin-bottom: 20px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 

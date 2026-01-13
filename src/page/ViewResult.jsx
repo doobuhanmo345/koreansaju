@@ -62,7 +62,7 @@ export default function ViewResult({}) {
       {/* 3. ref를 여기에 반드시 연결해야 querySelector가 작동합니다 */}
       <div ref={scrollElRef} className="max-w-lg m-auto">
         <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
-        <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
+        {/* <div dangerouslySetInnerHTML={{ __html: reportStyle }} /> */}
         <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} />
       </div>
     </>
