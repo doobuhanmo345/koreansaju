@@ -220,7 +220,6 @@ const SazaTalkAdKr = () => {
 
       // 4. API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
-    
 
       const newQuestionLog = {
         question: myQuestion,
@@ -422,7 +421,7 @@ const SazaTalkAdKr = () => {
           <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
         </button>
       )}
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
             <AmaKr

@@ -1,52 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Zap, Brain, Cpu, ChevronRight, Check, Search, Database, Users } from 'lucide-react';
 
 export default function AmaKr({ question, setQuestion, setStep }) {
   const handleSubmit = (e) => {
     setStep();
   };
+  const inputRef = useRef(null); // 2. 입력창을 가리킬 레퍼런스 생성
+  const scrollToInput = () => {
+    inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    inputRef.current?.focus(); // 스크롤 후 바로 입력할 수 있게 포커스
+  };
   return (
-    <div className="min-h-screen bg-[#F9F3EE] text-[#4A3428] font-sans pb-20">
+    <div
+      className="relative min-h-screen bg-[#F9F3EE] text-[#4A3428] font-sans pb-20"
+      style={{ fontFamily: "'Pretendard Variable', Pretendard, sans-serif" }}
+    >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+        
+        /* 이 컴포넌트 내의 모든 요소에 폰트 강제 적용 */
+        .amakr-container, .amakr-container * {
+          font-family: 'Pretendard Variable', Pretendard, sans-serif !important;
+          letter-spacing: -0.02em; /* 한국어는 자간을 살짝 줄여야 예쁩니다 */
+        }
+
+        /* 줄바꿈 가독성 개선 */
+        .amakr-container h1, .amakr-container p, .amakr-container span {
+          word-break: keep-all;
+        }
+      `,
+        }}
+      />
       <>
         <div className="w-full min-h-screen bg-[#FDF5F0] text-[#4A3428] font-sans flex flex-col items-center">
+          <div className="flex items-center gap-1.5 my-8">
+            <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-xl">
+              🦁
+            </div>
+            <span className="text-xl font-bold tracking-tight text-[#333]">사자사주</span>
+          </div>
+          <div className="text-center my-10 relative">
+            <h1 className="text-[28px] font-black leading-tight mb-4 break-keep">
+              내 인생에서 지금 가장 궁금한 질문,
+              <br />
+              사주로 정확히 답해드립니다
+            </h1>
+            <p className="text-[15px] text-gray-500 font-medium leading-relaxed break-keep px-4">
+              27명의 명리학자가 측정한 해석 데이터를 기반으로
+              <br />
+              AI가 당신의 질문에 맞는 사주 답변을 구성합니다.
+            </p>
+          </div>
+          <div>
+            <img
+              src="images/adImage/sazatalk/main.png"
+              className="w-full object-cover [mask-image:linear-gradient(to_bottom,transparent_0%,black_15%,black_85%,transparent_100%)]"
+            />
+          </div>
           <div className="max-w-[500px] w-full px-6 py-10 flex flex-col items-center">
             {/* 1. 상단 로고 */}
-            <div className="flex items-center gap-1.5 mb-8">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-xl">
-                🦁
-              </div>
-              <span className="text-xl font-bold tracking-tight text-[#333]">사자사주</span>
-            </div>
 
             {/* 2. 메인 타이틀 */}
-            <div className="text-center mb-10">
-              <h1 className="text-[28px] font-black leading-tight mb-4 break-keep">
-                내 인생에서 지금 가장 궁금한 질문,
-                <br />
-                사주로 정확히 답해드립니다
-              </h1>
-              <p className="text-[15px] text-gray-500 font-medium leading-relaxed break-keep px-4">
-                27명의 명리학자가 측정한 해석 데이터를 기반으로
-                <br />
-                AI가 당신의 질문에 맞는 사주 답변을 구성합니다.
-              </p>
-            </div>
 
-            {/* 3. 메인 일러스트 영역 */}
-            <div className="w-full relative aspect-[4/3] bg-gradient-to-b from-[#F3E9E0] to-transparent rounded-3xl mb-10 overflow-hidden flex items-center justify-center border border-[#E8DCCF]/50 shadow-sm">
-              {/* 일러스트 자리 (이미지 파일이 있다면 <img> 태그로 교체) */}
+            {/* <div className="w-full relative aspect-[4/3] bg-gradient-to-b from-[#F3E9E0] to-transparent rounded-3xl mb-10 overflow-hidden flex items-center justify-center border border-[#E8DCCF]/50 shadow-sm">
+          
               <div className="text-center">
                 <div className="flex flex-col gap-2">
                   <img src="images/adImage/sazatalk/main_result.png" />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* 4. 입력창 및 버튼 */}
             <form onSubmit={handleSubmit} className="w-full space-y-4">
               {/* 인풋창 */}
               <div className="relative w-full">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
@@ -167,57 +199,71 @@ export default function AmaKr({ question, setQuestion, setStep }) {
               <div className="w-6 h-6 bg-[#F37321] rounded-full flex items-center justify-center text-[10px]">
                 🦁
               </div>
-              <h2 className="text-lg font-bold">27명의 명리학자 데이터를 활용합니다</h2>
+              <h2 className="text-lg font-bold">어떻게 사주를 분석할까요?</h2>
             </div>
 
             {/* 프로세스 3단계 */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-4 sm:gap-2 mb-10 px-2">
               {[
                 {
                   step: '1',
-                  title: '다양한 해석 관점',
-                  desc: '패턴 수집',
-                  icon: <Users size={20} />,
-                  img: `images/adImage/sazatalk/27-1.png`,
+                  title: '수만 명의 임상 데이터',
+                  desc: '수만건의 실제 사주 사례를 수집하여 정밀한 운세 패턴을 분석합니다.',
+                  icon: <Users size={24} />,
                 },
                 {
                   step: '2',
-                  title: '사주 해석의',
-                  desc: '빅 데이터 구축',
-                  icon: <Search size={20} />,
-                  img: `images/adImage/sazatalk/27-2.png`,
+                  title: '27인의 명리학 전문가',
+                  desc: '다수의 명리학 선생님들과 함께 데이터를 검증하고 깊이 있게 연구합니다.',
+                  icon: <Search size={24} />,
                 },
                 {
                   step: '3',
-                  title: '질문-답변 중심',
-                  desc: 'AI 분석 시스템 구축',
-                  icon: <Cpu size={20} />,
-                  img: `images/adImage/sazatalk/27-3.png`,
+                  title: '질문 맞춤형 AI 모델',
+                  desc: '학습된 방대한 데이터를 바탕으로 당신의 고민에 최적화된 답변을 구성합니다.',
+                  icon: <Cpu size={24} />,
                 },
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center text-center">
-                  <p className="text-[10px] font-bold text-[#4A3427] mb-0.5 break-keep">
-                    <img
-                      src={`${item.img}`}
-                      alt="description"
-                      className="w-full h-32 object-cover "
-                    />
-                  </p>
-                  <p className="text-[15px] text-gray-800 font-bold">{item.title}</p>
-                  <p className="text-[12px] text-gray-400">{item.desc}</p>
-                </div>
+              ].map((item, idx, array) => (
+                <React.Fragment key={idx}>
+                  {/* 스텝 아이템 */}
+                  <div className="flex flex-col items-center flex-1 w-full">
+                    <div className="relative w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-3 border border-orange-50">
+                      {/* 숫자 배지 */}
+                      <span className="absolute -top-1.5 -left-1.5 bg-gray-500 text-white text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                        {item.step}
+                      </span>
+                      <span className="text-[#F47521]">{item.icon}</span>
+                    </div>
+                    <p className="text-[15px] text-gray-800 font-bold leading-tight">
+                      {item.title}
+                    </p>
+                    <p className="text-[12px] text-gray-400 mt-1">{item.desc}</p>
+                  </div>
+
+                  {/* 다음 단계가 있을 때만 화살표 표시 */}
+                  {idx < array.length - 1 && (
+                    <div className="flex items-center justify-center text-gray-300 py-2 sm:py-0 sm:pt-8">
+                      {/* 모바일(기본): 아래 화살표 / 태블릿 이상(sm): 오른쪽 화살표 */}
+                      <div className="block sm:hidden">
+                        <ChevronRight size={20} className="rotate-90" strokeWidth={3} />
+                      </div>
+                      <div className="hidden sm:block">
+                        <ChevronRight size={20} strokeWidth={3} />
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
-
             {/* --- 하단 둥근 박스 강조 --- */}
             <div className="bg-[#FAF4EF] p-6 rounded-[2rem] text-center border border-[#EADDD0] mb-16">
               <p className="text-[12px] leading-relaxed text-[#4A3427]">
-                사자사주는 사주를 단순 창작하지 않고,
+                사자사주는 근거 없는 막연한 풀이를 하지 않습니다.
                 <br />
                 <span className="font-bold">
-                  전문 명리학자들이 오랜 세월의 경험을 녹여낸
+                  수만 건의 실제 임상 사례와 명리학의 정통 원칙을 결합해
                   <br />
-                  맞춤 풀이를 제공합니다.
+                  지금 당신의 상황에 가장 확실한 행동 지침을 제시합니다.
                 </span>
               </p>
             </div>
@@ -307,7 +353,7 @@ export default function AmaKr({ question, setQuestion, setStep }) {
         {/* 3. 크레딧 정보 및 버튼 */}
         <div className="space-y-4">
           <div className="bg-white rounded-full py-4 flex items-center justify-center gap-2 shadow-sm border border-orange-50">
-            <span className="text-2xl font-black">1 CREDIT</span>
+            <span className="text-2xl font-black">무료 </span>
             <Zap className="w-6 h-6 text-orange-400 fill-orange-400" />
           </div>
 
@@ -326,7 +372,10 @@ export default function AmaKr({ question, setQuestion, setStep }) {
             ))}
           </div>
 
-          <button className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white font-bold py-5 rounded-full text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <button
+            onClick={scrollToInput}
+            className="w-full bg-gradient-to-r from-orange-400 to-orange-500 text-white font-bold py-5 rounded-full text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
             지금 가장 궁금한 질문, 사주로 받아보세요
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -339,10 +388,12 @@ export default function AmaKr({ question, setQuestion, setStep }) {
               🦁
             </div>
           </div>
-          <p className="text-sm font-medium leading-relaxed">
-            사자사주는 사주를 믿게 만들지 않습니다.
+          <p className="text-sm font-medium leading-relaxed px-6">
+            사자사주는 단순히 운을 읽어주는 데 그치지 않습니다.
             <br />
-            <span className="text-orange-600 font-bold">당신의 질문을 이해하게 만듭니다.</span>
+            <span className="text-orange-600 font-bold">
+              당신의 고민이 확신으로 바뀌는 명확한 해답을 제시합니다.
+            </span>
           </p>
         </footer>
       </main>
