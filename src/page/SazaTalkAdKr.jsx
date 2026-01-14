@@ -430,6 +430,7 @@ const SazaTalkAdKr = () => {
               question={userQuestion}
               setQuestion={setUserQuestion}
             />
+            
           </div>
         )}
         {step === 1 && !isAnalyzing && (

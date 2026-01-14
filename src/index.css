@@ -402,3 +402,35 @@ input {
   color: #F47521;
   border: 1px solid #F47521/20;
 }
+
+.sjsj-advice-highlight-box{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: rgba(255, 228, 214, 0.5);
+  border: 1px solid #FFD8C4;
+  padding: 18px 20px;
+  border-radius: 16px;
+  margin: 25px 0;
+}
+/* CSS로 아이콘을 강제로 주입 */
+.sjsj-advice-highlight-box::before {
+  content: "💡";              /* 여기에 아이콘을 넣습니다 */
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;            /* 텍스트 첫 줄과 높이 맞춤 */
+}
+
+.sjsj-advice-highlight-box .sjsj-advice-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.sjsj-advice-highlight-box .sjsj-advice-text strong {
+  color: #D2691E;
+  font-weight: 900;
+  margin-right: 4px;
+}
