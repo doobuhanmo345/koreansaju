@@ -21,6 +21,7 @@ import dayBranch from '../data/dayBranch.json';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import AmaKr from './AmaKr';
+import AdMyInfo from '../component/AdMyInfo';
 const SazaTalkAdKr = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -751,6 +752,12 @@ const SazaTalkAdKr = () => {
             </div>
             <span className="text-lg font-bold tracking-tight text-[#333]">사자사주</span>
           </nav>
+          <AdMyInfo
+            birthData={birthData}
+            isTimeUnknown={timeUnknown}
+            gender={gender}
+            saju={sajuData?.saju}
+          />
 
           <div className="flex-1 p-6 flex flex-col gap-6">
             {/* 3. 사용자의 질문 (오른쪽 정렬 말풍선) */}
@@ -795,14 +802,14 @@ const SazaTalkAdKr = () => {
                       language === 'ko' ? '주소가 복사되었습니다!' : 'Link copied to clipboard!',
                     );
                   }}
-                  className="flex items-center justify-between bg-white p-4 rounded-2xl border border-[#E8DCCF] cursor-pointer hover:border-[#F47521] transition-all group active:scale-[0.98]"
+                  className="block sm:flex  items-center justify-between bg-white p-4 rounded-2xl border border-[#E8DCCF] cursor-pointer hover:border-[#F47521] transition-all group active:scale-[0.98]"
                 >
-                  <span className="text-[#F47521] font-mono text-sm font-bold">
+                  <div className="text-[#F47521] font-mono text-sm font-bold">
                     koreansaju.vercel.app
-                  </span>
-                  <span className="text-[11px] bg-orange-50 text-[#F47521] px-3 py-1.5 rounded-full font-black group-hover:bg-[#F47521] group-hover:text-white transition-colors">
-                    COPY
-                  </span>
+                  </div>
+                  <div className="text-[13px] bg-[#F47521] text-white px-3 py-1.5 sm:my-0 my-2 rounded-full font-black shadow-sm group-hover:bg-orange-800 transition-colors">
+                    링크 복사하기
+                  </div>
                 </div>
 
                 <div className="flex items-start space-x-2 text-left bg-orange-50/50 p-4 rounded-2xl border border-orange-100/50">
