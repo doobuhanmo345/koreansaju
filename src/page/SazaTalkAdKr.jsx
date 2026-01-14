@@ -430,7 +430,6 @@ const SazaTalkAdKr = () => {
               question={userQuestion}
               setQuestion={setUserQuestion}
             />
-            
           </div>
         )}
         {step === 1 && !isAnalyzing && (
@@ -791,7 +790,7 @@ const SazaTalkAdKr = () => {
             <div className="mt-10 p-8 bg-white/60 border-2 border-dashed border-[#E8DCCF] rounded-[32px] text-center">
               <p className="text-[#4A3428] font-bold mb-6 break-keep">
                 {language === 'ko'
-                  ? "더 자세한 사주 분석은 '사자사주'에서 확인하세요!"
+                  ? '맞춤 고민 상담, 신년운세, 재물운, 연애운을 무료로 더 보고싶다면? 사자사주에서 확인하세요!'
                   : 'For a deeper analysis, visit Saza Saju!'}
               </p>
 
