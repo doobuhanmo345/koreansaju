@@ -67,10 +67,10 @@ export default function NewYearKr({ setStep }) {
                 2026년 전체 흐름 보기 <ChevronRight size={22} strokeWidth={3} />
               </button>
             </div>
-
             {/* 5. 하단 3단 정보 바 */}
-            <div className="w-full flex justify-between items-center mt-12 px-2 py-4 border-t border-[#E8DCCF]">
-              <div className="flex flex-col items-center gap-1.5 opacity-70">
+            <div className="w-full flex items-center mt-12 px-2 py-4 border-t border-[#E8DCCF]">
+              {/* 첫 번째 아이템 - flex-1 추가 */}
+              <div className="flex-1 flex flex-col items-center gap-1.5 opacity-70">
                 <Users size={18} className="text-[#F47521]" />
                 <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
                   27명 명리학자 참여
@@ -79,9 +79,11 @@ export default function NewYearKr({ setStep }) {
                 </span>
               </div>
 
-              <div className="h-8 w-[1px] bg-[#E8DCCF]"></div>
+              {/* 구분선 - shrink-0 추가해서 찌그러지지 않게 방지 */}
+              <div className="h-8 w-[1px] bg-[#E8DCCF] shrink-0"></div>
 
-              <div className="flex flex-col items-center gap-1.5 opacity-70">
+              {/* 두 번째 아이템 - flex-1 추가 */}
+              <div className="flex-1 flex flex-col items-center gap-1.5 opacity-70">
                 <Database size={18} className="text-[#F47521]" />
                 <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
                   수만 건 해석 데이터 구조화
@@ -90,9 +92,11 @@ export default function NewYearKr({ setStep }) {
                 </span>
               </div>
 
-              <div className="h-8 w-[1px] bg-[#E8DCCF]"></div>
+              {/* 구분선 */}
+              <div className="h-8 w-[1px] bg-[#E8DCCF] shrink-0"></div>
 
-              <div className="flex flex-col items-center gap-1.5 opacity-70">
+              {/* 세 번째 아이템 - flex-1 추가 */}
+              <div className="flex-1 flex flex-col items-center gap-1.5 opacity-70">
                 <Brain size={18} className="text-[#F47521]" />
                 <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
                   질문 맞춤
@@ -461,13 +465,14 @@ export default function NewYearKr({ setStep }) {
               <AdHid
                 title={
                   <>
-                    올 해 <span className="text-[#F47521]">주의 </span>해야 할 달
+                    활용하면 <span className="text-[#F47521]">좋은 </span> 달과{' '}
+                    <span className="text-[#F47521]">주의 </span>해야 하는 달
                   </>
                 }
                 des={
                   <>
-                    올해 당신에게 활용하면 좋을 달과 주의해야 할 달을 <br />
-                    설명해 드립니다. 해당 달과 활용 법에 대해서도 설명해 드려요.
+                    한 해의 흐름 중 유리한 시기와 주의가 필요한 시기를 정리하고, 각 시기에 필요한
+                    조언을 드려요.
                   </>
                 }
                 badge={['4', '주의할 점']}

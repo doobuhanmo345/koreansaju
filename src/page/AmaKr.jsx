@@ -106,33 +106,37 @@ export default function AmaKr({ question, setQuestion, setStep }) {
             </button>
           </div>
 
-          {/* 3단 정보 바 */}
-          <div className="w-full flex justify-between items-center mt-12 sm:mt-14 px-2 py-4 border-t border-[#E8DCCF]">
-            <div className="flex flex-col items-center gap-2 opacity-70">
-              <Users size={22} className="text-[#F47521] sm:w-6 sm:h-6" />
-              <span className="text-sm sm:text-base font-black text-gray-500 leading-tight text-center">
+          <div className="w-full flex items-center mt-12 px-2 py-4 border-t border-[#E8DCCF]">
+            {/* 첫 번째 아이템 - flex-1 추가 */}
+            <div className="flex-1 flex flex-col items-center gap-1.5 opacity-70">
+              <Users size={18} className="text-[#F47521]" />
+              <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
                 27명 명리학자 참여
                 <br />
-                <span className="font-medium text-xs sm:text-sm">직접 검증 데이터 기반</span>
+                <span className="font-medium text-[9px]">직접 검증 데이터 기반</span>
               </span>
             </div>
 
-            <div className="h-10 w-[1px] bg-[#E8DCCF]"></div>
+            {/* 구분선 - shrink-0 추가해서 찌그러지지 않게 방지 */}
+            <div className="h-8 w-[1px] bg-[#E8DCCF] shrink-0"></div>
 
-            <div className="flex flex-col items-center gap-2 opacity-70">
-              <Database size={22} className="text-[#F47521] sm:w-6 sm:h-6" />
-              <span className="text-sm sm:text-base font-black text-gray-500 leading-tight text-center">
+            {/* 두 번째 아이템 - flex-1 추가 */}
+            <div className="flex-1 flex flex-col items-center gap-1.5 opacity-70">
+              <Database size={18} className="text-[#F47521]" />
+              <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
                 수만 건 해석 데이터 구조화
                 <br />
-                <span className="font-medium text-xs sm:text-sm">방대한 DB 활용 분석</span>
+                <span className="font-medium text-[9px]">방대한 DB 활용 분석</span>
               </span>
             </div>
 
-            <div className="h-10 w-[1px] bg-[#E8DCCF]"></div>
+            {/* 구분선 */}
+            <div className="h-8 w-[1px] bg-[#E8DCCF] shrink-0"></div>
 
-            <div className="flex flex-col items-center gap-2 opacity-70">
-              <Brain size={22} className="text-[#F47521] sm:w-6 sm:h-6" />
-              <span className="text-sm sm:text-base font-black text-gray-500 leading-tight text-center">
+            {/* 세 번째 아이템 - flex-1 추가 */}
+            <div className="flex-1 flex flex-col items-center gap-1.5 opacity-70">
+              <Brain size={18} className="text-[#F47521]" />
+              <span className="text-[10px] font-black text-gray-500 leading-tight text-center">
                 질문 맞춤
                 <br />
                 <span className="font-bold">AI 분석</span>
