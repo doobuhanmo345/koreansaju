@@ -5,8 +5,9 @@ import { useLanguage } from './context/useLanguageContext';
 import SajuReport from './test/SajuReport';
 import LoadingFourPillar from './component/LoadingFourPillar';
 import { useAuthContext } from './context/useAuthContext';
+import CopyUrlAd from './component/CopyUrlAd';
 export default function Test() {
   const { userData } = useAuthContext();
   console.log(userData?.saju);
-  return <>dd</>;
+  return <><CopyUrlAd/></>;
 }

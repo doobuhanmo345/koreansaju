@@ -10,14 +10,13 @@ import {
   Users,
   CheckCircle2,
 } from 'lucide-react';
+import AdReview from '../component/AdReview';
 
-export default function AmaKr({question,setQuestion, setStep}) {
-
+export default function AmaKr({ question, setQuestion, setStep }) {
   const inputRef = useRef(null);
 
   const handleSubmit = () => {
-    console.log('질문:', question);
-    setStep(1)
+    setStep(1);
   };
 
   const scrollToInput = () => {
@@ -60,7 +59,7 @@ export default function AmaKr({question,setQuestion, setStep}) {
         </div>
 
         {/* 메인 타이틀 */}
-        <div className="text-center my-10 sm:my-14 px-4">
+        <div className="text-center my-10 sm:my-14">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight mb-6 break-keep">
             내 인생에서 지금 가장 궁금한 질문,
             <br />
@@ -414,6 +413,7 @@ export default function AmaKr({question,setQuestion, setStep}) {
             <ChevronRight className="w-6 h-6" />
           </button>
         </div>
+        <AdReview />
 
         {/* 푸터 */}
         <footer className="pt-14 sm:pt-20 text-center space-y-5 pb-10">

@@ -21,14 +21,11 @@ import dayBranch from '../data/dayBranch.json';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import NewYearKr from './NewYearKr';
-import LoadingFourPillar from '../component/LoadingFourPillar';
-
+import CopyUrlAd from '../component/CopyUrlAd';
 const NewYearAdKr = () => {
-  const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showEmailInput, setShowEmailInput] = useState(false);
+
   const [guestId, setGuestId] = useState('');
-  const [sajuData, setSajuData] = useState();
+
   const [step, setStep] = useState(0.5); // '0.5' '1', 'input' 'result'
   const { language, setLanguage } = useLanguage();
   const { user, userData, loadingUser } = useAuthContext();
@@ -446,28 +443,30 @@ const NewYearAdKr = () => {
           <>
             <div className="min-h-screen bg-[#FDF5F0] font-sans text-[#4A3428] px-6 py-10 selection:bg-orange-100 selection:text-orange-700">
               {/* 상단 타이틀 섹션 */}
-              <div className="text-center mb-8">
-                <div className="flex justify-center items-center gap-1.5 mb-4">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-xl">
+              <div className="text-center mb-10 sm:mb-12">
+                <div className="flex justify-center items-center gap-2 mb-5 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl sm:text-3xl">
                     🦁
                   </div>
-                  <span className="text-xl font-bold tracking-tight text-[#333]">사자사주</span>
+                  <span className="text-2xl sm:text-3xl font-bold tracking-tight text-[#333]">
+                    사자사주
+                  </span>
                 </div>
-                <h2 className="text-lg font-black leading-tight break-keep">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight break-keep">
                   {language === 'ko'
                     ? '생년월일을 바탕으로 나의 오행을 분석합니다'
                     : 'Analyzing your Five Elements based on your birth date.'}
                 </h2>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {/* 성별 선택 */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex gap-3 mb-5">
                   {['male', 'female'].map((g) => (
                     <button
                       key={g}
                       onClick={() => setGender(g)}
-                      className={`flex-1 py-4 rounded-2xl border-2 font-bold transition-all shadow-sm ${
+                      className={`flex-1 py-5 sm:py-6 rounded-2xl border-2 font-bold text-base sm:text-lg transition-all shadow-sm ${
                         gender === g
                           ? 'border-[#F47521] bg-white text-[#F47521]'
                           : 'border-white bg-white/50 text-[#C4B5A9]'
@@ -495,7 +494,7 @@ const NewYearAdKr = () => {
                         language === 'ko' ? '태어난 연도를 입력해주세요' : 'Birth Year(YYYY)'
                       }
                       value={birthData.year}
-                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                       }
@@ -514,7 +513,7 @@ const NewYearAdKr = () => {
                         language === 'ko' ? '태어난 월을 입력해주세요' : 'Birth Month(MM)'
                       }
                       value={birthData.month}
-                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                       }
@@ -531,7 +530,7 @@ const NewYearAdKr = () => {
                       type="number"
                       placeholder={language === 'ko' ? '태어난 날을 입력해주세요' : 'Birth Day(DD)'}
                       value={birthData.day}
-                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                       }
@@ -547,7 +546,7 @@ const NewYearAdKr = () => {
                     <input
                       type="number"
                       placeholder={language === 'ko' ? '태어난 시 (HH)' : 'Birth Hour (HH)'}
-                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
                       }
@@ -563,7 +562,7 @@ const NewYearAdKr = () => {
                     <input
                       type="number"
                       placeholder={language === 'ko' ? '태어난 분 (mm)' : 'Birth Minute (mm)'}
-                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
                       }
@@ -575,14 +574,14 @@ const NewYearAdKr = () => {
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${isDayDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <label className="flex items-center gap-2 cursor-pointer w-fit mx-auto py-2 overflow-hidden group">
+                  <label className="flex items-center gap-3 cursor-pointer w-fit mx-auto py-3 overflow-hidden group">
                     <input
                       type="checkbox"
                       checked={timeUnknown}
                       onChange={(e) => setTimeUnknown(e.target.checked)}
-                      className="w-5 h-5 accent-[#F47521] cursor-pointer"
+                      className="w-6 h-6 accent-[#F47521] cursor-pointer"
                     />
-                    <span className="text-md font-bold text-[#C4B5A9] group-hover:text-[#F47521] transition-colors">
+                    <span className="text-base sm:text-lg font-bold text-[#C4B5A9] group-hover:text-[#F47521] transition-colors">
                       {language === 'ko' ? '시간을 몰라요' : 'time unknown'}
                     </span>
                   </label>
@@ -590,10 +589,10 @@ const NewYearAdKr = () => {
               </div>
 
               {/* 가이드 메시지 영역 */}
-              <div className="mt-8 mb-4">
-                <div className="flex items-center justify-center gap-2 animate-pulse">
-                  <div className="w-2 h-2 bg-[#F47521] rounded-full" />
-                  <span className="text-[16px] font-bold text-[#F47521]">
+              <div className="mt-10 sm:mt-12 mb-5">
+                <div className="flex items-center justify-center gap-2 sm:gap-3 animate-pulse">
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#F47521] rounded-full" />
+                  <span className="text-base sm:text-lg md:text-xl font-bold text-[#F47521]">
                     {language === 'ko'
                       ? !gender
                         ? guideMessages.ko.putGender
@@ -608,34 +607,24 @@ const NewYearAdKr = () => {
                                 : !timeUnknown && !isMinuteDone
                                   ? guideMessages.ko.putMin
                                   : guideMessages.ko.ready
-                      : !gender
-                        ? guideMessages.en.putGender
-                        : !isYearDone
-                          ? guideMessages.en.putYear
-                          : !isMonthDone
-                            ? guideMessages.en.putMonth
-                            : !isDayDone
-                              ? guideMessages.en.putDay
-                              : !timeUnknown && !isHourDone
-                                ? guideMessages.en.putHour
-                                : !timeUnknown && !isMinuteDone
-                                  ? guideMessages.en.putMin
-                                  : guideMessages.en.ready}
+                      : '...'}
                   </span>
                 </div>
               </div>
 
               {/* 프로그레스 바 섹션 */}
-              <div className="space-y-2 mb-8">
+              <div className="space-y-3 mb-10 sm:mb-12">
                 <div className="flex justify-between items-center px-1">
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-black text-[#C4B5A9] uppercase tracking-wider">
+                    <span className="text-xs sm:text-sm font-black text-[#C4B5A9] uppercase tracking-wider">
                       Progress
                     </span>
                   </div>
-                  <span className="text-[#F47521] text-xs font-black">{getProgress()}%</span>
+                  <span className="text-[#F47521] text-sm sm:text-base font-black">
+                    {getProgress()}%
+                  </span>
                 </div>
-                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden shadow-sm border border-orange-50">
+                <div className="w-full h-3 sm:h-3.5 bg-white rounded-full overflow-hidden shadow-sm border border-orange-50">
                   <div
                     className="h-full bg-[#F47521] transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(244,117,33,0.3)]"
                     style={{ width: `${getProgress()}%` }}
@@ -647,7 +636,7 @@ const NewYearAdKr = () => {
               {isFormValid && (
                 <button
                   onClick={handleNextStep}
-                  className="w-full py-5 bg-[#F47521] text-white rounded-full font-bold text-lg shadow-[0_4px_15px_rgba(244,117,33,0.3)] animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all"
+                  className="w-full py-5 sm:py-6 bg-[#F47521] text-white rounded-full font-bold text-lg sm:text-xl shadow-[0_4px_15px_rgba(244,117,33,0.3)] animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all"
                 >
                   {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
                 </button>
@@ -752,7 +741,7 @@ const NewYearAdKr = () => {
                             🦁
                           </div>
                           <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm">
-                            방금 분석한 내용 외에, **2026년 하반기**에 정말 조심해야 할 운의 흐름이
+                            방금 분석한 내용 외에, 2026년 하반기에 정말 조심해야 할 운의 흐름이
                             하나 더 보여요.
                           </div>
                         </div>
@@ -894,41 +883,7 @@ const NewYearAdKr = () => {
               </div>
             </div>
             {/* 5. 하단 CTA 및 안내 섹션 */}
-            <div className="mt-10 p-8 bg-white/60 border-2 border-dashed border-[#E8DCCF] rounded-[32px] text-center">
-              <p className="text-[#4A3428] font-bold mb-6 break-keep">
-                {language === 'ko'
-                  ? "더 자세한 사주 분석은 '사자사주'에서 확인하세요!"
-                  : 'For a deeper analysis, visit Saza Saju!'}
-              </p>
-
-              <div className="flex flex-col gap-4">
-                <div
-                  onClick={() => {
-                    navigator.clipboard.writeText('https://koreansaju.vercel.app');
-                    alert(
-                      language === 'ko' ? '주소가 복사되었습니다!' : 'Link copied to clipboard!',
-                    );
-                  }}
-                  className="flex items-center justify-between bg-white p-4 rounded-2xl border border-[#E8DCCF] cursor-pointer hover:border-[#F47521] transition-all group active:scale-[0.98]"
-                >
-                  <span className="text-[#F47521] font-mono text-sm font-bold">
-                    koreansaju.vercel.app
-                  </span>
-                  <span className="text-[11px] bg-orange-50 text-[#F47521] px-3 py-1.5 rounded-full font-black group-hover:bg-[#F47521] group-hover:text-white transition-colors">
-                    COPY
-                  </span>
-                </div>
-
-                <div className="flex items-start space-x-2 text-left bg-orange-50/50 p-4 rounded-2xl border border-orange-100/50">
-                  <span className="text-[#F47521] text-sm mt-0.5">💡</span>
-                  <p className="text-[12px] text-orange-800/80 font-medium leading-normal break-keep">
-                    {language === 'ko'
-                      ? '위 주소를 복사한 뒤, 브라우저 주소창에 붙여넣어 접속해주세요.'
-                      : 'Please copy the link above and paste it into your browser to continue.'}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <CopyUrlAd />
           </div>
         </div>
       )}

@@ -18,6 +18,8 @@ import {
   Puzzle,
   Lock,
 } from 'lucide-react';
+import AdHid from '../component/AdHid';
+import AdReview from '../component/AdReview';
 
 export default function NewYearKr({ setStep }) {
   const handleSubmit = (e) => {
@@ -28,7 +30,7 @@ export default function NewYearKr({ setStep }) {
     <div className="min-h-screen bg-[#F9F3EE] text-[#4A3428] font-sans pb-20">
       <>
         <div className="w-full min-h-screen bg-[#FDF5F0] text-[#4A3428] font-sans flex flex-col items-center">
-          <div className="max-w-[500px] w-full px-6 py-10 flex flex-col items-center">
+          <div className=" w-full py-10 flex flex-col items-center">
             {/* 1. 상단 로고 */}
             <div className="flex items-center gap-1.5 mb-8">
               <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-xl">
@@ -36,7 +38,6 @@ export default function NewYearKr({ setStep }) {
               </div>
               <span className="text-xl font-bold tracking-tight text-[#333]">사자사주</span>
             </div>
-
             {/* 2. 메인 타이틀 */}
             <div className="text-center mb-10">
               <h1 className="text-[28px] font-black leading-tight mb-4 break-keep">
@@ -50,33 +51,22 @@ export default function NewYearKr({ setStep }) {
                 사자사주에서 무료로 봐드려요!
               </p>
             </div>
-
-            {/* 3. 메인 일러스트 영역 */}
-            <div className="w-full relative aspect-[4/3] bg-gradient-to-b from-[#F3E9E0] to-transparent rounded-3xl mb-10 overflow-hidden flex items-center justify-center border border-[#E8DCCF]/50 shadow-sm">
-              {/* 일러스트 자리 (이미지 파일이 있다면 <img> 태그로 교체) */}
-              <div className="text-center">
-                <div className="text-6xl mb-4">👫</div>
-                <div className="flex flex-col gap-2">
-                  <span className="bg-white/80 px-3 py-1 rounded-full text-xs text-orange-700 shadow-sm font-bold animate-bounce">
-                    "올해는 무엇에 집중할까?"
-                  </span>
-                  <span className="bg-white/80 px-3 py-1 rounded-full text-xs text-orange-700 shadow-sm font-bold">
-                    "언제 움직이고 기다려야 할까"
-                  </span>
-                </div>
-              </div>
+            <div className="w-full">
+              <img
+                src="images/adImage/newyear/main.png"
+                className="w-full my-6 object-cover [mask-image:linear-gradient(to_bottom,transparent_0%,black_15%,black_85%,transparent_100%)]"
+                alt="사자사주 메인"
+              />
             </div>
-
-            {/* 4. 입력창 및 버튼 */}
-            <form onSubmit={handleSubmit} className="w-full space-y-4">
-              {/* 전송 버튼 */}
+            <div className="w-full p-6">
               <button
                 type="submit"
+                onClick={handleSubmit}
                 className="w-full bg-[#F47521] text-white font-bold py-5 rounded-full text-[18px] shadow-[0_4px_15px_rgba(244,117,33,0.3)] flex items-center justify-center gap-1 active:scale-[0.98] transition-all hover:bg-[#e0661a]"
               >
                 2026년 전체 흐름 보기 <ChevronRight size={22} strokeWidth={3} />
               </button>
-            </form>
+            </div>
 
             {/* 5. 하단 3단 정보 바 */}
             <div className="w-full flex justify-between items-center mt-12 px-2 py-4 border-t border-[#E8DCCF]">
@@ -114,13 +104,11 @@ export default function NewYearKr({ setStep }) {
           </div>
         </div>
       </>
-      {/* 예시 */}
-      <div></div>
 
       {/* 더미포멧 */}
-      <div>
+      <div className="mx-6">
         {/* 세련된 안내 배너 디자인 */}
-        <div className="mx-4 mb-10 flex flex-col items-center">
+        <div className="mx-4  my-10 flex flex-col items-center">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-orange-200 bg-orange-50/50 mb-3">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -132,22 +120,27 @@ export default function NewYearKr({ setStep }) {
           </div>
 
           <div className="text-center">
-            <h3 className="text-lg font-bold text-slate-800 mb-2">사자사주 정밀 리포트 맛보기</h3>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">
+              사자의 눈으로 바라본 2026년 프리뷰
+            </h3>
 
             <div className="space-y-3">
               <p className="text-sm text-slate-500 leading-relaxed">
-                본 내용은 사자사주 사이트에서 제공하는 <br />
-                <span className="text-slate-800 font-semibold underline underline-offset-4 decoration-orange-300">
-                  핵심 데이터 기반의 정식 무료 리포트
-                </span>
-                입니다.
+                2026년에 작용할 운의 흐름과 <br />
+                주요 포인트를 간단히 요약해드려요
               </p>
 
               {/* 현재 페이지 상태를 알려주는 디바이더 겸 안내 */}
               <div className="flex items-center justify-center gap-3">
                 <div className="h-[1px] w-8 bg-slate-200"></div>
                 <p className="text-[13px] font-medium text-orange-600 bg-orange-50 px-3 py-1 rounded-md">
-                  현재 페이지는 '간편 요약 버전'으로 노출 중입니다
+                  본 페이지에서 신청하는 신년 운세는 맛보기 버전입니다. <br />
+                  월별 운세와 놓치기 아쉬운 디테일 등 정식 리포트는
+                  <br />
+                  <span className="text-slate-800 font-semibold underline underline-offset-4 decoration-orange-300">
+                    사자사주 페이지
+                  </span>
+                  에서 확인해보세요
                 </p>
                 <div className="h-[1px] w-8 bg-slate-200"></div>
               </div>
@@ -175,7 +168,7 @@ export default function NewYearKr({ setStep }) {
               </p>
             </div>
 
-            <div className="sjsj-grid sjsj-grid-3">
+            <div className="sjsj-grid">
               <div className="sjsj-premium-card">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="sjsj-icon">
                   <path
@@ -233,20 +226,20 @@ export default function NewYearKr({ setStep }) {
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 w-full h-[400px] bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10"></div>
-
-            {/* (선택) 가림막 위에 띄울 안내 문구 */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-              <div className="max-w-md mx-auto">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  당신의 올해의 키워드를 한눈에 분석해 드립니다.
-                </h3>
-                <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                  병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
-                  맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
-                </p>
-              </div>
-            </div>
+            <AdHid
+              title={
+                <>
+                  2026년 병오년을 관통하는 <span className="text-[#F47521]">세개의 키워드</span>
+                </>
+              }
+              des={
+                <>
+                  병오년의 강렬한 에너지가 삶에 작용하여 만들어낼 올해. <br />
+                  당신의 올 해의 운세를 세개의 키워드로 정리해 드려요.
+                </>
+              }
+              badge={['1', '키워드']}
+            />
           </section>
 
           <div className="sjsj-content-inner">
@@ -260,8 +253,8 @@ export default function NewYearKr({ setStep }) {
               </div>
 
               <div className="sjsj-analysis-box">
-                <div className="sjsj-keyword-grid">
-                  <div className="sjsj-keyword-col">
+                <div className="">
+                  <div className="">
                     <div className="sjsj-col-title text-fire">🔥 성장의 키워드</div>
                     <ul className="sjsj-list">
                       <li>결단력</li>
@@ -269,7 +262,7 @@ export default function NewYearKr({ setStep }) {
                     </ul>
                   </div>
 
-                  <div className="sjsj-keyword-col">
+                  <div className="">
                     <div className="sjsj-col-title text-earth">💡 활용할 요소</div>
                     <ul className="sjsj-list">
                       <li>
@@ -281,7 +274,7 @@ export default function NewYearKr({ setStep }) {
                     </ul>
                   </div>
 
-                  <div className="sjsj-keyword-col">
+                  <div className="">
                     <div className="sjsj-col-title text-earth">⚠️ 주의할 요소</div>
                     <ul className="sjsj-list">
                       <li>
@@ -302,31 +295,21 @@ export default function NewYearKr({ setStep }) {
                   있다면, 그것이 올해의 핵심 신호입니다.
                 </p>
               </div>
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
-                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
-                  </p>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 w-full h-[500px] bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10"></div>
-
-              {/* (선택) 가림막 위에 띄울 안내 문구 */}
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
-                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
-                  </p>
-                </div>
-              </div>
+              <AdHid
+                title={
+                  <>
+                    연간 운세에서
+                    <span className="text-[#F47521]"> 전체 흐름</span>을 종합 분석
+                  </>
+                }
+                des={
+                  <>
+                    올해의 키워드·운세 활용법·주의 요소와 올해의 총운을 전체적으로 정리해 드려요.
+                    연애와 금전, 직장/사업운의 디테일까지 꼼꼼하게 챙겨보세요.
+                  </>
+                }
+                badge={['2', '종합분석']}
+              />
             </section>
             <section className="relative sjsj-section">
               <div className="sjsj-section-label">
@@ -414,20 +397,21 @@ export default function NewYearKr({ setStep }) {
                   <div className="sjsj-footer-msg">아직은 탐색</div>
                 </div>
               </div>
-              <div className="absolute bottom-0 left-0 w-full h-[500px] bg-gradient-to-t from-white via-white to-transparent pointer-events-none z-10"></div>
-
-              {/* (선택) 가림막 위에 띄울 안내 문구 */}
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
-                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
-                  </p>
-                </div>
-              </div>
+              <AdHid
+                title={
+                  <>
+                    한달을 미리
+                    <span className="text-[#F47521]"> 설계</span>할 수 있는 청사진
+                  </>
+                }
+                des={
+                  <>
+                    월별 총운을 바탕으로 연애, 금전, 비즈니스 운의 디테일을 풀어드립니다. <br />한
+                    달을 미리 준비할 수 있는 상세 분석 리포트를 만나보세요.
+                  </>
+                }
+                badge={['3', '월별 운세']}
+              />
             </section>
             <section className="relative sjsj-section">
               <div className="sjsj-section-label">
@@ -474,32 +458,34 @@ export default function NewYearKr({ setStep }) {
                   </div>
                 </div>
               </div>
-              <div className="absolute bottom-0 left-0 w-full h-[800px] bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none z-10"></div>
-
-              {/* (선택) 가림막 위에 띄울 안내 문구 */}
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
-                <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    당신의 올해의 키워드를 한눈에 분석해 드립니다.
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                    병오년의 강렬한 화(火) 기운이 귀하의 사주와 만났을 때의 <br />
-                    맞춤형 정밀 분석 리포트에서는 바로 확인할 수 있어요.
-                  </p>
-                </div>
-              </div>
+              <AdHid
+                title={
+                  <>
+                    올 해 <span className="text-[#F47521]">주의 </span>해야 할 달
+                  </>
+                }
+                des={
+                  <>
+                    올해 당신에게 활용하면 좋을 달과 주의해야 할 달을 <br />
+                    설명해 드립니다. 해당 달과 활용 법에 대해서도 설명해 드려요.
+                  </>
+                }
+                badge={['4', '주의할 점']}
+              />
             </section>
           </div>
-
-          {/* 전송 버튼 */}
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="w-full bg-[#F47521] text-white font-bold py-5 rounded-full text-[18px] shadow-[0_4px_15px_rgba(244,117,33,0.3)] flex items-center justify-center gap-1 active:scale-[0.98] transition-all hover:bg-[#e0661a]"
-          >
-            2026년 전체 흐름 보기 <ChevronRight size={22} strokeWidth={3} />
-          </button>
         </div>
+      </div>
+      <AdReview />
+      {/* 전송 버튼 */}
+      <div className="w-full px-6">
+        <button
+          type="submit"
+          onClick={handleSubmit}
+          className="w-full bg-[#F47521] text-white font-bold py-5 rounded-full text-[18px] shadow-[0_4px_15px_rgba(244,117,33,0.3)] flex items-center justify-center gap-1 active:scale-[0.98] transition-all hover:bg-[#e0661a]"
+        >
+          2026년 전체 흐름 보기 <ChevronRight size={22} strokeWidth={3} />
+        </button>
       </div>
     </div>
   );
