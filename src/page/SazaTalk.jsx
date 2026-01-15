@@ -371,7 +371,7 @@ export default function SazaTalk() {
     <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<Loading />}
-      resultComponent={(p) => <ViewSazaResult {...p} userQuestion={userQuestion} />}
+      resultComponent={(p) => <ViewSazaResult userQuestion={userQuestion} />}
       loadingTime={0}
     />
   );

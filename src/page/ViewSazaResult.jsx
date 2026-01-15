@@ -2,12 +2,12 @@ import { useLoading } from '../context/useLoadingContext';
 import { aiSajuStyle } from '../data/aiResultConstants';
 import { useMemo, useEffect, useRef } from 'react';
 import { PlusIcon } from '@heroicons/react/24/solid';
-
+import { useLanguage } from '../context/useLanguageContext';
 export default function ViewSazaResult({ userQuestion, onReset }) {
   const { loading, aiResult } = useLoading();
   const scrollElRef = useRef(null); // 컨테이너 참조용
   const activeTabRef = useRef(0);
-
+  const { language } = useLanguage();
   const pureHtml = useMemo(() => {
     if (!aiResult) return '';
     let cleanedResponse = aiResult.trim();
