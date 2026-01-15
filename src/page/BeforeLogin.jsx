@@ -103,19 +103,16 @@ export default function BeforeLogin() {
     }
 
     // 모든 검증 통과
-    setStep(3);
+    setStep(2);
   };
   const handleEdit = () => {
     setBirthData(birthInit);
     setGender(null);
     setTimeUnknown(false);
-    setStep(2);
+    setStep(1);
   };
   // [데이터 무결성: 요구하신 Z 필드명 정확히 반영]
   const [tryLogin, setTryLogin] = useState(false);
-  const me = saju?.sky1;
-
-  const me_exp = dayStem.find((i) => i.name_kr === me);
 
   const hasId = async () => {
     // 상태값 대신 로컬 스토리지를 사용해 기록을 남깁니다.
@@ -129,19 +126,10 @@ export default function BeforeLogin() {
     }
   }, [user]);
   useEffect(() => {
-    // 1. 로그인 시도 중이 아니거나 인증 정보가 없으면 아예 실행 안 함
     if (!tryLogin || !user) return;
-
-    // 2. [가장 중요] 데이터가 실제로 로드되었는지 확인
-    // 만약 userData가 초기값(null)이라면, 잠시 대기해야 합니다.
-    // 이 문제를 피하기 위해 'userData'가 확실히 들어오거나,
-    // 혹은 서버에서 '데이터 없음'이 확정될 때까지 기다리는 조건이 필요합니다.
-
     const checkUser = async () => {
       // userData가 아직 없는 경우(null 또는 undefined) 0.5초~1초 정도 짧게 대기하며 재확인
       if (!userData) {
-        // 만약 훅에서 loading 상태를 제공한다면 그것을 쓰는게 베스트입니다.
-        // 예: if (loading) return;
         return;
       }
 
@@ -151,7 +139,7 @@ export default function BeforeLogin() {
       } else {
         // CASE 2: 아이디는 있는데 생일만 없는 회원
         alert(language === 'ko' ? '사주 정보를 입력해주세요.' : 'Please enter info.');
-        setStep(2);
+        setStep(1);
         setTryLogin(false);
       }
     };
@@ -160,7 +148,7 @@ export default function BeforeLogin() {
   }, [user, userData, tryLogin]);
   useEffect(() => {
     const saveAndRedirect = async () => {
-      if (user?.uid && step === 5) {
+      if (user?.uid && step === 3) {
         try {
           const userRef = doc(db, 'users', user.uid);
           const pad = (n) => n.toString().padStart(2, '0');
@@ -203,13 +191,16 @@ export default function BeforeLogin() {
     };
     saveAndRedirect();
   }, [user, step]);
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]); // step 변수가 바뀔 때마다 실행됨
   const t = {
     ko: {
-      step1: '언어를 선택해주세요',
-      step2: '생년월일을 바탕으로 나의 오행을 분석합니다',
-      step3: '입력 정보 확인',
-      step3_desc: '로그인하시면 결과를 저장하고 리포트를 확인합니다.',
+      step0: '언어를 선택해주세요',
+      step1: '생년월일을 바탕으로 나의 오행을 분석합니다',
+      step2: '입력 정보 확인',
+      step3: '로그인 후 확인',
+      step2_desc: '로그인하시면 결과를 저장하고 리포트를 확인합니다.',
       gender_m: '남성',
       gender_f: '여성',
       google: '구글로 로그인하고 결과 저장하기',
@@ -220,10 +211,11 @@ export default function BeforeLogin() {
       login_now: '로그인하기',
     },
     en: {
-      step1: 'Select Language',
-      step2: 'Analyzing your Five Elements based on your birth date.',
-      step3: 'Check Your Info',
-      step3_desc: 'Login to save your data.',
+      step0: 'Select Language',
+      step1: 'Analyzing your Five Elements based on your birth date.',
+      step2: 'Check Your Info',
+      step2: 'Find out after login',
+      step2_desc: 'Login to save your data.',
       gender_m: 'Male',
       gender_f: 'Female',
       google: 'Continue with Google',
@@ -234,6 +226,11 @@ export default function BeforeLogin() {
       login_now: 'Log in',
     },
   }[language];
+  const systemLang =
+    navigator.languages && navigator.languages.length > 0
+      ? navigator.languages[0]
+      : navigator.language || navigator.userLanguage || 'en';
+
   const isYearDone = birthData.year.length === 4;
   const isMonthDone = birthData.month.length >= 1 && parseInt(birthData.month) <= 12;
   const isDayDone = birthData.day.length >= 1 && parseInt(birthData.day) <= 31;
@@ -406,17 +403,14 @@ export default function BeforeLogin() {
   };
 
   const handleBack = () => {
-    if (step === 3) {
+    if (step === 2) {
       setBirthData(birthInit);
       setTimeUnknown(false);
       setGender(null);
+      setStep(1);
+    } else if (step === 3) {
       setStep(2);
-    } else if (step === 4) {
-      setStep(3);
-    } else if (step === 5) {
-      setStep(4);
-    } else if (step === 4) setStep(1);
-    else if (step === 2) setStep(1);
+    } else if (step === 2) setStep(1);
   };
   // 퍼센테이지 계산 로직
   const getProgress = () => {
@@ -435,67 +429,23 @@ export default function BeforeLogin() {
   };
 
   const isFormValid = getProgress() === 100;
-  const sajuDict = {
-    // 1. 오행 특성 (Dominant Element)
-    ohaeng: {
-      wood: {
-        ko: '성장과 시작, 곧게 뻗어 나가는 추진력',
-        en: 'growth, beginnings, and forward momentum',
-      },
-      fire: {
-        ko: '열정과 확산, 세상을 밝히는 화려한 에너지',
-        en: 'passion, expansion, and brilliant energy',
-      },
-      earth: {
-        ko: '중재와 신뢰, 모든 것을 포용하는 묵직함',
-        en: 'mediation, trust, and heavy inclusiveness',
-      },
-      metal: {
-        ko: '결단과 숙살, 날카로운 분석력과 강한 의지',
-        en: 'decision, sharp analysis, and strong will',
-      },
-      water: {
-        ko: '지혜와 유연함, 깊은 통찰력과 적응력',
-        en: 'wisdom, flexibility, and deep insight',
-      },
-    },
-    // 2. 천간 (Heavenly Stems)
-    sky: {
-      갑: { ko: '추진력과 리더십', en: 'drive and leadership' },
-      을: { ko: '끈질긴 생명력', en: 'persistent vitality' },
-      병: { ko: '열정과 화려함', en: 'passion and brilliance' },
-      정: { ko: '따뜻한 배려심', en: 'warm consideration' },
-      무: { ko: '듬직한 신뢰감', en: 'reliable trust' },
-      기: { ko: '섬세한 정성', en: 'delicate sincerity' },
-      경: { ko: '단호한 결단력', en: 'firm determination' },
-      신: { ko: '예리한 통찰력', en: 'sharp insight' },
-      임: { ko: '깊은 지혜', en: 'profound wisdom' },
-      계: { ko: '유연한 감수성', en: 'flexible sensitivity' },
-    },
-    // 3. 지지 (Earthly Branches)
-    grd: {
-      자: { ko: '높은 집중력', en: 'high concentration' },
-      축: { ko: '성실한 끈기', en: 'sincere persistence' },
-      인: { ko: '용맹한 기상', en: 'brave spirit' },
-      묘: { ko: '창의적인 감각', en: 'creative talent' },
-      진: { ko: '변화무쌍한 이상', en: 'versatile ideals' },
-      사: { ko: '빠른 행동력', en: 'fast action' },
-      오: { ko: '정열적인 태도', en: 'passionate attitude' },
-      미: { ko: '흔들리지 않는 고집', en: 'unwavering persistence' },
-      신: { ko: '임기응변', en: 'adaptability' },
-      유: { ko: '철저한 완벽주의', en: 'thorough perfectionism' },
-      술: { ko: '책임감 있는 태도', en: 'responsible attitude' },
-      해: { ko: '깊은 이해심', en: 'deep understanding' },
-    },
-  };
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 4500); // 4.5초 후 폼으로 전환
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 tracking-tight font-light">
       {step > 1 && !isAnalyzing && (
         <button
           onClick={handleBack}
           className="absolute left-5 top-6 z-20 p-2 rounded-full 
                bg-white dark:bg-slate-800 
-               text-indigo-600 dark:text-indigo-400 
+               text-[#3B82F6] dark:text-[#3B82F6] 
                shadow-[0_4px_12px_rgba(0,0,0,0.1)] 
                border border-slate-100 dark:border-slate-700
                hover:bg-slate-50 dark:hover:bg-slate-700 
@@ -508,514 +458,637 @@ export default function BeforeLogin() {
 
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-slate-100 dark:border-slate-800">
         {/* Progress Bar */}
-        <div className="flex justify-center gap-2 mb-2">
-          {[1, 2, 3, 4, 5].map((s) => (
+        <div className="flex justify-center items-center gap-2 mb-2">
+          {[1, 2, 3].map((s) => (
             <div
               key={s}
-              className={`h-1.5 rounded-full transition-all duration-500 ${step >= s ? 'w-8 bg-indigo-500' : 'w-2 bg-slate-200 dark:bg-slate-700'}`}
+              className={`h-[3px] rounded-full transition-all duration-700 ${
+                step >= s ? 'w-10 bg-[#3B82F6]' : 'w-2 bg-stone-100 dark:bg-stone-800'
+              }`}
             />
           ))}
         </div>
         {step === 1 && (
-          <div className="space-y-6 animate-in fade-in">
-            <h2 className="text-2xl font-black text-center dark:text-white">{t.step1}</h2>
+          <div className="min-h-[450px] flex flex-col justify-center">
+            {showIntro ? (
+              /* --- 인트로 에니메이션 세션 --- */
+              <div className="space-y-6 text-center">
+                <div className="space-y-4">
+                  <p className="text-[#3B82F6] font-bold tracking-[0.3em] animate-in fade-in zoom-in-95 duration-700">
+                    SAJA SAJU
+                  </p>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => {
-                  setLanguage('ko');
-                  setStep(2);
-                }}
-                className="p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold dark:text-white hover:border-indigo-500 transition-all"
-              >
-                한국어
-              </button>
-              <button
-                onClick={() => {
-                  setLanguage('en');
-                  setStep(2);
-                }}
-                className="p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold dark:text-white hover:border-indigo-500 transition-all"
-              >
-                English
-              </button>
-            </div>
-          </div>
-        )}
-        {step === 2 && (
-          <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
-            <div className="text-center">
-              <CakeIcon className="w-12 h-12 text-amber-500 mx-auto mb-2" />
-              <h2 className="text-2xl font-black dark:text-white">{t.step2}</h2>
-            </div>
+                  <div className="space-y-2">
+                    <h2 className="text-[22px] font-light text-[#1A1A1A] dark:text-white leading-tight animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 fill-mode-both">
+                      복잡한 절차 없이 사주를 무료로 봐주는
+                      <br />
+                      <span className="font-bold">사자사주</span>에 오신 것을 환영해요.
+                    </h2>
 
-            <div className="space-y-4">
-              {/* 1. 성별: 항상 노출 */}
-              <div className="flex gap-2">
-                {['male', 'female'].map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => setGender(g)}
-                    className={`flex-1 p-4 rounded-xl border-2 font-bold transition-all duration-300 ${
-                      gender === g
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-600'
-                        : 'border-slate-100 dark:border-slate-800 dark:text-white'
-                    }`}
-                  >
-                    {g === 'male' ? t.gender_m : t.gender_f}
-                  </button>
-                ))}
-              </div>
-
-              {/* 2. 연도 */}
-              <div
-                className={`grid transition-all duration-500 ease-in-out ${gender ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-              >
-                <div className="overflow-hidden">
-                  <input
-                    type="number"
-                    placeholder={
-                      language === 'ko'
-                        ? '태어난 연도를 입력해주세요'
-                        : 'Please put your birth year'
-                    }
-                    value={birthData.year}
-                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
-                    onChange={(e) =>
-                      setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
-                    }
-                  />
+                    <p className="text-stone-400 text-[15px] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-[1800ms] fill-mode-both">
+                      생일만 넣으면{' '}
+                      <span className="text-[#3B82F6] font-semibold text-lg italic mx-1 char">
+                        매일 3개씩
+                      </span>
+                      <br />
+                      무료 분석 결과를 확인할 수 있습니다.
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {/* 3. 월 */}
-              <div
-                className={`grid transition-all duration-500 ease-in-out ${isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-              >
-                <div className="overflow-hidden">
-                  <input
-                    type="number"
-                    placeholder={
-                      language === 'ko'
-                        ? '태어난 월을 선택해주세요'
-                        : 'Please put your month of birth'
-                    }
-                    value={birthData.month}
-                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
-                    onChange={(e) =>
-                      setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* 4. 일 */}
-              <div
-                className={`grid transition-all duration-500 ease-in-out ${isMonthDone && isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-              >
-                <div className="overflow-hidden">
-                  <input
-                    type="number"
-                    placeholder={
-                      language === 'ko'
-                        ? '태어난 날을 선택해주세요'
-                        : 'Please put your day of birth'
-                    }
-                    value={birthData.day}
-                    className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center mt-1"
-                    onChange={(e) =>
-                      setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* 5. 시간: 레이아웃 깨짐 방지 포함 */}
-              <div
-                className={`grid transition-all duration-500 ease-in-out ${isDayDone && isMonthDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-              >
-                <div className="overflow-hidden space-y-4 pt-1">
-                  {!timeUnknown && (
-                    <div className="flex items-center gap-2 w-full">
-                      <input
-                        type="number"
-                        placeholder={language === 'ko' ? '태어난 시' : 'Birth time'}
-                        value={birthData.hour}
-                        className="flex-1 min-w-0 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
-                        onChange={(e) =>
-                          setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
-                        }
+                {/* 하단 로딩 인디케이터 */}
+                <div className="pt-8 animate-in fade-in duration-1000 delay-[2500ms] fill-mode-both">
+                  <div className="flex justify-center gap-1.5">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 h-1.5 bg-blue-100 rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 0.2}s` }}
                       />
-                      <span className="font-bold dark:text-white text-xl px-1">:</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+                <div className="text-center space-y-3">
+                  <h2 className="text-[24px] font-light text-[#1A1A1A] dark:text-white tracking-tight">
+                    {t.step1.split(' ').map((word, i) => (
+                      <span key={i}>
+                        {i === 0 ? <b className="font-bold">{word}</b> : word}
+                        {/* 마지막 단어가 아닐 때만 공백 추가 */}
+                        {i !== t.step1.split(' ').length - 1 && ' '}
+                      </span>
+                    ))}
+                  </h2>
+                  <p className="text-stone-400 text-[12px] tracking-[0.2em] uppercase font-medium italic">
+                    Step 01. Essential Info
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* 1. 성별: 항상 노출 */}
+                  <div className="flex gap-2">
+                    {['male', 'female'].map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => setGender(g)}
+                        className={`flex-1 p-4 rounded-xl border-2 font-bold transition-all duration-300 ${
+                          gender === g
+                            ? 'border-[#3B82F6] bg-indigo-50 text-[#3B82F6]'
+                            : 'border-slate-100 dark:border-slate-800 dark:text-white'
+                        }`}
+                      >
+                        {g === 'male' ? t.gender_m : t.gender_f}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* 2. 연도 */}
+                  <div
+                    className={`grid transition-all duration-500 ease-in-out ${gender ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                  >
+                    <div className="overflow-hidden">
                       <input
                         type="number"
-                        placeholder={language === 'ko' ? '태어난 시간' : 'Birth time'}
-                        value={birthData.minute}
-                        className="flex-1 min-w-0 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-indigo-500 outline-none font-bold text-center"
+                        placeholder={
+                          language === 'ko'
+                            ? '태어난 연도를 입력해주세요'
+                            : 'Please put your birth year'
+                        }
+                        value={birthData.year}
+                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-[#3B82F6] outline-none font-bold text-center mt-1"
                         onChange={(e) =>
-                          setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
+                          setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                         }
                       />
                     </div>
-                  )}
-                  <label className="flex items-center gap-3 cursor-pointer w-fit group ml-1">
-                    <input
-                      type="checkbox"
-                      checked={timeUnknown}
-                      onChange={(e) => setTimeUnknown(e.target.checked)}
-                      className="w-5 h-5 accent-indigo-500"
-                    />
-                    <span className="text-sm font-bold text-slate-500 group-hover:text-indigo-500 transition-colors">
-                      {t.time_unknown}
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-            {/* 추가 테스트 */}
-            <div className="flex items-center gap-1.5 animate-pulse">
-              <ChatBubbleLeftRightIcon className="w-4 h-4 text-indigo-500" />
-              <span className="text-[18px] font-black text-indigo-600 dark:text-indigo-400">
-                {language === 'ko'
-                  ? !gender
-                    ? guideMessages.ko.putGender
-                    : !isYearDone
-                      ? guideMessages.ko.putYear
-                      : !isMonthDone
-                        ? guideMessages.ko.putMonth
-                        : !isDayDone
-                          ? guideMessages.ko.putDay
-                          : !timeUnknown && !isHourDone
-                            ? guideMessages.ko.putHour
-                            : !timeUnknown && !isMinuteDone
-                              ? guideMessages.ko.putMin
-                              : guideMessages.ko.ready
-                  : !gender
-                    ? guideMessages.en.putGender
-                    : !isYearDone
-                      ? guideMessages.en.putYear
-                      : !isMonthDone
-                        ? guideMessages.en.putMonth
-                        : !isDayDone
-                          ? guideMessages.en.putDay
-                          : !timeUnknown && !isHourDone
-                            ? guideMessages.en.putHour
-                            : !timeUnknown && !isMinuteDone
-                              ? guideMessages.en.putMin
-                              : guideMessages.en.ready}
-              </span>
-            </div>
-            <div className="flex justify-between items-center px-1">
-              <div className="flex items-center gap-1">
-                {/* <CakeIcon className="w-4 h-4 text-indigo-500" /> */}
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
-                  Progress
-                </span>
-              </div>
-              <span className="text-indigo-600 dark:text-indigo-400 text-xs font-black">
-                {getProgress()}%
-              </span>
-            </div>
+                  </div>
 
-            {/* 바 본체 */}
-            <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-              <div
-                className="h-full bg-indigo-500 transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(79,70,229,0.4)]"
-                style={{ width: `${getProgress()}%` }}
-              />
-            </div>
-            {isFormValid && (
-              <button
-                onClick={handleNextStep}
-                className="w-full py-4 bg-indigo-600 text-white rounded-xl font-black shadow-lg animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all mt-4"
-              >
-                {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
-              </button>
+                  {/* 3. 월 */}
+                  <div
+                    className={`grid transition-all duration-500 ease-in-out ${isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                  >
+                    <div className="overflow-hidden">
+                      <input
+                        type="number"
+                        placeholder={
+                          language === 'ko'
+                            ? '태어난 월을 선택해주세요'
+                            : 'Please put your month of birth'
+                        }
+                        value={birthData.month}
+                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-[#3B82F6] outline-none font-bold text-center mt-1"
+                        onChange={(e) =>
+                          setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* 4. 일 */}
+                  <div
+                    className={`grid transition-all duration-500 ease-in-out ${isMonthDone && isYearDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                  >
+                    <div className="overflow-hidden">
+                      <input
+                        type="number"
+                        placeholder={
+                          language === 'ko'
+                            ? '태어난 날을 선택해주세요'
+                            : 'Please put your day of birth'
+                        }
+                        value={birthData.day}
+                        className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-[#3B82F6] outline-none font-bold text-center mt-1"
+                        onChange={(e) =>
+                          setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* 5. 시간: 레이아웃 깨짐 방지 포함 */}
+                  <div
+                    className={`grid transition-all duration-500 ease-in-out ${isDayDone && isMonthDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                  >
+                    <div className="overflow-hidden space-y-4 pt-1">
+                      {!timeUnknown && (
+                        <div className="flex items-center gap-2 w-full">
+                          <input
+                            type="number"
+                            placeholder={language === 'ko' ? '태어난 시' : 'Birth time'}
+                            value={birthData.hour}
+                            className="flex-1 min-w-0 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-[#3B82F6] outline-none font-bold text-center"
+                            onChange={(e) =>
+                              setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
+                            }
+                          />
+                          <span className="font-bold dark:text-white text-xl px-1">:</span>
+                          <input
+                            type="number"
+                            placeholder={language === 'ko' ? '태어난 시간' : 'Birth time'}
+                            value={birthData.minute}
+                            className="flex-1 min-w-0 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-[#3B82F6] outline-none font-bold text-center"
+                            onChange={(e) =>
+                              setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
+                            }
+                          />
+                        </div>
+                      )}
+                      <label className="flex items-center gap-3 cursor-pointer w-fit group ml-1">
+                        <input
+                          type="checkbox"
+                          checked={timeUnknown}
+                          onChange={(e) => setTimeUnknown(e.target.checked)}
+                          className="w-5 h-5 accent-[#3B82F6]"
+                        />
+                        <span className="text-sm font-bold text-slate-500 group-hover:text-[#3B82F6] transition-colors">
+                          {t.time_unknown}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                {/* 추가 테스트 */}
+                <div className="flex items-center gap-1.5 animate-pulse">
+                  <ChatBubbleLeftRightIcon className="w-4 h-4 text-[#3B82F6]" />
+                  <span className="text-[18px] font-black text-[#3B82F6] dark:text-[#3B82F6]">
+                    {language === 'ko'
+                      ? !gender
+                        ? guideMessages.ko.putGender
+                        : !isYearDone
+                          ? guideMessages.ko.putYear
+                          : !isMonthDone
+                            ? guideMessages.ko.putMonth
+                            : !isDayDone
+                              ? guideMessages.ko.putDay
+                              : !timeUnknown && !isHourDone
+                                ? guideMessages.ko.putHour
+                                : !timeUnknown && !isMinuteDone
+                                  ? guideMessages.ko.putMin
+                                  : guideMessages.ko.ready
+                      : !gender
+                        ? guideMessages.en.putGender
+                        : !isYearDone
+                          ? guideMessages.en.putYear
+                          : !isMonthDone
+                            ? guideMessages.en.putMonth
+                            : !isDayDone
+                              ? guideMessages.en.putDay
+                              : !timeUnknown && !isHourDone
+                                ? guideMessages.en.putHour
+                                : !timeUnknown && !isMinuteDone
+                                  ? guideMessages.en.putMin
+                                  : guideMessages.en.ready}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center px-1">
+                  <div className="flex items-center gap-1">
+                    {/* <CakeIcon className="w-4 h-4 text-[#3B82F6]" /> */}
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                      Progress
+                    </span>
+                  </div>
+                  <span className="text-[#3B82F6] dark:text-[#3B82F6] text-xs font-black">
+                    {getProgress()}%
+                  </span>
+                </div>
+
+                {/* 바 본체 */}
+                <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                  <div
+                    className="h-full bg-[#3B82F6] transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(79,70,229,0.4)]"
+                    style={{ width: `${getProgress()}%` }}
+                  />
+                </div>
+                {isFormValid && (
+                  <button
+                    onClick={handleNextStep}
+                    className="w-full py-4 bg-[#3B82F6] text-white rounded-xl font-black shadow-lg animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all mt-4"
+                  >
+                    {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
-        {step === 3 && (
-          <div className="space-y-5 text-center animate-in `slide-in-from-right-4">
-            <div className="space-y-1">
-              <SparklesIcon className="w-10 h-10 text-yellow-400 mx-auto animate-bounce" />
-              <h2 className="text-xl font-black dark:text-white">{t.step3}</h2>
-            </div>
 
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-dashed border-indigo-200 dark:border-indigo-900">
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <div className="grid grid-cols-2 gap-y-4 gap-x-2">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+        {step === 2 && (
+          <div className="space-y-5 text-center animate-in `slide-in-from-right-4">
+            <div className="space-y-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              {/* 타이틀: 얇은 폰트와 굵은 폰트의 조화 */}
+              <div className="space-y-1.5">
+                <h2 className="text-[22px] font-light text-[#1A1A1A] dark:text-white tracking-tight leading-snug">
+                  {t.step2.split(' ').map((word, i) => (
+                    <span key={i}>
+                      {i === t.step2.split(' ').length - 1 ? (
+                        <b className="font-black text-[#3B82F6]">{word}</b>
+                      ) : (
+                        word
+                      )}
+                      {i !== t.step3.split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
+                </h2>
+
+                {/* 보조 설명 라인 */}
+                <p className="text-stone-400 text-[12px] tracking-[0.2em] uppercase font-medium italic">
+                  Step 02. Confirm Info
+                </p>
+              </div>
+            </div>
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <div className="relative group bg-white dark:bg-[#1A1A1A] rounded-[30px] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-stone-100 dark:border-stone-800 overflow-hidden">
+                {/* 정보 그리드 (3분할) */}
+                <div className="grid grid-cols-3 items-center mb-2">
+                  {/* 1. 성별 */}
+                  <div className="flex flex-col gap-1.5 text-left pl-1">
+                    <p className="text-[10px] font-black text-stone-300 dark:text-stone-600 uppercase tracking-tighter">
                       {language === 'en' ? 'Gender' : '성별'}
                     </p>
-                    <p className="text-sm font-black  ">
+                    <p className="text-[15px] font-bold text-stone-800 dark:text-stone-200">
                       {gender === 'male'
                         ? language === 'ko'
-                          ? '남성 ♂'
-                          : 'Male ♂'
+                          ? '남성'
+                          : 'Male'
                         : language === 'ko'
-                          ? '여성 ♀'
-                          : 'Female ♀'}
+                          ? '여성'
+                          : 'Female'}
+                      <span
+                        className={`ml-1 ${gender === 'male' ? 'text-blue-500' : 'text-rose-400'}`}
+                      >
+                        {gender === 'male' ? '♂' : '♀'}
+                      </span>
                     </p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
-                      {language === 'en' ? 'Birth of Date' : '생년월일'}
+
+                  {/* 2. 생년월일 */}
+                  <div className="flex flex-col gap-1.5 text-center border-x border-stone-50 dark:border-stone-800/50 px-2">
+                    <p className="text-[10px] font-black text-stone-300 dark:text-stone-600 uppercase tracking-tighter">
+                      {language === 'en' ? 'Birth' : '생년월일'}
                     </p>
-                    <p className="text-sm font-black  ">
-                      {birthData.year}.{birthData.month}.{birthData.day}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
-                      {language === 'en' ? 'Birth Time' : '시분'}
-                    </p>
-                    <p className="text-sm font-black  ">
-                      {timeUnknown
-                        ? language === 'ko'
-                          ? '시간 모름'
-                          : 'Unknown'
-                        : `${birthData.hour}:${birthData.minute}`}
+                    <p className="text-[15px] font-bold text-stone-800 dark:text-stone-200 tracking-tight">
+                      {birthData.year.slice(2)}.{birthData.month}.{birthData.day}
                     </p>
                   </div>
-                  <div className="flex items-end justify-end">
-                    <button
-                      onClick={handleEdit}
-                      className="px-3 py-1.5 bg-white dark:bg-slate-700 rounded-lg text-[11px] font-black text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-100 dark:border-slate-600 active:scale-95 transition-all"
-                    >
-                      {language === 'ko' ? '정보 수정' : 'Edit Info'}
-                    </button>
+
+                  {/* 3. 시간 */}
+                  <div className="flex flex-col gap-1.5 text-right pr-1">
+                    <p className="text-[10px] font-black text-stone-300 dark:text-stone-600 uppercase tracking-tighter">
+                      {language === 'en' ? 'Time' : '시간'}
+                    </p>
+                    <p className="text-[15px] font-bold text-stone-800 dark:text-stone-200">
+                      {timeUnknown ? '—' : `${birthData.hour}:${birthData.minute}`}
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* 일주 분석 텍스트 박스 (5줄 분량) */}
-              <div className="">
-                {!!sajuData && <FourPillarVis saju={saju} isTimeUnknown={timeUnknown} />}
+                {/* 수정 버튼: 카드 우측 하단에 자연스럽게 녹아든 '플로팅 태그' 스타일 */}
+                <div className="absolute bottom-0 right-0">
+                  <button
+                    onClick={handleEdit}
+                    className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-[#3B82F6] dark:text-blue-400 rounded-tl-2xl rounded-br-[28px] text-[11px] font-black hover:bg-[#3B82F6] hover:text-white transition-all duration-300 active:scale-95 shadow-[-5px_-5px_15px_rgba(0,0,0,0.02)]"
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    >
+                      <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    {language === 'ko' ? '수정하기' : 'EDIT'}
+                  </button>
+                </div>
               </div>
+              {/* 사주 오행 영역 */}
+              {!!sajuData && (
+                <div className="animate-in fade-in zoom-in-95 duration-1000 delay-300">
+                  <FourPillarVis saju={saju} isTimeUnknown={timeUnknown} />
+                </div>
+              )}
             </div>
-            <p className="mt-4 text-[13px] text-slate-400 font-bold italic tracking-tight">
-              <div className="mt-3 bg-slate-50   text-sm dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
-                <div className="py-2 space-y-8 text-left animate-in fade-in slide-in-from-bottom-3 duration-1000">
-                  {/* 1. 핵심 정체성 - 가장 크게 강조 */}
-                  <section className="px-1">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-lg">
+            <div className="mt-6 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+              <div className="bg-white dark:bg-[#1A1A1A] rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-stone-50 dark:border-white/5">
+                <div className="space-y-10 text-left">
+                  {/* 1. 핵심 정체성 (Identity) - 가장 강조되는 메인 카드 */}
+                  <section className="relative px-1">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-xl shadow-sm">
                         {preview.coreEmoji}
-                      </span>
-                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        {language === 'ko' ? 'Identity' : 'Identity'}
-                      </h3>
+                      </div>
+                      <div className="space-y-0.5">
+                        <h3 className="text-[10px] font-black text-[#3B82F6] uppercase tracking-[0.2em]">
+                          {language === 'ko' ? 'Identity' : 'Identity'}
+                        </h3>
+                        <div className="h-0.5 w-4 bg-[#3B82F6] rounded-full opacity-50" />
+                      </div>
                     </div>
-                    <p className="text-lg font-black   leading-snug break-keep">
+                    <p className="text-[19px] font-black text-[#1A1A1A] dark:text-white leading-[1.45] break-keep">
                       {preview.coreText}
                     </p>
                   </section>
 
-                  {/* 구분선 없이 여백과 좌측 포인트 바 사용 */}
-                  <div className="space-y-7 border-l-2 border-slate-100 dark:border-slate-800 ml-4 pl-6">
-                    {/* 2. 지배적 에너지 */}
+                  {/* 분석 타임라인 섹션 */}
+                  <div className="relative ml-5 pl-8 border-l-[1.5px] border-stone-100 dark:border-stone-800 space-y-10">
+                    {/* 2. 지배적 에너지 (Dominant Energy) */}
                     <section className="relative">
-                      <div className="absolute -left-[31px] top-1 w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
-                      <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">
+                      <div className="absolute -left-[37px] top-1.5 w-[10px] h-[10px] rounded-full bg-[#3B82F6] ring-4 ring-white dark:ring-[#1A1A1A] shadow-sm" />
+                      <h4 className="text-[10px] font-black text-stone-300 dark:text-stone-500 uppercase tracking-widest mb-2">
                         {language === 'ko' ? 'Dominant Energy' : 'Dominant Energy'}
                       </h4>
-                      <p className="text-[15px] font-bold text-slate-700 dark:text-slate-200">
+                      <p className="text-[15px] font-bold text-stone-700 dark:text-stone-200 leading-relaxed">
                         {preview.dominantText}
                       </p>
                     </section>
 
-                    {/* 3. 잠재 능력 */}
-                    <section className="relative ">
-                      <div className="absolute  -left-[31px] top-1 w-2 h-2 rounded-full bg-emerald-500" />
-                      <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">
+                    {/* 3. 잠재 능력 (Hidden Talents) */}
+                    <section className="relative">
+                      <div className="absolute -left-[37px] top-1.5 w-[10px] h-[10px] rounded-full bg-emerald-500 ring-4 ring-white dark:ring-[#1A1A1A] shadow-sm" />
+                      <h4 className="text-[10px] font-black text-stone-300 dark:text-stone-500 uppercase tracking-widest mb-3">
                         {language === 'ko' ? 'Hidden Talents' : 'Hidden Talents'}
                       </h4>
-                      <div className="text-[14px] font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <div className="grid gap-2">
                         {preview.talentText
                           ?.split(']')
                           .filter((t) => t.trim())
                           .map((item, idx) => (
-                            <div key={idx} className="flex items-start gap-1">
-                              <span>•</span>
+                            <div
+                              key={idx}
+                              className="flex items-start gap-2 text-[14px] font-semibold text-stone-600 dark:text-stone-400 bg-stone-50 dark:bg-stone-800/40 p-2.5 rounded-xl border border-stone-50 dark:border-transparent"
+                            >
+                              <span className="text-emerald-500">•</span>
                               <span>{item.replace('[', '')}</span>
                             </div>
                           ))}
                       </div>
                     </section>
 
-                    {/* 4. 인생의 주기 */}
+                    {/* 4. 인생의 주기 (Life Cycle) */}
                     <section className="relative">
-                      <div className="absolute -left-[31px] top-1 w-2 h-2 rounded-full bg-amber-500" />
-                      <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">
+                      <div className="absolute -left-[37px] top-1.5 w-[10px] h-[10px] rounded-full bg-amber-500 ring-4 ring-white dark:ring-[#1A1A1A] shadow-sm" />
+                      <h4 className="text-[10px] font-black text-stone-300 dark:text-stone-500 uppercase tracking-widest mb-2">
                         {language === 'ko' ? 'Life Cycle' : 'Life Cycle'}
                       </h4>
-                      <p className="text-[15px] font-bold text-slate-700 dark:text-slate-200">
+                      <p className="text-[15px] font-bold text-stone-700 dark:text-stone-200 leading-relaxed">
                         {preview.daewoonText}
                       </p>
                     </section>
                   </div>
                 </div>
               </div>
-            </p>
-            <button
-              onClick={() => setStep(4)}
-              className="w-full p-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
-            >
-              {language === 'ko' ? '분석 보러가기' : 'Check analysis'}
-              <ChevronRightIcon className="w-5 h-5" />
-            </button>
-          </div>
-        )}
 
-        {step === 4 && (
-          <div className="space-y-5 animate-in slide-in-from-right-4 duration-500">
-            <h2 className="text-xl font-black text-center  ">
-              {language === 'ko' ? '분석 결과 요약' : 'Analysis Preview'}
-            </h2>
-
-            <div className="relative  overflow-hidden rounded-3xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-              {/* 50줄 분량의 텍스트 영역 (70%만 보이게 설정) */}
-              <div className="space-y-3  opacity-80 select-none">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  <p className="text-sm font-black  ">
-                    {language === 'ko' ? '종합 운세 분석 리포트' : 'Comprehensive Fortune Report'}
-                  </p>
+              {/* 하단 엠블럼: 분석의 신뢰도 암시 */}
+              <div className="mt-8 flex justify-center opacity-30">
+                <div className="h-px w-12 bg-stone-300" />
+                <div className="mx-4 text-[10px] font-black tracking-[0.3em] uppercase text-stone-400">
+                  Saja Saju Analysis
                 </div>
-                <div className="mt-3 bg-slate-50   text-sm dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
-                  {/* 프리뷰 리포트 컨테이너 - 박스 중첩 없이 여백으로 구분 */}
-                  <div className="py-2 space-y-8 text-left animate-in fade-in slide-in-from-bottom-3 duration-1000">
-                    {/* 1. 핵심 정체성 - 가장 크게 강조 */}
-                    <section className="px-1">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-lg">
-                          {preview.coreEmoji}
-                        </span>
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                          {language === 'ko' ? 'Identity' : 'Identity'}
-                        </h3>
-                      </div>
-                      <p className="text-lg font-black   leading-snug break-keep">
-                        {preview.coreText}
-                      </p>
-                    </section>
-
-                    {/* 구분선 없이 여백과 좌측 포인트 바 사용 */}
-                    <div className="space-y-7 border-l-2 border-slate-100 dark:border-slate-800 ml-4 pl-6">
-                      {/* 2. 지배적 에너지 */}
-                      <section className="relative">
-                        <div className="absolute -left-[31px] top-1 w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
-                        <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">
-                          {language === 'ko' ? 'Dominant Energy' : 'Dominant Energy'}
-                        </h4>
-                        <p className="text-[15px] font-bold text-slate-700 dark:text-slate-200">
-                          {preview.dominantText}
-                        </p>
-                      </section>
-
-                      {/* 3. 잠재 능력 */}
-                      <section className="relative ">
-                        <div className="absolute  -left-[31px] top-1 w-2 h-2 rounded-full bg-emerald-500" />
-                        <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">
-                          {language === 'ko' ? 'Hidden Talents' : 'Hidden Talents'}
-                        </h4>
-                        <div className="text-[14px] font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
-                          {preview.talentText
-                            ?.split(']')
-                            .filter((t) => t.trim())
-                            .map((item, idx) => (
-                              <div key={idx} className="flex items-start gap-1">
-                                <span>•</span>
-                                <span>{item.replace('[', '')}</span>
-                              </div>
-                            ))}
-                        </div>
-                      </section>
-
-                      {/* 4. 인생의 주기 */}
-                      <section className="relative">
-                        <div className="absolute -left-[31px] top-1 w-2 h-2 rounded-full bg-amber-500" />
-                        <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">
-                          {language === 'ko' ? 'Life Cycle' : 'Life Cycle'}
-                        </h4>
-                        <p className="text-[15px] font-bold text-slate-700 dark:text-slate-200">
-                          {preview.daewoonText}
-                        </p>
-                      </section>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-[15px] leading-relaxed dark:text-slate-300 ">
-                  {(language === 'ko' ? me_exp?.full_text_kr : me_exp?.full_text_en)
-                    ?.split('\n')
-                    ?.filter((text) => text.trim() !== '')
-                    .map((sentence, index) => (
-                      <p
-                        key={index}
-                        style={{
-                          fontWeight: index === 0 ? 'bold' : 'normal',
-                          fontSize: index === 0 ? '1.1rem' : '1rem', // 첫 줄만 살짝 키울 수도 있습니다
-                          marginBottom: '0.8rem',
-                        }}
-                      >
-                        {sentence}
-                      </p>
-                    ))}
-                </div>
-                {/* 반복문을 사용하여 50줄 분량의 더미 텍스트 생성 */}
+                <div className="h-px w-12 bg-stone-300" />
               </div>
+            </div>
+            <div className="mt-12 space-y-6 text-center animate-in fade-in slide-in-from-top-4 duration-1000 delay-700">
+              {/* 브릿지 섹션: 궁금증 유발 */}
+              <div className="relative inline-block px-8 py-4">
+                {/* 배경에 은은한 블루 글로우로 시선 집중 */}
+                <div className="absolute inset-0 bg-blue-50/50 dark:bg-blue-900/10 rounded-[24px] blur-xl" />
 
-              {/* 하단 30% 가림막 및 버튼 영역 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 dark:from-slate-950 dark:via-slate-950/80 to-transparent flex flex-col items-center justify-end pb-8 px-5">
-                <div className="text-center mb-6">
-                  <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 animate-bounce">
+                <div className="relative space-y-2">
+                  <p className="text-[14px] font-bold text-stone-400 dark:text-stone-500 tracking-tight">
                     {language === 'ko'
-                      ? '▼ 나머지 내용을 분석 중입니다'
-                      : '▼ Analyzing the rest of the content'}
+                      ? '사주 용어들이 조금 어렵죠?'
+                      : 'Are these terms a bit complex?'}
                   </p>
+                  <h3 className="text-[17px] font-black text-stone-800 dark:text-white leading-tight">
+                    {language === 'ko' ? (
+                      <>
+                        당신만을 위한 <span className="text-[#3B82F6]">자세한 인생 해석</span>을
+                        <br />
+                        지금 바로 확인해 보세요
+                      </>
+                    ) : (
+                      <>
+                        Check out your{' '}
+                        <span className="text-[#3B82F6]">detailed life analysis</span>
+                        <br />
+                        tailored just for you
+                      </>
+                    )}
+                  </h3>
                 </div>
-                <button
-                  onClick={() => setStep(5)}
-                  className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-[0_10px_20px_rgba(79,70,229,0.3)] active:scale-95 transition-all"
-                >
-                  {language === 'ko' ? '전체 리포트 받기' : 'Get Full Report'}
-                </button>
               </div>
+
+              {/* 아래로 향하는 안내 화살표 (부드러운 움직임) */}
+              <div className="flex justify-center">
+                <div className="animate-bounce">
+                  <svg
+                    className="w-6 h-6 text-[#3B82F6] opacity-50"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <path d="M19 14l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* 메인 액션 버튼: 최종 분석 결과 보기 */}
+              <button
+                onClick={() => setStep(3)}
+                className="group relative w-full max-w-[300px] py-5 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-[28px] font-black text-[17px] shadow-[0_15px_35px_rgba(59,130,246,0.3)] hover:shadow-[0_20px_45px_rgba(59,130,246,0.4)] transition-all duration-300 active:scale-[0.96]"
+              >
+                <div className="relative flex items-center justify-center gap-2">
+                  <span>{language === 'ko' ? '상세 해석 보러가기' : 'View Full Report'}</span>
+                  <svg
+                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <path d="M13 7l5 5-5 5" />
+                  </svg>
+                </div>
+
+                {/* 버튼 내부 은은한 반짝임 효과 */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              </button>
+
+              {/* 보안 및 무료 안내 (안심 장치) */}
+              <p className="text-[11px] font-bold text-stone-300 dark:text-stone-700 tracking-[0.15em] uppercase">
+                1:1 Personalized & 100% Secure
+              </p>
             </div>
           </div>
         )}
-        {step === 5 && (
-          <div className="space-y-6 animate-in slide-in-from-bottom-4 text-center">
-            <ShieldCheckIcon className="w-12 h-12 text-emerald-500 mx-auto" />
-            <h2 className="text-2xl font-black dark:text-white">
-              {language === 'ko' ? '무료 사주 보기' : 'Get Free Report'}
-            </h2>
-            <button
-              onClick={() => login()}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl font-black text-slate-700 dark:text-white hover:bg-slate-50 transition-all shadow-xl"
-            >
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                className="w-6 h-6"
-                alt="google"
-              />
-              {t.google}
-            </button>
+
+        {step === 3 && (
+          <div className="pt-12 pb-6 px-4 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 text-center">
+            {/* 상단 섹션: 패딩을 주어 상단 바와의 간격 확보 */}
+            <div className="space-y-6">
+              <div className="relative mx-auto w-16 h-16">
+                {/* 부드러운 오로라 글로우 */}
+                <div className="absolute inset-0 bg-blue-400/15 rounded-full blur-2xl" />
+                <div className="relative w-full h-full bg-white dark:bg-slate-800 rounded-[24px] shadow-sm border border-blue-50/50 dark:border-slate-700 flex items-center justify-center">
+                  <div className="w-6 h-6 bg-[#3B82F6] rounded-lg rotate-12 shadow-lg shadow-blue-200" />
+                </div>
+              </div>
+              <h2 className="text-[22px] font-light text-[#1A1A1A] dark:text-white tracking-tight leading-snug">
+                {t.step3.split(' ').map((word, i) => (
+                  <span key={i}>
+                    {i === t.step3.split(' ').length - 1 ? (
+                      <b className="font-black text-[#3B82F6]">{word}</b>
+                    ) : (
+                      word
+                    )}
+                    {i !== t.step3.split(' ').length - 1 && ' '}
+                  </span>
+                ))}
+              </h2>
+
+              {/* 보조 설명 라인 */}
+              <p className="text-stone-400 text-[12px] tracking-[0.2em] uppercase font-medium italic">
+                Step 03. Login
+              </p>
+              <div className="space-y-2">
+                <p className="text-stone-400 text-[14px] font-medium leading-relaxed px-4">
+                  {language === 'ko' ? (
+                    <>
+                      간편한 구글 로그인으로 <span className="text-[#3B82F6]">매일 3개</span>의
+                      <br />
+                      무료 사주 분석을 시작할 수 있어요
+                    </>
+                  ) : (
+                    <>
+                      Get <span className="text-[#3B82F6]">3 free reports</span> daily
+                      <br />
+                      by login
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* 구글 로그인 버튼: 모바일 최적화 (텍스트 단축 & 패딩 확보) */}
+            <div className="max-w-[280px] mx-auto w-full">
+              <button
+                onClick={() => login()}
+                className="group w-full flex items-center justify-between p-2 bg-[#F8FBFF] dark:bg-blue-900/15 rounded-[28px] border border-[#E0EEFF] dark:border-blue-800/30 transition-all duration-300 shadow-sm active:scale-[0.96]"
+              >
+                {/* 왼쪽: 로고 박스 */}
+                <div className="flex items-center justify-center w-11 h-11 bg-white rounded-full shadow-sm">
+                  <img
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                    className="w-5 h-5"
+                    alt="google"
+                  />
+                </div>
+
+                {/* 중앙: 텍스트 (모바일에선 짧게) */}
+                <span className="flex-1 text-[15px] font-bold text-[#3B82F6] dark:text-blue-300 tracking-tight">
+                  {language === 'ko' ? '구글로 시작하기' : 'Sign in with Google'}
+                </span>
+
+                {/* 오른쪽: 빈 공간 또는 작은 화살표로 균형 맞춤 */}
+                <div className="w-11 h-11 flex items-center justify-center opacity-20">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <path d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            {/* 하단 여유 공간 및 보안 뱃지 */}
+            <div className="pt-4 opacity-50">
+              <p className="text-[11px] text-stone-300 font-bold uppercase tracking-widest">
+                100% Secure & Free
+              </p>
+            </div>
           </div>
         )}
 
         {/* 하단 로그인 안내 (Step 1, 2에서만 표시) */}
         {(step === 1 || step === 2) && (
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 text-center animate-in fade-in duration-700">
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-              {t.already_member}{' '}
+          <div className="pt-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+            {/* 배경과 대비를 준 실질적인 버튼 형태의 가이드 */}
+            <div className="inline-block w-full max-w-[300px] p-[1px] bg-gradient-to-r from-transparent via-stone-200 dark:via-slate-700 to-transparent mb-6">
+              {/* 얇은 그라데이션 선으로 위아래 구분 */}
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[14px] text-stone-500 dark:text-slate-400 font-bold tracking-tight">
+                {t.already_member}
+              </p>
+
               <button
                 onClick={() => hasId()}
-                className="text-indigo-600 dark:text-indigo-400 font-black hover:underline underline-offset-4 transition-all"
+                className="inline-flex items-center justify-center px-8 py-3 bg-white dark:bg-slate-900 border-2 border-[#3B82F6] text-[#3B82F6] rounded-full font-black text-[15px] shadow-[0_8px_20px_rgba(59,130,246,0.12)] hover:bg-[#3B82F6] hover:text-white transition-all duration-300 active:scale-[0.97]"
               >
                 {t.login_now}
+                <svg
+                  className="w-4 h-4 ml-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                >
+                  <path d="M13 7l5 5-5 5M6 7l5 5-5 5" />
+                </svg>
               </button>
+            </div>
+
+            {/* 보안 및 신뢰 강조 문구 */}
+            <p className="mt-8 text-[11px] text-stone-300 dark:text-slate-600 font-bold tracking-[0.15em] uppercase">
+              Protected by SajaSaju Security
             </p>
           </div>
         )}

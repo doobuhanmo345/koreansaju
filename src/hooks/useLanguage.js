@@ -8,10 +8,12 @@ import { useEffect } from 'react';
 export function useLanguage() {
   // 1. 초기 시스템 언어 감지 로직
   const getInitialLanguage = () => {
-    // 브라우저 설정 언어 확인 (기본값 'ko')
-    const systemLang = navigator.language || navigator.userLanguage || 'ko';
+    // 1. 선호 언어 배열이 있으면 첫 번째 것을 사용, 없으면 단일 언어 속성 사용
+    const systemLang =
+      navigator.languages && navigator.languages.length > 0
+        ? navigator.languages[0]
+        : navigator.language || navigator.userLanguage || 'en';
 
-    // 언어 코드가 'ko'로 시작하면 'ko', 아니면 'en'으로 설정 (원하는 언어 범위를 지정하세요)
     return systemLang.startsWith('ko') ? 'ko' : 'en';
   };
 
