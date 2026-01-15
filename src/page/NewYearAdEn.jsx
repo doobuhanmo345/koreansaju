@@ -20,16 +20,16 @@ import dayStem from '../data/dayStem.json';
 import dayBranch from '../data/dayBranch.json';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
-import NewYearKr from './NewYearKr';
+import NewYearEn from './NewYearEn';
 import CopyUrlAd from '../component/CopyUrlAd';
-const NewYearAdKr = () => {
+const NewYearAdEn = () => {
   const [guestId, setGuestId] = useState('');
 
   const [step, setStep] = useState(0.5); // '0.5' '1', 'input' 'result'
   const { language, setLanguage } = useLanguage();
   const { user, userData, loadingUser } = useAuthContext();
-  const [userQuestion, setUserQuestion] = useState('');
   const [sajuData, setSajuData] = useState();
+  const [userQuestion, setUserQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState('');
 
@@ -71,7 +71,7 @@ const NewYearAdKr = () => {
     }
   };
 
-  useEffect(() => setLanguage('ko'), [step]);
+  useEffect(() => setLanguage('en'), [step]);
   //생일 넣기
   const [gender, setGender] = useState('');
 
@@ -209,11 +209,11 @@ const NewYearAdKr = () => {
         '{{STRICT_INSTRUCTION}}': strictSnap.val() || '',
         // '{{NEW_YEAR_FORMAT}}': yearSnap.val() || '',
         '{{NEW_YEAR_FORMAT}}':
-          '2026년 병오년의 운세를 개략적으로 말해줘. 시작은 <b>태그로 시작해줘. 인사하지 말고 소제목부터. 소제목은 <b>로 감싸주고 질문 형식으로 해줘. 예를 들면 나의 올 한해는? 이렇게  내용은 <p> 내용은 세 문장 정도로.  그렇게 한거를 세개정도 만들어줘.',
+          '2026년 병오년의 운세를 개략적으로 말해줘. **시작은 <b>태그로 시작해줘**. 인사하지 말고 소제목부터. 소제목은 <b>로 감싸주고 질문 형식으로 해줘. 예를 들면 나의 올 한해는? 이렇게  내용은 <p> 내용은 세 문장 정도로.  그렇게 한거를 세개정도 만들어줘.',
         '{{gender}}': gender,
         '{{sajuJson}}': `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
         '{{displayName}}': displayName,
-        '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
+        '{{langPrompt}}': '**answer in English**',
         '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
       };
 
@@ -436,49 +436,45 @@ const NewYearAdKr = () => {
       <div className="max-w-3xl mx-auto px-6">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
-            <NewYearKr setStep={() => setStep(1)} />
+            <NewYearEn setStep={() => setStep(1)} />
           </div>
         )}
         {step === 1 && !isAnalyzing && (
           <>
-            <div className="min-h-screen bg-[#FDF5F0] font-sans text-[#4A3428] px-6 py-10 selection:bg-orange-100 selection:text-orange-700">
+            <div className="min-h-screen bg-gradient-to-b from-[#FFF8F3] via-[#FFF0E8] to-[#FFE8E0] font-serif text-[#5C4B51] px-6 py-12 selection:bg-[#FFE0D0] selection:text-[#8B6F5C]">
               {/* 상단 타이틀 섹션 */}
-              <div className="text-center mb-10 sm:mb-12">
-                <div className="flex justify-center items-center gap-2 mb-5 sm:mb-6">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl sm:text-3xl">
-                    🦁
+              <div className="text-center mb-12 sm:mb-16">
+                <div className="flex justify-center items-center gap-2.5 mb-6 sm:mb-8">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#FFD4B8] to-[#FFC4A3] rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-lg shadow-orange-200/50">
+                    ✨
                   </div>
-                  <span className="text-2xl sm:text-3xl font-bold tracking-tight text-[#333]">
-                    사자사주
+                  <span className="text-2xl sm:text-3xl font-bold tracking-wide text-[#8B6F5C] italic">
+                    Cosmic Insights
                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight break-keep">
-                  {language === 'ko'
-                    ? '생년월일을 바탕으로 나의 오행을 분석합니다'
-                    : 'Analyzing your Five Elements based on your birth date.'}
+                <h2
+                  className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight break-keep text-[#7A5C52]"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  Discover your cosmic elements through your birth details
                 </h2>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {/* 성별 선택 */}
-                <div className="flex gap-3 mb-5">
+                <div className="flex gap-4 mb-6">
                   {['male', 'female'].map((g) => (
                     <button
                       key={g}
                       onClick={() => setGender(g)}
-                      className={`flex-1 py-5 sm:py-6 rounded-2xl border-2 font-bold text-base sm:text-lg transition-all shadow-sm ${
+                      className={`flex-1 py-6 sm:py-7 rounded-3xl border-2 font-semibold text-base sm:text-lg transition-all shadow-lg ${
                         gender === g
-                          ? 'border-[#F47521] bg-white text-[#F47521]'
-                          : 'border-white bg-white/50 text-[#C4B5A9]'
+                          ? 'border-[#D4A088] bg-gradient-to-br from-white to-[#FFF9F5] text-[#D4A088] shadow-orange-200/40'
+                          : 'border-[#F5E6DD] bg-white/60 text-[#C4B5A9] shadow-orange-100/20'
                       }`}
+                      style={{ fontFamily: 'Georgia, serif' }}
                     >
-                      {g === 'male'
-                        ? language === 'ko'
-                          ? '남성'
-                          : 'Male'
-                        : language === 'ko'
-                          ? '여성'
-                          : 'Female'}
+                      {g === 'male' ? 'Male' : 'Female'}
                     </button>
                   ))}
                 </div>
@@ -490,11 +486,10 @@ const NewYearAdKr = () => {
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder={
-                        language === 'ko' ? '태어난 연도를 입력해주세요' : 'Birth Year(YYYY)'
-                      }
+                      placeholder="Birth Year (YYYY)"
                       value={birthData.year}
-                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
+                      style={{ fontFamily: 'Georgia, serif' }}
                       onChange={(e) =>
                         setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                       }
@@ -509,11 +504,10 @@ const NewYearAdKr = () => {
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder={
-                        language === 'ko' ? '태어난 월을 입력해주세요' : 'Birth Month(MM)'
-                      }
+                      placeholder="Birth Month (MM)"
                       value={birthData.month}
-                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
+                      style={{ fontFamily: 'Georgia, serif' }}
                       onChange={(e) =>
                         setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                       }
@@ -528,9 +522,10 @@ const NewYearAdKr = () => {
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder={language === 'ko' ? '태어난 날을 입력해주세요' : 'Birth Day(DD)'}
+                      placeholder="Birth Day (DD)"
                       value={birthData.day}
-                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
+                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
+                      style={{ fontFamily: 'Georgia, serif' }}
                       onChange={(e) =>
                         setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                       }
@@ -545,8 +540,9 @@ const NewYearAdKr = () => {
                   <div className="overflow-hidden px-0.5">
                     <input
                       type="number"
-                      placeholder={language === 'ko' ? '태어난 시 (HH)' : 'Birth Hour (HH)'}
-                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
+                      placeholder="Birth Hour (HH)"
+                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
+                      style={{ fontFamily: 'Georgia, serif' }}
                       onChange={(e) =>
                         setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
                       }
@@ -561,8 +557,9 @@ const NewYearAdKr = () => {
                   <div className="overflow-hidden px-0.5">
                     <input
                       type="number"
-                      placeholder={language === 'ko' ? '태어난 분 (mm)' : 'Birth Minute (mm)'}
-                      className="w-full p-5 sm:p-6 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center text-base sm:text-lg shadow-sm placeholder-[#C4B5A9]"
+                      placeholder="Birth Minute (mm)"
+                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
+                      style={{ fontFamily: 'Georgia, serif' }}
                       onChange={(e) =>
                         setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
                       }
@@ -574,59 +571,74 @@ const NewYearAdKr = () => {
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${isDayDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <label className="flex items-center gap-3 cursor-pointer w-fit mx-auto py-3 overflow-hidden group">
-                    <input
-                      type="checkbox"
-                      checked={timeUnknown}
-                      onChange={(e) => setTimeUnknown(e.target.checked)}
-                      className="w-6 h-6 accent-[#F47521] cursor-pointer"
-                    />
-                    <span className="text-base sm:text-lg font-bold text-[#C4B5A9] group-hover:text-[#F47521] transition-colors">
-                      {language === 'ko' ? '시간을 몰라요' : 'time unknown'}
+                  <label className="flex items-center gap-3 cursor-pointer w-fit mx-auto py-4 overflow-hidden group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={timeUnknown}
+                        onChange={(e) => setTimeUnknown(e.target.checked)}
+                        className="w-6 h-6 accent-[#D4A088] cursor-pointer rounded-md"
+                      />
+                    </div>
+                    <span
+                      className="text-base sm:text-lg font-semibold text-[#C4B5A9] group-hover:text-[#D4A088] transition-colors"
+                      style={{ fontFamily: 'Georgia, serif' }}
+                    >
+                      Time unknown
                     </span>
                   </label>
                 </div>
               </div>
 
               {/* 가이드 메시지 영역 */}
-              <div className="mt-10 sm:mt-12 mb-5">
-                <div className="flex items-center justify-center gap-2 sm:gap-3 animate-pulse">
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#F47521] rounded-full" />
-                  <span className="text-base sm:text-lg md:text-xl font-bold text-[#F47521]">
-                    {language === 'ko'
-                      ? !gender
-                        ? guideMessages.ko.putGender
-                        : !isYearDone
-                          ? guideMessages.ko.putYear
-                          : !isMonthDone
-                            ? guideMessages.ko.putMonth
-                            : !isDayDone
-                              ? guideMessages.ko.putDay
-                              : !timeUnknown && !isHourDone
-                                ? guideMessages.ko.putHour
-                                : !timeUnknown && !isMinuteDone
-                                  ? guideMessages.ko.putMin
-                                  : guideMessages.ko.ready
-                      : '...'}
+              <div className="mt-12 sm:mt-16 mb-6">
+                <div className="flex items-center justify-center gap-3 sm:gap-4">
+                  <div className="relative flex h-3 w-3 sm:h-3.5 sm:w-3.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E8B4A0] opacity-60"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 bg-[#D4A088]"></span>
+                  </div>
+                  <span
+                    className="text-base sm:text-lg md:text-xl font-semibold text-[#D4A088] italic"
+                    style={{ fontFamily: 'Georgia, serif' }}
+                  >
+                    {!gender
+                      ? 'Select your gender'
+                      : !isYearDone
+                        ? 'Enter your birth year'
+                        : !isMonthDone
+                          ? 'Enter your birth month'
+                          : !isDayDone
+                            ? 'Enter your birth day'
+                            : !timeUnknown && !isHourDone
+                              ? 'Enter your birth hour'
+                              : !timeUnknown && !isMinuteDone
+                                ? 'Enter your birth minute'
+                                : 'Ready to reveal your cosmic elements ✨'}
                   </span>
                 </div>
               </div>
 
               {/* 프로그레스 바 섹션 */}
-              <div className="space-y-3 mb-10 sm:mb-12">
-                <div className="flex justify-between items-center px-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs sm:text-sm font-black text-[#C4B5A9] uppercase tracking-wider">
+              <div className="space-y-4 mb-12 sm:mb-16">
+                <div className="flex justify-between items-center px-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-xs sm:text-sm font-semibold text-[#C4B5A9] uppercase tracking-widest"
+                      style={{ fontFamily: 'Georgia, serif' }}
+                    >
                       Progress
                     </span>
                   </div>
-                  <span className="text-[#F47521] text-sm sm:text-base font-black">
+                  <span
+                    className="text-[#D4A088] text-sm sm:text-base font-bold"
+                    style={{ fontFamily: 'Georgia, serif' }}
+                  >
                     {getProgress()}%
                   </span>
                 </div>
-                <div className="w-full h-3 sm:h-3.5 bg-white rounded-full overflow-hidden shadow-sm border border-orange-50">
+                <div className="w-full h-3.5 sm:h-4 bg-gradient-to-r from-white to-[#FFF9F5] rounded-full overflow-hidden shadow-md border-2 border-[#F5E6DD]">
                   <div
-                    className="h-full bg-[#F47521] transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(244,117,33,0.3)]"
+                    className="h-full bg-gradient-to-r from-[#E8B4A0] to-[#D4A088] transition-all duration-700 ease-out rounded-full shadow-lg shadow-orange-200/50"
                     style={{ width: `${getProgress()}%` }}
                   />
                 </div>
@@ -636,9 +648,10 @@ const NewYearAdKr = () => {
               {isFormValid && (
                 <button
                   onClick={handleNextStep}
-                  className="w-full py-5 sm:py-6 bg-[#F47521] text-white rounded-full font-bold text-lg sm:text-xl shadow-[0_4px_15px_rgba(244,117,33,0.3)] animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all"
+                  className="w-full py-6 sm:py-7 bg-gradient-to-r from-[#E8B4A0] to-[#D4A088] text-white rounded-full font-semibold text-lg sm:text-xl shadow-xl shadow-orange-200/40 animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all hover:shadow-2xl hover:shadow-orange-200/50"
+                  style={{ fontFamily: 'Georgia, serif' }}
                 >
-                  {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
+                  Reveal My Cosmic Elements ✨
                 </button>
               )}
             </div>
@@ -671,7 +684,7 @@ const NewYearAdKr = () => {
             <div className="w-7 h-7 bg-orange-100 rounded-full flex items-center justify-center text-lg shadow-sm">
               🦁
             </div>
-            <span className="text-lg font-bold tracking-tight text-[#333]">사자사주</span>
+            <span className="text-lg font-bold tracking-tight text-[#333]">Saza Saju</span>
           </nav>
 
           <div className="flex-1 p-6 flex flex-col gap-6">
@@ -697,7 +710,7 @@ const NewYearAdKr = () => {
                         </span>
                         {/* 메인 타이틀: 가독성 높은 폰트 두께와 색상 정제 */}
                         <span className="text-[17px] font-black text-[#4A3428] tracking-tight">
-                          사자사주 분석팀
+                          Saza Saju Analysis Team
                         </span>
                       </div>
                     </div>
@@ -709,15 +722,18 @@ const NewYearAdKr = () => {
                     {/* (A) 채팅 스타일 콘텐츠 */}
                     <div className="chat-format">
                       <p>
-                        {birthData.year}년 {birthData.month}월{birthData.day}일
+                        Based on your Saju for someone born on {birthData.month}/{birthData.day}/
+                        {birthData.year}
                         {timeUnknown ? (
-                          <></>
+                          ''
                         ) : (
                           <>
-                            {birthData.hour}시{birthData.time}분
+                            {' '}
+                            at {birthData.hour}:{birthData.time}
                           </>
                         )}
-                        에 태어난 당신의 사주를 기반으로 올해 병오년이 어떨지 풀어드립니다.
+                        , we will reveal what the 2026 Year of the Fire Horse (Byeong-o) holds for
+                        you.
                       </p>
                       <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
                     </div>
@@ -741,8 +757,8 @@ const NewYearAdKr = () => {
                             🦁
                           </div>
                           <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm">
-                            방금 분석한 내용 외에, 2026년 하반기에 정말 조심해야 할 운의 흐름이 하나
-                            더 보여요.
+                            Beyond what we just analyzed, I see one more flow of fortune in the
+                            second half of 2026 that you should be truly careful about.
                           </div>
                         </div>
 
@@ -891,4 +907,4 @@ const NewYearAdKr = () => {
   );
 };
 
-export default NewYearAdKr;
+export default NewYearAdEn;

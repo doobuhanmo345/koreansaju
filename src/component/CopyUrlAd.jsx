@@ -20,7 +20,7 @@ export default function CopyUrlAd() {
         >
           <div className="text-[#F47521] font-mono text-sm font-bold">koreansaju.vercel.app</div>
           <div className="text-[13px] bg-[#F47521] text-white px-3 py-1.5 sm:my-0 my-2 rounded-full font-black shadow-sm group-hover:bg-orange-800 transition-colors">
-            링크 복사하기
+            {language === 'ko' ? '링크 복사하기' : 'Copy Url'}
           </div>
         </div>
 
