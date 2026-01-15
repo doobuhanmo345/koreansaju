@@ -16,6 +16,11 @@ export default function AmaKr({ question, setQuestion, setStep }) {
   const inputRef = useRef(null);
 
   const handleSubmit = () => {
+    if (!question.trim()) {
+      alert('질문을 넣어주세요');
+      return;
+    }
+
     setStep(1);
   };
 

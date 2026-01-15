@@ -23,6 +23,7 @@ import AdReview from '../component/AdReview';
 
 export default function NewYearKr({ setStep }) {
   const handleSubmit = (e) => {
+    
     setStep(1);
   };
   const [activeMonth, setActiveMonth] = useState(1);

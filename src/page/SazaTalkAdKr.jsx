@@ -4,7 +4,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
-import { setDoc, doc, increment, arrayUnion } from 'firebase/firestore';
+import { setDoc, doc, getDoc, arrayUnion } from 'firebase/firestore';
 import {
   ChatBubbleLeftRightIcon,
   CakeIcon,
@@ -177,13 +177,52 @@ const SazaTalkAdKr = () => {
       setStep(1);
     } else if (step === 1) {
       setStep(0.5);
-      console.log(step);
     } else if (step === 'result') {
       setStep('input');
     }
   };
+  //키값 정열
+  const sortObject = (obj) => {
+    if (obj === null || typeof obj !== 'object') return obj;
+    return Object.keys(obj)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = sortObject(obj[key]); // 중첩 객체까지 재귀적으로 정렬
+        return acc;
+      }, {});
+  };
   const isFormValid = getProgress() === 100;
   const handleAskSaza = async () => {
+    // 아이디 확인
+    if (true) {
+    
+      const docRef = doc(db, 'sazatalkad_logs', guestId);
+      const docSnap = await getDoc(docRef);
+   
+
+      if (docSnap.exists()) {
+        const existingData = docSnap.data();
+
+        // 2. 저장된 사주와 현재 사주가 동일한지 비교
+        // JSON.stringify를 사용하면 객체 내부 값까지 간편하게 비교 가능합니다.
+        if (JSON.stringify(sortObject(existingData.saju)) === JSON.stringify(sortObject(saju))) {
+          // 3. 동일할 경우 알림창 띄우기
+          const alertMessage =
+            language === 'en'
+              ? 'Visit our website! Log in to get 3 premium reports daily for free.'
+              : '사자사주 홈페이지에 방문해 보세요! 로그인만 하면 무료로 하루에 세 개씩 프리미엄 리포트를 확인할 수 있어요.';
+
+          alert(alertMessage);
+
+          // 4. 로그 출력 후 함수 종료 (아래의 setDoc 실행 안 함)
+          console.log('Duplicate saju data found for ID:', guestId || user?.uid);
+          return;
+        } else {
+   
+        }
+      }
+    }
+    // 아이디확인 끝
     const myQuestion = userQuestion;
     if (!myQuestion.trim()) return alert('질문을 입력해주세요.');
 
@@ -229,14 +268,15 @@ const SazaTalkAdKr = () => {
         timestamp: new Date().toISOString(),
         id: Date.now(),
       };
-
+   
       // DB 업데이트 (카운트 + 질문로그)
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
-      const docId = `${safeDate}_${guestId || user?.uid}`;
+      const docId = guestId || user?.uid;
       await setDoc(
         doc(db, 'sazatalkad_logs', docId),
         {
           id: guestId || user?.uid,
+          date: safeDate,
           user: !!user,
           saju: saju,
           usageHistory: { question_history: arrayUnion(newQuestionLog) },

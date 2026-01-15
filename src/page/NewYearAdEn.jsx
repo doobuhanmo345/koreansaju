@@ -228,11 +228,12 @@ const NewYearAdEn = () => {
       const result = await fetchGeminiAnalysis(fullPrompt);
 
 const safeDate = new Date().toISOString().replace(/[:.]/g, '-'); 
-const docId = `${safeDate}_${guestId || user?.uid}`;
+const docId = guestId || user?.uid;
 
 await setDoc(doc(db, 'newyearad_logs', docId), 
         {
           id: guestId || user?.uid,
+          date: safeDate,
           user: !!user,
           saju: saju,
         },
