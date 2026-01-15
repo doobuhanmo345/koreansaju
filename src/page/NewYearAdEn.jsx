@@ -59,7 +59,7 @@ const NewYearAdEn = () => {
     if (userData) return;
 
     try {
-      await addDoc(collection(db, 'newyear_funnel_logs'), {
+      await addDoc(collection(db, 'newyearad_funnel_logs'), {
         step: stepName,
         uid: currentGuestId || guestId,
         isLoggedIn: false, // 비회원임을 명확히 기록
@@ -227,17 +227,15 @@ const NewYearAdEn = () => {
 
       const result = await fetchGeminiAnalysis(fullPrompt);
 
-         await setDoc(
-              doc(db, 'newyearad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
-              {
-                id: guestId || user?.uid,
-                user: !!user,
-                saju: saju,
-           
-              },
-              { merge: true },
-            );
-      
+      await addDoc(
+        doc(db, 'newyearad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
+        {
+          id: guestId || user?.uid,
+          user: !!user,
+          saju: saju,
+        },
+        { merge: true },
+      );
 
       // 6. 결과 반영 및 이동
 
@@ -889,7 +887,7 @@ const NewYearAdEn = () => {
               </div>
             </div>
             {/* 5. 하단 CTA 및 안내 섹션 */}
-            <CopyUrlAd />
+            <CopyUrlAd saju={saju} from='newyearaden'/>
           </div>
         </div>
       )}

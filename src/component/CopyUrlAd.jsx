@@ -1,6 +1,26 @@
 import React from 'react';
 import { useLanguage } from '../context/useLanguageContext';
-export default function CopyUrlAd() {
+import { db } from '../lib/firebase';
+import { collection, setDoc,doc, serverTimestamp } from 'firebase/firestore';
+export default function CopyUrlAd({ saju, from }) {
+  const handleCopy = async () => {
+    // 1. 링크 복사
+    const url = 'https://koreansaju.vercel.app';
+    await navigator.clipboard.writeText(url);
+    alert(language === 'ko' ? '주소가 복사되었습니다!' : 'Link copied to clipboard!');
+
+    // 2. 로그 저장 (addDoc으로 간단하게)
+    try {
+      await setDoc(doc(db, 'copy_url_logs', new Date().toISOString()), {
+        saju: saju,
+        language: language,
+        origin: from,
+        createdAt: serverTimestamp(), // 서버 시간 기준 저장
+      });
+    } catch (e) {
+      console.error('로그 저장 실패:', e);
+    }
+  };
   const { language } = useLanguage();
   return (
     <div className="mt-10 p-8 bg-white/60 border-2 border-dashed border-[#E8DCCF] rounded-[32px] text-center">
@@ -12,10 +32,7 @@ export default function CopyUrlAd() {
 
       <div className="flex flex-col gap-4">
         <div
-          onClick={() => {
-            navigator.clipboard.writeText('https://koreansaju.vercel.app');
-            alert(language === 'ko' ? '주소가 복사되었습니다!' : 'Link copied to clipboard!');
-          }}
+          onClick={handleCopy}
           className="block sm:flex  items-center justify-between bg-white p-4 rounded-2xl border border-[#E8DCCF] cursor-pointer hover:border-[#F47521] transition-all group active:scale-[0.98]"
         >
           <div className="text-[#F47521] font-mono text-sm font-bold">koreansaju.vercel.app</div>

@@ -873,7 +873,7 @@ const NewYearAdKr = () => {
               </div>
             </div>
             {/* 5. 하단 CTA 및 안내 섹션 */}
-            <CopyUrlAd />
+           <CopyUrlAd saju={saju} from='newyearadkr'/>
           </div>
         </div>
       )}
