@@ -317,10 +317,11 @@ const SazaTalkAd = () => {
       };
 
       // DB 업데이트 (카운트 + 질문로그)
-
       await setDoc(
-        doc(db, 'sazatalkad_logs', guestId || user?.uid),
+        doc(db, 'sazatalkad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
         {
+          id: guestId || user?.uid,
+          user: !!user,
           saju: saju,
           usageHistory: { question_history: arrayUnion(newQuestionLog) },
         },

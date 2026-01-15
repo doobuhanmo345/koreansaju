@@ -59,7 +59,7 @@ const NewYearAdKr = () => {
     if (userData) return;
 
     try {
-      await addDoc(collection(db, 'sazatalk_funnel_logs'), {
+      await addDoc(collection(db, 'newYear_funnel_logs'), {
         step: stepName,
         uid: currentGuestId || guestId,
         isLoggedIn: false, // 비회원임을 명확히 기록
@@ -226,28 +226,18 @@ const NewYearAdKr = () => {
       // 5. API 호출 및 DB 업데이트 (ZLastNewYear 필드 사용)
 
       const result = await fetchGeminiAnalysis(fullPrompt);
+      await setDoc(
+        doc(db, 'newyearad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
+        {
+          id: guestId || user?.uid,
+          user: !!user,
+          saju: saju,
+     
+        },
+        { merge: true },
+      );
 
-      //   await setDoc(
-      //     doc(db, 'users', user.uid),
-      //     {
-      //       saju: saju,
-      //       editCount: increment(1),
-      //       lastEditDate: todayDate,
-      //       usageHistory: {
-      //         ZLastNewYear: {
-      //           result: result,
-      //           year: nextYear,
-      //           saju: saju,
-      //           language: language,
-      //           gender: gender,
-      //         },
-      //       },
-      //       dailyUsage: {
-      //         [todayDate]: increment(1),
-      //       },
-      //     },
-      //     { merge: true },
-      //   );
+       
 
       // 6. 결과 반영 및 이동
 
