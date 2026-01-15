@@ -214,7 +214,7 @@ export default function BeforeLogin() {
       step0: 'Select Language',
       step1: 'Analyzing your Five Elements based on your birth date.',
       step2: 'Check Your Info',
-      step2: 'Find out after login',
+      step3: 'Find out after login',
       step2_desc: 'Login to save your data.',
       gender_m: 'Male',
       gender_f: 'Female',
