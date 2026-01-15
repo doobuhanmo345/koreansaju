@@ -472,43 +472,118 @@ export default function BeforeLogin() {
           <div className="min-h-[450px] flex flex-col justify-center">
             {showIntro ? (
               /* --- 인트로 에니메이션 세션 --- */
-              <div className="space-y-6 text-center">
-                <div className="space-y-4">
-                  <p className="text-[#3B82F6] font-bold tracking-[0.3em] animate-in fade-in zoom-in-95 duration-700">
+              <>
+                <div className="space-y-10 text-center py-10 overflow-hidden">
+                  {/* 브랜드 태그 */}
+                  <p className="text-[#3B82F6] font-black text-[12px] tracking-[0.4em] animate-pulse">
                     SAJA SAJU
                   </p>
 
-                  <div className="space-y-2">
-                    <h2 className="text-[22px] font-light text-[#1A1A1A] dark:text-white leading-tight animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 fill-mode-both">
-                      복잡한 절차 없이 사주를 무료로 봐주는
-                      <br />
-                      <span className="font-bold">사자사주</span>에 오신 것을 환영해요.
+                  <div className="space-y-6">
+                    <h2 className="text-[24px] font-light text-[#1A1A1A] dark:text-white leading-[1.4] tracking-tight">
+                      {/* 1번 문장 */}
+                      <span
+                        className="block"
+                        style={{
+                          animation: 'fadeInUp 0.8s ease-out 0.3s forwards',
+                          opacity: 0,
+                        }}
+                      >
+                        {language === 'ko' ? '복잡한 절차 없이' : 'No complex steps,'}
+                      </span>
+                      {/* 2번 문장 */}
+                      <span
+                        className="block font-black"
+                        style={{
+                          animation: 'fadeInUp 0.8s ease-out 0.7s forwards',
+                          opacity: 0,
+                        }}
+                      >
+                        {language === 'ko'
+                          ? '무료로 사주를 분석하는'
+                          : 'Get your free Saju analysis'}
+                      </span>
+                      {/* 3번 문장 */}
+                      <span
+                        className="block"
+                        style={{
+                          animation: 'fadeInUp 0.8s ease-out 1.1s forwards',
+                          opacity: 0,
+                        }}
+                      >
+                        {language === 'ko' ? (
+                          <>
+                            <span className="text-[#3B82F6]">사자사주</span>에 오신 것을 환영해요.
+                          </>
+                        ) : (
+                          <>
+                            Welcome to <span className="text-[#3B82F6]">Saja Saju</span>.
+                          </>
+                        )}
+                      </span>
                     </h2>
 
-                    <p className="text-stone-400 text-[15px] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-[1800ms] fill-mode-both">
-                      생일만 넣으면{' '}
-                      <span className="text-[#3B82F6] font-semibold text-lg italic mx-1 char">
-                        매일 3개씩
-                      </span>
-                      <br />
-                      무료 분석 결과를 확인할 수 있습니다.
-                    </p>
+                    {/* 보조 설명 */}
+                    <div
+                      className="space-y-1"
+                      style={{
+                        animation: 'fadeInUp 0.8s ease-out 1.8s forwards',
+                        opacity: 0,
+                      }}
+                    >
+                      <p className="text-stone-400 text-[15px] font-medium leading-relaxed">
+                        {language === 'ko' ? (
+                          <>
+                            생일만 넣으면{' '}
+                            <span className="text-[#3B82F6] font-bold italic underline underline-offset-4 decoration-blue-100">
+                              매일 3개씩
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            Just enter your birthday for{' '}
+                            <span className="text-[#3B82F6] font-bold italic underline underline-offset-4 decoration-blue-100">
+                              3 free reports daily
+                            </span>
+                          </>
+                        )}
+                      </p>
+                      <p className="text-stone-400 text-[15px] font-medium">
+                        {language === 'ko'
+                          ? '정밀한 분석 결과를 확인할 수 있어요.'
+                          : 'Discover your destiny with precision.'}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* 하단 로딩 인디케이터 */}
-                <div className="pt-8 animate-in fade-in duration-1000 delay-[2500ms] fill-mode-both">
-                  <div className="flex justify-center gap-1.5">
-                    {[0, 1, 2].map((i) => (
-                      <div
-                        key={i}
-                        className="w-1.5 h-1.5 bg-blue-100 rounded-full animate-bounce"
-                        style={{ animationDelay: `${i * 0.2}s` }}
-                      />
-                    ))}
+                  {/* 하단 로딩 점 */}
+                  <div
+                    className="pt-6"
+                    style={{
+                      animation: 'fadeInUp 0.8s ease-out 2.5s forwards',
+                      opacity: 0,
+                    }}
+                  >
+                    <div className="flex justify-center items-center gap-2">
+                      {[0, 1, 2].map((i) => (
+                        <div
+                          key={i}
+                          className="w-1.5 h-1.5 bg-blue-200 dark:bg-blue-800 rounded-full animate-bounce"
+                          style={{ animationDelay: `${i * 0.15}s` }}
+                        />
+                      ))}
+                    </div>
                   </div>
+
+                  {/* ✅ 로컬 스타일 시트: Keyframes를 직접 주입 */}
+                  <style>{`
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `}</style>
                 </div>
-              </div>
+              </>
             ) : (
               <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
                 <div className="text-center space-y-3">
@@ -811,55 +886,56 @@ export default function BeforeLogin() {
               )}
             </div>
             <div className="mt-6 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-              <div className="bg-white dark:bg-[#1A1A1A] rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-stone-50 dark:border-white/5">
-                <div className="space-y-10 text-left">
-                  {/* 1. 핵심 정체성 (Identity) - 가장 강조되는 메인 카드 */}
-                  <section className="relative px-1">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-xl shadow-sm">
+              <div className="bg-white dark:bg-[#1A1A1A] rounded-[28px] shadow-[0_15px_40px_rgba(0,0,0,0.02)] border border-stone-50 dark:border-white/5 overflow-hidden">
+                <div className=" space-y-8 text-left">
+                  {/* 1. 핵심 정체성 (Identity) - 컴팩트하게 조정 */}
+                  <section className="relative">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-base shadow-sm">
                         {preview.coreEmoji}
                       </div>
                       <div className="space-y-0.5">
-                        <h3 className="text-[10px] font-black text-[#3B82F6] uppercase tracking-[0.2em]">
+                        <h3 className="text-[9px] font-black text-[#3B82F6] uppercase tracking-[0.2em]">
                           {language === 'ko' ? 'Identity' : 'Identity'}
                         </h3>
-                        <div className="h-0.5 w-4 bg-[#3B82F6] rounded-full opacity-50" />
+                        <div className="h-0.5 w-3 bg-[#3B82F6] rounded-full opacity-40" />
                       </div>
                     </div>
-                    <p className="text-[19px] font-black text-[#1A1A1A] dark:text-white leading-[1.45] break-keep">
+                    {/* 텍스트 크기를 19px -> 16px로 축소, 두께는 유지 */}
+                    <p className="text-[16px] font-bold text-[#1A1A1A] dark:text-white leading-[1.6] break-keep px-0.5">
                       {preview.coreText}
                     </p>
                   </section>
 
-                  {/* 분석 타임라인 섹션 */}
-                  <div className="relative ml-5 pl-8 border-l-[1.5px] border-stone-100 dark:border-stone-800 space-y-10">
+                  {/* 분석 타임라인 섹션 - 선 두께와 간격 미세 조정 */}
+                  <div className="relative ml-1 pl-7 border-l-[1px] border-stone-100 dark:border-stone-800/60 space-y-8">
                     {/* 2. 지배적 에너지 (Dominant Energy) */}
                     <section className="relative">
-                      <div className="absolute -left-[37px] top-1.5 w-[10px] h-[10px] rounded-full bg-[#3B82F6] ring-4 ring-white dark:ring-[#1A1A1A] shadow-sm" />
-                      <h4 className="text-[10px] font-black text-stone-300 dark:text-stone-500 uppercase tracking-widest mb-2">
+                      <div className="absolute -left-[32.5px] top-1.5 w-2 h-2 rounded-full bg-[#3B82F6] ring-[3px] ring-white dark:ring-[#1A1A1A]" />
+                      <h4 className="text-[9px] font-bold text-stone-300 dark:text-stone-600 uppercase tracking-widest mb-1.5">
                         {language === 'ko' ? 'Dominant Energy' : 'Dominant Energy'}
                       </h4>
-                      <p className="text-[15px] font-bold text-stone-700 dark:text-stone-200 leading-relaxed">
+                      <p className="text-[13.5px] font-semibold text-stone-600 dark:text-stone-300 leading-relaxed">
                         {preview.dominantText}
                       </p>
                     </section>
 
                     {/* 3. 잠재 능력 (Hidden Talents) */}
                     <section className="relative">
-                      <div className="absolute -left-[37px] top-1.5 w-[10px] h-[10px] rounded-full bg-emerald-500 ring-4 ring-white dark:ring-[#1A1A1A] shadow-sm" />
-                      <h4 className="text-[10px] font-black text-stone-300 dark:text-stone-500 uppercase tracking-widest mb-3">
+                      <div className="absolute -left-[32.5px] top-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-[3px] ring-white dark:ring-[#1A1A1A]" />
+                      <h4 className="text-[9px] font-bold text-stone-300 dark:text-stone-600 uppercase tracking-widest mb-2.5">
                         {language === 'ko' ? 'Hidden Talents' : 'Hidden Talents'}
                       </h4>
-                      <div className="grid gap-2">
+                      <div className="grid gap-1.5">
                         {preview.talentText
                           ?.split(']')
                           .filter((t) => t.trim())
                           .map((item, idx) => (
                             <div
                               key={idx}
-                              className="flex items-start gap-2 text-[14px] font-semibold text-stone-600 dark:text-stone-400 bg-stone-50 dark:bg-stone-800/40 p-2.5 rounded-xl border border-stone-50 dark:border-transparent"
+                              className="flex items-start gap-2 text-[13px] font-medium text-stone-500 dark:text-stone-400  p-2 rounded-lg"
                             >
-                              <span className="text-emerald-500">•</span>
+                              <span className="text-emerald-500 text-[10px] mt-0.5">•</span>
                               <span>{item.replace('[', '')}</span>
                             </div>
                           ))}
@@ -868,11 +944,11 @@ export default function BeforeLogin() {
 
                     {/* 4. 인생의 주기 (Life Cycle) */}
                     <section className="relative">
-                      <div className="absolute -left-[37px] top-1.5 w-[10px] h-[10px] rounded-full bg-amber-500 ring-4 ring-white dark:ring-[#1A1A1A] shadow-sm" />
-                      <h4 className="text-[10px] font-black text-stone-300 dark:text-stone-500 uppercase tracking-widest mb-2">
+                      <div className="absolute -left-[32.5px] top-1.5 w-2 h-2 rounded-full bg-amber-500 ring-[3px] ring-white dark:ring-[#1A1A1A]" />
+                      <h4 className="text-[9px] font-bold text-stone-300 dark:text-stone-600 uppercase tracking-widest mb-1.5">
                         {language === 'ko' ? 'Life Cycle' : 'Life Cycle'}
                       </h4>
-                      <p className="text-[15px] font-bold text-stone-700 dark:text-stone-200 leading-relaxed">
+                      <p className="text-[13.5px] font-semibold text-stone-600 dark:text-stone-300 leading-relaxed">
                         {preview.daewoonText}
                       </p>
                     </section>
@@ -1058,7 +1134,7 @@ export default function BeforeLogin() {
 
         {/* 하단 로그인 안내 (Step 1, 2에서만 표시) */}
         {(step === 1 || step === 2) && (
-          <div className="pt-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+          <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
             {/* 배경과 대비를 준 실질적인 버튼 형태의 가이드 */}
             <div className="inline-block w-full max-w-[300px] p-[1px] bg-gradient-to-r from-transparent via-stone-200 dark:via-slate-700 to-transparent mb-6">
               {/* 얇은 그라데이션 선으로 위아래 구분 */}
