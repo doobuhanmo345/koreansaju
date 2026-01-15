@@ -1,3 +1,4 @@
+import AfterReport from '../component/AfterReport';
 import { useLoading } from '../context/useLoadingContext';
 import { aiSajuStyle, reportStyle } from '../data/aiResultConstants';
 import react, { useMemo, useEffect, useRef } from 'react';
@@ -64,6 +65,7 @@ export default function ViewResult({}) {
         <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
         {/* <div dangerouslySetInnerHTML={{ __html: reportStyle }} /> */}
         <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} />
+        <AfterReport />
       </div>
     </>
   );

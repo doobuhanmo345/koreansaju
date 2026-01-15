@@ -41,8 +41,6 @@ input {
     -apple-system,
     sans-serif;
   color: #4a3a31;
-  padding-bottom: 80px;
-
   line-height: 1.6;
 }
 
@@ -69,15 +67,15 @@ input {
   margin-bottom: 24px;
   margin-top: 24px;
 }
- .sjsj-sub-section-title {
-    font-size: 18px;
-    color: #8c7a70;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    border-left: 4px solid #d84315; /* Main Indigo accent */
-    padding-left: 10px;
-    font-weight: 600;
-  }
+.sjsj-sub-section-title {
+  font-size: 18px;
+  color: #8c7a70;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-left: 4px solid #d84315; /* Main Indigo accent */
+  padding-left: 10px;
+  font-weight: 600;
+}
 .sjsj-main-content {
   font-size: 1rem;
   color: hsl(21, 11%, 49%);
@@ -394,32 +392,32 @@ input {
   background: rgba(255, 255, 255, 0.9);
   padding: 15px 25px;
   border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: bold;
-  color: #F47521;
+  color: #f47521;
   border: 1px solid #F47521/20;
 }
 
-.sjsj-advice-highlight-box{
+.sjsj-advice-highlight-box {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   background-color: rgba(255, 228, 214, 0.5);
-  border: 1px solid #FFD8C4;
+  border: 1px solid #ffd8c4;
   padding: 18px 20px;
   border-radius: 16px;
   margin: 25px 0;
 }
 /* CSS로 아이콘을 강제로 주입 */
 .sjsj-advice-highlight-box::before {
-  content: "💡";              /* 여기에 아이콘을 넣습니다 */
+  content: '💡'; /* 여기에 아이콘을 넣습니다 */
   font-size: 20px;
   line-height: 1;
   flex-shrink: 0;
-  margin-top: 2px;            /* 텍스트 첫 줄과 높이 맞춤 */
+  margin-top: 2px; /* 텍스트 첫 줄과 높이 맞춤 */
 }
 
 .sjsj-advice-highlight-box .sjsj-advice-text {
@@ -430,7 +428,7 @@ input {
 }
 
 .sjsj-advice-highlight-box .sjsj-advice-text strong {
-  color: #D2691E;
+  color: #d2691e;
   font-weight: 900;
   margin-right: 4px;
 }

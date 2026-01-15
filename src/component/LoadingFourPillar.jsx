@@ -95,6 +95,15 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
       ? '당신만을 위한 고유한 리포트를 정갈하게 정리 중입니다'
       : '최종 합산: 전체적인 기운을 조율하는 중...(5/5)',
   };
+  const statusMessagesEn = {
+    1: 'Year Pillar: Scanning ancestral energy and fundamental roots (1/5)',
+    2: 'Month Pillar: Analyzing social success and career environment (2/5)',
+    3: 'Day Pillar: Identifying your core essence and relationship harmony (3/5)',
+    4: 'Hour Pillar: Mapping out future potential and life milestones (4/5)',
+    5: isDeepAnalyzing
+      ? 'Crafting your unique, personalized report with precision...'
+      : 'Final Synthesis: Harmonizing the overall energy flow (5/5)',
+  };
 
   return (
     <div className="flex flex-col items-center justify-center py-5 select-none px-2 relative">
@@ -128,11 +137,16 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
           <div className="space-y-2">
             <h3 className="text-md font-serif font-light italic text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
               <span className="not-italic font-normal">“</span>
+              {language === 'en' ? statusMessagesEn[analysisStep] : statusMessages[analysisStep]}
               {statusMessages[analysisStep]}
               <span className="not-italic font-normal">”</span>
             </h3>
             <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 transition-opacity duration-1000">
-              {subLog || '당신만의 고유한 빛을 찾아내고 있습니다'}
+              {language === 'en' ? (
+                <>{subLog || 'Discovering your unique inner radiance'}</>
+              ) : (
+                <>{subLog || '당신만의 고유한 빛을 찾아내고 있습니다'}</>
+              )}
             </p>
           </div>
         </div>
