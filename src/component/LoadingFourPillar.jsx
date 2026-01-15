@@ -138,7 +138,7 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
             <h3 className="text-md font-serif font-light italic text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
               <span className="not-italic font-normal">“</span>
               {language === 'en' ? statusMessagesEn[analysisStep] : statusMessages[analysisStep]}
-              {statusMessages[analysisStep]}
+             
               <span className="not-italic font-normal">”</span>
             </h3>
             <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 transition-opacity duration-1000">
