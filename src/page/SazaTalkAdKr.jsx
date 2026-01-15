@@ -231,9 +231,10 @@ const SazaTalkAdKr = () => {
       };
 
       // DB 업데이트 (카운트 + 질문로그)
-
+      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+      const docId = `${safeDate}_${guestId || user?.uid}`;
       await setDoc(
-        doc(db, 'sazatalkad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
+        doc(db, 'sazatalkad_logs', docId),
         {
           id: guestId || user?.uid,
           user: !!user,
@@ -790,7 +791,7 @@ const SazaTalkAdKr = () => {
             </div>
 
             {/* 5. 하단 CTA 및 안내 섹션 */}
-            <CopyUrlAd saju={saju} from='sazatalkadkr'/>
+            <CopyUrlAd saju={saju} from="sazatalkadkr" />
           </div>
         </div>
       )}

@@ -226,18 +226,18 @@ const NewYearAdKr = () => {
       // 5. API 호출 및 DB 업데이트 (ZLastNewYear 필드 사용)
 
       const result = await fetchGeminiAnalysis(fullPrompt);
+      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+      const docId = `${safeDate}_${guestId || user?.uid}`;
+
       await setDoc(
-        doc(db, 'newyearad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
+        doc(db, 'newyearad_logs', docId),
         {
           id: guestId || user?.uid,
           user: !!user,
           saju: saju,
-     
         },
         { merge: true },
       );
-
-       
 
       // 6. 결과 반영 및 이동
 
@@ -741,12 +741,21 @@ const NewYearAdKr = () => {
                           <div className="w-8 h-8 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-100 text-sm">
                             🦁
                           </div>
-                          <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm">
-                            특히 **5월과 10월** 사이에는 '이것' 때문에 재물운이 크게 흔들릴 수
-                            있는데...
+                          <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm leading-relaxed">
+                            {language === 'en' ? (
+                              <>
+                                Your financial luck could fluctuate significantly between
+                                <span className="font-bold"> May and October</span> due to "one
+                                specific factor"...
+                              </>
+                            ) : (
+                              <>
+                                특히 <span className="font-bold">5월과 10월</span> 사이에는 '이것'
+                                때문에 재물운이 크게 흔들릴 수 있는데...
+                              </>
+                            )}
                           </div>
                         </div>
-
                         {/* 사용자 리액션 유도 (더 리얼하게) */}
                         <div className="flex justify-end">
                           <div className="bg-[#F47521] text-white p-3 px-5 rounded-[20px] rounded-br-none text-[14px] font-bold shadow-md">
@@ -766,25 +775,89 @@ const NewYearAdKr = () => {
                       </div>
 
                       {/* (D) 결제 유도 카드 (그라데이션 위에 띄우기) */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-end pb-4">
-                        <div className="w-full text-center px-6 py-8 bg-white/40 backdrop-blur-xl rounded-[32px] border border-white/50 shadow-[0_20px_50px_rgba(0,0,0,0.1)] ring-1 ring-black/5">
-                          <div className="inline-block px-3 py-1 bg-orange-100 text-orange-600 rounded-full text-[10px] font-black tracking-widest uppercase mb-3">
-                            Premium Analysis
+                      <div className="relative w-full max-w-[360px] mx-auto overflow-hidden bg-[#FEFAF7] rounded-[38px] border border-[#F1E9E4] shadow-[0_20px_40px_rgba(0,0,0,0.04)]">
+                        {/* 상단 포인트 라인 */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-200 via-orange-400 to-orange-200"></div>
+
+                        <div className="px-7 pt-9 pb-8 text-center">
+                          {/* 배지 */}
+                          <div className="inline-flex items-center px-3 py-1 bg-white border border-orange-100 rounded-full mb-5 shadow-sm">
+                            <span className="text-[10px] font-bold text-orange-500 tracking-tighter uppercase">
+                              {language === 'en' ? 'Limited Offer' : '한정 이벤트'}
+                            </span>
+                            <span className="w-[1px] h-2 bg-orange-200 mx-2"></span>
+                            <span className="text-[10px] font-medium text-stone-400">Premium</span>
                           </div>
-                          <p className="text-[#4A3428] font-black text-xl mb-2">
-                            추가적인 나의 <span className="text-[#F47521]">올해의 운세</span>
-                          </p>
-                          <p className="text-[#4A3428]/70 text-sm mb-6 leading-relaxed">
-                            사자사주 분석팀이 준비한
-                            <br />
-                            당신만을 위한 유료 리포트를 확인하세요.
-                          </p>
+
+                          {/* 메인 타이틀 */}
+                          <h2 className="text-[#3A322F] text-[22px] font-bold leading-tight mb-3 tracking-tight">
+                            {language === 'en' ? (
+                              <>
+                                Get Your <span className="text-[#F47521]">Premium Report</span>
+                                <br />
+                                Free on Our Website
+                              </>
+                            ) : (
+                              <>
+                                지금 홈페이지 방문하면
+                                <br />
+                                <span className="text-[#F47521]">프리미엄 리포트가 무료</span>
+                              </>
+                            )}
+                          </h2>
+
+                          {/* 핵심 메시지 강조 영역 */}
+                          <div className="bg-orange-50/50 rounded-2xl py-3 px-4 mb-6">
+                            <p className="text-[#6D625B] text-sm leading-relaxed">
+                              {language === 'en' ? (
+                                <>
+                                  No hidden fees.{' '}
+                                  <span className="font-bold text-[#4A3428]">100% Free</span> ✨
+                                  <br />
+                                  Access all analyses at no extra cost.
+                                </>
+                              ) : (
+                                <>
+                                  결제 유도 없는{' '}
+                                  <span className="font-bold text-[#4A3428]">0원 이벤트</span> ✨
+                                  <br />
+                                  추가 비용 없이 모든 분석을 확인하세요.
+                                </>
+                              )}
+                            </p>
+                          </div>
+
+                          {/* 콜 투 액션 버튼 */}
                           <button
                             onClick={() => (window.location.href = '/pay')}
-                            className="w-full bg-[#4A3428] text-white py-4 rounded-[22px] font-black text-lg shadow-[0_10px_25px_rgba(74,52,40,0.3)] active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+                            className="w-full h-[58px] bg-[#3A322F] hover:bg-[#2D2725] text-white rounded-[20px] font-semibold text-base shadow-lg shadow-stone-200 transition-all active:scale-[0.96] flex items-center justify-center gap-2"
                           >
-                            리포트 잠금 해제 🔓
+                            <span>
+                              {language === 'en' ? 'Get Free Report' : '무료로 리포트 받기'}
+                            </span>
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M5 12H19M19 12L12 5M19 12L12 19"
+                                stroke="white"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                           </button>
+
+                          {/* 하단 보조 문구 */}
+                          <p className="mt-4 text-[12px] text-stone-400 font-medium">
+                            {language === 'en'
+                              ? '* Report generated instantly after login'
+                              : '* 로그인 즉시 리포트가 생성됩니다'}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -873,7 +946,7 @@ const NewYearAdKr = () => {
               </div>
             </div>
             {/* 5. 하단 CTA 및 안내 섹션 */}
-           <CopyUrlAd saju={saju} from='newyearadkr'/>
+            <CopyUrlAd saju={saju} from="newyearadkr" />
           </div>
         </div>
       )}
