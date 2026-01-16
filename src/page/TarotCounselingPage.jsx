@@ -89,11 +89,11 @@ export default function TarotCounselingPage() {
 고민내용: ${userQuestion} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(counselingPrompt);
-        const newCount = currentCount + 1;
+       
         await setDoc(
           doc(db, 'users', user.uid),
           {
-            editCount: newCount,
+            editCount: increment(1),
             lastEditDate: new Date().toLocaleDateString('en-CA'),
             dailyUsage: {
               [new Date().toLocaleDateString('en-CA')]: increment(1),
@@ -107,7 +107,7 @@ export default function TarotCounselingPage() {
           { merge: true },
         );
 
-        setEditCount(newCount);
+        setEditCount((prev) => prev + 1);
         setAiResult(result);
         onStart();
       } catch (e) {

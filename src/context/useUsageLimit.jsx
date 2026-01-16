@@ -30,7 +30,7 @@ export const useUsageLimit = () => {
   const incrementUsage = async (additionalData = {}) => {
     if (!user) return;
 
-    const newCount = editCount + 1;
+   
     const todayDate = new Date().toLocaleDateString('en-CA');
 
     const baseData = {
@@ -43,8 +43,8 @@ export const useUsageLimit = () => {
 
     await setDoc(doc(db, 'users', user.uid), { ...baseData, ...additionalData }, { merge: true });
 
-    setEditCount(newCount);
-    return newCount;
+     setEditCount((prev) => prev + 1);
+    return editCount;
   };
 
   const checkLimit = () => {

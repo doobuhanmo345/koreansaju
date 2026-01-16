@@ -112,7 +112,7 @@ export default function SajuAnalysisPage() {
       }
 
       // 4. 새로운 분석 시작 - DB 업데이트 및 에너지 소모
-      const newCount = editCount + 1;
+   
       const today = new Date().toLocaleDateString('en-CA');
 
       await setDoc(
@@ -134,7 +134,7 @@ export default function SajuAnalysisPage() {
       );
 
       // 5. 로컬 상태 업데이트 및 로딩 시작
-      setEditCount(newCount);
+     setEditCount((prev) => prev + 1);
       onStart(); // 여기서 AnalysisStepContainer가 Loading으로 넘어감
     } catch (e) {
       console.error(e);

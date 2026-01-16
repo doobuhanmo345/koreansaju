@@ -89,12 +89,15 @@ export default function SazaTalk() {
           editCount: increment(1),
           lastEditDate: new Date().toLocaleDateString('en-CA'),
           usageHistory: { question_history: arrayUnion(newQuestionLog) },
+          dailyUsage: {
+            [todayDate]: increment(1),
+          },
         },
         { merge: true },
       );
 
       // App 상태 업데이트
-      setEditCount(newCount);
+      setEditCount((prev) => prev + 1);
 
       setAiResult(result);
       onStart();
@@ -204,8 +207,6 @@ export default function SazaTalk() {
               )}
             </p>
 
-         
-
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
               <img
                 src="/images/introcard/sazatalk_1.jpg"
@@ -302,8 +303,6 @@ export default function SazaTalk() {
                 </>
               )}
             </p>
-
-           
           </div>
         </div>
         <div className="flex items-center gap-2 mb-4 text-purple-600">
