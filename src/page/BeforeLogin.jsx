@@ -440,33 +440,57 @@ export default function BeforeLogin() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 tracking-tight font-light">
-      {step > 1 && !isAnalyzing && (
-        <button
-          onClick={handleBack}
-          className="absolute left-5 top-6 z-20 p-2 rounded-full 
-               bg-white dark:bg-slate-800 
-               text-[#3B82F6] dark:text-[#3B82F6] 
-               shadow-[0_4px_12px_rgba(0,0,0,0.1)] 
-               border border-slate-100 dark:border-slate-700
-               hover:bg-slate-50 dark:hover:bg-slate-700 
-               active:scale-90 transition-all duration-200"
-          aria-label="Go back"
-        >
-          <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
-        </button>
-      )}
-
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-slate-100 dark:border-slate-800">
         {/* Progress Bar */}
-        <div className="flex justify-center items-center gap-2 mb-2">
-          {[1, 2, 3].map((s) => (
-            <div
-              key={s}
-              className={`h-[3px] rounded-full transition-all duration-700 ${
-                step >= s ? 'w-10 bg-[#3B82F6]' : 'w-2 bg-stone-100 dark:bg-stone-800'
-              }`}
-            />
-          ))}
+        <div className="flex items-center justify-between w-full mb-6 px-2">
+          {/* 1. 뒤로가기 버튼 (1단계에서는 안 보임) */}
+          <div className="w-12">
+            {/* 좌우 균형을 위한 고정 너비 */}
+            {step > 1 && (
+              <button
+                onClick={() => setStep((prev) => prev - 1)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-900 transition-all active:scale-90"
+                aria-label="뒤로가기"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 19.5L8.25 12l7.5-7.5"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* 2. 기존 프로그레스 바 (가운데) */}
+          <div className="flex justify-center items-center gap-2">
+            {[1, 2, 3].map((s) => (
+              <div
+                key={s}
+                className={`h-[3px] rounded-full transition-all duration-700 ${
+                  step >= s ? 'w-10 bg-[#3B82F6]' : 'w-2 bg-stone-200 dark:bg-stone-800'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* 3. 언어 선택 버튼 (오른쪽) */}
+          <div className="w-12 flex justify-end">
+            <button
+              onClick={() => setLanguage(language === 'ko' ? 'en' : 'ko')}
+              className="text-[12px] font-bold py-1 px-2 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 hover:text-[#3B82F6] transition-all active:scale-95"
+            >
+              {language === 'ko' ? 'EN' : 'KO'}
+            </button>
+          </div>
         </div>
         {step === 1 && (
           <div className="min-h-[450px] flex flex-col justify-center">
