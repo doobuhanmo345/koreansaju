@@ -313,13 +313,7 @@ const NewYearAdKr = () => {
     }
     handleNewYear();
   };
-  //내 일주
-  const me = saju?.sky1;
-  const meg = saju?.grd1;
-
-  const me_exp = dayStem.find((i) => i.name_kr === me);
-  const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
-
+  
   const Loading = () => {
     return (
       <div className="bg-[#FDF5F0] min-h-screen flex flex-col items-center justify-center overflow-hidden transform-gpu px-6">
@@ -424,7 +418,7 @@ const NewYearAdKr = () => {
           <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
         </button>
       )}
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
             <NewYearKr setStep={() => setStep(1)} />

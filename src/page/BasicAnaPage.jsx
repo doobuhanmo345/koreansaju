@@ -296,7 +296,7 @@ export default function BasicAnaPage() {
       }
 
       // 5. DB 업데이트 (aiAnalysis 스테이트 대신, 방금 받은 따끈따끈한 'result' 변수 사용)
-      const newCount = currentCount + 1;
+    
       await setDoc(
         doc(db, 'users', user.uid),
         {

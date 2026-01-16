@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 // 2. External Libraries (Firebase, Icons)
 import { doc, setDoc, increment } from 'firebase/firestore';
 import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { SunIcon, HeartIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
-import { FaHorseHead, FaDownload } from 'react-icons/fa';
+import { ArrowRightIcon } from '@heroicons/react/24/solid';
+import { FaDownload } from 'react-icons/fa';
 import html2canvas from 'html2canvas';
 
 // 3. Internal Config & API
 import { db } from './lib/firebase';
-import { fetchGeminiAnalysis } from './api/gemini';
-
 // 4. Contexts
 import { useAuthContext } from './context/useAuthContext';
 import { useTheme } from './context/useThemeContext';
@@ -19,17 +17,12 @@ import { useLanguage } from './context/useLanguageContext';
 import { useUsageLimit } from './context/useUsageLimit';
 
 // 5. Custom Hooks
-import { useConsumeEnergy } from './hooks/useConsumingEnergy';
 import { useSajuCalculator } from './hooks/useSajuCalculator';
 import { useModal } from './hooks/useModal';
-
-// 6. Utils & Helpers
-import { getPillars } from './utils/sajuCalculator';
 
 // 7. Data & Constants
 import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
 import { UI_TEXT, BD_EDIT_UI, langPrompt, hanja } from './data/constants';
-import { calculateSaju } from './utils/sajuCalculator';
 import { useLoading } from './context/useLoadingContext';
 // 8. Components (UI & Features)
 import SajuBlur from './component/SajuBlur';
@@ -38,21 +31,16 @@ import BeforeLogin from './page/BeforeLogin';
 import { useNavigate } from 'react-router-dom';
 import MainIcons from './component/MainIcons';
 import SubIcons from './component/SubIcons';
-import FeedbackBanner from './ui/FeedbackBanner';
-import TodaysLuckBanner from './ui/TodaysLuckBanner';
 import SazaTalkBanner from './ui/SazaTalkBanner';
 import NewYearBanner from './ui/NewYearBanner';
+import MyInfoBar from './component/MyInfoBar';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
   const { language } = useLanguage();
   const {
-    editCount,
     setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)
     MAX_EDIT_COUNT,
-    isLocked,
-    incrementUsage,
-    checkLimit,
   } = useUsageLimit(user, userData, language);
   const { theme } = useTheme();
 
@@ -63,26 +51,6 @@ export default function App() {
   // 저장/수정 상태
   const [isSaved, setIsSaved] = useState(false);
 
-  // 결과 상태
-  const [resultType, setResultType] = useState(null); // 'main', 'year', 'daily'
-  const [aiResult, setAiResult] = useState('');
-  const [cachedData, setCachedData] = useState(null);
-
-  // 모달 상태
-  const { isModalOpen, openModal, closeModal } = useModal();
-
-  // 로딩 상태
-  // 어떤 파일이든 상단에서 이렇게 한 줄 쓰면 끝
-  const {
-    loading,
-    setLoading,
-    loadingType,
-    setLoadingType,
-    isCachedLoading,
-    setIsCachedLoading,
-    progress,
-    setProgress,
-  } = useLoading();
   // 입력 데이터
   const navigate = useNavigate();
   const [inputDate, setInputDate] = useState(() => {
@@ -112,20 +80,9 @@ export default function App() {
       if (userData.isTimeUnknown !== undefined) setIsTimeUnknown(userData.isTimeUnknown);
 
       setEditCount(userData.editCount || 0);
-
-      if (userData.lastAiResult && userData.lastSaju) {
-        setCachedData({
-          saju: userData.lastSaju,
-          result: userData.lastAiResult,
-          prompt: userData.lastPrompt,
-          language: userData.lastLanguage || 'en',
-          gender: userData.lastGender || userData.gender,
-        });
-      }
     } else if (!user) {
       setIsSaved(false);
       setEditCount(0);
-      setCachedData(null);
     }
   }, [user, userData]);
 
@@ -135,78 +92,6 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [theme]);
 
-  // --- 3. 로딩바 Effect ---
-  useEffect(() => {
-    let interval;
-    if (loading) {
-      setProgress(0);
-      interval = setInterval(
-        () => {
-          setProgress((prev) => {
-            if (prev >= 99) return 99;
-            return prev + (isCachedLoading ? 25 : 1);
-          });
-        },
-        isCachedLoading ? 50 : 232,
-      );
-    } else {
-      setProgress(100);
-    }
-    return () => clearInterval(interval);
-  }, [loading, isCachedLoading]);
-
-  const handleEditMode = () => {
-    setIsSaved(false);
-  };
-
-  const handleCancelEdit = async () => {
-    setIsSaved(true);
-    if (user && userData) {
-      if (userData.birthDate) setInputDate(userData.birthDate);
-      if (userData.gender) setGender(userData.gender);
-      if (userData.isTimeUnknown !== undefined) setIsTimeUnknown(userData.isTimeUnknown);
-    }
-  };
-
-  const handleSaveMyInfo = async () => {
-    if (!user) {
-      alert(UI_TEXT.loginReq[language]);
-      login();
-      return;
-    }
-
-    if (window.confirm(UI_TEXT.saveConfirm[language])) {
-      try {
-        const todayStr = new Date().toLocaleDateString('en-CA');
-        await setDoc(
-          doc(db, 'users', user.uid),
-          {
-            birthDate: inputDate,
-            gender,
-            isTimeUnknown,
-            updatedAt: new Date(),
-            lastEditDate: todayStr,
-            email: user.email,
-          },
-          { merge: true },
-        );
-        setIsSaved(true);
-        alert(UI_TEXT.saveSuccess[language]);
-      } catch (error) {
-        console.error(error);
-        alert(UI_TEXT.saveFail[language]);
-      }
-    }
-  };
-
-  // 분석 완료 여부 체크 (버튼 상태용)
-
-  const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-
-  const checkSajuMatch = (targetSaju) => {
-    if (!targetSaju) return false;
-    return sajuKeys.every((key) => targetSaju[key] === saju[key]);
-  };
 
   const handleShareImg = async (id) => {
     const el = document.getElementById(id);
@@ -374,47 +259,7 @@ export default function App() {
       </div>
       <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-lg border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto mb-2 p-2 px-4 dark:text-white flex items-center justify-between">
         {userData?.birthDate ? (
-          <>
-            <div className="flex items-center gap-3 text-sm tracking-tight">
-              {/* 날짜와 시간 세트 */}
-              <div className="flex items-center gap-1.5">
-                <span className="text-indigo-500 dark:text-indigo-400 font-bold text-[10px] uppercase">
-                  Birth
-                </span>
-                <span className="font-medium">
-                  {userData.birthDate.split('T')[0].replace(/-/g, '.')}
-                </span>
-                <span className="text-slate-400 dark:text-slate-600 text-xs font-light">
-                  {userData?.isTimeUnknown
-                    ? language === 'en'
-                      ? 'Time Unknown'
-                      : '시간 모름'
-                    : userData.birthDate.split('T')[1]}
-                </span>
-              </div>
-
-              {/* 성별 배지 */}
-              <div
-                className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${
-                  userData.gender === 'male'
-                    ? 'bg-blue-50 text-blue-500 dark:bg-blue-900/30'
-                    : 'bg-rose-50 text-rose-500 dark:bg-rose-900/30'
-                }`}
-              >
-                {userData.gender === 'male' ? 'M' : 'F'}
-              </div>
-            </div>
-
-            {/* 수정하기 버튼 */}
-            <button
-              onClick={() => {
-                navigate('/editprofile');
-              }}
-              className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-4"
-            >
-              {language === 'ko' ? '수정하기' : 'Edit'}
-            </button>
-          </>
+          <MyInfoBar />
         ) : (
           <span className="text-xs text-slate-400 mx-auto">데이터가 없습니다.</span>
         )}
@@ -422,53 +267,11 @@ export default function App() {
       {/* 배너 */}
       <SazaTalkBanner />
       <NewYearBanner />
-
-      
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
       {!user && <SajuBlur MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
       {/* 내 정보 및 사주 시각화 카드 */}
+
       <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto my-2">
-        {!userData?.birthDate && (
-          <div className="mb-3 relative p-4 bg-white/60 dark:bg-slate-800/60 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm backdrop-blur-sm">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-100 dark:bg-indigo-900 px-3 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-700">
-              <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-300 tracking-widest uppercase">
-                <UserCircleIcon className="w-3 h-3" />
-                <span>My Profile</span>
-              </div>
-            </div>
-
-            <div className="absolute top-2 right-2">
-              {isSaved ? (
-                <button
-                  onClick={handleEditMode}
-                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-full transition-all"
-                  title={BD_EDIT_UI.edit[language]}
-                >
-                  <PencilSquareIcon className="w-5 h-5" />
-                </button>
-              ) : (
-                <button
-                  onClick={handleCancelEdit}
-                  className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
-                >
-                  <XMarkIcon className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-
-            <ModifyBd
-              gender={gender}
-              inputDate={inputDate}
-              isTimeUnknown={isTimeUnknown}
-              setIsTimeUnknown={setIsTimeUnknown}
-              saju={saju}
-              handleSaveMyInfo={handleSaveMyInfo}
-              setInputDate={setInputDate}
-              isSaved={isSaved}
-              setGender={setGender}
-            />
-          </div>
-        )}
         <div className="flex items-center justify-between  p-3 ">
           {userData?.birthDate && (
             <div className="mx-auto max-w-lg p-3 relative overflow-hidden group">
@@ -530,12 +333,8 @@ export default function App() {
               </div>
             </div>
           )}
-          {/* {!isSaved && user && saju?.sky1 && (
-            <FourPillarVis isTimeUnknown={isTimeUnknown} saju={saju} />
-          )} */}
         </div>
       </div>
-
       <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 mb-3">
         <div className="mb-6 ml-1 text-left">
           <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">

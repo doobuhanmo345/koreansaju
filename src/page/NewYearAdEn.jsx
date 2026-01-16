@@ -227,10 +227,11 @@ const NewYearAdEn = () => {
 
       const result = await fetchGeminiAnalysis(fullPrompt);
 
-const safeDate = new Date().toISOString().replace(/[:.]/g, '-'); 
-const docId = guestId || user?.uid;
+      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+      const docId = guestId || user?.uid;
 
-await setDoc(doc(db, 'newyearad_logs', docId), 
+      await setDoc(
+        doc(db, 'newyearad_logs', docId),
         {
           id: guestId || user?.uid,
           date: safeDate,
@@ -424,7 +425,7 @@ await setDoc(doc(db, 'newyearad_logs', docId),
           <ChevronLeftIcon className="w-6 h-6 stroke-[3px]" />
         </button>
       )}
-      <div className="max-w-3xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
             <NewYearEn setStep={() => setStep(1)} />

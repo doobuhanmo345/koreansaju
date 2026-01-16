@@ -314,21 +314,7 @@ export default function TodaysLuckPage() {
 
       // --- 5. Gemini API 호출 ---
       const result = await fetchGeminiAnalysis(fullPrompt);
-      // 4. 새로운 분석 데이터 준비 (API 프롬프트 생성용)
-
-      // if (!todayPillars || !tomorrowPillars) return;
-
-      // const userSajuText = `${saju.sky3}${saju.grd3}년 ${saju.sky2}${saju.grd2}월 ${saju.sky1}${saju.grd1}일 ${saju.sky0}${saju.grd0}시`;
-      // const todaySajuText = `${todayPillars.sky3}${todayPillars.grd3}년 ${todayPillars.sky2}${todayPillars.grd2}월 ${todayPillars.sky1}${todayPillars.grd1}일`;
-      // const tomorrowSajuText = `${tomorrowPillars.sky3}${tomorrowPillars.grd3}년 ${tomorrowPillars.sky2}${tomorrowPillars.grd2}월 ${tomorrowPillars.sky1}${tomorrowPillars.grd1}일`;
-
-      // const fullPrompt = `${STRICT_INSTRUCTION[language]}\n${DAILY_FORTUNE_PROMPT[language]}\n[User Gender] ${gender}\n[User Saju] ${userSajuText}\n[Today: ${todayPillars.date}] ${todaySajuText}\n[Tomorrow: ${tomorrowPillars.date}] ${tomorrowSajuText}\n${langPrompt(language)}\n${hanja(language)}`;
-
-      // // 5. API 호출 및 DB 업데이트
-
-      // const result = await fetchGeminiAnalysis(fullPrompt);
-      // const newCount = currentCount + 1;
-
+      
       await setDoc(
         doc(db, 'users', user.uid),
         {

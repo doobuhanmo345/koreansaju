@@ -43,6 +43,7 @@ import SazaTalkAd from './page/SazaTalkAd';
 import NewYearAdKr from './page/NewYearAdKr';
 import SazaTalkAdKr from './page/SazaTalkAdKr';
 import NewYearAdEn from './page/NewYearAdEn';
+import TestAnalysisPage from './page/TestAnalysisPage';
 
 const RootComponent = () => {
   const { user, userData, loadingUser } = useAuthContext();
@@ -50,7 +51,7 @@ const RootComponent = () => {
   // 수정 제안
   const pathname = window.location.pathname;
   const isSpecialPage =
-    /^\/(ad|paywall|sazatalkad|sazatalkadkr|newyearadkr|newyearaden)(\/|$)/.test(pathname);
+    /^\/(ad|paywall|sazatalkad|sazatalkadkr|newyearadkr|newyearaden|test2)(\/|$)/.test(pathname);
   const isAdPage = /^\/ad(\/|$)/.test(pathname);
   const isBrowserGuide = pathname === '/open-in-browser';
 
@@ -65,6 +66,7 @@ const RootComponent = () => {
           <Route path="/sazatalkad" element={<SazaTalkAd />} />
           <Route path="/newyearadkr" element={<NewYearAdKr />} />
           <Route path="/newyearaden" element={<NewYearAdEn />} />
+          <Route path="/test2" element={<TestAnalysisPage />} />
           {/* 없는 주소로 들어오면 기본적으로 Ad로 보낼지 PayWall로 보낼지 결정 */}
           <Route path="*" element={<Ad />} />
         </Routes>
@@ -115,6 +117,7 @@ const RootComponent = () => {
           <Route path="/todaysluck" element={<TodaysLuckPage />} />
           <Route path="/2026luck" element={<YearlyLuckPage />} />
           <Route path="/test" element={<Test />} />
+          
           <Route path="/wealth" element={<Wealth />} />
           <Route path="/match" element={<Match />} />
           {/* <Route path="/basic" element={<SajuAnalysisPage />} /> */}
