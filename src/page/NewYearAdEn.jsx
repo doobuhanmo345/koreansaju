@@ -697,7 +697,7 @@ await setDoc(doc(db, 'newyearad_logs', docId),
                       </div>
                       <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] font-black text-orange-500/80 uppercase tracking-[0.15em] leading-none">
-                          Saja AI Analyst
+                          Saza AI Analyst
                         </span>
                         {/* 메인 타이틀: 가독성 높은 폰트 두께와 색상 정제 */}
                         <span className="text-[17px] font-black text-[#4A3428] tracking-tight">

@@ -476,7 +476,7 @@ export default function BeforeLogin() {
                 <div className="space-y-10 text-center py-10 overflow-hidden">
                   {/* 브랜드 태그 */}
                   <p className="text-[#3B82F6] font-black text-[12px] tracking-[0.4em] animate-pulse">
-                    SAJA SAJU
+                    SAZA SAZU
                   </p>
 
                   <div className="space-y-6">
@@ -517,7 +517,7 @@ export default function BeforeLogin() {
                           </>
                         ) : (
                           <>
-                            Welcome to <span className="text-[#3B82F6]">Saja Saju</span>.
+                            Welcome to <span className="text-[#3B82F6]">Saza Saju</span>.
                           </>
                         )}
                       </span>
@@ -960,7 +960,7 @@ export default function BeforeLogin() {
               <div className="mt-8 flex justify-center opacity-30">
                 <div className="h-px w-12 bg-stone-300" />
                 <div className="mx-4 text-[10px] font-black tracking-[0.3em] uppercase text-stone-400">
-                  Saja Saju Analysis
+                  Saza Saju Analysis
                 </div>
                 <div className="h-px w-12 bg-stone-300" />
               </div>
@@ -1164,7 +1164,7 @@ export default function BeforeLogin() {
 
             {/* 보안 및 신뢰 강조 문구 */}
             <p className="mt-8 text-[11px] text-stone-300 dark:text-slate-600 font-bold tracking-[0.15em] uppercase">
-              Protected by SajaSaju Security
+              Protected by SazaSaju Security
             </p>
           </div>
         )}
