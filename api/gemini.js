@@ -2,11 +2,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default async function handler(req, res) {
-  try {
-    const API_KEY = process.env.GEMINI_KEY; // .env에 GEMINI_KEY가 있어야 함
-    const genAI = new GoogleGenerativeAI(API_KEY);
+  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
-    // 이 부분이 'gemini-1.5-flash'여야만 정상 작동합니다.
+  try {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
+    // 사용자님이 확인하신 모델명을 그대로 사용합니다.
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const { prompt } = req.body;
@@ -15,6 +15,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ text: response.text() });
   } catch (error) {
+    console.error('Server Error:', error.message);
     return res.status(500).json({ error: error.message });
   }
 }
