@@ -34,14 +34,32 @@ input {
 /* index.css - 사자사주 유료 리포트 디자인 */
 /* 사자사주 리포트 전용 스타일 */
 .sjsj-report-container {
-  background-color: #fdf8f4;
+  /* 1. 배경: 종이가 돋보이도록 아주 연한 블루그레이 바탕 */
+  background-color: #f8fafc;
   min-height: 100vh;
+  padding: 0px;
+
+  /* 2. 폰트 및 기본 컬러: 가독성 높은 다크 블루그레이 */
   font-family:
     'Pretendard',
     -apple-system,
     sans-serif;
-  color: #4a3a31;
+  color: #334155;
   line-height: 1.6;
+
+  /* 3. 종이 리포트 효과: 중앙에 배치하고 흰색 종이 질감 부여 */
+  max-width: 640px;
+  margin: 0 auto;
+  background-color: #ffffff;
+
+  /* 4. 핀터레스트 스타일 테두리 & 그림자 */
+  border: 1px solid #e2e8f0; /* 아주 연한 푸른빛 테두리 */
+  border-radius: 16px; /* 부드러운 곡선 */
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03); /* 겹쳐진 부드러운 그림자 */
+
+  /* 5. 디테일: 상단에 얇은 블루 라인 포인트 */
 }
 
 /* 헤더 영역 */

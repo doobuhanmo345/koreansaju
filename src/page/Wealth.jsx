@@ -41,6 +41,7 @@ import Step from '../ui/Step';
 import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
+import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 export default function Wealth({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -292,138 +293,169 @@ export default function Wealth({}) {
     setAiResult('');
   };
 
+  // const handleWealthAnalysis = async () => {
+  //   // 1. 유효성 검사
+  //   if (!user) return alert(UI_TEXT.loginReq[language]);
+
+  //   setLoading(true);
+  //   setAiResult('');
+
+  //   // ✅ [핵심] 비교할 사주 팔자의 키값 8개 (순서 상관없이 값만 비교하기 위함)
+  //   const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
+
+  //   // ✅ [비교 함수] 두 사주 객체의 8글자 값이 정확히 일치하는지 확인
+  //   const checkSajuEqual = (source, target) => {
+  //     if (!source || !target) return false;
+  //     // 8개 키 중 하나라도 값이 다르면 false 리턴
+  //     return SAJU_KEYS.every((key) => source[key] === target[key]);
+  //   };
+
+  //   try {
+  //     const data = userData.usageHistory || {};
+  //     const currentCount = data.editCount || 0;
+
+  //     // ---------------------------------------------------------
+  //     // 2. 캐시 체크 (사주 글자 정밀 비교)
+  //     // ---------------------------------------------------------
+
+  //     if (data.ZWealthAnalysis) {
+  //       const saved = data.ZWealthAnalysis;
+
+  //       // 1) 기본 정보 비교 (언어, 관계, 성별)
+  //       const isBasicMatch =
+  //         saved.language === language &&
+  //         saved.ques === selectedQ &&
+  //         saved.ques2 === selectedSubQ &&
+  //         saved.gender === gender;
+
+  //       // 2) ★ 사주 글 비교 (saju & saju2)
+  //       // inputDate가 달라도, 사주 8글자가 같으면 캐시를 사용함 (사용자 요청 사항)
+  //       const isMySajuMatch = checkSajuEqual(saved.saju, saju);
+  //       if (isBasicMatch && isMySajuMatch && saved.result) {
+  //         setAiResult(saved.result);
+  //         setLoading(false);
+  //         setStep(4);
+  //         // 필요한 경우 결과창 이동
+
+  //         return;
+  //       }
+  //     }
+
+  //     // ---------------------------------------------------------
+  //     // 3. API 호출 (사주 글자가 달라졌을 때)
+  //     // ---------------------------------------------------------
+  //     console.log('🚀 사주 글자가 변경되었습니다. API를 호출합니다.');
+  //     if (currentCount >= MAX_EDIT_COUNT) {
+  //       setLoading(false);
+
+  //       return alert(UI_TEXT.limitReached[language]);
+  //     }
+
+  //     const mySajuStr = JSON.stringify(saju);
+
+  //     const todayStr = new Date().toLocaleDateString('en-CA');
+  //     // 2. DB에서 프롬프트 조각들 가져오기
+  //     const dbRef = ref(database);
+  //     const [strictSnap, basicSnap] = await Promise.all([
+  //       get(child(dbRef, 'prompt/wealth_strict')), // 전문가 지침
+  //       get(child(dbRef, 'prompt/wealth_basic')), // 전체 뼈대
+  //     ]);
+
+  //     if (!basicSnap.exists()) throw new Error('DB에 재물운 템플릿이 없습니다.');
+
+  //     // 3. 변수 가공
+  //     const qLabel = Q_TYPES.find((r) => r.id === selectedQ)?.label || 'General Wealth';
+  //     const subQDetail = SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ)?.prompt || '';
+  //     const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
+
+  //     const replacements = {
+  //       '{{STRICT_PROMPT}}': strictSnap.val() || '',
+  //       '{{qLabel}}': qLabel,
+  //       '{{subQuestion}}': subQDetail,
+  //       '{{gender}}': gender,
+  //       '{{todayStr}}': todayStr,
+  //       '{{mySajuStr}}': `${mySajuStr} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
+  //       '{{displayName}}': displayName,
+  //       '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
+  //     };
+
+  //     // 4. 프롬프트 완성
+  //     let fullPrompt = basicSnap.val();
+  //     Object.entries(replacements).forEach(([key, value]) => {
+  //       fullPrompt = fullPrompt.split(key).join(value || '');
+  //     });
+
+  //     // 5. API 호출
+  //     const result = await fetchGeminiAnalysis(fullPrompt);
+
+  //     const newCount = currentCount + 1;
+
+  //     // ---------------------------------------------------------
+  //     // 4. 저장 (현재의 saju와 saju2를 저장해야 다음 비교 가능)
+  //     // ---------------------------------------------------------
+  //     await setDoc(
+  //       doc(db, 'users', user.uid),
+  //       {
+  //         saju: saju,
+  //         editCount: increment(1),
+  //         lastEditDate: new Date().toLocaleDateString('en-CA'),
+  //         dailyUsage: {
+  //           [new Date().toLocaleDateString('en-CA')]: increment(1),
+  //         },
+  //         usageHistory: {
+  //           ZWealthAnalysis: {
+  //             result: result,
+  //             saju: saju,
+  //             gender: gender,
+  //             ques: selectedQ,
+  //             ques2: selectedSubQ,
+  //             language: language,
+  //           },
+  //         },
+  //       },
+  //       { merge: true },
+  //     );
+  //     setEditCount((prev) => prev + 1);
+  //     setAiResult(result);
+  //     setStep(4); // 필요시 이동
+  //   } catch (e) {
+  //     console.error(e);
+  //     alert(`Error: ${e.message}`);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const service = new SajuAnalysisService({
+    user,
+    userData,
+    language,
+    maxEditCount: MAX_EDIT_COUNT,
+    uiText: UI_TEXT,
+    langPrompt,
+    hanja,
+    setEditCount,
+    setLoading,
+    setAiResult,
+  });
+
   const handleWealthAnalysis = async () => {
-    // 1. 유효성 검사
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-
-    setLoading(true);
     setAiResult('');
-
-    // ✅ [핵심] 비교할 사주 팔자의 키값 8개 (순서 상관없이 값만 비교하기 위함)
-    const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
-
-    // ✅ [비교 함수] 두 사주 객체의 8글자 값이 정확히 일치하는지 확인
-    const checkSajuEqual = (source, target) => {
-      if (!source || !target) return false;
-      // 8개 키 중 하나라도 값이 다르면 false 리턴
-      return SAJU_KEYS.every((key) => source[key] === target[key]);
-    };
-
     try {
-      const data = userData.usageHistory || {};
-      const currentCount = data.editCount || 0;
-
-      // ---------------------------------------------------------
-      // 2. 캐시 체크 (사주 글자 정밀 비교)
-      // ---------------------------------------------------------
-
-      if (data.ZWealthAnalysis) {
-        const saved = data.ZWealthAnalysis;
-
-        // 1) 기본 정보 비교 (언어, 관계, 성별)
-        const isBasicMatch =
-          saved.language === language &&
-          saved.ques === selectedQ &&
-          saved.ques2 === selectedSubQ &&
-          saved.gender === gender;
-
-        // 2) ★ 사주 글 비교 (saju & saju2)
-        // inputDate가 달라도, 사주 8글자가 같으면 캐시를 사용함 (사용자 요청 사항)
-        const isMySajuMatch = checkSajuEqual(saved.saju, saju);
-        if (isBasicMatch && isMySajuMatch && saved.result) {
-          setAiResult(saved.result);
-          setLoading(false);
-          setStep(4);
-          // 필요한 경우 결과창 이동
-
-          return;
-        }
-      }
-
-      // ---------------------------------------------------------
-      // 3. API 호출 (사주 글자가 달라졌을 때)
-      // ---------------------------------------------------------
-      console.log('🚀 사주 글자가 변경되었습니다. API를 호출합니다.');
-      if (currentCount >= MAX_EDIT_COUNT) {
-        setLoading(false);
-
-        return alert(UI_TEXT.limitReached[language]);
-      }
-
-      const mySajuStr = JSON.stringify(saju);
-
-      const todayStr = new Date().toLocaleDateString('en-CA');
-      // 2. DB에서 프롬프트 조각들 가져오기
-      const dbRef = ref(database);
-      const [strictSnap, basicSnap] = await Promise.all([
-        get(child(dbRef, 'prompt/wealth_strict')), // 전문가 지침
-        get(child(dbRef, 'prompt/wealth_basic')), // 전체 뼈대
-      ]);
-
-      if (!basicSnap.exists()) throw new Error('DB에 재물운 템플릿이 없습니다.');
-
-      // 3. 변수 가공
-      const qLabel = Q_TYPES.find((r) => r.id === selectedQ)?.label || 'General Wealth';
-      const subQDetail = SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ)?.prompt || '';
-      const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
-
-      const replacements = {
-        '{{STRICT_PROMPT}}': strictSnap.val() || '',
-        '{{qLabel}}': qLabel,
-        '{{subQuestion}}': subQDetail,
-        '{{gender}}': gender,
-        '{{todayStr}}': todayStr,
-        '{{mySajuStr}}': `${mySajuStr} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
-        '{{displayName}}': displayName,
-        '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
-      };
-
-      // 4. 프롬프트 완성
-      let fullPrompt = basicSnap.val();
-      Object.entries(replacements).forEach(([key, value]) => {
-        fullPrompt = fullPrompt.split(key).join(value || '');
-      });
-
-      // 5. API 호출
-      const result = await fetchGeminiAnalysis(fullPrompt);
-
-      const newCount = currentCount + 1;
-
-      // ---------------------------------------------------------
-      // 4. 저장 (현재의 saju와 saju2를 저장해야 다음 비교 가능)
-      // ---------------------------------------------------------
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          saju: saju,
-          editCount: increment(1),
-          lastEditDate: new Date().toLocaleDateString('en-CA'),
-          dailyUsage: {
-            [new Date().toLocaleDateString('en-CA')]: increment(1),
-          },
-          usageHistory: {
-            ZWealthAnalysis: {
-              result: result,
-              saju: saju,
-              gender: gender,
-              ques: selectedQ,
-              ques2: selectedSubQ,
-              language: language,
-            },
-          },
-        },
-        { merge: true },
+      await service.analyze(
+        AnalysisPresets.wealth({
+          saju,
+          gender,
+          selectedQ,
+          selectedSubQ,
+          language,
+        }),
       );
-      setEditCount((prev) => prev + 1);
-      setAiResult(result);
-      setStep(4); // 필요시 이동
-    } catch (e) {
-      console.error(e);
-      alert(`Error: ${e.message}`);
-    } finally {
-      setLoading(false);
+      setStep(4);
+    } catch (error) {
+      console.error(error);
     }
   };
+
   const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
 
   const checkSajuEqual = (source, target) => {

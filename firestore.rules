@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. [신규] 비회원 퍼널 분석 및 대기열 수집 (쓰기 전용)
+    // funnel_logs, waitlist, analytics 컬렉션에 대해 로그인 없이 생성 허용
+    match /paywall_funnel_logs/{docId} { allow create: if true; }
+    match /paywall_waitlist/{docId} { allow create: if true; }
+    match /paywall_analytics/{docId} { allow create: if true; }
+       // funnel_logs, waitlist, analytics 컬렉션에 대해 로그인 없이 생성 허용
+   match /sazatalkad_logs/{docId} { 
+      allow read, create, update: if true; 
+    }
+    match /sazatalk_funnel_logs/{docId} { allow create: if true; }
+        match /newyearad_funnel_logs/{docId} { allow create: if true; }
+        match /newyearad_logs/{docId} { allow create: if true; }
+        match /copy_url_logs/{docId} { allow create: if true; }
+        
+        
+    
+
+    // 2. [기존] 광고 리드 수집 규칙
+    match /ad_leads/{leadId} {
+      allow create: if true;
+      allow read, update: if false; 
+    }
+
+    // 3. [기존] 로그인 유저 전용 규칙
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // 보안을 위해 그 외 모든 접근은 기본적으로 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

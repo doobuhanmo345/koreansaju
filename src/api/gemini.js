@@ -29,21 +29,46 @@
 //     throw new Error(error.message || 'AI 분석 중 오류가 발생했습니다.');
 //   }
 // };
-import { GoogleGenerativeAI } from '@google/generative-ai';
+//-------------
+// import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = import.meta.env.VITE_GEMINI_KEY;
-const genAI = new GoogleGenerativeAI(API_KEY);
+// const API_KEY = import.meta.env.VITE_GEMINI_KEY;
+// const genAI = new GoogleGenerativeAI(API_KEY);
+
+// export const fetchGeminiAnalysis = async (prompt) => {
+//   try {
+//     // 고객님 대시보드에 있는 'gemini-2.5-flash' 모델 사용
+//     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+//     const result = await model.generateContent(prompt);
+//     const response = await result.response;
+//     return response.text();
+//   } catch (error) {
+//     console.error('Error:', error);
+//     throw new Error(`오류가 발생하였습니다. 잠시후에 다시 시도해 주세요.`);
+//   }
+// };
+//-----
+// /src/api/gemini.js (기존 파일 수정)
+
 
 export const fetchGeminiAnalysis = async (prompt) => {
   try {
-    // 고객님 대시보드에 있는 'gemini-2.5-flash' 모델 사용
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || '분석 실패');
+    }
+
+    const data = await response.json();
+    return data.text;
   } catch (error) {
-    console.error('Error:', error);
-    throw new Error(`오류가 발생하였습니다. 잠시후에 다시 시도해 주세요.`);
+    console.error('프론트엔드 에러:', error);
+    throw new Error('오류가 발생했습니다. 다시 시도해주세요.');
   }
 };

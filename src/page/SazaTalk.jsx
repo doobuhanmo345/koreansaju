@@ -12,6 +12,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import { PencilSquareIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
@@ -27,84 +28,34 @@ export default function SazaTalk() {
 
   const [userQuestion, setUserQuestion] = useState('');
   const [loading, setLoading] = useState(false);
+  const service = new SajuAnalysisService({
+    user,
+    userData,
+    language,
+    maxEditCount: MAX_EDIT_COUNT,
+    uiText: UI_TEXT,
+    langPrompt,
+    hanja,
+    setEditCount,
+    setLoading,
+    setAiResult,
+    setStep,
+  });
 
-  // 78장 전체 데크 사용
-  const handleAskSaza = async (onStart) => {
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (editCount >= MAX_EDIT_COUNT) return alert(UI_TEXT.limitReached[language]);
-
-    const myQuestion = userQuestion;
-    if (!myQuestion.trim()) return alert('질문을 입력해주세요.');
-
-    setLoading(true);
-
+  const handleSazaTest = async (onstart) => {
+    setAiResult('');
     try {
-      const dbRef = ref(database);
-      const [basicSnap, strictSnap, formatSnap] = await Promise.all([
-        get(child(dbRef, 'prompt/saza_basic')),
-        get(child(dbRef, `prompt/saza_strict`)),
-        get(child(dbRef, `prompt/saza_format`)),
-      ]);
-
-      if (!basicSnap.exists()) throw new Error('DB에 사자 템플릿이 없습니다.');
-
-      // 2. 텍스트 가공 (기존 로직 유지)
-      const displayName = userData?.displayName || (language === 'ko' ? '의뢰자' : 'User');
-      const sajuInfo = `성별:${gender}, 생년월일:${inputDate}, 팔자:${JSON.stringify(saju)} (sky3+grd3=연주, sky2+grd2=월주, sky1+grd1=일주, sky0+grd0=시주). 호칭:${displayName}님.`;
-      const todayInfo = `현재 시각:${new Date().toLocaleString()}. 2026년=병오년. `;
-
-      const replacements = {
-        '{{STRICT_PROMPT}}': strictSnap.val() || '',
-        '{{SAZA_FORMAT}}': formatSnap.val() || '',
-        '{{myQuestion}}': myQuestion,
-        '{{sajuInfo}}': sajuInfo,
-        '{{todayInfo}}': todayInfo,
-        '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
-        '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
-      };
-
-      // 3. 프롬프트 조립
-      let fullPrompt = basicSnap.val();
-      Object.entries(replacements).forEach(([key, value]) => {
-        fullPrompt = fullPrompt.split(key).join(value || '');
-      });
-
-      // 4. API 호출
-      const result = await fetchGeminiAnalysis(fullPrompt);
-      const newCount = editCount + 1;
-
-      const newQuestionLog = {
-        question: myQuestion,
-        sajuKey: saju,
-        timestamp: new Date().toISOString(),
-        id: Date.now(),
-      };
-
-      // DB 업데이트 (카운트 + 질문로그)
-
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
+      await service.analyze(
+        AnalysisPresets.saza({
           saju: saju,
-          editCount: increment(1),
-          lastEditDate: new Date().toLocaleDateString('en-CA'),
-          usageHistory: { question_history: arrayUnion(newQuestionLog) },
-          dailyUsage: {
-            [todayDate]: increment(1),
-          },
-        },
-        { merge: true },
+          gender: gender,
+          inputDate: inputDate,
+          question: userQuestion,
+        }),
       );
-
-      // App 상태 업데이트
-      setEditCount((prev) => prev + 1);
-
-      setAiResult(result);
-      onStart();
-    } catch (e) {
-      alert(e);
-    } finally {
-      setLoading(false);
+      onstart();
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -323,7 +274,7 @@ export default function SazaTalk() {
         />
 
         <button
-          onClick={() => userQuestion.trim() && handleAskSaza(onStart)}
+          onClick={() => userQuestion.trim() && handleSazaTest(onStart)}
           disabled={!userQuestion.trim()}
           className={classNames(
             'w-full gap-3 py-4 mt-6 rounded-xl font-bold transition-all',
@@ -370,7 +321,12 @@ export default function SazaTalk() {
     <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<Loading />}
-      resultComponent={(p) => <ViewSazaResult userQuestion={userQuestion} />}
+      resultComponent={(p) => (
+        <ViewSazaResult
+          userQuestion={userQuestion}
+          onReset={p.onReset} // <--- 기존의 부모 onReset 대신 p.onReset 사용
+        />
+      )}
       loadingTime={0}
     />
   );

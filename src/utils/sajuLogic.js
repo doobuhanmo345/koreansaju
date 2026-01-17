@@ -39,6 +39,7 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
     // ---------------------------------------------------------
     const solar = Solar.fromYmdHms(year, month, day, isTimeUnknown ? 0 : hour, min, 0);
     const lunar = solar.getLunar();
+
     const eightChar = lunar.getEightChar();
 
     // ---------------------------------------------------------
@@ -251,10 +252,10 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
 
     // [4-7] 특수 신살: 천라지망 (Cheonrajimang) & 낙정관살
     const branchList = Object.values(branches);
-    const hasJin = branchList.includes('辰');
-    const hasSa = branchList.includes('巳');
-    const hasSul = branchList.includes('戌');
-    const hasHae = branchList.includes('亥');
+    const hasJin = branchList.includes('진');
+    const hasSa = branchList.includes('사');
+    const hasSul = branchList.includes('술');
+    const hasHae = branchList.includes('해');
 
     if (hasJin && hasSa) {
       myShinsal.push({
@@ -385,13 +386,6 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
     // ---------------------------------------------------------
     // 7. 추가 데이터: 명궁, 삼재
     // ---------------------------------------------------------
-    let myeongGung = '-';
-    try {
-      const mg = lunar.getMingGong(); // "己丑"
-      myeongGung = HANJA_MAP[mg[0]] + HANJA_MAP[mg[1]];
-    } catch (e) {
-      /* ignore */
-    }
 
     const samjaeYears = SAMJAE_MAP[branches.year] || [];
 
@@ -416,7 +410,7 @@ export const calculateSajuData = (inputDate, inputGender, isTimeUnknown, languag
       currentAge,
 
       // 추가 정보
-      myeongGung,
+
       samjae: {
         years: samjaeYears,
         // 현재 연도가 삼재인지 체크 (현재 년지 오행이 samjaeYears에 포함되는지)

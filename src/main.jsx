@@ -44,7 +44,7 @@ import NewYearAdKr from './page/NewYearAdKr';
 import SazaTalkAdKr from './page/SazaTalkAdKr';
 import NewYearAdEn from './page/NewYearAdEn';
 import TestAnalysisPage from './page/TestAnalysisPage';
-
+import DayLuckPage from './page/DayLuckPage';
 const RootComponent = () => {
   const { user, userData, loadingUser } = useAuthContext();
 
@@ -115,9 +115,10 @@ const RootComponent = () => {
           <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
           <Route path="/basic" element={<BasicAnaPage />} />
           <Route path="/todaysluck" element={<TodaysLuckPage />} />
+          <Route path="/dayluck" element={<DayLuckPage />} />
           <Route path="/2026luck" element={<YearlyLuckPage />} />
           <Route path="/test" element={<Test />} />
-          
+
           <Route path="/wealth" element={<Wealth />} />
           <Route path="/match" element={<Match />} />
           {/* <Route path="/basic" element={<SajuAnalysisPage />} /> */}

@@ -23,6 +23,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import { getEng } from '../utils/helpers';
 import { useAuthContext } from '../context/useAuthContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
+import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 const BasicAna = ({}) => {
   const { language } = useLanguage();
   const handleShare = async (id) => {
@@ -633,7 +634,7 @@ const BasicAna = ({}) => {
     //여기까지
     return story;
   };
-  const isEn = language === 'en';
+
   const getDaewoonStory = (selectedDae, language, pillars) => {
     const isEn = language === 'en';
 

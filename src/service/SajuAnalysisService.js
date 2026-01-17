@@ -14,7 +14,7 @@ class SajuAnalysisService {
     this.user = context.user;
     this.userData = context.userData;
     this.language = context.language;
-    this.maxEditCount = context.maxEditCount ;
+    this.maxEditCount = context.maxEditCount;
     this.uiText = context.uiText;
     this.langPrompt = context.langPrompt;
     this.hanja = context.hanja;
@@ -450,6 +450,7 @@ class AnalysisPresets {
 
       buildSaveData: (result, p, service) => {
         const todayDate = service.getTodayDate();
+        console.log('저장할 saju:', p.saju); // 디버그
         return {
           saju: p.saju,
           editCount: increment(1),
@@ -500,7 +501,7 @@ class AnalysisPresets {
   }
 
   static daily(params) {
-    const todayDate = new Date().toLocaleDateString('en-CA');
+
     return {
       type: 'daily',
       params,
@@ -521,14 +522,19 @@ class AnalysisPresets {
       },
 
       validateCache: (cached, p) =>
-        cached.date === todayDate &&
+        cached.date === (p.selectedDate|| new Date()) &&
         cached.language === p.language &&
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
         cached.result,
 
       buildPromptVars: (prompts, p, service) => {
-        const today = new Date();
+        // selectedDate가 있으면 그 날짜 사용, 없으면 오늘
+        let today = new Date();
+        if (p.selectedDate && p.selectedDate instanceof Date) {
+          today = new Date(p.selectedDate);
+        }
+
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
 
@@ -549,10 +555,12 @@ class AnalysisPresets {
           '{{tomorrowDate}}': tomorrowPillars.date,
           '{{tomorrowSajuText}}': tomorrowSajuText,
           '{{displayName}}': service.getDisplayName(),
+          '{{question}}': p.question || '', // 질문 추가
           '{{langPrompt}}': service.langPrompt?.(service.language) || '',
           '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
         };
       },
+      
 
       buildSaveData: (result, p, service) => {
         const todayDate = service.getTodayDate();
@@ -563,10 +571,11 @@ class AnalysisPresets {
           usageHistory: {
             ZLastDaily: {
               result,
-              date: todayDate,
+              date: p.selectedDate || new Date(),
               saju: p.saju,
               language: p.language,
               gender: p.gender,
+              question: p.question || '', // 질문 저장
             },
           },
           dailyUsage: { [todayDate]: increment(1) },

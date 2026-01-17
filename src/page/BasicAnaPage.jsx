@@ -17,200 +17,11 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import SajuResult from '../component/SajuResult';
 import { calculateSajuData, createPromptForGemini } from '../utils/sajuLogic';
 import LoadingFourPillar from '../component/LoadingFourPillar';
+import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 
-// 1. 로딩 컴포넌트
-
-function SajuLoading({ sajuData }) {
-  const [displayedTexts, setDisplayedTexts] = useState([]);
-  const [isFinished, setIsFinished] = useState(false);
-  const containerRef = useRef(null);
-  const { language } = useLanguage();
-  const pillars = sajuData?.pillars;
-  const counts = sajuData?.ohaengCount || { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
-  const daewoonArr = sajuData?.daewoonList || [];
-  const currentDae = daewoonArr.find((d) => d.isCurrent)?.name || '현재';
-  const shinsalList = sajuData?.myShinsal?.map((s) => s.name) || [];
-  const primaryShinsal = shinsalList.length > 0 ? shinsalList[0] : '특별한';
-
-  const loadingTexts =
-    language === 'ko'
-      ? [
-          `당신이 태어난 순간의 천기(天氣)를 종이 위에 정밀하게 옮기고 있습니다...`,
-          `본질을 상징하는 '${pillars?.day || '일주'}'의 글자를 통해 당신의 타고난 성질을 읽어냅니다.`,
-          `내면의 에너지를 관장하는 '${pillars?.month || '월지'}'의 계절감을 분석하여 기질의 온도를 측정합니다.`,
-          `나무(${counts.wood}), 불(${counts.fire}), 흙(${counts.earth}), 금(${counts.metal}), 물(${counts.water}) — 다섯 기운의 과다와 결핍을 확인합니다.`,
-          `가장 강한 기운인 '${primaryShinsal}'의 에너지가 당신의 성격 형성에 미친 영향력을 추적합니다.`,
-          `겉으로 드러나는 사회적 모습과 내면에 감춰진 본능적인 욕구 사이의 균형점을 살핍니다.`,
-          `당신이 타인에게 비치는 첫인상과 시간이 흐를수록 드러나는 진면목의 차이를 분석 중입니다.`,
-          `사주 원국의 '${pillars?.year || '년주'}'에 새겨진 조상의 기운과 가문으로부터 이어진 성향을 훑습니다.`,
-          `정신적 지향점을 보여주는 천간의 합과 현실적 행동 양식을 보여주는 지지의 충을 대조합니다.`,
-          `인생 전체를 지배하는 10년 단위의 거대한 파동, '${currentDae}' 대운의 위치를 좌표 위에 찍습니다.`,
-          `과거 대운에서 겪었을 심리적 변화의 궤적을 복기하며 현재의 기운과 연결하고 있습니다.`,
-          `잠재된 재능을 깨우는 '${shinsalList.length > 1 ? shinsalList[1] : '특별한'}' 기운이 인생의 어느 시점에 개화할지 계산합니다.`,
-          `당신의 성격이 인간관계와 사회적 성취에 어떤 방식으로 작용하는지 메커니즘을 파악합니다.`,
-          `결핍된 오행을 채우기 위해 당신이 무의식적으로 추구해온 가치관과 행동 패턴을 분석 중입니다.`,
-          `현재 대운 리스트에 기록된 10단계의 운명 궤적을 훑으며 장기적인 성장의 방향성을 잡습니다.`,
-          `타고난 팔자의 한계를 넘어서는 '개운(開運)'의 실마리를 당신의 명식 안에서 찾고 있습니다.`,
-          `논리적인 분석을 넘어 당신의 영혼이 가진 고유한 색깔과 울림을 문장으로 정리합니다.`,
-          `인생의 파도 속에서도 변치 않을 당신만의 강력한 무기와 자산이 무엇인지 특정하고 있습니다.`,
-          `복잡하게 얽힌 운명의 실타래에서 당신이라는 존재의 핵심 키워드를 도출합니다.`,
-          `이제 사자가 기록한 당신의 본질과 평생의 흐름에 대한 종합 분석 보고서를 완성합니다.`,
-        ]
-      : [
-          `Precisely transcribing the celestial energies of the moment you were born onto paper...`,
-          `Deciphering your innate nature through the characters of '${getEng(pillars?.day[0]) + getEng(pillars?.day[1]) || 'Day Pillar'}', which symbolizes your essence.`,
-          `Measuring the temperature of your temperament by analyzing the seasonal influence of '${getEng(pillars?.month[0]) + getEng(pillars?.month[1]) || 'Month Pillar'}', the ruler of your inner energy.`,
-          `Wood (${counts.wood}), Fire (${counts.fire}), Earth (${counts.earth}), Metal (${counts.metal}), Water (${counts.water}) — identifying the balance and imbalance of the five elements.`,
-          `Tracing the influence of '${primaryShinsal}', your dominant energy, on the formation of your personality.`,
-          `Examining the equilibrium between your outward social persona and your hidden instinctive desires.`,
-          `Analyzing the difference between the first impression you project and the true self that emerges over time.`,
-          `Tracing ancestral energies and inherited traits etched within the '${getEng(pillars?.year[0]) + getEng(pillars?.year[1]) || 'Year Pillar'}' of your destiny chart.`,
-          `Contrasting the harmony of the 'Heavenly Stems' showing your mental aspirations with the clashes of the 'Earthly Branches' showing your realistic behavior.`,
-          `Mapping your position within the '${getEng(currentDae[0]) + getEng(currentDae[1])}' Daewoon—the great 10-year wave that governs the flow of your life.`,
-          `Connecting current energies by reviewing the trajectory of psychological changes experienced in past cycles.`,
-          `Calculating when the hidden talent of '${shinsalList.length > 1 ? shinsalList[1] : 'Special'}' energy will bloom in your life.`,
-          `Grasping the mechanism of how your personality drives your relationships and social achievements.`,
-          `Analyzing the values and behavioral patterns you subconsciously pursue to compensate for lacking elements.`,
-          `Scanning the 10 stages of your destiny's trajectory recorded in the current Daewoon list to set a long-term direction.`,
-          `Searching within your birth chart for the clues to 'Gae-un' (opening your luck) that transcends the limits of innate fate.`,
-          `Going beyond logical analysis to organize the unique color and resonance of your soul into sentences.`,
-          `Identifying your most powerful weapons and assets that will remain steadfast amidst the waves of life.`,
-          `Deriving the core keywords of your existence from the complex, intertwined threads of destiny.`,
-          `Finalizing a comprehensive analysis report on your essence and lifelong flow, as recorded by the Saju master.`,
-        ];
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const { scrollHeight, clientHeight } = containerRef.current;
-      containerRef.current.scrollTo({
-        top: scrollHeight - clientHeight,
-        behavior: 'smooth',
-      });
-    }
-  }, [displayedTexts]);
-
-  useEffect(() => {
-    if (!sajuData) return;
-    let textIdx = 0;
-    const addNextSentence = () => {
-      if (textIdx >= loadingTexts.length) {
-        setIsFinished(true);
-        return;
-      }
-      const fullText = loadingTexts[textIdx];
-      let charIdx = 0;
-      setDisplayedTexts((prev) => [...prev, '']);
-      const typeChar = () => {
-        if (charIdx < fullText.length) {
-          setDisplayedTexts((prev) => {
-            const lastIdx = prev.length - 1;
-            const updated = [...prev];
-            updated[lastIdx] = fullText.substring(0, charIdx + 1);
-            return updated;
-          });
-          charIdx++;
-          setTimeout(typeChar, 45);
-        } else {
-          textIdx++;
-          setTimeout(addNextSentence, 800);
-        }
-      };
-      typeChar();
-    };
-    addNextSentence();
-  }, [sajuData]);
-
-  return (
-    <div className="flex flex-col items-center px-6 overflow-hidden">
-      <svg className="absolute w-0 h-0 text-transparent">
-        <filter id="paper-edge">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
-        </filter>
-      </svg>
-
-      <div className="relative w-full max-w-lg animate-in fade-in duration-1000 mt-6">
-        <div
-          ref={containerRef}
-          className="relative z-10 bg-[#fffef5] dark:bg-slate-900 shadow-2xl p-8 md:p-14 border border-stone-200/50 dark:border-slate-800 h-[500px] overflow-y-auto scrollbar-hide"
-          style={{ filter: 'url(#paper-edge)' }}
-        >
-          {/* bg-fixed를 빼고 bg-repeat로 수정해서 스크롤 시 종이가 따라오게 함 */}
-          <div className="absolute inset-0 opacity-[0.15] pointer-events-none z-0"></div>
-
-          <div className="relative z-10">
-            <div className="flex flex-col items-center mb-10 opacity-40">
-              <div className="w-10 h-[1px] bg-stone-500 mb-2"></div>
-              <span className="text-[10px] tracking-[0.4em] uppercase text-stone-600 dark:text-stone-300 font-serif font-bold text-center">
-                Heavenly Record
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-3 pb-10">
-              {displayedTexts.map((text, idx) => {
-                const isCurrentTyping = idx === displayedTexts.length - 1 && !isFinished;
-                return (
-                  <div key={idx} className="min-h-[28px] flex items-start py-1">
-                    <p className="font-handwriting text-lg md:text-xl text-slate-800 dark:text-slate-200 leading-relaxed break-keep">
-                      {text}
-                      {isCurrentTyping && (
-                        <span className="inline-block w-[2px] h-[1.1em] bg-stone-500 ml-1 align-middle animate-cursor-blink" />
-                      )}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[98%] h-12 bg-stone-800/20 blur-3xl rounded-[100%]"></div>
-      </div>
-
-      <div className="mt-14 text-center">
-        <div className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
-          <p className="text-stone-500 dark:text-slate-400 text-[11px] tracking-[0.2em] animate-pulse font-serif italic">
-            {language === 'ko'
-              ? '운명의 실타래를 푸는 중입니다...'
-              : 'Untangling the threads of destiny...'}
-          </p>
-        </div>
-      </div>
-
-      <style>{`
-  /* 폰트를 조금 더 굵은 '나눔 브러쉬(붓)' 체로 변경 */
-  @import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
-  
-  .font-handwriting { 
-    font-family: 'Nanum Brush Script', cursive; 
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transform: translateZ(0); /* GPU 가속으로 렌더링 최적화 */
-    text-rendering: optimizeLegibility;
-    font-weight: 500; /* 너무 얇으면 모바일에서 깨져 보이니 두께를 올림 */
-    letter-spacing: -0.03em; 
-    line-height: 1.6;
-    word-break: keep-all;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-  /* 커서 깜빡임 애니메이션 */
-  @keyframes cursor-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-  .animate-cursor-blink {
-    animation: cursor-blink 0.8s infinite;
-  }
-`}</style>
-    </div>
-  );
-}
 // 2. 메인 페이지 컴포넌트
 export default function BasicAnaPage() {
   const [sajuData, setSajuData] = useState(null);
-  const [aiAnalysis, setAiAnalysis] = useState('');
   const { loading, setLoading, loadingType, setLoadingType, aiResult, setAiResult } = useLoading();
   const { userData, user, isMainDone } = useAuthContext();
   const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
@@ -233,108 +44,151 @@ export default function BasicAnaPage() {
   }, [inputDate, gender, isTimeUnknown, language]);
   // 버튼 클릭 시 실행될 중간 로직
 
-  const handleStartClick = async (onStart) => {
-    // 1. 방어 로직
-    if (!user) return alert(UI_TEXT.loginReq[language]);
-    if (!userData?.birthDate) return alert(UI_TEXT.saveFirst[language]);
+  // const handleStartClick = async (onStart) => {
+  //   // 1. 방어 로직
+  //   if (!user) return alert(UI_TEXT.loginReq[language]);
+  //   if (!userData?.birthDate) return alert(UI_TEXT.saveFirst[language]);
 
-    setLoading(true);
-    setLoadingType('main');
-    setAiResult(''); // 기존 결과 초기화
+  //   setLoading(true);
+  //   setLoadingType('main');
+  //   setAiResult(''); // 기존 결과 초기화
 
-    const todayDate = new Date().toLocaleDateString('en-CA');
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+  //   const todayDate = new Date().toLocaleDateString('en-CA');
+  //   const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
-    try {
-      const data = userData.usageHistory || {};
+  //   try {
+  //     const data = userData.usageHistory || {};
 
-      // 2. 캐시 체크 (기존 로직 유지)
-      if (data.ZApiAnalysis) {
-        const {
-          language: savedLang,
-          saju: savedSaju,
-          gender: savedGender,
-          result: savedResult,
-        } = data.ZApiAnalysis;
+  //     // 2. 캐시 체크 (기존 로직 유지)
+  //     if (data.ZApiAnalysis) {
+  //       const {
+  //         language: savedLang,
+  //         saju: savedSaju,
+  //         gender: savedGender,
+  //         result: savedResult,
+  //       } = data.ZApiAnalysis;
 
-        const isLangMatch = savedLang === language;
-        const isGenderMatch = savedGender === gender;
-        const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
+  //       const isLangMatch = savedLang === language;
+  //       const isGenderMatch = savedGender === gender;
+  //       const isSajuMatch = savedSaju && keys.every((k) => savedSaju[k] === saju[k]);
 
-        if (isLangMatch && isGenderMatch && isSajuMatch && savedResult) {
-          setAiResult(savedResult);
-          setLoading(false);
-          setLoadingType(null);
-          onStart(); // 저장된 결과가 있으면 즉시 이동
-          return;
-        }
-      }
+  //       if (isLangMatch && isGenderMatch && isSajuMatch && savedResult) {
+  //         setAiResult(savedResult);
+  //         setLoading(false);
+  //         setLoadingType(null);
+  //         onStart(); // 저장된 결과가 있으면 즉시 이동
+  //         return;
+  //       }
+  //     }
 
-      // 3. 한도 체크
-      const currentCount = data.editCount || 0;
-      if (currentCount >= MAX_EDIT_COUNT) {
-        setLoading(false);
-        return alert(UI_TEXT.limitReached[language]);
-      }
-      let result;
-      // 4. API 호출 및 결과 확보 (핵심: 변수 'result'에 직접 할당)
-      try {
-        // 1. await를 사용하여 DB에서 프롬프트를 다 가져올 때까지 기다립니다.
-        const prompt = await createPromptForGemini(sajuData, language);
+  //     // 3. 한도 체크
+  //     const currentCount = data.editCount || 0;
+  //     if (currentCount >= MAX_EDIT_COUNT) {
+  //       setLoading(false);
+  //       return alert(UI_TEXT.limitReached[language]);
+  //     }
+  //     let result;
+  //     // 4. API 호출 및 결과 확보 (핵심: 변수 'result'에 직접 할당)
+  //     try {
+  //       // 1. await를 사용하여 DB에서 프롬프트를 다 가져올 때까지 기다립니다.
+  //       const prompt = await createPromptForGemini(sajuData, language);
 
-        // 2. 만약 DB에서 가져온 값이 없으면 여기서 중단시켜야 Gemini 에러가 안 납니다.
-        if (!prompt) {
-          alert('데이터베이스에서 프롬프트를 불러오지 못했습니다.');
-          return;
-        }
+  //       // 2. 만약 DB에서 가져온 값이 없으면 여기서 중단시켜야 Gemini 에러가 안 납니다.
+  //       if (!prompt) {
+  //         alert('데이터베이스에서 프롬프트를 불러오지 못했습니다.');
+  //         return;
+  //       }
 
-        // 3. 이제 정상적인 문자열 프롬프트를 Gemini에게 보냅니다.
-        result = await fetchGeminiAnalysis(prompt);
-        // ... 성공 로직
-      } catch (error) {
-        console.error('발생한 에러:', error);
-      }
+  //       // 3. 이제 정상적인 문자열 프롬프트를 Gemini에게 보냅니다.
+  //       result = await fetchGeminiAnalysis(prompt);
+  //       // ... 성공 로직
+  //     } catch (error) {
+  //       console.error('발생한 에러:', error);
+  //     }
 
-      // 5. DB 업데이트 (aiAnalysis 스테이트 대신, 방금 받은 따끈따끈한 'result' 변수 사용)
+  //     // 5. DB 업데이트 (aiAnalysis 스테이트 대신, 방금 받은 따끈따끈한 'result' 변수 사용)
     
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          saju: saju,
-          editCount: increment(1),
-          lastEditDate: todayDate,
-          usageHistory: {
-            ZApiAnalysis: {
-              result: result, // 스테이트가 아닌 변수를 직접 저장
-              date: todayDate,
-              saju: saju,
-              language: language,
-              gender: gender,
-            },
-          },
+  //     await setDoc(
+  //       doc(db, 'users', user.uid),
+  //       {
+  //         saju: saju,
+  //         editCount: increment(1),
+  //         lastEditDate: todayDate,
+  //         usageHistory: {
+  //           ZApiAnalysis: {
+  //             result: result, // 스테이트가 아닌 변수를 직접 저장
+  //             date: todayDate,
+  //             saju: saju,
+  //             language: language,
+  //             gender: gender,
+  //           },
+  //         },
 
-          dailyUsage: {
-            [todayDate]: increment(1),
-          },
-        },
-        { merge: true },
-      );
+  //         dailyUsage: {
+  //           [todayDate]: increment(1),
+  //         },
+  //       },
+  //       { merge: true },
+  //     );
 
-      // 6. 상태 반영 및 화면 전환
-      setEditCount((prev) => prev + 1);
-      setAiAnalysis(result); // UI용 스테이트 업데이트
-      setAiResult(result); // SajuResult로 전달될 결과값 설정
+  //     // 6. 상태 반영 및 화면 전환
+  //     setEditCount((prev) => prev + 1);
+  //     setAiAnalysis(result); // UI용 스테이트 업데이트
+  //     setAiResult(result); // SajuResult로 전달될 결과값 설정
 
-      console.log('분석 완료 데이터:'); // 확인용
-      onStart(); // 이제 안전하게 다음 스테이지로 이동
-    } catch (e) {
-      console.error('발생한 에러:', e);
-      alert(`분석 중 오류가 발생했습니다: ${e.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingType(null);
-    }
-  };
+  //     console.log('분석 완료 데이터:'); // 확인용
+  //     onStart(); // 이제 안전하게 다음 스테이지로 이동
+  //   } catch (e) {
+  //     console.error('발생한 에러:', e);
+  //     alert(`분석 중 오류가 발생했습니다: ${e.message}`);
+  //   } finally {
+  //     setLoading(false);
+  //     setLoadingType(null);
+  //   }
+  // };
+   const service = new SajuAnalysisService({
+     user,
+     userData,
+     language,
+     maxEditCount: MAX_EDIT_COUNT,
+     uiText: UI_TEXT,
+     setEditCount,
+     setLoading,
+     setAiResult,
+   });
+
+   const handleStartClick = async (onstart) => {
+     setAiResult('');
+     try {
+       const sajuData = calculateSajuData(
+         inputDate, // inputDate
+        gender, // inputGender
+         isTimeUnknown,
+         language, // language
+       );
+
+       if (!sajuData) {
+        console.log('no data')
+         return;
+       }
+
+
+       console.log(sajuData);
+       await service.analyze(
+         AnalysisPresets.basic(
+           { saju, gender, language },
+           sajuData,
+         ),
+         (result) => {
+           console.log('✅ 평생운세 완료!', 'success');
+           console.log(`결과 길이: ${result?.length || 0}자`, 'info');
+         },
+       );
+       onstart();
+     } catch (error) {
+       console.error(error);
+     }
+   };
 
   // 안내 디자인 정의
   const sajuGuide = (onStart) => {
@@ -455,7 +309,7 @@ export default function BasicAnaPage() {
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
-      loadingContent={<SajuLoading />}
+      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
       resultComponent={() => <SajuResult aiResult={aiResult} />}
       loadingTime={0}
     />
