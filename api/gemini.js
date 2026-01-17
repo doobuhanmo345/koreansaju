@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // 2.5 대신 안정적인 1.5로 우선 테스트
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }); // 2.5 대신 안정적인 1.5로 우선 테스트
 
     const { prompt } = req.body;
     const result = await model.generateContent(prompt);
