@@ -51,7 +51,7 @@
 //-----
 // /src/api/gemini.js (기존 파일 수정)
 
-
+// src/api/gemini.js
 export const fetchGeminiAnalysis = async (prompt) => {
   try {
     const response = await fetch('/api/gemini', {
@@ -60,15 +60,15 @@ export const fetchGeminiAnalysis = async (prompt) => {
       body: JSON.stringify({ prompt }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || '분석 실패');
+      throw new Error(data.error || '서버 응답 오류');
     }
 
-    const data = await response.json();
     return data.text;
   } catch (error) {
-    console.error('프론트엔드 에러:', error);
-    throw new Error('오류가 발생했습니다. 다시 시도해주세요.');
+    console.error('프론트엔드 통신 에러:', error);
+    throw error;
   }
 };
