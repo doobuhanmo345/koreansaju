@@ -1,16 +1,8 @@
 // 1. React Core
 import { useState, useEffect } from 'react';
-
-// 2. External Libraries (Firebase, Icons)
-import { doc, setDoc, increment } from 'firebase/firestore';
-import { UserCircleIcon, PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import { FaDownload } from 'react-icons/fa';
-import html2canvas from 'html2canvas';
 
-// 3. Internal Config & API
-import { db } from './lib/firebase';
-// 4. Contexts
 import { useAuthContext } from './context/useAuthContext';
 import { useTheme } from './context/useThemeContext';
 import { useLanguage } from './context/useLanguageContext';
@@ -18,15 +10,12 @@ import { useUsageLimit } from './context/useUsageLimit';
 
 // 5. Custom Hooks
 import { useSajuCalculator } from './hooks/useSajuCalculator';
-import { useModal } from './hooks/useModal';
 
 // 7. Data & Constants
 import { ILJU_DATA, ILJU_DATA_EN } from './data/ilju_data';
-import { UI_TEXT, BD_EDIT_UI, langPrompt, hanja } from './data/constants';
-import { useLoading } from './context/useLoadingContext';
 // 8. Components (UI & Features)
 import SajuBlur from './component/SajuBlur';
-import ModifyBd from './ui/ModifyBd';
+
 import BeforeLogin from './page/BeforeLogin';
 import { useNavigate } from 'react-router-dom';
 import MainIcons from './component/MainIcons';
@@ -92,8 +81,8 @@ export default function App() {
     else document.documentElement.classList.remove('dark');
   }, [theme]);
 
-
   const handleShareImg = async (id) => {
+    const html2canvas = (await import('html2canvas')).default;
     const el = document.getElementById(id);
     if (!el) {
       alert('share-card를 찾을 수 없습니다.');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import NavBar from './component/Navbar';
@@ -9,46 +9,56 @@ import { AuthContextProvider, useAuthContext } from './context/useAuthContext';
 import { LoadingProvider, useLoading } from './context/useLoadingContext';
 import OpenInBrowserPage from './component/OpenInBrowerPage';
 import Test from './Test';
-import SajuExp from './page/SajuExp';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import EditProfile from './page/EditProfile';
-import AdminPage from './page/AdminPage';
-import AdminRoute from './routes/AdminRoute';
-import ProtectedRoute from './routes/ProtectedRoute';
-import ApplySaju from './page/ApplySaju';
-import ConsultantDashboard from './page/ConsultantDashboard';
-import SplashScreen from './page/SplashScreen';
-import BeforeLogin from './page/BeforeLogin';
-import MenuBar from './component/MenuBar';
-import LoadingPage from './page/LoadingPage';
-import Wealth from './page/Wealth';
-import Match from './page/Match';
-import FortuneCookie from './page/FortuneCookie';
-import SajuAnalysisPage from './page/SajuAnalysisPage';
-import TodaysLuckPage from './page/TodaysLuckPage';
-import YearlyLuckPage from './page/YearlyLuckPage';
-import SajuResult from './component/SajuResult';
-import BasicAnaPage from './page/BasicAnaPage';
-import TarotDailyPage from './page/TarotDailyPage';
-import TarotMoneyPage from './page/TarotMoneyPage';
-import TarotCounselingPage from './page/TarotCounselingPage';
-import TarotLovePage from './page/TarotLovePage';
-import FeedbackForm from './page/FeedbackForm';
-import EditPrompt from './page/EditPrompt';
-import SazaTalk from './page/SazaTalk';
-import Ad from './page/Ad';
-import BasicAna from './page/BasicAna';
-import PayWall from './page/PayWall';
-import SazaTalkAd from './page/SazaTalkAd';
-import NewYearAdKr from './page/NewYearAdKr';
-import SazaTalkAdKr from './page/SazaTalkAdKr';
-import NewYearAdEn from './page/NewYearAdEn';
-import TestAnalysisPage from './page/TestAnalysisPage';
-import DayLuckPage from './page/DayLuckPage';
+
+// 🔥 모든 페이지를 lazy loading으로 변경
+const SajuExp = lazy(() => import('./page/SajuExp'));
+const EditProfile = lazy(() => import('./page/EditProfile'));
+const AdminPage = lazy(() => import('./page/AdminPage'));
+const ProtectedRoute = lazy(() => import('./routes/ProtectedRoute'));
+const ApplySaju = lazy(() => import('./page/ApplySaju'));
+const ConsultantDashboard = lazy(() => import('./page/ConsultantDashboard'));
+const SplashScreen = lazy(() => import('./page/SplashScreen'));
+const BeforeLogin = lazy(() => import('./page/BeforeLogin'));
+const MenuBar = lazy(() => import('./component/MenuBar'));
+const LoadingPage = lazy(() => import('./page/LoadingPage'));
+const Wealth = lazy(() => import('./page/Wealth'));
+const Match = lazy(() => import('./page/Match'));
+const FortuneCookie = lazy(() => import('./page/FortuneCookie'));
+const TodaysLuckPage = lazy(() => import('./page/TodaysLuckPage'));
+const YearlyLuckPage = lazy(() => import('./page/YearlyLuckPage'));
+const SajuResult = lazy(() => import('./component/SajuResult'));
+const BasicAnaPage = lazy(() => import('./page/BasicAnaPage'));
+const TarotDailyPage = lazy(() => import('./page/TarotDailyPage'));
+const TarotMoneyPage = lazy(() => import('./page/TarotMoneyPage'));
+const TarotCounselingPage = lazy(() => import('./page/TarotCounselingPage'));
+const TarotLovePage = lazy(() => import('./page/TarotLovePage'));
+const FeedbackForm = lazy(() => import('./page/FeedbackForm'));
+const EditPrompt = lazy(() => import('./page/EditPrompt'));
+const SazaTalk = lazy(() => import('./page/SazaTalk'));
+const Ad = lazy(() => import('./page/Ad'));
+const BasicAna = lazy(() => import('./page/BasicAna'));
+const PayWall = lazy(() => import('./page/PayWall'));
+const SazaTalkAd = lazy(() => import('./page/SazaTalkAd'));
+const NewYearAdKr = lazy(() => import('./page/NewYearAdKr'));
+const SazaTalkAdKr = lazy(() => import('./page/SazaTalkAdKr'));
+const NewYearAdEn = lazy(() => import('./page/NewYearAdEn'));
+const TestAnalysisPage = lazy(() => import('./page/TestAnalysisPage'));
+const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
+
+// 🔥 로딩 컴포넌트 (간단하게)
+const LoadingFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+      <p className="text-gray-600 dark:text-gray-400">로딩 중...</p>
+    </div>
+  </div>
+);
+
 const RootComponent = () => {
   const { user, userData, loadingUser } = useAuthContext();
 
-  // 수정 제안
   const pathname = window.location.pathname;
   const isSpecialPage =
     /^\/(ad|paywall|sazatalkad|sazatalkadkr|newyearadkr|newyearaden|test2)(\/|$)/.test(pathname);
@@ -59,17 +69,18 @@ const RootComponent = () => {
   if (isSpecialPage) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950">
-        <Routes>
-          <Route path="/ad" element={<Ad />} />
-          <Route path="/sazatalkadkr" element={<SazaTalkAdKr />} />
-          <Route path="/paywall" element={<PayWall />} />
-          <Route path="/sazatalkad" element={<SazaTalkAd />} />
-          <Route path="/newyearadkr" element={<NewYearAdKr />} />
-          <Route path="/newyearaden" element={<NewYearAdEn />} />
-          <Route path="/test2" element={<TestAnalysisPage />} />
-          {/* 없는 주소로 들어오면 기본적으로 Ad로 보낼지 PayWall로 보낼지 결정 */}
-          <Route path="*" element={<Ad />} />
-        </Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/ad" element={<Ad />} />
+            <Route path="/sazatalkadkr" element={<SazaTalkAdKr />} />
+            <Route path="/paywall" element={<PayWall />} />
+            <Route path="/sazatalkad" element={<SazaTalkAd />} />
+            <Route path="/newyearadkr" element={<NewYearAdKr />} />
+            <Route path="/newyearaden" element={<NewYearAdEn />} />
+            <Route path="/test2" element={<TestAnalysisPage />} />
+            <Route path="*" element={<Ad />} />
+          </Routes>
+        </Suspense>
       </div>
     );
   }
@@ -80,14 +91,20 @@ const RootComponent = () => {
   }
 
   if (loadingUser) {
-    return <SplashScreen />;
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <SplashScreen />
+      </Suspense>
+    );
   }
 
   // 3. 생년월일 데이터가 없는 경우
   if (!isAdPage && !userData?.birthDate) {
     return (
       <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
-        <BeforeLogin />
+        <Suspense fallback={<LoadingFallback />}>
+          <BeforeLogin />
+        </Suspense>
       </div>
     );
   }
@@ -99,48 +116,56 @@ const RootComponent = () => {
 
       <div className="pb-24">
         <NavBar />
-        <Routes>
-          <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
-            <Route path="/editprompt" element={<EditPrompt />} />
-          </Route>
-          <Route path="/sazatalk" element={<SazaTalk />} />
-          <Route path="/ana" element={<BasicAna />} />
 
-          <Route path="/feedback" element={<FeedbackForm />} />
-          <Route path="/tarotmoney" element={<TarotMoneyPage />} />
-          <Route path="/tarotlove" element={<TarotLovePage />} />
-          <Route path="/tarotcounseling" element={<TarotCounselingPage />} />
-          <Route path="/tarotdaily" element={<TarotDailyPage />} />
-          <Route path="/sajuresult" element={<SajuResult />} />
-          <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
-          <Route path="/basic" element={<BasicAnaPage />} />
-          <Route path="/todaysluck" element={<TodaysLuckPage />} />
-          <Route path="/dayluck" element={<DayLuckPage />} />
-          <Route path="/2026luck" element={<YearlyLuckPage />} />
-          <Route path="/test" element={<Test />} />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
+              <Route path="/editprompt" element={<EditPrompt />} />
+            </Route>
+            <Route path="/sazatalk" element={<SazaTalk />} />
+            <Route path="/ana" element={<BasicAna />} />
 
-          <Route path="/wealth" element={<Wealth />} />
-          <Route path="/match" element={<Match />} />
-          {/* <Route path="/basic" element={<SajuAnalysisPage />} /> */}
-          <Route path="/fortunecookie" element={<FortuneCookie />} />
-          <Route path="/editprofile" element={<EditProfile />} />
+            <Route path="/feedback" element={<FeedbackForm />} />
+            <Route path="/tarotmoney" element={<TarotMoneyPage />} />
+            <Route path="/tarotlove" element={<TarotLovePage />} />
+            <Route path="/tarotcounseling" element={<TarotCounselingPage />} />
+            <Route path="/tarotdaily" element={<TarotDailyPage />} />
+            <Route path="/sajuresult" element={<SajuResult />} />
+            <Route path="/open-in-browser" element={<OpenInBrowserPage />} />
+            <Route path="/basic" element={<BasicAnaPage />} />
+            <Route path="/todaysluck" element={<TodaysLuckPage />} />
+            <Route path="/dayluck" element={<DayLuckPage />} />
+            <Route path="/2026luck" element={<YearlyLuckPage />} />
+            <Route path="/test" element={<Test />} />
 
-          <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin']} />}>
-            <Route path="/admin" element={<AdminPage />} />
-          </Route>
-          {/* /loadingpage 경로는 따로 둘 필요 없이 전역 상태로 관리되지만 유지함 */}
-          <Route path="/loadingpage" element={<LoadingPage />} />
-          <Route element={<ProtectedRoute allowedRoles={['user']} />}>
-            <Route path="/apply-saju-consultant" element={<ApplySaju />} />
-          </Route>
-          <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
-            <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
-          </Route>
-          <Route path="/sajuexp" element={<SajuExp />} />
-          <Route path="/*" element={<App />} />
-        </Routes>
+            <Route path="/wealth" element={<Wealth />} />
+            <Route path="/match" element={<Match />} />
+            <Route path="/fortunecookie" element={<FortuneCookie />} />
+            <Route path="/editprofile" element={<EditProfile />} />
+
+            <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin']} />}>
+              <Route path="/admin" element={<AdminPage />} />
+            </Route>
+
+            <Route path="/loadingpage" element={<LoadingPage />} />
+
+            <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+              <Route path="/apply-saju-consultant" element={<ApplySaju />} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={['saju_consultant']} />}>
+              <Route path="/consultant/dashboard" element={<ConsultantDashboard />} />
+            </Route>
+
+            <Route path="/sajuexp" element={<SajuExp />} />
+            <Route path="/*" element={<App />} />
+          </Routes>
+        </Suspense>
       </div>
-      <MenuBar />
+
+      <Suspense fallback={null}>
+        <MenuBar />
+      </Suspense>
     </div>
   );
 };
@@ -151,7 +176,6 @@ root.render(
   <React.StrictMode>
     <AppProvider>
       <AuthContextProvider>
-        {/* 3. LoadingProvider로 감싸서 useLoading을 쓸 수 있게 함 */}
         <LoadingProvider>
           <BrowserRouter>
             <RootComponent />

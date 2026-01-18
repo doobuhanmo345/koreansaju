@@ -38,6 +38,7 @@
     "globals": "^16.5.0",
     "postcss": "8.4.35",
     "prettier": "^3.7.3",
+    "rollup-plugin-visualizer": "^6.0.5",
     "tailwindcss": "3.4.17",
     "vite": "npm:rolldown-vite@7.2.5"
   },
