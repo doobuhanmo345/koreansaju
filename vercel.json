@@ -1,91 +1,16 @@
-      at TransformPluginContext.error (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30676:14)
-      at TransformPluginContext.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:28680:10)
-      at async EnvironmentPluginContainer.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30468:14)
-      at async loadAndTransform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:21586:26)
-      at async viteTransformMiddleware (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:26148:20)
-오후 10:28:32 [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. You may need to install appropriate plugins to handle the .html file format, or if it's an asset, add "**/*.html" to `assetsInclude` in your configuration.
-  Plugin: vite:import-analysis
-  File: C:/Users/HAELIM/Desktop/saju-app/index.html:10:28
-  8  |      <link rel="manifest" href="/site.webmanifest" />
-  9  |      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  10 |      <title>SAZA SAJU</title>
-     |                              ^
-  11 |    </head>
-  12 |    <body>
-      at TransformPluginContext._formatLog (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30679:43)
-      at TransformPluginContext.error (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30676:14)
-      at TransformPluginContext.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:28680:10)
-      at async EnvironmentPluginContainer.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30468:14)
-      at async loadAndTransform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:21586:26)
-오후 10:28:32 [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. You may need to install appropriate plugins to handle the .html file format, or if it's an asset, add "**/*.html" to `assetsInclude` in your configuration.
-  Plugin: vite:import-analysis
-  File: C:/Users/HAELIM/Desktop/saju-app/index.html:10:28
-  8  |      <link rel="manifest" href="/site.webmanifest" />
-  9  |      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  10 |      <title>SAZA SAJU</title>
-     |                              ^
-  11 |    </head>
-  12 |    <body>
-      at TransformPluginContext._formatLog (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30679:43)
-      at TransformPluginContext.error (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30676:14)
-      at TransformPluginContext.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:28680:10)
-      at async EnvironmentPluginContainer.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30468:14)
-      at async loadAndTransform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:21586:26)
-Error: Invalid vercel.json - `rewrites[1]` should NOT have additional property `handle`. Please remove it.        
-View Documentation: https://vercel.com/docs/concepts/projects/project-configuration#rewrites
-PS C:\Users\HAELIM\Desktop\saju-app> vercel dev
-Vercel CLI 50.0.0
-Error: Invalid vercel.json - `rewrites[1]` should NOT have additional property `handle`. Please remove it.        
-View Documentation: https://vercel.com/docs/concepts/projects/project-configuration#rewrites
-PS C:\Users\HAELIM\Desktop\saju-app> vercel dev
-Vercel CLI 50.0.0
-> Running Dev Command “vite --port $PORT”
-
-  ROLLDOWN-VITE v7.2.5  ready in 1383 ms
-
-  ➜  Local:   http://localhost:3000/
-  ➜  Network: use --host to expose
-  ➜  press h + enter to show help
-> Ready! Available at http://localhost:3000
-오후 10:30:38 [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. You may need to install appropriate plugins to handle the .html file format, or if it's an asset, add "**/*.html" to `assetsInclude` in your configuration.
-  Plugin: vite:import-analysis
-  File: C:/Users/HAELIM/Desktop/saju-app/index.html:10:28
-  8  |      <link rel="manifest" href="/site.webmanifest" />
-  9  |      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  10 |      <title>SAZA SAJU</title>
-     |                              ^
-  11 |    </head>
-  12 |    <body>
-      at TransformPluginContext._formatLog (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30679:43)
-      at TransformPluginContext.error (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30676:14)
-      at TransformPluginContext.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:28680:10)
-      at async EnvironmentPluginContainer.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30468:14)
-      at async loadAndTransform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:21586:26)
-오후 10:30:38 [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. You may need to install appropriate plugins to handle the .html file format, or if it's an asset, add "**/*.html" to `assetsInclude` in your configuration.
-  Plugin: vite:import-analysis
-  File: C:/Users/HAELIM/Desktop/saju-app/index.html:10:28
-  8  |      <link rel="manifest" href="/site.webmanifest" />
-  9  |      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  10 |      <title>SAZA SAJU</title>
-     |                              ^
-  11 |    </head>
-  12 |    <body>
-      at TransformPluginContext._formatLog (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30679:43)
-      at TransformPluginContext.error (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30676:14)
-      at TransformPluginContext.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:28680:10)
-      at async EnvironmentPluginContainer.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30468:14)
-      at async loadAndTransform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:21586:26)
-오후 10:30:38 [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. You may need to install appropriate plugins to handle the .html file format, or if it's an asset, add "**/*.html" to `assetsInclude` in your configuration.
-  Plugin: vite:import-analysis
-  File: C:/Users/HAELIM/Desktop/saju-app/index.html:10:28
-  8  |      <link rel="manifest" href="/site.webmanifest" />
-  9  |      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  10 |      <title>SAZA SAJU</title>
-     |                              ^
-  11 |    </head>
-  12 |    <body>
-      at TransformPluginContext._formatLog (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30679:43)
-      at TransformPluginContext.error (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30676:14)
-      at TransformPluginContext.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:28680:10)
-      at async EnvironmentPluginContainer.transform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:30468:14)
-      at async loadAndTransform (file:///C:/Users/HAELIM/Desktop/saju-app/node_modules/vite/dist/node/chunks/node.js:21586:26)
+{
+  "framework": "vite",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
