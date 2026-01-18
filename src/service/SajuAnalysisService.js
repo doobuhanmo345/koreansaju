@@ -501,7 +501,6 @@ class AnalysisPresets {
   }
 
   static daily(params) {
-
     return {
       type: 'daily',
       params,
@@ -522,7 +521,7 @@ class AnalysisPresets {
       },
 
       validateCache: (cached, p) =>
-        cached.date === (p.selectedDate|| new Date()) &&
+        cached.date === (p.selectedDate || new Date()) &&
         cached.language === p.language &&
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
@@ -560,7 +559,6 @@ class AnalysisPresets {
           '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
         };
       },
-      
 
       buildSaveData: (result, p, service) => {
         const todayDate = service.getTodayDate();
@@ -575,6 +573,82 @@ class AnalysisPresets {
               saju: p.saju,
               language: p.language,
               gender: p.gender,
+              question: p.question || '', // 질문 저장
+            },
+          },
+          dailyUsage: { [todayDate]: increment(1) },
+        };
+      },
+    };
+  }
+  static dailySpecific(params) {
+    return {
+      type: 'dailySpecific',
+      params,
+      cacheKey: 'ZDailySpecific',
+      loadingType: 'daily',
+      promptPaths: [
+        'prompt/daily_s_basic',
+        'prompt/default_instruction',
+        `prompt/daily_s_${params.language}`,
+      ],
+
+      customValidation: (p, service) => {
+        if (!service.userData?.birthDate) {
+          alert(service.uiText?.saveFirst?.[service.language] || '생년월일을 먼저 저장해주세요.');
+          return false;
+        }
+        return true;
+      },
+
+      validateCache: (cached, p) =>
+        cached.date === (p.selectedDate || new Date()) &&
+        cached.language === p.language &&
+        cached.gender === p.gender &&
+        SajuAnalysisService.compareSaju(cached.sajuDate, p.sajuDate) &&
+        SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
+        cached.result,
+
+      buildPromptVars: (prompts, p, service) => {
+        // selectedDate가 있으면 그 날짜 사용, 없으면 오늘
+        let today = new Date();
+        if (p.selectedDate && p.selectedDate instanceof Date) {
+          today = new Date(p.selectedDate);
+        }
+
+        const todayPillars = getPillars(today);
+
+        const userSajuText = `${p.saju.sky3}${p.saju.grd3}년 ${p.saju.sky2}${p.saju.grd2}월 ${p.saju.sky1}${p.saju.grd1}일 ${p.saju.sky0}${p.saju.grd0}시`;
+        const todaySajuText = `${p.sajuDate.sky3}${p.sajuDate.grd3}년 ${p.sajuDate.sky2}${p.sajuDate.grd2}월 ${p.sajuDate.sky1}${p.sajuDate.grd1}일`;
+
+        return {
+          '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
+          '{{DAILY_S_PROMPT}}': prompts[`prompt/daily_s_${p.language}`],
+          '{{gender}}': p.gender,
+          '{{userSajuText}}': userSajuText,
+          '{{todayDate}}': todayPillars.date,
+          '{{todaySajuText}}': todaySajuText,
+          '{{displayName}}': service.getDisplayName(),
+          '{{question}}': p.question || '', // 질문 추가
+          '{{langPrompt}}': service.langPrompt?.(service.language) || '',
+          '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
+        };
+      },
+
+      buildSaveData: (result, p, service) => {
+        const todayDate = service.getTodayDate();
+        return {
+          saju: p.saju,
+          editCount: increment(1),
+          lastEditDate: todayDate,
+          usageHistory: {
+            ZDailySpecific: {
+              result,
+              date: p.selectedDate || new Date(),
+              saju: p.saju,
+              language: p.language,
+              gender: p.gender,
+              sajuDate: p.sajuDate,
               question: p.question || '', // 질문 저장
             },
           },

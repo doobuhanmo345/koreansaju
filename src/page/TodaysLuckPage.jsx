@@ -31,8 +31,7 @@ export default function TodaysLuckPage() {
   const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
   const [sajuData, setSajuData] = useState(null);
   const { userData, user, isDailyDone } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { birthDate: inputDate, isTimeUnknown, gender,saju } = userData || {};
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();

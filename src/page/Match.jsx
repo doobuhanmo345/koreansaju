@@ -134,8 +134,8 @@ export default function Match({}) {
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { birthDate: inputDate, isTimeUnknown, gender ,saju} = userData || {};
+
   const { setEditCount, MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
 
   // --- States ---

@@ -13,23 +13,24 @@ import { useLanguage } from '../context/useLanguageContext';
 import { classNames } from '../utils/helpers';
 import { TicketIcon, LockClosedIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { langPrompt, hanja } from '../data/constants';
-import { getPillars } from '../utils/sajuCalculator';
+import { calculateSaju } from '../utils/sajuCalculator';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { calculateSajuData } from '../utils/sajuLogic';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
+import { type } from 'firebase/firestore/pipelines';
 
 export default function DayLuckPage() {
   const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedDateSaju, setSelectedDateSaju] = useState(null);
-  const [question, setQuestion] = useState('');
 
+  const [question, setQuestion] = useState('');
+  const [selectedDateSaju, setSelectedDateSaju] = useState(null);
   const { userData, user, isDailyDone } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { birthDate: inputDate, isTimeUnknown, gender, saju } = userData || {};
+
   const { language } = useLanguage();
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();
 
@@ -52,27 +53,18 @@ export default function DayLuckPage() {
     const [year, month, day] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day);
   };
+  const selDate = formatDateForInput(selectedDate) + 'T12:00';
 
-  // selectedDate가 변경될 때마다 그 날짜의 사주 데이터 계산
   useEffect(() => {
     if (selectedDate) {
-      const year = selectedDate.getFullYear();
-      const month = selectedDate.getMonth() + 1;
-      const day = selectedDate.getDate();
-
-      // calculateSajuData에 ISO 문자열 형식으로 전달
-      const isoString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T00:00:00.000Z`;
-      console.log('전달할 isoString:', isoString); // 디버그
-
-      const data = calculateSajuData(isoString, gender, isTimeUnknown, language);
-      console.log('calculateSajuData 결과:', data); // 디버그
-
-      if (data) {
-        setSelectedDateSaju(data);
-      }
+      const timeUnknown = true;
+      console.log('useeffect', inputDate, selDate);
+      // 훅이 아니라 일반 함수를 호출하세요! (순수 JS 로직)
+      const result = calculateSaju(selDate, timeUnknown);
+      setSelectedDateSaju(result);
     }
-  }, [selectedDate, gender, isTimeUnknown, language]);
-
+  }, [selectedDate]);
+  console.log(selDate, selectedDateSaju);
   const service = new SajuAnalysisService({
     user,
     userData,
@@ -89,19 +81,15 @@ export default function DayLuckPage() {
   const handleStartClick = async (onstart) => {
     setAiResult('');
     try {
-      if (!selectedDateSaju) {
-        console.error('선택된 날짜의 사주 데이터가 없습니다');
-        return;
-      }
-
       // 선택된 날짜의 운세 분석
       await service.analyze(
-        AnalysisPresets.daily({
+        AnalysisPresets.dailySpecific({
           saju: saju,
           gender: gender,
           language: language,
           selectedDate: selectedDate,
           question: question,
+          sajuDate: selectedDateSaju,
         }),
       );
       onstart();
@@ -277,9 +265,7 @@ export default function DayLuckPage() {
   return (
     <AnalysisStepContainer
       guideContent={sajuGuide}
-      loadingContent={
-        <LoadingFourPillar saju={selectedDateSaju?.saju || saju} isTimeUnknown={isTimeUnknown} />
-      }
+      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
       resultComponent={ViewResult}
       loadingTime={0}
     />

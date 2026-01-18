@@ -216,8 +216,8 @@ export default function Wealth({}) {
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { birthDate: inputDate, isTimeUnknown, gender ,saju} = userData || {};
+
   const { MAX_EDIT_COUNT, isLocked, setEditCount, editCount } = useUsageLimit();
 
   // --- States ---

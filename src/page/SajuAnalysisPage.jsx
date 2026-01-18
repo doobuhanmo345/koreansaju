@@ -60,8 +60,8 @@ export default function SajuAnalysisPage() {
   const energy = useConsumeEnergy();
   const { loading, setLoading, loadingType, setLoadingType } = useLoading();
   const { userData, user, isMainDone, isYearDone } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { birthDate: inputDate, isTimeUnknown, gender,saju } = userData || {};
+
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기
   const { editCount, setEditCount, MAX_EDIT_COUNT, isLocked } = useUsageLimit();

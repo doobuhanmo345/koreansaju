@@ -49,7 +49,7 @@ export function useSajuCalculator(inputDate, isTimeUnknown) {
       // 주의: calculateSaju가 Date 객체를 받도록 구현되어 있어야 합니다.
       // 만약 문자열만 받는다면 processingDate.toISOString() 등으로 변환이 필요할 수 있습니다.
       const calculatedSaju = calculateSaju(processingDate, isTimeUnknown);
-      const calculatedSajuL = calculateSajuLunar(processingDate, false, isTimeUnknown);
+      const calculatedSajuL = calculateSajuLunar(processingDate, isTimeUnknown);
 
       if (calculatedSaju) {
         setSaju(calculatedSaju);

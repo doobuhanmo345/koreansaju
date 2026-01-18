@@ -29,8 +29,8 @@ export default function YearlyLuckPage() {
   const [loading, setLoading] = useState(false);
   const [sajuData, setSajuData] = useState(null);
   const { userData, user, isYearDone } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender } = userData || {};
-  const { saju } = useSajuCalculator(inputDate, isTimeUnknown);
+  const { birthDate: inputDate, isTimeUnknown, gender,saju } = userData || {};
+
 
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기

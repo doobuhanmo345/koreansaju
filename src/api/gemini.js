@@ -60,13 +60,27 @@ export const fetchGeminiAnalysis = async (prompt) => {
       body: JSON.stringify({ prompt }),
     });
 
-    const data = await response.json();
-
+    // 1. 상태 코드가 200번대가 아닐 경우 처리
     if (!response.ok) {
-      throw new Error(data.error || '서버 응답 오류');
+      // JSON이 아닐 수도 있으므로 우선 text로 받습니다.
+      const errorText = await response.text();
+      console.error('서버 에러 응답:', errorText);
+      throw new Error(`서버 오류 (${response.status}): ${errorText || '알 수 없는 에러'}`);
     }
 
-    return data.text;
+    // 2. 응답 본문이 비어있는지 확인 후 JSON 파싱
+    const text = await response.text();
+    if (!text) {
+      throw new Error('서버로부터 빈 응답을 받았습니다.');
+    }
+
+    try {
+      const data = JSON.parse(text);
+      return data.text;
+    } catch (parseError) {
+      console.error('JSON 파싱 실패:', text);
+      throw new Error('서버 응답 형식이 올바르지 않습니다. (JSON 파싱 실패)');
+    }
   } catch (error) {
     console.error('프론트엔드 통신 에러:', error);
     throw error;
