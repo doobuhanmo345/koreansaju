@@ -52,8 +52,12 @@ class SajuAnalysisService {
   getTodayDate() {
     return new Date().toLocaleDateString('en-CA');
   }
-  //await DateService.getTodayDate();
-  getSafeDate() {
+  async getToday() {
+    await DateService.getTodayDate();
+  }
+
+  async getSafeDate() {
+    // return DateService.getTodayDate();
     return new Date().toISOString().replace(/[:.]/g, '-');
   }
 
@@ -229,22 +233,21 @@ class AnalysisPresets {
         return await createPromptForGemini(sajuData, p.language);
       },
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
+          lastEditDate: service.getTodayDate(),
           usageHistory: {
             ZApiAnalysis: {
               result,
-              date: todayDate,
+              date: service.getTodayDate(),
               saju: p.saju,
               language: p.language,
               gender: p.gender,
             },
           },
-          dailyUsage: { [todayDate]: increment(1) },
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
         };
       },
     };
@@ -274,12 +277,11 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
+          lastEditDate: service.getTodayDate(),
           usageHistory: {
             question_history: arrayUnion({
               question: p.question,
@@ -288,7 +290,7 @@ class AnalysisPresets {
               id: Date.now(),
             }),
           },
-          dailyUsage: { [todayDate]: increment(1) },
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
         };
       },
     };
@@ -326,7 +328,7 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: async (result, p, service) => ({
+      buildSaveData: (result, p, service) => ({
         id: guestId,
         date: service.getSafeDate(),
         user: !!service.user,
@@ -384,13 +386,12 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
-          dailyUsage: { [todayDate]: increment(1) },
+          lastEditDate: service.getTodayDate(),
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
           usageHistory: {
             ZMatchAnalysis: {
               result,
@@ -448,13 +449,12 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         console.log('저장할 saju:', p.saju); // 디버그
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
+          lastEditDate: service.getTodayDate(),
           usageHistory: {
             ZLastNewYear: {
               result,
@@ -464,7 +464,7 @@ class AnalysisPresets {
               gender: p.gender,
             },
           },
-          dailyUsage: { [todayDate]: increment(1) },
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
         };
       },
     };
@@ -491,7 +491,7 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: async (result, p, service) => ({
+      buildSaveData: (result, p, service) => ({
         id: guestId,
         date: service.getSafeDate(),
         user: !!service.user,
@@ -549,7 +549,7 @@ class AnalysisPresets {
           '{{DAILY_FORTUNE_PROMPT}}': prompts[`prompt/daily_format_${p.language}`],
           '{{gender}}': p.gender,
           '{{userSajuText}}': userSajuText,
-          '{{todayDate}}': todayPillars.date,
+          '{{service.getTodayDate()}}': todayPillars.date,
           '{{todaySajuText}}': todaySajuText,
           '{{tomorrowDate}}': tomorrowPillars.date,
           '{{tomorrowSajuText}}': tomorrowSajuText,
@@ -560,12 +560,11 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
+          lastEditDate: service.getTodayDate(),
           usageHistory: {
             ZLastDaily: {
               result,
@@ -576,7 +575,7 @@ class AnalysisPresets {
               question: p.question || '', // 질문 저장
             },
           },
-          dailyUsage: { [todayDate]: increment(1) },
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
         };
       },
     };
@@ -626,7 +625,7 @@ class AnalysisPresets {
           '{{DAILY_S_PROMPT}}': prompts[`prompt/daily_s_${p.language}`],
           '{{gender}}': p.gender,
           '{{userSajuText}}': userSajuText,
-          '{{todayDate}}': todayPillars.date,
+          '{{service.getTodayDate()}}': todayPillars.date,
           '{{todaySajuText}}': todaySajuText,
           '{{displayName}}': service.getDisplayName(),
           '{{question}}': p.question || '', // 질문 추가
@@ -635,12 +634,11 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
+          lastEditDate: service.getTodayDate(),
           usageHistory: {
             ZDailySpecific: {
               result,
@@ -652,7 +650,7 @@ class AnalysisPresets {
               question: p.question || '', // 질문 저장
             },
           },
-          dailyUsage: { [todayDate]: increment(1) },
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
         };
       },
     };
@@ -690,13 +688,12 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: async (result, p, service) => {
-        const todayDate = service.getTodayDate();
+      buildSaveData: (result, p, service) => {
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: todayDate,
-          dailyUsage: { [todayDate]: increment(1) },
+          lastEditDate: service.getTodayDate(),
+          dailyUsage: { [service.getTodayDate()]: increment(1) },
           usageHistory: {
             ZWealthAnalysis: {
               result,
