@@ -255,7 +255,7 @@ export default function App() {
         )}
       </div>
       {/* 배너 */}
-      <ImageBanner/>
+      {/* <ImageBanner/> */}
       <SazaTalkBanner />
       <NewYearBanner />
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
