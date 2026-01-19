@@ -6,7 +6,7 @@ import { db, database } from '../lib/firebase';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { createPromptForGemini } from '../utils/sajuLogic';
 import { getPillars } from '../utils/sajuCalculator';
-
+import { DateService } from '../utils/dateService';
 class SajuAnalysisService {
   static SAJU_KEYS = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
@@ -49,8 +49,9 @@ class SajuAnalysisService {
     return `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`;
   }
 
-  getTodayDate() {
-    return new Date().toLocaleDateString('en-CA');
+  // async 키워드는 함수 이름 앞에 와야 합니다.
+  async getTodayDate() {
+    return await DateService.getTodayDate();
   }
 
   getSafeDate() {

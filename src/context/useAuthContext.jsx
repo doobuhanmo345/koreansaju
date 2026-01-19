@@ -72,7 +72,7 @@ export function AuthContextProvider({ children }) {
         userData?.usageHistory?.ZCookie && userData.usageHistory?.ZCookie.today === todayStr
       ),
     };
-  }, [userData,language]);
+  }, [userData, language]);
 
   // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
   // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
@@ -121,7 +121,7 @@ export function AuthContextProvider({ children }) {
     const setupUser = async () => {
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
-        const todayStr = new Date().toLocaleDateString('en-CA');
+        const todayStr = await DateService.getTodayDate();
 
         try {
           // 1. 우선 데이터를 한 번만 가져와서 리셋이나 생성이 필요한지 확인
@@ -207,7 +207,16 @@ export function AuthContextProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, userData, loadingUser,iljuImagePath, login, logout, updateProfileData, ...status }}
+      value={{
+        user,
+        userData,
+        loadingUser,
+        iljuImagePath,
+        login,
+        logout,
+        updateProfileData,
+        ...status,
+      }}
     >
       {children}
     </AuthContext.Provider>

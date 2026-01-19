@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import FourPillarVis from '../component/FourPillarVis';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
-
+import { DateService } from '../utils/dateService';
 export default function EditProfile() {
   const { user, userData, updateProfileData } = useAuthContext();
   const { language } = useLanguage();
@@ -73,12 +73,13 @@ export default function EditProfile() {
     setIsSaving(true);
 
     try {
+       const todayDate = await DateService.getTodayDate();
       const updateData = {
         displayName: formData.displayName,
         birthDate: `${formData.birthDate}T${effectiveTime}`,
         isTimeUnknown: formData.isTimeUnknown,
         gender: formData.gender,
-        updatedAt: new Date(),
+        updatedAt: todayDate,
         saju: manse,
       };
 

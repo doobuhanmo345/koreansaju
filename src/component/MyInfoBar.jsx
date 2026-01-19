@@ -1,9 +1,11 @@
 import React from 'react';
 import { useAuthContext } from '../context/useAuthContext';
 import { useLanguage } from '../context/useLanguageContext';
+import { useNavigate } from 'react-router-dom';
 export default function MyInfoBar() {
   const { userData } = useAuthContext();
   const { language } = useLanguage();
+  const navigate = useNavigate();
   return (
     <>
       <div className="flex items-center gap-3 text-sm tracking-tight">

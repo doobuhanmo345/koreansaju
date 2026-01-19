@@ -14,6 +14,7 @@ import { TARO_CARDS } from '../data/tarotConstants';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
+import { DateService } from '../utils/dateService';
 
 // [2] 메인 페이지 컴포넌트
 export default function TarotDailyPage() {
@@ -90,18 +91,18 @@ export default function TarotDailyPage() {
 `;
         const result = await fetchGeminiAnalysis(tarotPrompt);
         
-
+const todayDate = await DateService.getTodayDate();
         await setDoc(
           doc(db, 'users', user.uid),
           {
             editCount: increment(1),
-            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            lastEditDate: todayDate,
             dailyUsage: {
-              [new Date().toLocaleDateString('en-CA')]: increment(1),
+              [todayDate]: increment(1),
             },
             usageHistory: {
               tarotDaily: {
-                [new Date().toLocaleDateString('en-CA')]: increment(1),
+                [todayDate]: increment(1),
               },
             },
           },

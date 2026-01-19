@@ -14,7 +14,7 @@ import { TARO_CARDS } from '../data/tarotConstants';
 import { BanknotesIcon, SparklesIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import CreditIcon from '../ui/CreditIcon';
 import ViewTarotResult from '../component/ViewTarotResult';
-
+import { DateService } from '../utils/dateService';
 export default function TarotMoneyPage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
@@ -108,20 +108,20 @@ export default function TarotMoneyPage() {
 분야: ${categoryLabel} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(moneyPrompt);
-       
+       const todayDate = await DateService.getTodayDate();
 
         await setDoc(
           doc(db, 'users', user.uid),
           {
             editCount: increment(1),
-            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            lastEditDate: todayDate,
             dailyUsage: {
-              [new Date().toLocaleDateString('en-CA')]: increment(1),
+              [todayDate]: increment(1),
             },
 
             usageHistory: {
               tarotMoney: {
-                [new Date().toLocaleDateString('en-CA')]: { [categoryLabel]: increment(1) },
+                [todayDate]: { [categoryLabel]: increment(1) },
               },
             },
           },

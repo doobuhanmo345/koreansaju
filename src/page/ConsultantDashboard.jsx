@@ -22,6 +22,7 @@ import {
   CurrencyDollarIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
+import { DateService } from '../utils/dateService';
 
 export default function ConsultantDashboard() {
   const { user, userData } = useAuthContext();
@@ -54,7 +55,7 @@ export default function ConsultantDashboard() {
             limit(1),
           );
           const appSnapshot = await getDocs(q);
-
+const todayDate = await DateService.getTodayDate();
           if (!appSnapshot.empty) {
             const appData = appSnapshot.docs[0].data();
             const initialData = {
@@ -62,7 +63,7 @@ export default function ConsultantDashboard() {
               experience: appData.experience || '',
               consultationMethods: appData.consultationMethods || [],
               uid: user.uid,
-              createdAt: new Date(),
+              createdAt: todayDate,
             };
 
             // 새 컬렉션에 프로필 문서 생성
@@ -95,7 +96,7 @@ export default function ConsultantDashboard() {
       const profileRef = doc(db, 'consultant_profiles', user.uid);
       await updateDoc(profileRef, {
         ...consultantProfile,
-        updatedAt: new Date(),
+        updatedAt: todayDate,
       });
       alert('전문가 프로필이 저장되었습니다.');
       setIsEditing(false);

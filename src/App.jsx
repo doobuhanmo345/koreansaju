@@ -78,7 +78,7 @@ export default function App() {
 
   // --- 2. 테마 적용 Effect ---
   useEffect(() => {
-    if (theme === 'dark') document.documentElement.classList.add('dark');
+    if (theme === 'darkd') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   }, [theme]);
 

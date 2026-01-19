@@ -20,8 +20,7 @@ import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
-import { type } from 'firebase/firestore/pipelines';
-
+import { DateService } from '../utils/dateService';
 export default function DayLuckPage() {
   const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
   const [selectedDate, setSelectedDate] = useState(null);
@@ -99,8 +98,9 @@ export default function DayLuckPage() {
   };
 
   // 날짜 선택 UI
-  const datePickerSection = () => {
-    const today = new Date();
+  const datePickerSection = async () => {
+     const today = await DateService.getTodayDate();
+  
     const maxDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
     const minDate = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
 

@@ -4,6 +4,7 @@ import { db } from '../lib/firebase';
 import { UI_TEXT } from '../data/constants';
 import { useAuthContext } from './useAuthContext';
 import { useLanguage } from './useLanguageContext';
+import { DateService } from '../utils/dateService';
 
 export const useUsageLimit = () => {
   const [editCount, setEditCount] = useState(0);
@@ -31,7 +32,7 @@ export const useUsageLimit = () => {
     if (!user) return;
 
    
-    const todayDate = new Date().toLocaleDateString('en-CA');
+  const todayDate = await DateService.getTodayDate();
 
     const baseData = {
       editCount: increment(1),

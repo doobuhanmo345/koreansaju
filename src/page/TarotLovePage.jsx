@@ -21,6 +21,7 @@ import {
 } from '@heroicons/react/24/outline';
 import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
+import { DateService } from '../utils/dateService';
 
 export default function TarotLovePage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
@@ -135,19 +136,19 @@ export default function TarotLovePage() {
 상황: ${typeLabel} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(lovePrompt);
-       
+       const todayDate = await DateService.getTodayDate();
 
         await setDoc(
           doc(db, 'users', user.uid),
           {
             editCount: increment(1),
-            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            lastEditDate: todayDate,
             dailyUsage: {
-              [new Date().toLocaleDateString('en-CA')]: increment(1),
+              [todayDate]: increment(1),
             },
             usageHistory: {
               tarotLove: {
-                [new Date().toLocaleDateString('en-CA')]: { [typeLabel]: increment(1) },
+                [todayDate]: { [typeLabel]: increment(1) },
               },
             },
           },

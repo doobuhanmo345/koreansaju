@@ -12,7 +12,7 @@ import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import CreditIcon from '../ui/CreditIcon';
 import { TARO_CARDS } from '../data/tarotConstants';
-
+import { DateService } from '../utils/dateService';
 import {
   ChatBubbleLeftRightIcon,
   SparklesIcon,
@@ -89,18 +89,18 @@ export default function TarotCounselingPage() {
 고민내용: ${userQuestion} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(counselingPrompt);
-       
+        const todayDate = await DateService.getTodayDate();
         await setDoc(
           doc(db, 'users', user.uid),
           {
             editCount: increment(1),
-            lastEditDate: new Date().toLocaleDateString('en-CA'),
+            lastEditDate: todayDate,
             dailyUsage: {
-              [new Date().toLocaleDateString('en-CA')]: increment(1),
+              [todayDate]: increment(1),
             },
             usageHistory: {
               tarotCounseling: {
-                [new Date().toLocaleDateString('en-CA')]: { [userQuestion]: increment(1) },
+                [todayDate]: { [userQuestion]: increment(1) },
               },
             },
           },
