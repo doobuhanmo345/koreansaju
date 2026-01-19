@@ -24,6 +24,7 @@ import SazaTalkBanner from './ui/SazaTalkBanner';
 import NewYearBanner from './ui/NewYearBanner';
 import MyInfoBar from './component/MyInfoBar';
 import ImageBanner from './component/ImageBanner';
+import { DateService } from './utils/dateService';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
