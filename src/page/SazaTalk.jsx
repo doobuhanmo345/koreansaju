@@ -241,7 +241,7 @@ export default function SazaTalk() {
           </h2>
           {/* 설명문구 */}
           <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
-            <p className="text-sm">
+            <div className="text-sm">
               {language === 'ko' ? (
                 <>
                   <p>27인의 명리 해석을 학습한 AI가 </p>
@@ -253,7 +253,7 @@ export default function SazaTalk() {
                   <p>listens calmly to your concerns and provides solutions.</p>
                 </>
               )}
-            </p>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2 mb-4 text-purple-600">

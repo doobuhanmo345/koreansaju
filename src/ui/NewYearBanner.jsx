@@ -26,7 +26,7 @@ const NewYearBanner = () => {
             <h3 className="text-white text-lg sm:text-xl font-black leading-tight">
               {language === 'ko' ? '2026 신년운세' : '2026 New Year Fortune'}
             </h3>
-            <p className="text-white text-[11px] my-1">
+            <div className="text-white text-[11px] my-1">
               {language === 'ko' ? (
                 <div>
                   <p>뜨겁게 타오를 2026 병오년</p>
@@ -38,7 +38,7 @@ const NewYearBanner = () => {
                   <p>What do Saju experts foresee for your future?</p>
                 </div>
               )}
-            </p>
+            </div>
           </div>
 
           <button

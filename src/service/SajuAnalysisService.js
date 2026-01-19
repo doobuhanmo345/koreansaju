@@ -6,7 +6,7 @@ import { db, database } from '../lib/firebase';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { createPromptForGemini } from '../utils/sajuLogic';
 import { getPillars } from '../utils/sajuCalculator';
-
+import { DateService } from '../utils/dateService';
 class SajuAnalysisService {
   static SAJU_KEYS = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
@@ -52,7 +52,7 @@ class SajuAnalysisService {
   getTodayDate() {
     return new Date().toLocaleDateString('en-CA');
   }
-
+  //await DateService.getTodayDate();
   getSafeDate() {
     return new Date().toISOString().replace(/[:.]/g, '-');
   }
@@ -229,7 +229,7 @@ class AnalysisPresets {
         return await createPromptForGemini(sajuData, p.language);
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         return {
           saju: p.saju,
@@ -274,7 +274,7 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         return {
           saju: p.saju,
@@ -318,7 +318,7 @@ class AnalysisPresets {
         return {
           '{{STRICT_PROMPT}}': prompts['prompt/saza_strict'],
           '{{SAZA_FORMAT}}': prompts['prompt/saza_format'],
-          '{{myQuestion}}': p.question,
+          '{{myQuestion}}': p.questiton,
           '{{sajuInfo}}': `성별:${p.gender}, 생년${p.birthData.year} 생월${p.birthData.month} 생일${p.birthData.day}, 팔자:${JSON.stringify(p.saju)} (sky3+grd3=연주, sky2+grd2=월주, sky1+grd1=일주, sky0+grd0=시주). 호칭:${displayName}`,
           '{{todayInfo}}': `현재 시각:${new Date().toLocaleString()}. 2026년=병오년. `,
           '{{langPrompt}}': '**한국어로 150~200 단어로**',
@@ -326,7 +326,7 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => ({
+      buildSaveData: async (result, p, service) => ({
         id: guestId,
         date: service.getSafeDate(),
         user: !!service.user,
@@ -384,7 +384,7 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         return {
           saju: p.saju,
@@ -448,7 +448,7 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         console.log('저장할 saju:', p.saju); // 디버그
         return {
@@ -491,7 +491,7 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: (result, p, service) => ({
+      buildSaveData: async (result, p, service) => ({
         id: guestId,
         date: service.getSafeDate(),
         user: !!service.user,
@@ -560,7 +560,7 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         return {
           saju: p.saju,
@@ -635,7 +635,7 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         return {
           saju: p.saju,
@@ -690,7 +690,7 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
         const todayDate = service.getTodayDate();
         return {
           saju: p.saju,

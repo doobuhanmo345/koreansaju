@@ -2,13 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  appType: 'spa',
   plugins: [react()],
   server: {
     port: 3000,
-    strictPort: false,
-  },
-  build: {
-    outDir: 'dist',
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
   },
 });

@@ -171,15 +171,30 @@ export function AuthContextProvider({ children }) {
           }
         } catch (e) {
           console.error('User setup failed:', e);
+          setLoadingUser(false); // ← 이 줄 추가
+          return; // ← 이 줄 추가
         }
 
         // 2. 실시간 동기화 (onSnapshot) - 여기서는 업데이트 로직을 제거하여 깜빡임 방지
-        unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserData(docSnap.data());
-          }
-          setLoadingUser(false);
-        });
+        unsubscribeSnapshot = onSnapshot(
+          userDocRef,
+          (docSnap) => {
+            if (docSnap.exists()) {
+              setUserData(docSnap.data());
+            }
+            setLoadingUser(false);
+          },
+          (error) => {
+            console.error('Snapshot listener error:', error);
+            setLoadingUser(false);
+            // 권한 문제일 경우 로그아웃 처리
+            if (error.code === 'permission-denied') {
+              console.warn('Permission denied - user may need to re-authenticate');
+              setUser(null);
+              setUserData(null);
+            }
+          },
+        );
       } else {
         // 유저 로그아웃 시 데이터 초기화
         setUserData(null);
