@@ -14,4 +14,12 @@ export const DateService = {
       return `${year}-${month}-${day}`;
     }
   },
+ getTime: async () => {
+    try {
+      const response = await fetch('/api/getPreciseTime');
+      const data = await response.json();
+      return data.timestamp; // 숫자 형태의 밀리초 반환
+    } catch (error) {
+      return Date.now();
+    }}
 };

@@ -37,6 +37,20 @@ export const daily_var = [
   { key: '{{langPrompt}}', label: '언어' },
   { key: '{{hanjaPrompt}}', label: '한자' },
 ];
+export const daily_s_var = [
+  { key: '{{STRICT_INSTRUCTION}}', label: '(DB)STRICT_INSTRUCTION' },
+  { key: '{{DAILY_S_PROMPT}}', label: '(DB)daily_S_prompt' },
+  { key: '{{gender}}', label: '성별' },
+  { key: '{{userSajuText}}', label: '사용자 사주' },
+
+  { key: '{{todaySajuText}}', label: '오늘날짜사주' },
+
+  { key: '{{displayName}}', label: '사용자이름' },
+  { key: '{{question}}', label: '선택한 목록들' },
+  { key: '{{langPrompt}}', label: '언어' },
+  { key: '{{hanjaPrompt}}', label: '한자' },
+  { key: '{{addPrompt}}', label: '추가프롬프트 각각 (DB)' },
+];
 
 export const saza_var = [
   { key: '{{STRICT_PROMPT}}', label: '(DB)saza_strict' },

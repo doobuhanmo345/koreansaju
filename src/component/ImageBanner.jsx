@@ -1,159 +1,160 @@
 import React, { useState, useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/useLanguageContext'; // 언어 컨텍스트 임포트
+import { COLOR_THEMES } from '../data/theme';
 const ImageBanner = () => {
+  const navigate = useNavigate();
+  const { language } = useLanguage(); // 현재 언어 상태 가져오기
+
   const bannerData = [
     {
       id: 0,
-      menuTitle: '오늘의 운세',
-      mainTitle: '오늘은 \n과연 몇점',
-      discount: '50',
+      menuTitle: { ko: '오늘의 운세', en: 'Daily' },
+      mainTitle: {
+        ko: '오늘 당신의\n에너지 점수는?',
+        en: 'How is your\nenergy today?',
+      },
+      accent: { ko: '운세 점수', en: 'Score' },
       bgColor: '#FFFCEB',
-      badgeColor: '#4ADE80',
-      imgUrl: 'https://via.placeholder.com/400x300?text=Food+Image',
-      link: '/',
+      accentColor: '#FBBF24',
+      link: '/todaysluck',
     },
-    {
-      id: 1,
-      menuTitle: '오늘의 모임',
-      mainTitle: '알코올 \n생존지수',
-      discount: '30',
-      bgColor: '#FDF2F2',
-      badgeColor: '#F87171',
-      imgUrl: 'https://via.placeholder.com/400x300?text=Beauty+Image',
-      link: '/',
-    },
+    // {
+    //   id: 1,
+    //   menuTitle: { ko: '오늘의 모임', en: 'Social' },
+    //   mainTitle: {
+    //     ko: '술자리 모임\n생존 지수 확인',
+    //     en: 'Survival index\nfor tonight',
+    //   },
+    //   accent: { ko: '술자리 바이브', en: 'Vibe' },
+    //   bgColor: '#F5F5F5',
+    //   accentColor: '#94A3B8',
+    //   link: '/',
+    // },
     {
       id: 2,
-      menuTitle: '소개팅 지수',
-      mainTitle: '몇 없는\n귀한 소개팅날',
-      discount: '45',
-      bgColor: '#F0F9FF',
-      badgeColor: '#38BDF8',
-      imgUrl: 'https://via.placeholder.com/400x300?text=Shaver+Image',
-      link: '/',
+      menuTitle: { ko: '소개팅 지수', en: 'Date' },
+      mainTitle: {
+        ko: '소개팅과 썸\n그날의 설렘 확인',
+        en: 'Your spark on\na first date',
+      },
+      accent: { ko: '첫만남 스파크', en: 'Spark' },
+      bgColor: '#FDF2F2',
+      accentColor: '#F87171',
+      link: '/date',
     },
     {
       id: 3,
-      menuTitle: '면접 지수',
-      mainTitle: '동아리, 직장\n어느 면접이든',
-      discount: '15',
-      bgColor: '#F5F5F5',
-      badgeColor: '#ffffff',
-      imgUrl: 'https://via.placeholder.com/400x300?text=Lux+Image',
-      link: '/',
+      menuTitle: { ko: '면접 지수', en: 'Interview' },
+      mainTitle: {
+        ko: '동아리나 직장\n합격의 기운 확인',
+        en: 'Will you get\nthe offer?',
+      },
+      accent: { ko: '합격 패스', en: 'Pass' },
+      bgColor: '#F0F9FF',
+      accentColor: '#38BDF8',
+      link: '/interview',
     },
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false); // 마우스 오버 시 일시정지를 위한 상태
+  const [isPaused, setIsPaused] = useState(false);
 
-  // --- 자동 슬라이드 로직 추가 ---
   useEffect(() => {
     let timer;
     if (!isPaused) {
       timer = setInterval(() => {
-        setActiveIndex((prevIndex) => (prevIndex === bannerData.length - 1 ? 0 : prevIndex + 1));
-      }, 3000); // 3초마다 다음 배너로 이동
+        setActiveIndex((prev) => (prev === bannerData.length - 1 ? 0 : prev + 1));
+      }, 4000);
     }
-
-    return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 제거
+    return () => clearInterval(timer);
   }, [isPaused, bannerData.length]);
-  // ----------------------------
 
-  const currentBanner = bannerData[activeIndex];
+  const current = bannerData[activeIndex];
+  const isKo = language === 'ko';
 
   return (
     <div
-      className="relative w-full max-w-lg h-[220px] mx-auto flex overflow-hidden font-sans transition-colors duration-700 my-2"
-      style={{ backgroundColor: currentBanner.bgColor }}
-      onMouseEnter={() => setIsPaused(true)} // 마우스 올리면 자동재생 멈춤
-      onMouseLeave={() => setIsPaused(false)} // 마우스 떼면 다시 시작
+      className="relative w-full max-w-lg h-[240px] mx-auto flex overflow-hidden transition-all duration-700 ease-in-out my-6 rounded-[2rem] border border-slate-50 dark:border-slate-800 shadow-sm"
+      style={{ backgroundColor: current.bgColor }}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
-      {/* 메인 배너 영역 */}
+      {/* 메인 콘텐츠 영역 */}
       <div
-        className="flex-1 relative flex items-center justify-center cursor-pointer group"
-        onClick={() => (window.location.href = currentBanner.link)}
+        className="flex-1 relative flex flex-col justify-center px-10 cursor-pointer group"
+        onClick={() => navigate(current.link)}
       >
-        {/* 배경 상품 이미지 */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-40 group-hover:scale-105 transition-transform duration-1000">
-          <img src={currentBanner.imgUrl} alt="bg" className="w-[60%] object-contain" />
+        <div className="animate-in fade-in slide-in-from-left-5 duration-700">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-3 block">
+            {isKo ? current.menuTitle.ko : current.menuTitle.en}
+          </span>
+          <h2
+            className={`text-2xl sm:text-3xl font-light text-slate-900 leading-[1.2] tracking-tight whitespace-pre-line ${isKo ? 'break-keep' : ''}`}
+          >
+            {(isKo ? current.mainTitle.ko : current.mainTitle.en).split('\n')[0]} <br />
+            <span className="font-serif italic font-medium" style={{ color: current.accentColor }}>
+              {(isKo ? current.mainTitle.ko : current.mainTitle.en).split('\n')[1]}
+            </span>
+          </h2>
+
+          <div className="mt-6 flex items-center gap-2">
+            <span className="text-[10px] font-bold py-1 px-2 bg-white/50 rounded text-slate-500 uppercase tracking-tighter">
+              {isKo ? '지금 확인하기' : 'Check now'}
+            </span>
+          </div>
         </div>
 
-        {/* 중앙 블랙 배지 */}
-        <div className="relative z-10 w-72 h-72 bg-black rounded-full flex flex-col items-center justify-center text-white shadow-2xl animate-fadeIn">
-          <span className="text-lg font-medium mb-1 whitespace-pre-line text-center">
-            {currentBanner.mainTitle.split('\n')[0]}
-          </span>
-          <h2 className="text-3xl font-black mb-1 tracking-tight">
-            {currentBanner.mainTitle.split('\n')[1]}
-          </h2>
-          <div className="flex items-baseline leading-none">
-            <span className="text-[90px] font-black" style={{ color: currentBanner.badgeColor }}>
-              {currentBanner.discount}
-            </span>
-            <div className="flex flex-col ml-1">
-              <span className="text-2xl font-black" style={{ color: currentBanner.badgeColor }}>
-                %
-              </span>
-              <span className="text-[10px] font-bold" style={{ color: currentBanner.badgeColor }}>
-                UP TO
-              </span>
-            </div>
-          </div>
+        {/* 배경 대형 텍스트 */}
+        <div className="absolute right-[-5%] bottom-[-5%] text-[80px] sm:text-[100px] font-black opacity-[0.03] italic select-none pointer-events-none">
+          {isKo ? current.accent.ko : current.accent.en}
         </div>
       </div>
 
-      {/* 우측 메뉴바 */}
-      <div className="hidden sm:block w-24 bg-white/80 backdrop-blur-md border-l border-gray-100 flex flex-col ">
+      {/* 우측 사이드바 메뉴 */}
+      <div className="w-24 bg-white/40 backdrop-blur-md border-l border-white/20 flex flex-col">
         {bannerData.map((item, index) => (
-          <div
+          <button
             key={item.id}
             onClick={() => setActiveIndex(index)}
-            className={`flex-1 flex items-center justify-between p-4 cursor-pointer border-b border-gray-100 transition-all duration-300 ${
-              activeIndex === index
-                ? 'bg-white ring-2 ring-inset ring-blue-500 z-10 shadow-lg'
-                : 'hover:bg-gray-50 opacity-60 hover:opacity-100'
+            className={`flex-1 flex flex-col items-start justify-center px-4 transition-all duration-500 relative ${
+              activeIndex === index ? 'bg-white/60' : 'hover:bg-white/20'
             }`}
           >
-            <div className="flex flex-col h-full justify-center">
-              {/* 진행 바 (현재 활성화된 메뉴 하단에 표시하면 더 예쁩니다) */}
-              <span
-                className={`text-[11px] leading-tight font-bold whitespace-pre-line ${
-                  activeIndex === index ? 'text-blue-600' : 'text-gray-600'
-                }`}
-              >
-                {item.menuTitle}
-              </span>
-              {activeIndex === index && (
-                <div className="w-full h-0.5 bg-gray-100 mt-1 overflow-hidden">
-                  <div className="h-full bg-blue-500 animate-progress"></div>
-                </div>
-              )}
-            </div>
-            {/* <div className="w-8 h-8 bg-gray-100 rounded overflow-hidden flex-shrink-0 ml-2">
-              <img src={item.imgUrl} alt="thumb" className="w-full h-full object-cover" />
-            </div> */}
-          </div>
+            <span
+              className={`text-[9px] font-black tracking-tighter text-left leading-tight ${
+                activeIndex === index ? 'text-slate-900' : 'text-slate-400'
+              }`}
+            >
+              {isKo ? item.menuTitle.ko : item.menuTitle.en}
+            </span>
+
+            {/* 진행 상태 바 */}
+            {activeIndex === index && (
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-slate-900 animate-in fade-in duration-500" />
+            )}
+
+            {activeIndex === index && (
+              <div className="w-full h-[1px] bg-slate-100 mt-2 overflow-hidden">
+                <div
+                  className="h-full bg-slate-900 animate-progress origin-left"
+                  style={{ animationDuration: '4s' }}
+                />
+              </div>
+            )}
+          </button>
         ))}
       </div>
 
-      {/* Tailwind 기본 애니메이션 외에 필요한 경우를 위한 간단한 스타일 */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
         @keyframes progress {
-          from { width: 0%; }
-          to { width: 100%; }
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
         }
         .animate-progress {
-          animation: progress 3s linear;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out;
+          animation: progress linear forwards;
         }
       `,
         }}

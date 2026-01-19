@@ -2,10 +2,12 @@ import { useTimer } from '../hooks/useTimer';
 import { BoltIcon } from '@heroicons/react/24/outline';
 import { useAuthContext } from '../context/useAuthContext';
 import { useLanguage } from '../context/useLanguageContext';
+import { useUsageLimit } from '../context/useUsageLimit';
 
-export default function LoginStatus({ MAX_EDIT_COUNT, onFortuneClick, isCookieDone }) {
+export default function LoginStatus({  }) {
   const { user, userData } = useAuthContext();
   const { language } = useLanguage();
+  const {MAX_EDIT_COUNT} = useUsageLimit()
 
   const editCount = userData?.editCount || 0;
   const remainingCredit = MAX_EDIT_COUNT - editCount;
@@ -59,16 +61,19 @@ export default function LoginStatus({ MAX_EDIT_COUNT, onFortuneClick, isCookieDo
               </span>
             </div>
             <button
-              onClick={onFortuneClick}
-              disabled={isCookieDone} // true일 때 클릭 차단
+             
+
               className={`w-full text-[11px] font-extrabold px-3 py-1 my-2 rounded-lg shadow-sm transition-all 
     ${
-      isCookieDone
+      // isCookieDone
+      true
         ? 'bg-gray-200 dark:bg-slate-700 text-gray-400 cursor-not-allowed opacity-60' // 비활성화 스타일
         : 'bg-yellow-500 hover:bg-yellow-400 text-slate-950 active:scale-95' // 활성화 스타일
     }`}
             >
-              {isCookieDone
+              {
+              // isCookieDone 
+              true
                 ? language === 'ko'
                   ? '완료'
                   : 'Done'

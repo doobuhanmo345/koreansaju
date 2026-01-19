@@ -20,7 +20,8 @@ import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
-import { DateService } from '../utils/dateService';
+import { type } from 'firebase/firestore/pipelines';
+import CustomCalendar from '../component/CustomCalendar';
 export default function DayLuckPage() {
   const { loading, setLoading, setLoadingType, aiResult, setAiResult } = useLoading();
   const [selectedDate, setSelectedDate] = useState(null);
@@ -57,13 +58,13 @@ export default function DayLuckPage() {
   useEffect(() => {
     if (selectedDate) {
       const timeUnknown = true;
-      console.log('useeffect', inputDate, selDate);
+
       // 훅이 아니라 일반 함수를 호출하세요! (순수 JS 로직)
       const result = calculateSaju(selDate, timeUnknown);
-      setSelectedDateSaju(result);
+      setSelectedDateSaju(result.saju);
     }
   }, [selectedDate]);
-  console.log(selDate, selectedDateSaju);
+
   const service = new SajuAnalysisService({
     user,
     userData,
@@ -89,6 +90,8 @@ export default function DayLuckPage() {
           selectedDate: selectedDate,
           question: question,
           sajuDate: selectedDateSaju,
+          promptAdd: '',
+           type: 'dayluck',
         }),
       );
       onstart();
@@ -98,59 +101,38 @@ export default function DayLuckPage() {
   };
 
   // 날짜 선택 UI
-  const datePickerSection = async () => {
-     const today = await DateService.getTodayDate();
-  
-    const maxDate = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
-    const minDate = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+  const datePickerSection = () => {
+    const today = new Date();
 
     return (
-      <div className="space-y-4 mb-8 p-5 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center gap-2 mb-3">
-          <CalendarIcon className="w-5 h-5 text-amber-600 dark:text-amber-500" />
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            {language === 'ko' ? '운세를 보고 싶은 날짜' : 'Select a date'}
+      <div className="w-full max-w-md mx-auto py-8">
+        {/* Header Section: 아이콘 없이 텍스트로만 깔끔하게 */}
+        <div className="mb-6">
+          <label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-4">
+            {language === 'ko' ? '01. 날짜 선택' : '01. Select Date'}
           </label>
+
+          {/* 캘린더 호출 */}
+          <CustomCalendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
         </div>
 
-        <input
-          type="date"
-          value={formatDateForInput(selectedDate)}
-          onChange={(e) => setSelectedDate(parseDateFromInput(e.target.value))}
-          min={formatDateForInput(minDate)}
-          max={formatDateForInput(maxDate)}
-          className="w-full px-4 py-3 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all"
-        />
-
-        {selectedDate &&
-          (() => {
-            const year = selectedDate.getFullYear();
-            const month = selectedDate.getMonth() + 1;
-            const day = selectedDate.getDate();
-            return (
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-2">
-                {language === 'ko'
-                  ? `선택된 날짜: ${year}년 ${month}월 ${day}일`
-                  : `Selected date: ${selectedDate.toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}`}
-              </div>
-            );
-          })()}
-
-        {/* 질문 입력 */}
-        <div className="mt-4">
-          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            {language === 'ko' ? '궁금한 점 (선택사항)' : 'Question (Optional)'}
-          </label>
+        {/* 선택된 날짜 & 질문 입력 영역: 경계선을 최소화하고 여백으로 구분 */}
+        <div className="mt-10 pt-10 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-between items-end mb-4">
+            <label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+              {language === 'ko' ? '02. 질문' : '02. Question'}
+            </label>
+            {selectedDate && (
+              <span className="text-[11px] font-medium text-slate-900 dark:text-white border-b border-slate-900 dark:border-white pb-0.5">
+                {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </span>
+            )}
+          </div>
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder={language === 'ko' ? '궁금한 점을 입력해주세요' : 'Enter your question'}
-            className="w-full mt-2 px-4 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 transition-all"
-            rows="3"
+            placeholder={language === 'ko' ? '어떤 것이 궁금하신가요?' : 'What’s on your mind?'}
+            className="w-full px-0 py-3 text-base bg-transparent border-none text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:ring-0 resize-none min-h-[100px]"
           />
         </div>
       </div>
@@ -164,88 +146,71 @@ export default function DayLuckPage() {
     }
 
     return (
-      <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
-        {/* 상단 비주얼 */}
-        <div>
-          {/* 타이틀 */}
-          <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-            {language === 'ko' ? '사자가 읽어주는' : "by Saza's Saju reading"}
-            <br />
-            <span className="relative text-amber-600 dark:text-amber-500">
-              {language === 'ko' ? '특정일의 운세' : 'Specific Date Fortune'}
-              <div className="absolute inset-0 bg-amber-200/50 dark:bg-amber-800/60 blur-md rounded-full scale-100"></div>
+      <div className="max-w-md mx-auto px-6 py-12 animate-in fade-in slide-in-from-bottom-3 duration-1000">
+        {/* 상단 타이틀 영역: 과한 효과 제거, 세련된 폰트 굵기 조절 */}
+        <header className=" text-right">
+          <div className="inline-block px-2 py-1 mb-4 bg-slate-50 dark:bg-slate-800 rounded text-[10px] font-black tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">
+            Initial Spark
+          </div>
+          <h2 className="text-4xl font-light text-slate-900 dark:text-white leading-[1.1] tracking-tight">
+            {language === 'ko' ? '사자가 읽어주는' : 'Reading for'} <br />
+            <span className="font-serif italic font-medium text-rose-500/80">
+              {language === 'ko' ? '특별한 하루' : 'your special day'}
             </span>
           </h2>
 
-          {/* 설명문구 */}
-          <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
-            <p className="text-sm">
-              {language === 'ko' ? (
-                <>
-                  특정 날짜의 <strong>재물운, 연애운</strong>부터 <strong>방향과 컬러</strong>
-                  까지! 당신이 원하는 날의 운명을 미리 확인해보세요.
-                </>
+          <p className="mt-6 text-[13px] text-slate-400 dark:text-slate-500 leading-relaxed w-full">
+            {language === 'ko' ? (
+              <>
+                새로운 인연이 기다리는 날, <br />
+                <span className="text-slate-600 dark:text-slate-300 font-medium">
+                  그 사람과 잘 맞을까?
+                </span>{' '}
+                정교하게 읽어드립니다.
+              </>
+            ) : (
+              <>
+                On a day of new beginnings, <br />
+                <span className="text-slate-600 dark:text-slate-300 font-medium">
+                  we’ll read how beautifully your universes align
+                </span>{' '}
+                with that special someone.
+              </>
+            )}
+          </p>
+        </header>
+
+        {/* 날짜 선택 섹션: 불필요한 배경 카드 제거 */}
+        <section className="mb-12">{datePickerSection()}</section>
+
+        {/* 하단 액션 섹션 */}
+        <footer className="space-y-6">
+          <button
+            onClick={() => handleStartClick(onStart)}
+            disabled={isDisabled || isDisabled2}
+            className={classNames(
+              'w-full py-5 text-sm font-bold tracking-widest uppercase transition-all duration-500',
+              isDisabled
+                ? 'text-slate-300 cursor-not-allowed bg-slate-50 dark:bg-slate-800'
+                : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98]',
+            )}
+          >
+            <div className="flex items-center justify-center gap-3">
+              {language === 'ko' ? '운세 확인하기' : 'Check Fortune'}
+
+              {/* 배지 스타일: 심플한 텍스트/아이콘 조합 */}
+              {false ? (
+                <span className="text-[10px] px-2 py-0.5 border border-white/30 rounded text-white/70 font-medium">
+                  FREE
+                </span>
+              ) : isLocked ? (
+                <LockClosedIcon className="w-4 h-4 text-rose-400" />
               ) : (
-                "Check the fortune for any specific day: including 'Wealth luck, Love luck', 'Lucky color, direction, keywords'"
+                user && <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
               )}
-            </p>
-
-            <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-              <img
-                src="/images/introcard/specificdate_luck.png"
-                alt="specific date luck"
-                className="w-full h-auto"
-              />
             </div>
-          </div>
-        </div>
-
-        {/* 날짜 선택 섹션 */}
-        {datePickerSection()}
-
-        {/* 시작 버튼 */}
-        <button
-          onClick={() => handleStartClick(onStart)}
-          disabled={isDisabled || isDisabled2}
-          className={classNames(
-            'w-full px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
-            isDisabled
-              ? DISABLED_STYLE
-              : 'bg-gradient-to-r from-amber-600 to-amber-600 hover:from-amber-500 hover:to-amber-500 text-white shadow-amber-200 hover:-translate-y-1',
-          )}
-        >
-          {language === 'ko' ? '특정일 운세 확인하기' : 'Check Fortune'}
-
-          {isDailyDone ? (
-            <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
-              <span className="text-[9px] font-bold text-white uppercase">Free</span>
-              <TicketIcon className="w-3 h-3 text-white" />
-            </div>
-          ) : isLocked ? (
-            <div className="mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40">
-              <LockClosedIcon className="w-4 h-4 text-amber-500" />
-            </div>
-          ) : (
-            user && (
-              <div className="relative scale-90">
-                <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-              </div>
-            )
-          )}
-        </button>
-
-        {isLocked ? (
-          <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
-            <ExclamationTriangleIcon className="w-4 h-4" />
-            {language === 'ko' ? '크레딧이 부족합니다..' : 'Not Enough credit'}
-          </p>
-        ) : (
-          <p className="mt-4 text-[11px] text-slate-400">
-            {language === 'ko'
-              ? '이미 분석된 운세는 크래딧을 재소모하지 않습니다.'
-              : 'Fortunes that have already been analyzed do not use credits.'}
-          </p>
-        )}
+          </button>
+        </footer>
       </div>
     );
   };

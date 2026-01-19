@@ -8,6 +8,7 @@ import {
   basic_var,
   wealth_var,
   daily_var,
+  daily_s_var
 } from '../data/promptVar';
 
 const EditPrompt = () => {
@@ -137,7 +138,9 @@ const EditPrompt = () => {
     new_year_basic: new_year_var,
     saza_basic: saza_var,
     wealth_basic: wealth_var,
+    daily_s_basic: daily_s_var
   };
+  console.log('daily_s_basic',daily_s_var)
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100">
       <h1 className="text-2xl font-bold mb-6">AI 프롬프트 관리자</h1>
@@ -206,6 +209,7 @@ const EditPrompt = () => {
           'new_year_basic',
           'saza_basic',
           'wealth_basic',
+          'daily_s_basic'
         ].includes(targetPath) && (
           <div className="flex flex-col gap-4 p-4">
             {/* 1. 클릭 가능한 가이드 섹션 */}

@@ -45,6 +45,8 @@ const SazaTalkAdKr = lazy(() => import('./page/SazaTalkAdKr'));
 const NewYearAdEn = lazy(() => import('./page/NewYearAdEn'));
 const TestAnalysisPage = lazy(() => import('./page/TestAnalysisPage'));
 const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
+const FirstDatePage = lazy(() => import('./page/FirstDatePage'));
+const InterviewPage = lazy(() => import('./page/InterviewPage'));
 
 // 🔥 로딩 컴포넌트 (간단하게)
 const LoadingFallback = () => (
@@ -130,6 +132,8 @@ const RootComponent = () => {
             <Route path="/basic" element={<BasicAnaPage />} />
             <Route path="/todaysluck" element={<TodaysLuckPage />} />
             <Route path="/dayluck" element={<DayLuckPage />} />
+            <Route path="/date" element={<FirstDatePage />} />
+            <Route path="/interview" element={<InterviewPage />} />
             <Route path="/2026luck" element={<YearlyLuckPage />} />
             <Route path="/test" element={<Test />} />
 

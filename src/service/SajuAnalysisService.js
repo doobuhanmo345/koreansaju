@@ -7,6 +7,22 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { createPromptForGemini } from '../utils/sajuLogic';
 import { getPillars } from '../utils/sajuCalculator';
 import { DateService } from '../utils/dateService';
+export const getPromptFromDB = async (path) => {
+  try {
+    const pathName = `prompt/${path}`
+    const dbRef = ref(database);
+    const snapshot = await get(child(dbRef, pathName));
+
+    if (snapshot.exists()) {
+      return snapshot.val(); // 데이터가 있으면 해당 값 반환
+    }
+    return ''; // 없으면 빈 문자열
+  } catch (error) {
+    console.error('프롬프트 로드 실패:', error);
+    return '';
+  }
+};
+
 class SajuAnalysisService {
   static SAJU_KEYS = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
@@ -53,7 +69,7 @@ class SajuAnalysisService {
     return new Date().toLocaleDateString('en-CA');
   }
   async getToday() {
-    await DateService.getTodayDate();
+    return await DateService.getTodayDate(); // 결과를 반드시 return 해야 함!
   }
 
   async getSafeDate() {
@@ -181,7 +197,7 @@ class SajuAnalysisService {
 
       // DB 저장
       if (buildSaveData) {
-        const saveData = buildSaveData(result, params, this);
+        const saveData = await buildSaveData(result, params, this);
         if (isGuestMode && guestId && guestCollection) {
           await setDoc(doc(db, guestCollection, guestId), saveData, { merge: true });
         } else if (this.user) {
@@ -233,21 +249,21 @@ class AnalysisPresets {
         return await createPromptForGemini(sajuData, p.language);
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
+          lastEditDate: todayStr,
           usageHistory: {
             ZApiAnalysis: {
               result,
-              date: service.getTodayDate(),
               saju: p.saju,
               language: p.language,
               gender: p.gender,
             },
           },
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+          dailyUsage: { [todayStr]: increment(1) },
         };
       },
     };
@@ -277,20 +293,20 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
+          lastEditDate: todayStr,
           usageHistory: {
             question_history: arrayUnion({
               question: p.question,
               sajuKey: p.saju,
               timestamp: new Date().toISOString(),
-              id: Date.now(),
             }),
           },
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+          dailyUsage: { [todayStr]: increment(1) },
         };
       },
     };
@@ -328,20 +344,21 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => ({
-        id: guestId,
-        date: service.getSafeDate(),
-        user: !!service.user,
-        saju: p.saju,
-        usageHistory: {
-          question_history: arrayUnion({
-            question: p.question,
-
-            timestamp: new Date().toISOString(),
-            id: Date.now(),
-          }),
-        },
-      }),
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
+        return {
+          id: guestId,
+          date: todayStr,
+          user: !!service.user,
+          saju: p.saju,
+          usageHistory: {
+            question_history: arrayUnion({
+              question: p.question,
+              timestamp: new Date().toISOString(),
+            }),
+          },
+        };
+      },
     };
   }
 
@@ -386,12 +403,13 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+          lastEditDate: todayStr,
+          dailyUsage: { [todayStr]: increment(1) },
           usageHistory: {
             ZMatchAnalysis: {
               result,
@@ -449,12 +467,12 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: (result, p, service) => {
-        console.log('저장할 saju:', p.saju); // 디버그
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
+          lastEditDate: todayStr,
           usageHistory: {
             ZLastNewYear: {
               result,
@@ -464,7 +482,7 @@ class AnalysisPresets {
               gender: p.gender,
             },
           },
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+          dailyUsage: { [todayStr]: increment(1) },
         };
       },
     };
@@ -491,12 +509,15 @@ class AnalysisPresets {
         '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
       }),
 
-      buildSaveData: (result, p, service) => ({
-        id: guestId,
-        date: service.getSafeDate(),
-        user: !!service.user,
-        saju: p.saju,
-      }),
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
+        return {
+          id: guestId,
+          date: todayStr,
+          user: !!service.user,
+          saju: p.saju,
+        };
+      },
     };
   }
 
@@ -560,22 +581,23 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
+          lastEditDate: todayStr,
           usageHistory: {
             ZLastDaily: {
               result,
-              date: p.selectedDate || new Date(),
+              date: p.selectedDate || todayStr,
               saju: p.saju,
               language: p.language,
               gender: p.gender,
               question: p.question || '', // 질문 저장
             },
           },
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+          dailyUsage: { [todayStr]: increment(1) },
         };
       },
     };
@@ -616,7 +638,7 @@ class AnalysisPresets {
         }
 
         const todayPillars = getPillars(today);
-
+        const additionalPrompt = p.promptAdd;
         const userSajuText = `${p.saju.sky3}${p.saju.grd3}년 ${p.saju.sky2}${p.saju.grd2}월 ${p.saju.sky1}${p.saju.grd1}일 ${p.saju.sky0}${p.saju.grd0}시`;
         const todaySajuText = `${p.sajuDate.sky3}${p.sajuDate.grd3}년 ${p.sajuDate.sky2}${p.sajuDate.grd2}월 ${p.sajuDate.sky1}${p.sajuDate.grd1}일`;
 
@@ -625,32 +647,40 @@ class AnalysisPresets {
           '{{DAILY_S_PROMPT}}': prompts[`prompt/daily_s_${p.language}`],
           '{{gender}}': p.gender,
           '{{userSajuText}}': userSajuText,
-          '{{service.getTodayDate()}}': todayPillars.date,
           '{{todaySajuText}}': todaySajuText,
           '{{displayName}}': service.getDisplayName(),
           '{{question}}': p.question || '', // 질문 추가
           '{{langPrompt}}': service.langPrompt?.(service.language) || '',
           '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
+          '{{addPrompt}}': p.additionalPrompt,
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
+
+        // 1. 기존 데이터를 유지하기 위해 service에서 넘겨받은 userData를 활용하거나
+        // 혹은 단순히 usageHistory 필드를 통째로 정의합니다.
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
+          lastEditDate: todayStr,
+
+          // 마침표를 쓰지 않고, 계층 구조를 직접 만듭니다.
           usageHistory: {
-            ZDailySpecific: {
+            ...service.userData?.usageHistory, // 기존에 있던 ZApiAnalysis 등을 유지하기 위해 필요
+            [`Z${p.type}`]: {
               result,
-              date: p.selectedDate || new Date(),
+              date: p.selectedDate || todayStr,
               saju: p.saju,
               language: p.language,
               gender: p.gender,
               sajuDate: p.sajuDate,
-              question: p.question || '', // 질문 저장
+              question: p.question || '',
             },
           },
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+
+          dailyUsage: { [todayStr]: increment(1) },
         };
       },
     };
@@ -688,12 +718,13 @@ class AnalysisPresets {
         };
       },
 
-      buildSaveData: (result, p, service) => {
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
         return {
           saju: p.saju,
           editCount: increment(1),
-          lastEditDate: service.getTodayDate(),
-          dailyUsage: { [service.getTodayDate()]: increment(1) },
+          lastEditDate: todayStr,
+          dailyUsage: { [todayStr]: increment(1) },
           usageHistory: {
             ZWealthAnalysis: {
               result,

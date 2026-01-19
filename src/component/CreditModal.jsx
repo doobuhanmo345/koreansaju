@@ -1,9 +1,13 @@
 import React from 'react';
 import { useAuthContext } from '../context/useAuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTimer } from '../hooks/useTimer';
+import { useUsageLimit } from '../context/useUsageLimit';
 const CreditModal = ({ isOpen, onClose, onWatchAd, language = 'ko' }) => {
   // 다국어 데이터
   const { isCookieDone } = useAuthContext();
+  const { editCount } = useUsageLimit();
+  const timeLeft = useTimer(editCount);
   const navigate = useNavigate();
   const content = {
     ko: {
@@ -51,6 +55,10 @@ const CreditModal = ({ isOpen, onClose, onWatchAd, language = 'ko' }) => {
           {/* 내용 */}
           <p className="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed mb-8 break-keep">
             {t.body}
+
+            {/* <span className="text-[9px] font-bold text-amber-600/80 dark:text-amber-500/80 mt-1 whitespace-nowrap">
+              {language === 'ko' ? `충전까지 ${timeLeft}` : `Refill in ${timeLeft}`}
+            </span> */}
           </p>
 
           {/* 버튼 세로 배열 */}
