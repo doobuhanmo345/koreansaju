@@ -48,12 +48,7 @@ const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
 
 // 🔥 로딩 컴포넌트 (간단하게)
 const LoadingFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-      <p className="text-gray-600 dark:text-gray-400">로딩 중...</p>
-    </div>
-  </div>
+  <SplashScreen />
 );
 
 const RootComponent = () => {

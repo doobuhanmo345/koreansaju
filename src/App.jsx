@@ -23,6 +23,7 @@ import SubIcons from './component/SubIcons';
 import SazaTalkBanner from './ui/SazaTalkBanner';
 import NewYearBanner from './ui/NewYearBanner';
 import MyInfoBar from './component/MyInfoBar';
+import ImageBanner from './component/ImageBanner';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
@@ -254,6 +255,7 @@ export default function App() {
         )}
       </div>
       {/* 배너 */}
+      <ImageBanner/>
       <SazaTalkBanner />
       <NewYearBanner />
       {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}

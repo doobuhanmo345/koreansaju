@@ -178,7 +178,7 @@ export default function BeforeLogin() {
               status: userData?.status || 'active',
               role: userData?.role || 'user',
               editCount: userData?.editCount || 0,
-              lastLoginDate: new Date().toISOString().split('T')[0],
+              lastLoginDate: new Date().toLocaleDateString('en-CA'),
               displayName: user.displayName || '',
               email: userData?.email || user.email || '',
               // 요구하신 Z 필드명으로 수정

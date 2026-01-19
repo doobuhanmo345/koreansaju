@@ -334,7 +334,7 @@ class AnalysisPresets {
         usageHistory: {
           question_history: arrayUnion({
             question: p.question,
-            sajuKey: p.saju,
+        
             timestamp: new Date().toISOString(),
             id: Date.now(),
           }),
