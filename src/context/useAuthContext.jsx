@@ -5,6 +5,7 @@ import { useLanguage } from './useLanguageContext';
 import { getRomanizedIlju } from '../data/sajuInt';
 import { calculateSaju } from '../utils/sajuCalculator';
 import { DateService } from '../utils/dateService';
+
 const AuthContext = createContext();
 
 export function AuthContextProvider({ children }) {
@@ -12,22 +13,28 @@ export function AuthContextProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const { language } = useLanguage();
-  // 1. 안전하게 변수 계산 (userData가 있을 때만)
 
+  // 1️⃣ 사주 기반 이미지 경로 계산 (Memoization)
   const iljuImagePath = useMemo(() => {
-    if (!userData || !userData.saju) return '/images/ilju/default.png'; // 기본값 설정
-    const data = calculateSaju(
-      userData?.birthDate,
-      userData?.gender,
-      userData?.isTimeUnknown,
-      language,
-    );
-    const safeIlju = data?.sky1 ? getRomanizedIlju(data?.sky1 + data?.grd1) : 'gapja';
+    if (!userData || !userData.saju || !userData.birthDate) return '/images/ilju/default.png';
 
-    const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
+    try {
+      const data = calculateSaju(
+        userData.birthDate,
+        userData.gender,
+        userData.isTimeUnknown,
+        language,
+      );
+      const safeIlju = data?.sky1 ? getRomanizedIlju(data.sky1 + data.grd1) : 'gapja';
+      const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
+      return `/images/ilju/${safeIlju}_${safeGender}.png`;
+    } catch (e) {
+      console.error('Image Path calculation error:', e);
+      return '/images/ilju/default.png';
+    }
+  }, [userData, language]);
 
-    return `/images/ilju/${safeIlju}_${safeGender}.png`;
-  }, [userData]); // userData가 바뀔 때만 다시 계산
+  // 2️⃣ 사용자의 서비스 이용 상태 계산 (Memoization)
   const status = useMemo(() => {
     if (!userData)
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
@@ -35,69 +42,50 @@ export function AuthContextProvider({ children }) {
     const todayStr = new Date().toLocaleDateString('en-CA');
     const nextYear = '2027';
     const gender = userData.gender;
+    const currentSaju = userData.saju;
 
-    // 1️⃣ 사주 정보 일치 확인 헬퍼 함수 (필드별 직접 비교)
-    const checkSajuMatch = (prevSaju, targetSaju) => {
-      if (!prevSaju || !targetSaju) return false;
-      const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-      // 인자로 받은 두 객체의 값을 직접 비교
-      return sajuKeys.every((k) => prevSaju[k] === targetSaju[k]);
+    const checkSajuMatch = (historySaju, userSaju) => {
+      if (!historySaju || !userSaju) return false;
+      const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+      return keys.every((k) => historySaju[k] === userSaju[k]);
     };
+
+    const hist = userData.usageHistory || {};
 
     return {
       isMainDone: !!(
-        userData?.usageHistory?.ZApiAnalysis &&
-        userData.usageHistory?.ZApiAnalysis.language === language &&
-        userData.usageHistory?.ZApiAnalysis.gender === gender &&
-        checkSajuMatch(userData.usageHistory?.ZApiAnalysis.saju, userData.saju)
+        hist.ZApiAnalysis?.language === language &&
+        hist.ZApiAnalysis?.gender === gender &&
+        checkSajuMatch(hist.ZApiAnalysis?.saju, currentSaju)
       ),
-
       isYearDone: !!(
-        userData?.usageHistory?.ZLastNewYear &&
-        String(userData.usageHistory?.ZLastNewYear.year) === nextYear &&
-        userData.usageHistory?.ZLastNewYear.language === language &&
-        userData.usageHistory?.ZLastNewYear.gender === gender &&
-        checkSajuMatch(userData.usageHistory?.ZLastNewYear.saju, userData.saju)
+        String(hist.ZLastNewYear?.year) === nextYear &&
+        hist.ZLastNewYear?.language === language &&
+        checkSajuMatch(hist.ZLastNewYear?.saju, currentSaju)
       ),
-
       isDailyDone: !!(
-        userData?.usageHistory?.ZLastDaily &&
-        userData.usageHistory?.ZLastDaily.date === todayStr &&
-        userData.usageHistory?.ZLastDaily.gender === gender &&
-        checkSajuMatch(userData.usageHistory?.ZLastDaily.saju, userData.saju) &&
-        userData.usageHistory?.ZLastDaily.language === language
+        hist.ZLastDaily?.date === todayStr &&
+        hist.ZLastDaily?.language === language &&
+        checkSajuMatch(hist.ZLastDaily?.saju, currentSaju)
       ),
-
-      isCookieDone: !!(
-        userData?.usageHistory?.ZCookie && userData.usageHistory?.ZCookie.today === todayStr
-      ),
+      isCookieDone: !!(hist.ZCookie?.today === todayStr),
     };
   }, [userData, language]);
 
-  // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
-  // 3️⃣ 첫 번째 Effect: 인앱 브라우저 감지 + 로그인 상태 감지
+  // 3️⃣ 인앱 브라우저 체크 및 유저 상태 감시
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
-
-    // 🚀 [추가] 광고 페이지 예외 처리
     const isAdPage = window.location.pathname.startsWith('/ad');
-
-    const isInApp =
-      userAgent.includes('kakaotalk') ||
-      userAgent.includes('instagram') ||
-      userAgent.includes('naver');
+    const isInApp = /kakaotalk|instagram|naver/.test(userAgent);
     const currentUrl = window.location.href;
 
-    // 🚀 [수정] 광고 페이지가 아닐 때만 인앱 브라우저 감지 로직 실행
     if (isInApp && !isAdPage) {
-      if (userAgent.match(/android/)) {
-        const intentUrl = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
-        window.location.href = intentUrl;
+      if (/android/.test(userAgent)) {
+        window.location.href = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
         return;
-      } else if (userAgent.match(/iphone|ipad|ipod/)) {
-        const noticePath = '/open-in-browser';
-        if (!currentUrl.includes(noticePath)) {
-          window.location.href = noticePath;
+      } else if (/iphone|ipad|ipod/.test(userAgent)) {
+        if (!currentUrl.includes('/open-in-browser')) {
+          window.location.href = '/open-in-browser';
           return;
         }
       }
@@ -105,115 +93,84 @@ export function AuthContextProvider({ children }) {
 
     const unsubscribe = onUserStateChange((firebaseUser) => {
       setUser(firebaseUser);
-      if (!firebaseUser) setLoadingUser(false);
+      if (!firebaseUser) {
+        setUserData(null);
+        setLoadingUser(false);
+      }
     });
 
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
-    };
+    return () => unsubscribe?.();
   }, []);
 
-  // 4️⃣ 두 번째 Effect: 유저 데이터 실시간 동기화 및 초기화 로직
-  // 4️⃣ 두 번째 Effect: 유저 데이터 실시간 동기화 및 초기화 로직
+  // 4️⃣ 유저 데이터 실시간 동기화 및 자동 업데이트 로직 (핵심 최적화)
   useEffect(() => {
-    let unsubscribeSnapshot;
+    if (!user) return;
 
-    const setupUser = async () => {
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        const todayStr = await DateService.getTodayDate();
+    const userDocRef = doc(db, 'users', user.uid);
 
-        try {
-          // 1. 우선 데이터를 한 번만 가져와서 리셋이나 생성이 필요한지 확인
-          const docSnap = await getDoc(userDocRef);
+    // [병목 제거] 실시간 리스너를 먼저 연결하여 UI를 즉시 띄움
+    const unsubscribeSnapshot = onSnapshot(
+      userDocRef,
+      async (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setUserData(data);
+          setLoadingUser(false);
 
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            // [일일 리셋 로직] 날짜가 다를 때만 업데이트 (onSnapshot 밖이라서 무한루프 안 생김)
-            if (!data.lastLoginDate || data.lastLoginDate !== todayStr) {
-              await updateDoc(userDocRef, {
-                lastLoginDate: todayStr,
-                editCount: 0,
-                updatedAt: new Date().toISOString(),
-              });
-              console.log('Daily reset successful');
-            }
-          } else {
-            // [신규 유저 생성] 요청하신 모든 필드 누락 없이 셋업
-            const initialData = {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName || '사용자',
-              photoURL: user.photoURL || '',
-              role: 'user',
-              status: 'active',
-              editCount: 0,
+          // 백그라운드 로직: 오늘 날짜 리셋이 필요한 경우에만 조용히 업데이트
+          const todayStr = new Date().toLocaleDateString('en-CA');
+          if (data.lastLoginDate !== todayStr) {
+            updateDoc(userDocRef, {
               lastLoginDate: todayStr,
-              gender: 'female', // 기본값
-              birthDate: '',
-              isTimeUnknown: false,
-              saju: null,
-              createdAt: new Date().toISOString(),
+              editCount: 0,
               updatedAt: new Date().toISOString(),
-              // 기록용 객체 (절대 누락 금지)
-              usageHistory: {
-                ZLastNewYear: null,
-                lastDailyFortune: null,
-                lastWealthFortune: null,
-                lastMatchFortune: null,
-              },
-              question_history: [],
-              dailyUsage: {},
-            };
-
-            await setDoc(userDocRef, initialData);
-            console.log('New user created with full fields');
+            }).catch((err) => console.error('Daily Reset Error:', err));
           }
-        } catch (e) {
-          console.error('User setup failed:', e);
-          setLoadingUser(false); // ← 이 줄 추가
-          return; // ← 이 줄 추가
+        } else {
+          // 신규 유저 생성 (한 번만 실행됨)
+          const initialData = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || '사용자',
+            photoURL: user.photoURL || '',
+            role: 'user',
+            status: 'active',
+            editCount: 0,
+            lastLoginDate: new Date().toLocaleDateString('en-CA'),
+            gender: 'female',
+            birthDate: '',
+            isTimeUnknown: false,
+            saju: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            usageHistory: {
+              ZLastNewYear: null,
+              ZLastDaily: null,
+              ZCookie: null,
+              ZApiAnalysis: null,
+            },
+            question_history: [],
+            dailyUsage: {},
+          };
+          await setDoc(userDocRef, initialData);
+          setLoadingUser(false);
         }
+      },
+      (error) => {
+        console.error('Firestore Snapshot Error:', error);
+        setLoadingUser(false);
+      },
+    );
 
-        // 2. 실시간 동기화 (onSnapshot) - 여기서는 업데이트 로직을 제거하여 깜빡임 방지
-        unsubscribeSnapshot = onSnapshot(
-          userDocRef,
-          (docSnap) => {
-            if (docSnap.exists()) {
-              setUserData(docSnap.data());
-            }
-            setLoadingUser(false);
-          },
-          (error) => {
-            console.error('Snapshot listener error:', error);
-            setLoadingUser(false);
-            // 권한 문제일 경우 로그아웃 처리
-            if (error.code === 'permission-denied') {
-              console.warn('Permission denied - user may need to re-authenticate');
-              setUser(null);
-              setUserData(null);
-            }
-          },
-        );
-      } else {
-        // 유저 로그아웃 시 데이터 초기화
-        setUserData(null);
-      }
-    };
+    return () => unsubscribeSnapshot?.();
+  }, [user]);
 
-    setupUser();
-
-    return () => {
-      if (unsubscribeSnapshot) unsubscribeSnapshot();
-    };
-  }, [user]); // 오직 로그인 상태(user)가 변할 때만 실행
-
-  // 5️⃣ 프로필 정보 업데이트 함수
+  // 5️⃣ 프로필 업데이트 헬퍼
   const updateProfileData = async (newData) => {
     if (!user) return;
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, newData);
+      await updateDoc(userDocRef, { ...newData, updatedAt: new Date().toISOString() });
     } catch (e) {
       console.error('Update profile failed:', e);
       throw e;
