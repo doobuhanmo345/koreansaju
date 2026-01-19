@@ -5,6 +5,7 @@ export default defineConfig({
   // appType: 'spa'는 제거하거나 기본값으로 둡니다.
   // vercel dev가 라우팅 제어를 하도록 맡기는 것이 좋습니다.
   plugins: [react()],
+
   server: {
     port: 3000,
     strictPort: true, // 포트가 꼬이지 않게 3000번을 고정하거나,

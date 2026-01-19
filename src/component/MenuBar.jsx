@@ -159,6 +159,27 @@ export default function MobileNav() {
             ],
           },
           {
+            subtitle: isKo ? '이벤트' : 'event',
+            items: [
+              {
+                name: isKo ? '인터뷰' : 'Interview Luck',
+                desc: isKo
+                  ? '떨리는 면접날. 잘 될까?'
+                  : 'Important interview today? Check your success rate.',
+                icon: <IdentificationIcon className="w-6 h-6" />,
+                path: '/interview',
+              },
+              {
+                name: isKo ? '데이트' : 'Date Luck',
+                desc: isKo
+                  ? '중요한 그날의 데이트, 과연 어떨까'
+                  : 'Will your date go well? See your romantic energy.',
+                icon: <CalendarDaysIcon className="w-6 h-6" />,
+                path: '/date',
+              },
+            ],
+          },
+          {
             subtitle: isKo ? '신비로운 타로' : 'Mystical Tarot',
             items: [
               {
