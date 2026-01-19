@@ -140,7 +140,7 @@ const EditPrompt = () => {
     wealth_basic: wealth_var,
     daily_s_basic: daily_s_var
   };
-  console.log('daily_s_basic',daily_s_var)
+
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100">
       <h1 className="text-2xl font-bold mb-6">AI 프롬프트 관리자</h1>

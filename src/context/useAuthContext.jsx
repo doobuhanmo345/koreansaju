@@ -4,9 +4,15 @@ import { login, logout, onUserStateChange, db } from '../lib/firebase';
 import { useLanguage } from './useLanguageContext';
 import { getRomanizedIlju } from '../data/sajuInt';
 import { calculateSaju } from '../utils/sajuCalculator';
-import { DateService } from '../utils/dateService';
 
 const AuthContext = createContext();
+
+// 헬퍼 함수: 사주 데이터 비교 (컴포넌트 외부로 빼서 성능 최적화)
+const checkSajuMatch = (prevSaju, targetSaju) => {
+  if (!prevSaju || !targetSaju) return false;
+  const sajuKeys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
+  return sajuKeys.every((k) => prevSaju[k] === targetSaju[k]);
+};
 
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -14,10 +20,9 @@ export function AuthContextProvider({ children }) {
   const [loadingUser, setLoadingUser] = useState(true);
   const { language } = useLanguage();
 
-  // 1️⃣ 사주 기반 이미지 경로 계산 (Memoization)
+  // 1️⃣ 일주 이미지 경로 계산
   const iljuImagePath = useMemo(() => {
     if (!userData || !userData.saju || !userData.birthDate) return '/images/ilju/default.png';
-
     try {
       const data = calculateSaju(
         userData.birthDate,
@@ -29,12 +34,11 @@ export function AuthContextProvider({ children }) {
       const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
       return `/images/ilju/${safeIlju}_${safeGender}.png`;
     } catch (e) {
-      console.error('Image Path calculation error:', e);
       return '/images/ilju/default.png';
     }
   }, [userData, language]);
 
-  // 2️⃣ 사용자의 서비스 이용 상태 계산 (Memoization)
+  // 2️⃣ 서비스 이용 상태 계산 (이전 코드의 중복 로직 제거)
   const status = useMemo(() => {
     if (!userData)
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
@@ -43,13 +47,6 @@ export function AuthContextProvider({ children }) {
     const nextYear = '2027';
     const gender = userData.gender;
     const currentSaju = userData.saju;
-
-    const checkSajuMatch = (historySaju, userSaju) => {
-      if (!historySaju || !userSaju) return false;
-      const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-      return keys.every((k) => historySaju[k] === userSaju[k]);
-    };
-
     const hist = userData.usageHistory || {};
 
     return {
@@ -72,43 +69,38 @@ export function AuthContextProvider({ children }) {
     };
   }, [userData, language]);
 
-  // 3️⃣ 인앱 브라우저 체크 및 유저 상태 감시
+  // 3️⃣ 인앱 브라우저 체크 및 로그인 감시
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
     const isAdPage = window.location.pathname.startsWith('/ad');
     const isInApp = /kakaotalk|instagram|naver/.test(userAgent);
-    const currentUrl = window.location.href;
 
     if (isInApp && !isAdPage) {
+      const currentUrl = window.location.href;
       if (/android/.test(userAgent)) {
         window.location.href = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
         return;
-      } else if (/iphone|ipad|ipod/.test(userAgent)) {
-        if (!currentUrl.includes('/open-in-browser')) {
-          window.location.href = '/open-in-browser';
-          return;
-        }
+      } else if (/iphone|ipad|ipod/.test(userAgent) && !currentUrl.includes('/open-in-browser')) {
+        window.location.href = '/open-in-browser';
+        return;
       }
     }
 
     const unsubscribe = onUserStateChange((firebaseUser) => {
       setUser(firebaseUser);
-      if (!firebaseUser) {
-        setUserData(null);
-        setLoadingUser(false);
-      }
+      if (!firebaseUser) setLoadingUser(false);
     });
-
     return () => unsubscribe?.();
   }, []);
 
-  // 4️⃣ 유저 데이터 실시간 동기화 및 자동 업데이트 로직 (핵심 최적화)
+  // 4️⃣ 데이터 실시간 동기화 (가장 큰 병목 해결)
   useEffect(() => {
     if (!user) return;
 
     const userDocRef = doc(db, 'users', user.uid);
+    const todayStr = new Date().toLocaleDateString('en-CA');
 
-    // [병목 제거] 실시간 리스너를 먼저 연결하여 UI를 즉시 띄움
+    // [최적화] 즉시 Snapshot 연결하여 로딩 제거
     const unsubscribeSnapshot = onSnapshot(
       userDocRef,
       async (docSnap) => {
@@ -117,17 +109,16 @@ export function AuthContextProvider({ children }) {
           setUserData(data);
           setLoadingUser(false);
 
-          // 백그라운드 로직: 오늘 날짜 리셋이 필요한 경우에만 조용히 업데이트
-          const todayStr = new Date().toLocaleDateString('en-CA');
+          // 백그라운드에서 조용히 리셋 업데이트 (화면 로딩 방해 안 함)
           if (data.lastLoginDate !== todayStr) {
             updateDoc(userDocRef, {
               lastLoginDate: todayStr,
               editCount: 0,
               updatedAt: new Date().toISOString(),
-            }).catch((err) => console.error('Daily Reset Error:', err));
+            }).catch(() => {});
           }
         } else {
-          // 신규 유저 생성 (한 번만 실행됨)
+          // 신규 유저 생성
           const initialData = {
             uid: user.uid,
             email: user.email,
@@ -136,7 +127,7 @@ export function AuthContextProvider({ children }) {
             role: 'user',
             status: 'active',
             editCount: 0,
-            lastLoginDate: new Date().toLocaleDateString('en-CA'),
+            lastLoginDate: todayStr,
             gender: 'female',
             birthDate: '',
             isTimeUnknown: false,
@@ -157,7 +148,7 @@ export function AuthContextProvider({ children }) {
         }
       },
       (error) => {
-        console.error('Firestore Snapshot Error:', error);
+        console.error(error);
         setLoadingUser(false);
       },
     );
@@ -165,16 +156,10 @@ export function AuthContextProvider({ children }) {
     return () => unsubscribeSnapshot?.();
   }, [user]);
 
-  // 5️⃣ 프로필 업데이트 헬퍼
   const updateProfileData = async (newData) => {
     if (!user) return;
-    try {
-      const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, { ...newData, updatedAt: new Date().toISOString() });
-    } catch (e) {
-      console.error('Update profile failed:', e);
-      throw e;
-    }
+    const userDocRef = doc(db, 'users', user.uid);
+    await updateDoc(userDocRef, { ...newData, updatedAt: new Date().toISOString() });
   };
 
   return (

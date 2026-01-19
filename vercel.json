@@ -1,13 +1,18 @@
 {
   "version": 2,
-  "framework": "vite",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "buildStep": true,
+  "public": true,
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/ad",
+      "destination": "/"
+    },
+    {
+      "source": "/interview",
+      "destination": "/"
+    },
+    {
+      "source": "/date",
+      "destination": "/"
     }
   ]
 }
