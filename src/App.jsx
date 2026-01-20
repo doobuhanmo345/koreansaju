@@ -261,9 +261,7 @@ export default function App() {
 
       <SazaTalkBanner />
       <NewYearBanner />
-      {/* 로그인 안되어 있을 시 블러 처리 및 유도 */}
-      {!user && <SajuBlur MAX_EDIT_COUNT={MAX_EDIT_COUNT} />}
-      {/* 내 정보 및 사주 시각화 카드 */}
+  
 
       <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-2xl border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto my-2">
         <div className="flex items-center justify-between  p-3 ">

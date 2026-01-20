@@ -17,7 +17,7 @@ import FourPillarVis from '../component/FourPillarVis';
 export default function BeforeLogin() {
   const { user, userData, login } = useAuthContext();
   const { language, setLanguage } = useLanguage();
-  const [sajuData, setSajuData] = useState();
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [step, setStep] = useState(1);
   const [gender, setGender] = useState('');
@@ -242,16 +242,30 @@ export default function BeforeLogin() {
     !birthData.month ||
     !birthData.day ||
     (!timeUnknown && (!birthData.hour || !birthData.minute));
-  useEffect(() => {
-    if (!!memoizedBirthDate) {
-      const date = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
-      const data = calculateSajuData(date, gender, timeUnknown, language) || '';
-      if (data) {
-        setSajuData(data);
-        //   if (data.currentDaewoon) setSelectedDae(data.currentDaewoon);
-      }
+  // 1. 기존의 useState와 useEffect([step]) 로직을 삭제합니다.
+  // const [sajuData, setSajuData] = useState(); <- 삭제
+
+  // 2. useMemo를 사용하여 입력값이 변경될 때만 계산하도록 설정합니다.
+  const sajuData = useMemo(() => {
+    // 필수 입력값(연, 월, 일, 성별)이 없으면 계산하지 않음
+    if (!birthData.year || !birthData.month || !birthData.day || !gender) {
+      return null;
     }
-  }, [step]);
+
+    // 날짜 형식 생성
+    const dateStr = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${
+      timeUnknown ? '12' : pad(birthData.hour)
+    }:${timeUnknown ? '00' : pad(birthData.minute)}`;
+
+    try {
+      // 실제 계산 로직 실행 (입력값이 바뀔 때만 메모리상에서 실행됨)
+      console.log('사주 데이터 계산 실행');
+      return calculateSajuData(dateStr, gender, timeUnknown, language);
+    } catch (error) {
+      console.error('사주 계산 중 오류:', error);
+      return null;
+    }
+  }, [birthData, timeUnknown]); // 의존성 배열에 입력 값들을 넣습니다.
   const sajuTranslations = {
     elements: {
       wood: { ko: '나무 (Wood)', en: 'Wood (Growth)', color: '#22c55e', emoji: '🌳' },
@@ -380,7 +394,10 @@ export default function BeforeLogin() {
       coreEmoji: coreInfo.emoji,
     };
   };
-  const preview = sajuData ? generatePreview(sajuData, language) : {};
+  // 기존 preview 선언부 수정
+  const preview = useMemo(() => {
+    return sajuData ? generatePreview(sajuData, language) : {};
+  }, [sajuData, language]);
   const guideMessages = {
     ko: {
       putGender: '성별을 선택해주세요',
@@ -502,39 +519,20 @@ export default function BeforeLogin() {
                   <p className="text-[#3B82F6] font-black text-[12px] tracking-[0.4em] animate-pulse">
                     SAZA SAZU
                   </p>
-
                   <div className="space-y-6">
                     <h2 className="text-[24px] font-light text-[#1A1A1A] dark:text-white leading-[1.4] tracking-tight">
                       {/* 1번 문장 */}
-                      <span
-                        className="block"
-                        style={{
-                          animation: 'fadeInUp 0.8s ease-out 0.3s forwards',
-                          opacity: 0,
-                        }}
-                      >
+                      <span className="block animate-step" style={{ animationDelay: '0.3s' }}>
                         {language === 'ko' ? '복잡한 절차 없이' : 'No complex steps,'}
                       </span>
                       {/* 2번 문장 */}
-                      <span
-                        className="block font-black"
-                        style={{
-                          animation: 'fadeInUp 0.8s ease-out 0.7s forwards',
-                          opacity: 0,
-                        }}
-                      >
+                      <span className="block animate-step" style={{ animationDelay: '0.7s' }}>
                         {language === 'ko'
                           ? '무료로 사주를 분석하는'
                           : 'Get your free Saju analysis'}
                       </span>
                       {/* 3번 문장 */}
-                      <span
-                        className="block"
-                        style={{
-                          animation: 'fadeInUp 0.8s ease-out 1.1s forwards',
-                          opacity: 0,
-                        }}
-                      >
+                      <span className="block animate-step" style={{ animationDelay: '1.1s' }}>
                         {language === 'ko' ? (
                           <>
                             <span className="text-[#3B82F6]">사자사주</span>에 오신 것을 환영해요.
@@ -546,6 +544,19 @@ export default function BeforeLogin() {
                         )}
                       </span>
                     </h2>
+                    
+
+<style>{`
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-step {
+    opacity: 0;
+    will-change: transform, opacity; /* GPU 가속 활성화 */
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+`}</style>
 
                     {/* 보조 설명 */}
                     <div
@@ -579,7 +590,6 @@ export default function BeforeLogin() {
                       </p>
                     </div>
                   </div>
-
                   {/* 하단 로딩 점 */}
                   <div
                     className="pt-6"
@@ -599,13 +609,24 @@ export default function BeforeLogin() {
                     </div>
                   </div>
 
-                  {/* ✅ 로컬 스타일 시트: Keyframes를 직접 주입 */}
                   <style>{`
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(15px); 
     }
-  `}</style>
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  /* GPU 가속 강제 및 렌더링 최적화 */
+  .animate-fadeInUp {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+`}</style>
                 </div>
               </>
             ) : (

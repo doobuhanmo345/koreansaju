@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import AdHid from '../component/AdHid';
 import AdReview from '../component/AdReview';
+import { reportStyle } from '../data/aiResultConstants';
 
 export default function NewYearKr({ setStep }) {
   const handleSubmit = (e) => {
@@ -493,6 +494,8 @@ export default function NewYearKr({ setStep }) {
           2026년 전체 흐름 보기 <ChevronRight size={22} strokeWidth={3} />
         </button>
       </div>
+              <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
+
     </div>
   );
 }

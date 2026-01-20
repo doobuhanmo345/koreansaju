@@ -816,23 +816,44 @@ export const NEW_YEAR_FORTUNE_PROMPT = {
 `,
 };
 export const reportStyle = `
-<style>/* 사자사주 리포트 전용 스타일 */
+<style>
+/* index.css - 사자사주 유료 리포트 디자인 */
+/* 사자사주 리포트 전용 스타일 */
 .sjsj-report-container {
-  background-color: #fdf8f4;
+  /* 1. 배경: 종이가 돋보이도록 아주 연한 블루그레이 바탕 */
+  background-color: #f8fafc;
   min-height: 100vh;
+  padding: 0px;
+
+  /* 2. 폰트 및 기본 컬러: 가독성 높은 다크 블루그레이 */
   font-family:
     'Pretendard',
     -apple-system,
     sans-serif;
-  color: #4a3a31;
-  padding-bottom: 80px;
+  color: #334155;
   line-height: 1.6;
+
+  /* 3. 종이 리포트 효과: 중앙에 배치하고 흰색 종이 질감 부여 */
+  max-width: 640px;
+  margin: 0 auto;
+  background-color: #ffffff;
+
+  /* 4. 핀터레스트 스타일 테두리 & 그림자 */
+  border: 1px solid #e2e8f0; /* 아주 연한 푸른빛 테두리 */
+  border-radius: 16px; /* 부드러운 곡선 */
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03); /* 겹쳐진 부드러운 그림자 */
+
+  /* 5. 디테일: 상단에 얇은 블루 라인 포인트 */
 }
 
 /* 헤더 영역 */
 .sjsj-header {
   padding-top: 48px;
   padding-bottom: 32px;
+  padding-left: 10px;
+  padding-right: 10px;
   text-align: center;
   background: linear-gradient(to bottom, #f9efe7, transparent);
 }
@@ -848,8 +869,23 @@ export const reportStyle = `
   font-size: 0.875rem;
   color: #8c7a70;
   margin-bottom: 24px;
+  margin-top: 24px;
 }
-
+.sjsj-sub-section-title {
+  font-size: 18px;
+  color: #8c7a70;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-left: 4px solid #d84315; /* Main Indigo accent */
+  padding-left: 10px;
+  font-weight: 600;
+}
+.sjsj-main-content {
+  font-size: 1rem;
+  color: hsl(21, 11%, 49%);
+  margin-bottom: 24px;
+  margin-top: 24px;
+}
 .sjsj-badge-summary {
   display: inline-flex;
   align-items: center;
@@ -907,10 +943,22 @@ export const reportStyle = `
   gap: 16px;
 }
 
+/* .sjsj-grid-3: 모바일 우선 및 우선순위 강화 */
 .sjsj-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
+  display: grid !important;
+  grid-template-columns: 1fr !important; /* 모바일에서는 무조건 1열 */
+  gap: 24px !important; /* 모바일에서 적당한 간격 */
+  width: 100% !important;
+  margin: 0 auto;
 }
 
+/* 태블릿 및 데스크톱 (768px 이상) */
+@media (min-width: 768px) {
+  .sjsj-grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important; /* 화면 커지면 3열 */
+    gap: 32px !important; /* PC에서는 좀 더 넓은 간격 */
+  }
+}
 /* 프리미엄 카드 */
 .sjsj-premium-card {
   background-color: #ffffff;
@@ -923,7 +971,7 @@ export const reportStyle = `
 }
 
 .sjsj-premium-card.active {
-  border-bottom: 2px solid #e65100;
+  border-bottom: 0px solid #e65100;
 }
 
 .sjsj-card-title {
@@ -957,10 +1005,20 @@ export const reportStyle = `
   border: 1px solid #efe0d5;
 }
 
+/* .sjsj-keyword-grid 가 적용되지 않는다면 부모 클래스를 같이 적어주세요 */
 .sjsj-keyword-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
+  display: grid !important;
+  grid-template-columns: 1fr !important; /* 모바일 우선: 무조건 1열 */
+  gap: 24px;
+  width: 100%;
+}
+
+/* 화면 너비가 768px 이상일 때만 3열로 변경 */
+@media (min-width: 768px) {
+  .sjsj-keyword-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px;
+  }
 }
 
 .sjsj-keyword-col {
@@ -1016,7 +1074,7 @@ export const reportStyle = `
   border: 1px solid #f3e5dc;
   border-radius: 24px;
   padding: 32px;
-  margin-bottom: 5px;
+  margin-bottom: 20px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
@@ -1114,6 +1172,69 @@ export const reportStyle = `
 .sjsj-icon {
   display: block;
   margin: 0 auto 8px;
+}
+/* 리포트 맛보기 효과를 위한 스타일 */
+.sjsj-blur-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.sjsj-blur-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to bottom, transparent, #fff 90%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.sjsj-locked-msg {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px 25px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: #f47521;
+  border: 1px solid #F47521/20;
+}
+
+.sjsj-advice-highlight-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: rgba(255, 228, 214, 0.5);
+  border: 1px solid #ffd8c4;
+  padding: 18px 20px;
+  border-radius: 16px;
+  margin: 25px 0;
+}
+/* CSS로 아이콘을 강제로 주입 */
+.sjsj-advice-highlight-box::before {
+  content: '💡'; /* 여기에 아이콘을 넣습니다 */
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px; /* 텍스트 첫 줄과 높이 맞춤 */
+}
+
+.sjsj-advice-highlight-box .sjsj-advice-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.sjsj-advice-highlight-box .sjsj-advice-text strong {
+  color: #d2691e;
+  font-weight: 900;
+  margin-right: 4px;
 }
  </style>
 `;
