@@ -15,7 +15,7 @@ import { useLoading } from '../context/useLoadingContext';
 import { GiYinYang } from 'react-icons/gi';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useLanguage } from '../context/useLanguageContext';
-import { useTheme } from '../context/useThemeContext';
+
 import { useAuthContext } from '../context/useAuthContext';
 import useContactModal from '../hooks/useContactModal';
 import ContactModal from './ContactModal';
@@ -43,7 +43,7 @@ const UTILITY_ITEMS = [
 ];
 
 export default function NavBar() {
-  const { theme, setTheme } = useTheme();
+
   const { language, setLanguage } = useLanguage();
   const { user, login, logout, userData, isCookieDone } = useAuthContext();
   const { isContactModalOpen, handleCloseContact, handleShowContact } = useContactModal();
@@ -129,7 +129,7 @@ export default function NavBar() {
       >
         <img
           src={
-            theme === 'dark'
+           false
               ? language === 'ko'
                 ? logoKorDark
                 : logoEngDark
@@ -232,22 +232,7 @@ export default function NavBar() {
                   </div>
                 </div>
 
-                {/* 테마 변경 */}
-                <div
-                  onClick={() => {
-                    setTheme(theme === 'dark' ? 'light' : 'dark');
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center p-3 cursor-pointer rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors text-gray-700 dark:text-gray-200"
-                >
-                  {theme === 'dark' ? (
-                    <SunIcon className="w-5 h-5 mr-3 text-yellow-500" />
-                  ) : (
-                    <MoonIcon className="w-5 h-5 mr-3 text-gray-400" />
-                  )}
-                  <span className="font-medium">{language === 'ko' ? '테마 변경' : 'Theme'}</span>
-                </div>
-
+            
                 {UTILITY_ITEMS.map((item) => (
                   <div
                     key={item.id}

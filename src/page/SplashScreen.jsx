@@ -1,6 +1,5 @@
 import React from 'react';
-import splash from './../../public/images/splash.webp'
-
+import splash from '../assets/splash.webp';
 
 export default function SplashScreen() {
   return (

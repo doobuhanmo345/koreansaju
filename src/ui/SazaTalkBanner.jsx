@@ -1,66 +1,58 @@
 import React from 'react';
 import { useLanguage } from '../context/useLanguageContext';
 import { useNavigate } from 'react-router-dom';
+
 const SazaTalkBanner = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const isKo = language === 'ko';
+
   return (
-    <div className="h-[150px] w-full max-w-lg bg-slate-900 rounded-xl overflow-hidden relative group mx-auto mb-2 shadow-lg border border-white/5">
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 to-slate-900 opacity-100"></div>
+    <div
+      className="relative w-full max-w-lg h-[180px] mx-auto overflow-hidden my-4 rounded-[2rem] border border-indigo-100/50 shadow-md transition-all duration-300 active:scale-[0.98] cursor-pointer group"
+      style={{ backgroundColor: '#EEF0FF' }} // 농도를 높인 소프트 라벤더 (배경과 확실히 분리됨)
+      onClick={() => navigate('/sazatalk')}
+    >
+      {/* 배경 장식: 좌측 하단에 은은한 보라색 광원 효과 */}
+      <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-indigo-200/50 blur-3xl rounded-full" />
+
+      {/* 메인 콘텐츠 영역 */}
+      <div className="relative h-full flex flex-col justify-center px-10 z-10">
+        <div className="animate-in fade-in slide-in-from-left-5 duration-1000">
+          {/* 상단 메뉴명 */}
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400/80 mb-2 block">
+            {/* {isKo ? '사자톡' : 'SAZA TALK'} */}
+          </span>
+
+          {/* 메인 타이틀 */}
+          <h2 className="text-xl sm:text-2xl font-light text-slate-900 leading-[1.25] tracking-tight whitespace-pre-line">
+            {isKo ? '답답한 고민,' : 'Tricky problems,'} <br />
+            <span className="font-serif italic font-medium text-indigo-700">
+              {isKo ? '무엇이든 물어보사자' : 'Ask Saza Anything'}
+            </span>
+          </h2>
+
+          {/* 부제 */}
+          <p className="mt-2 text-xs font-medium text-slate-500 tracking-tight leading-tight">
+            {isKo ? '명리학자 27인의 지혜를 담은 AI 상담' : 'AI with the wisdom of 27 Saju masters'}
+          </p>
+
+          {/* 안내 태그 */}
+         
+        </div>
+      </div>
 
       {/* 마스코트 이미지 */}
       <img
         src="/images/sazatalk_banner.png"
-        className="absolute bottom-0 right-0 h-full w-auto object-contain transition-transform duration-500 pointer-events-none"
+        className="absolute bottom-[-5%] right-[-2%] h-[105%] w-auto object-contain transition-all duration-700 pointer-events-none z-0 group-hover:scale-105"
+        style={{ filter: 'drop-shadow(0 10px 15px rgba(79, 70, 229, 0.15))' }}
         alt="mascot"
       />
 
-      {/* 콘텐츠 레이어 */}
-      {/* 콘텐츠 레이어: 전체는 none으로 설정해 이미지 방해 안 되게 함 */}
-      <div className="absolute inset-0 flex items-center justify-between px-6 pointer-events-none">
-        {/* 왼쪽 영역: 여기서 클릭이 가능하도록 pointer-events-auto 추가 */}
-        <div className="flex flex-col items-start justify-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] pointer-events-auto">
-          <div className="text-left">
-            <h3 className="text-white text-lg sm:text-xl font-black leading-tight">
-              {language === 'ko' ? '무엇이든 물어보사자' : 'Ask Saza Anything'}
-            </h3>
-            <div className="text-white text-[11px] my-1 font-medium">
-              {language === 'ko' ? (
-                <>
-                  <p>명리학자 27인의 지혜를 데이터로 담다,</p>
-                  <p>당신의 사주로 풀어낸 AI의 명쾌한 해답</p>
-                </>
-              ) : (
-                <>
-                  <p>The wisdom of 27 Saju masters,</p>
-                  <p>decoded by AI. Clear answers for your life’s path.</p>
-                </>
-              )}
-            </div>
-          </div>
-
-          <button
-            className="mt-2 bg-white hover:bg-slate-200 text-black text-[11px] font-black px-6 py-2.5 rounded-full flex items-center gap-1 shadow-2xl transition-all active:scale-95 cursor-pointer"
-            onClick={() => {
-              console.log('Navigation clicked!'); // 디버깅용
-              navigate('/sazatalk');
-            }}
-          >
-            {language === 'ko' ? '고민상담하기' : 'Get Answer'}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        {/* 오른쪽 영역: 필요 없다면 비워둠 */}
-        <div className="flex flex-col items-end gap-3"></div>
+      {/* 배경 대형 텍스트 (ImageBanner 스타일 유지) */}
+      <div className="absolute right-[5%] bottom-[-5%] text-[80px] font-black opacity-[0.04] italic select-none pointer-events-none text-indigo-900 whitespace-nowrap">
+        {isKo ? '고민상담' : 'TALK'}
       </div>
     </div>
   );
