@@ -209,7 +209,7 @@ export default function FirstDatepage() {
       });
 
       const combined =
-        selectedDate.toLocaleDateString('en-US') +
+       
         '이 날 만날 사람은 ' +
         updatedPrompts.filter(Boolean).join(', ');
       setQuestion(combined);

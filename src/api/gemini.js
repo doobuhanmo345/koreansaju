@@ -52,37 +52,55 @@
 // /src/api/gemini.js (기존 파일 수정)
 
 // src/api/gemini.js
+// export const fetchGeminiAnalysis = async (prompt) => {
+//   try {
+//     const response = await fetch('/api/gemini', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ prompt }),
+//     });
+
+//     // 1. 상태 코드가 200번대가 아닐 경우 처리
+//     if (!response.ok) {
+//       // JSON이 아닐 수도 있으므로 우선 text로 받습니다.
+//       const errorText = await response.text();
+//       console.error('서버 에러 응답:', errorText);
+//       throw new Error(`서버 오류 (${response.status}): ${errorText || '알 수 없는 에러'}`);
+//     }
+
+//     // 2. 응답 본문이 비어있는지 확인 후 JSON 파싱
+//     const text = await response.text();
+//     if (!text) {
+//       throw new Error('서버로부터 빈 응답을 받았습니다.');
+//     }
+
+//     try {
+//       const data = JSON.parse(text);
+//       return data.text;
+//     } catch (parseError) {
+//       console.error('JSON 파싱 실패:', text);
+//       throw new Error('서버 응답 형식이 올바르지 않습니다. (JSON 파싱 실패)');
+//     }
+//   } catch (error) {
+//     console.error('프론트엔드 통신 에러:', error);
+//     throw error;
+//   }
+// };
+
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
 export const fetchGeminiAnalysis = async (prompt) => {
   try {
-    const response = await fetch('/api/gemini', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-    });
+    const functions = getFunctions(undefined, 'asia-northeast3'); // 서버와 동일한 리전 설정
+ const geminiFunction = httpsCallable(functions, 'fetchGeminiAnalysis', {
+   timeout: 300000,
+ });
+    const result = await geminiFunction({ prompt });
 
-    // 1. 상태 코드가 200번대가 아닐 경우 처리
-    if (!response.ok) {
-      // JSON이 아닐 수도 있으므로 우선 text로 받습니다.
-      const errorText = await response.text();
-      console.error('서버 에러 응답:', errorText);
-      throw new Error(`서버 오류 (${response.status}): ${errorText || '알 수 없는 에러'}`);
-    }
-
-    // 2. 응답 본문이 비어있는지 확인 후 JSON 파싱
-    const text = await response.text();
-    if (!text) {
-      throw new Error('서버로부터 빈 응답을 받았습니다.');
-    }
-
-    try {
-      const data = JSON.parse(text);
-      return data.text;
-    } catch (parseError) {
-      console.error('JSON 파싱 실패:', text);
-      throw new Error('서버 응답 형식이 올바르지 않습니다. (JSON 파싱 실패)');
-    }
+    // Cloud Functions의 반환 데이터는 result.data에 담겨 옵니다.
+    return result.data.text;
   } catch (error) {
     console.error('프론트엔드 통신 에러:', error);
-    throw error;
+    throw new Error(error.message || 'AI 분석 호출 중 오류가 발생했습니다.');
   }
 };
