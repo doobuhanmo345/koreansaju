@@ -117,7 +117,7 @@ export default function BasicAnaBanner({ inputDate, isTimeUnknown, gender }) {
       {userData?.birthDate && (
         <div
           onClick={() => navigate('/basic')}
-          className="cursor-pointer relative w-full h-[200px] rounded-[2rem] border border-gray-100 shadow-md overflow-hidden group transition-all duration-300 active:scale-[1.2] mx-auto"
+          className="cursor-pointer relative w-full h-[200px] rounded-[2rem] border border-gray-100 shadow-md overflow-hidden group transition-all duration-300  mx-auto"
           // 농도가 확실한 인디고 파스텔
         >
           {/* 배경 대형 텍스트 (한자 일주) */}

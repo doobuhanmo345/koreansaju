@@ -1,7 +1,6 @@
 // 1. React Core
 import { useState, useEffect } from 'react';
 
-
 import { useAuthContext } from './context/useAuthContext';
 import { useLanguage } from './context/useLanguageContext';
 import { useUsageLimit } from './context/useUsageLimit';
@@ -14,6 +13,7 @@ import NewYearBanner from './ui/NewYearBanner';
 import MyInfoBar from './component/MyInfoBar';
 import ImageBanner from './component/ImageBanner';
 import BasicAnaBanner from './component/BasicAnaBanner';
+import IconWrapper from './ui/IconWrapper';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
@@ -22,7 +22,6 @@ export default function App() {
     setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)
     MAX_EDIT_COUNT,
   } = useUsageLimit(user, userData, language);
-
 
   // --- Local States ---
   const [isTimeUnknown, setIsTimeUnknown] = useState(false);
@@ -65,13 +64,11 @@ export default function App() {
     }
   }, [user, userData]);
 
-
-
   if (!userData?.birthDate) return <BeforeLogin />;
   return (
     <div>
       {/* sronly처리할 것 */}
-      
+
       <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-lg border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto mb-2 p-2 px-4 dark:text-white flex items-center justify-between">
         {userData?.birthDate ? (
           <MyInfoBar />
@@ -80,43 +77,43 @@ export default function App() {
         )}
       </div>
       {/* 배너 */}
-      <ImageBanner/>
+      <ImageBanner />
 
       <SazaTalkBanner />
       <NewYearBanner />
-      <BasicAnaBanner inputDate={inputDate} isTimeUnknown={isTimeUnknown} gender={gender}/>
-  
-
-      <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 my-3">
-        <div className="mb-6 ml-1 text-left">
-          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-            {language === 'ko'
-              ? '타고난 기운을 분석한 1:1 정밀 리포트'
-              : 'Report based on my innate energy '}
-          </p>
-          <h2 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+      <BasicAnaBanner inputDate={inputDate} isTimeUnknown={isTimeUnknown} gender={gender} />
+      <IconWrapper
+        title={
+          <>
+            {' '}
             {language === 'ko'
               ? '당신의 명식으로 풀어낸 맞춤 운세'
               : 'Personlised Korean Saju report'}
-          </h2>
-        </div>
-        {/* 아이콘 */}
+          </>
+        }
+        subTitle={
+          <>
+            {' '}
+            {language === 'ko'
+              ? '타고난 기운을 분석한 1:1 정밀 리포트'
+              : 'Report based on my innate energy '}
+          </>
+        }
+      >
         <MainIcons />
-      </div>
-      <div className="mx-auto w-full max-w-lg rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 mb-3">
-        <div className="mb-6 ml-1 text-left">
-          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+      </IconWrapper>
+      <IconWrapper
+        title={<>{language === 'ko' ? '감성 운세' : 'Emotional Fortune'}</>}
+        subTitle={
+          <>
             {language === 'ko'
               ? '내 마음의 소리에 귀 기울이는 시간'
               : 'Time to listen to my inner sound'}
-          </p>
-          <h2 className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-            {language === 'ko' ? '감성 운세' : 'Emotional Fortune'}
-          </h2>
-        </div>
-        {/* 아이콘 */}
+          </>
+        }
+      >
         <SubIcons />
-      </div>
+      </IconWrapper>
     </div>
   );
 }

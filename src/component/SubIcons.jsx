@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguageContext';
 
@@ -5,12 +6,14 @@ const SubIcons = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const ko = language === 'ko';
+
   const subNavItems = [
     {
       label: `${ko ? '포춘 쿠키' : 'Fortune Cookie'}`,
       path: '/fortunecookie',
       isReady: true,
-      plusCredit: true, // 포춘쿠키에만 크레딧 뱃지 활성화
+      plusCredit: true,
+      desc: ko ? '행운의 메시지를 확인하세요' : 'Check your lucky message',
       icon: (
         <path
           strokeLinecap="round"
@@ -23,11 +26,12 @@ const SubIcons = () => {
       label: `${ko ? '타로 오늘의 운세' : 'Tarot Luck of the day'}`,
       path: '/tarotdaily',
       isReady: true,
+      desc: ko ? '카드로 보는 오늘의 운세' : 'Daily tarot reading',
       icon: (
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+          d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.456-2.455L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
         />
       ),
     },
@@ -35,7 +39,7 @@ const SubIcons = () => {
       label: `${ko ? '타로 연애운' : 'Tarot Love fortune'}`,
       path: '/tarotlove',
       isReady: true,
-      plusCredit: false,
+      desc: ko ? '그 사람과의 연애 궁합' : 'Love compatibility',
       icon: (
         <path
           strokeLinecap="round"
@@ -44,11 +48,11 @@ const SubIcons = () => {
         />
       ),
     },
-
     {
       label: `${ko ? '타로 금전운' : 'Tarot Wealth Luck'}`,
       path: '/tarotmoney',
       isReady: true,
+      desc: ko ? '나의 재물 흐름 확인' : 'Check your wealth flow',
       icon: (
         <path
           strokeLinecap="round"
@@ -57,12 +61,12 @@ const SubIcons = () => {
         />
       ),
     },
-
     {
       label: `${ko ? '타로 고민상담' : 'Tarot Counseling'}`,
       path: '/tarotcounseling',
       isReady: true,
       isAi: true,
+      desc: ko ? 'AI 사자가 답해드립니다' : 'AI Tarot counseling',
       icon: (
         <path
           strokeLinecap="round"
@@ -74,50 +78,41 @@ const SubIcons = () => {
   ];
 
   const handleNavigation = (item) => {
-    if (!item.isReady) {
-      alert('서비스 준비 중입니다.');
-      return;
-    }
+    if (!item.isReady) return;
     navigate(item.path);
   };
 
   return (
-    <div className="flex items-center justify-around">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-around gap-3 sm:gap-0  sm:px-0 py-4">
       {subNavItems.map((item) => (
         <button
           key={item.path}
           onClick={() => handleNavigation(item)}
-          className={`group flex flex-col items-center gap-2 transition-all outline-none ${
-            !item.isReady ? 'cursor-not-allowed' : ''
-          }`}
+          disabled={!item.isReady}
+          className={`group flex flex-row sm:flex-col items-center gap-4 sm:gap-2 p-4 sm:p-0 
+                     rounded-3xl bg-white sm:bg-transparent 
+                     border border-slate-100 sm:border-none
+                     shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] sm:shadow-none
+                     transition-all active:scale-[0.97] outline-none
+                     ${!item.isReady ? 'opacity-50' : ''}`}
         >
-          {/* 아이콘 컨테이너 */}
-          <div
-            className={`relative flex h-12 w-12 items-center justify-center transition-colors 
-            ${
-              item.isReady
-                ? 'text-slate-400 group-hover:text-rose-500'
-                : 'text-slate-300 opacity-50'
-            }`}
-          >
+          {/* 아이콘: 원래 코드 유지 */}
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center text-slate-400 transition-colors group-hover:text-rose-500">
             {item.isAi && (
               <span className="absolute -right-2 -top-1 flex items-center gap-1 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 px-2 py-0.5 text-[8px] font-black tracking-widest text-white ring-2 ring-white dark:ring-slate-900 rounded-full animate-pulse z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-                {/* 물방울 느낌의 작은 도트 */}
-                <span className="w-1.5 h-1.5 bg-white rounded-full shadow-[inset_0_-1px_1px_rgba(0,0,0,0.2)]"></span>
+                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
                 AI
               </span>
             )}
 
-            {/* 준비중 배지 */}
             {!item.isReady && (
               <span className="absolute -top-1 flex items-center justify-center bg-slate-500 px-1.5 py-0.5 text-[7px] font-bold text-white ring-1 ring-white rounded-md z-10">
                 준비중
               </span>
             )}
 
-            {/* +credit 배지 (item.plusCredit이 true일 때만 노출) */}
             {item.plusCredit && item.isReady && (
-              <span className="absolute -right-2 -top-1 flex items-center justify-center bg-amber-600 px-1.5 py-0.5 text-[8px] font-black italic tracking-tighter text-white ring-2 ring-white dark:ring-slate-900 rounded-full">
+              <span className="absolute -right-2 -top-1 flex items-center justify-center bg-amber-600 px-1.5 py-0.5 text-[8px] font-black italic tracking-tighter text-white ring-2 ring-white rounded-full z-10">
                 + CREDIT
               </span>
             )}
@@ -134,17 +129,29 @@ const SubIcons = () => {
             </svg>
           </div>
 
-          {/* 텍스트 */}
-          <span
-            className={`text-[11px] font-medium transition-colors 
-            ${
-              item.isReady
-                ? 'text-slate-600 group-hover:text-rose-600 dark:text-slate-300'
-                : 'text-slate-400'
-            }`}
-          >
-            {item.label}
-          </span>
+          {/* 텍스트 영역 */}
+          <div className="flex flex-col items-start sm:items-center text-left sm:text-center overflow-hidden">
+            <span className="text-[15px] sm:text-[11px] font-bold text-slate-800 transition-colors group-hover:text-rose-600">
+              {item.label}
+            </span>
+            <span className="sm:hidden text-[12px] text-slate-400 font-medium truncate w-full">
+              {item.desc}
+            </span>
+          </div>
+
+          {/* 모바일 화살표 */}
+          <div className="sm:hidden ml-auto flex h-8 w-8 items-center justify-center rounded-full bg-slate-50">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+              className="w-3 h-3 text-slate-300"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
         </button>
       ))}
     </div>

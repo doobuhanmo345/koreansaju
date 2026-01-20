@@ -1,13 +1,17 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguageContext';
+
 const MainIcons = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const ko = language === 'ko';
+
   const navItems = [
     {
       label: `${ko ? '오늘의 운세' : 'Luck of the day'}`,
       path: '/todaysluck',
+      desc: ko ? '오늘 하루 나의 기운을 확인하세요' : 'Check your energy for today',
       icon: (
         <path
           strokeLinecap="round"
@@ -19,7 +23,8 @@ const MainIcons = () => {
     {
       label: `${ko ? '신년 운세' : '2026 Fortune'}`,
       path: '/2026luck',
-      isLimited: true, // Limited 표시 여부 추가
+      isLimited: true,
+      desc: ko ? '미리 보는 2026년 병오년 운세' : 'Your 2026 Red Horse Year forecast',
       icon: (
         <path
           strokeLinecap="round"
@@ -31,6 +36,7 @@ const MainIcons = () => {
     {
       label: `${ko ? '궁합 보기' : 'Chemistry'}`,
       path: '/match',
+      desc: ko ? '너와 나의 인연 점수는?' : 'Check compatibility with your partner',
       icon: (
         <path
           strokeLinecap="round"
@@ -42,6 +48,7 @@ const MainIcons = () => {
     {
       label: `${ko ? '재물운' : 'Wealth Luck'}`,
       path: '/wealth',
+      desc: ko ? '새어 나가는 돈을 막고 행운을' : 'Improve your wealth and fortune',
       icon: (
         <path
           strokeLinecap="round"
@@ -52,8 +59,9 @@ const MainIcons = () => {
     },
     {
       label: `${ko ? '사자와의 대화' : 'Chat with SAZA'}`,
-      path: '/sazatalk', // 실제 설정하신 경로로 맞추세요,
-      isAi:true,
+      path: '/sazatalk',
+      isAi: true,
+      desc: ko ? '인공지능 사자가 고민을 들어드려요' : 'AI SAZA will listen to your concerns',
       icon: (
         <path
           strokeLinecap="round"
@@ -66,30 +74,29 @@ const MainIcons = () => {
   ];
 
   return (
-    <div className="flex items-center justify-around">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-around gap-3 sm:gap-0 sm:px-0 py-4">
       {navItems.map((item) => (
         <button
           key={item.path}
           onClick={() => navigate(item.path)}
-          className="group flex flex-col items-center gap-2 transition-all outline-none"
+          className="group relative flex flex-row sm:flex-col items-center gap-4 sm:gap-2 p-4 sm:p-0 
+                     rounded-3xl bg-white sm:bg-transparent 
+                     border border-slate-100 sm:border-none
+                     shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] sm:shadow-none
+                     transition-all active:scale-[0.97] outline-none"
         >
-          {/* 아이콘 컨테이너: relative 추가 */}
-          <div className="relative flex h-12 w-12 items-center justify-center text-slate-400 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-            {/* Limited 배지 추가 */}
+          {/* 아이콘 영역 */}
+          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-50 sm:bg-transparent text-slate-400 transition-colors group-hover:text-indigo-600">
             {item.isLimited && (
-              <span className="absolute -right-2 -top-1 flex items-center justify-center bg-red-500 px-1.5 py-0.5 text-[8px] font-black italic tracking-tighter text-white ring-2 ring-white dark:ring-slate-900 rounded-full">
-                LIMITED
+              <span className="absolute -right-1 -top-1 sm:-right-2 sm:-top-1 flex items-center justify-center bg-red-500 px-1.5 py-0.5 text-[8px] font-black text-white ring-2 ring-white rounded-full z-10">
+                HOT
               </span>
             )}
-            {/* 2. AI 배지 (신규 추가) */}
             {item.isAi && (
-              <span className="absolute -right-2 -top-1 flex items-center gap-1 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 px-2 py-0.5 text-[8px] font-black tracking-widest text-white ring-2 ring-white dark:ring-slate-900 rounded-full animate-pulse z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]">
-                {/* 물방울 느낌의 작은 도트 */}
-                <span className="w-1.5 h-1.5 bg-white rounded-full shadow-[inset_0_-1px_1px_rgba(0,0,0,0.2)]"></span>
+              <span className="absolute -right-1 -top-1 sm:-right-2 sm:-top-1 flex items-center justify-center bg-indigo-600 px-1.5 py-0.5 text-[8px] font-black text-white ring-2 ring-white rounded-full z-10">
                 AI
               </span>
             )}
-
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -102,9 +109,30 @@ const MainIcons = () => {
             </svg>
           </div>
 
-          <span className="text-[12px] font-bold text-slate-600 transition-colors group-hover:text-indigo-600 dark:text-slate-300 dark:group-hover:text-indigo-400">
-            {item.label}
-          </span>
+          {/* 텍스트 영역 */}
+          <div className="flex flex-col items-start sm:items-center overflow-hidden">
+            <span className="text-[15px] sm:text-[12px] font-bold text-slate-800 transition-colors group-hover:text-indigo-600">
+              {item.label}
+            </span>
+            {/* 모바일에서만 보이는 설명: 영역 구분을 위해 아주 연하게 처리 */}
+            <span className="sm:hidden text-[12px] text-slate-400 font-medium truncate w-full">
+              {item.desc}
+            </span>
+          </div>
+
+          {/* 모바일 전용: 우측 끝 화살표로 '클릭 가능함'을 암시 */}
+          <div className="sm:hidden ml-auto flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 group-hover:bg-indigo-50 transition-colors">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+              className="w-3 h-3 text-slate-300 group-hover:text-indigo-400"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
         </button>
       ))}
     </div>
