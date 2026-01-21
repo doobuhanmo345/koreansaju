@@ -321,7 +321,7 @@ export default function TarotLovePage() {
   
     return (
       <AnalysisStepContainer
-        guideContent={tarotContent}
+        guideContent={renderContent}
         loadingContent={<TarotLoading />}
         resultComponent={() => <ResultComponent />}
         loadingTime={0}

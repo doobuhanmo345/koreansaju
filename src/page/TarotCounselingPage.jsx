@@ -277,7 +277,7 @@ export default function TarotCounselingPage() {
 
   return (
     <AnalysisStepContainer
-      guideContent={tarotContent}
+      guideContent={renderContent}
       loadingContent={<TarotLoading />}
       resultComponent={() => <ResultComponent />}
       loadingTime={0}

@@ -294,7 +294,7 @@ export default function TarotMoneyPage() {
   
     return (
       <AnalysisStepContainer
-        guideContent={tarotContent}
+        guideContent={renderContent}
         loadingContent={<TarotLoading />}
         resultComponent={() => <ResultComponent />}
         loadingTime={0}
