@@ -21,6 +21,8 @@ import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
+import ReportTemplate from '../component/ReportTemplate';
+
 // 1. 로딩 컴포넌트
 
 // 2. 메인 페이지 컴포넌트
@@ -186,7 +188,7 @@ export default function YearlyLuckPage() {
     <AnalysisStepContainer
       guideContent={sajuGuide}
       loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ViewResult}
+      resultComponent={ReportTemplate}
       loadingTime={0}
     />
   );

@@ -9,7 +9,7 @@ import { getPillars } from '../utils/sajuCalculator';
 import { DateService } from '../utils/dateService';
 export const getPromptFromDB = async (path) => {
   try {
-    const pathName = `prompt/${path}`
+    const pathName = `prompt/${path}`;
     const dbRef = ref(database);
     const snapshot = await get(child(dbRef, pathName));
 
@@ -433,7 +433,7 @@ class AnalysisPresets {
     return {
       type: 'newYear',
       params,
-      cacheKey: 'ZLastNewYear',
+      cacheKey: 'ZNewYear',
       loadingType: 'year',
       promptPaths: [
         'prompt/new_year_basic',
@@ -474,7 +474,7 @@ class AnalysisPresets {
           editCount: increment(1),
           lastEditDate: todayStr,
           usageHistory: {
-            ZLastNewYear: {
+            ZNewYear: {
               result,
               year: nextYear,
               saju: p.saju,
