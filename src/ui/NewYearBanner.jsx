@@ -17,7 +17,7 @@ const NewYearBanner = () => {
       <div className="absolute -right-10 -top-10 w-40 h-40 bg-red-200/40 blur-3xl rounded-full" />
 
       {/* 콘텐츠 레이어: 패딩 축소 및 가독성 영역 확보 */}
-      <div className="relative h-full flex flex-col justify-center items-end px-7 sm:px-10 z-20 text-right">
+      <div className="relative h-full flex flex-col justify-center items-end px-7 sm:px-10 z-10 text-right">
         <div className="animate-in fade-in slide-in-from-right-5 duration-1000 max-w-[70%] sm:max-w-full">
           {/* 상단 메뉴명 */}
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-400 mb-1.5 block">

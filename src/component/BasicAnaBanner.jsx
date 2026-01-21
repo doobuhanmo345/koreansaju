@@ -150,7 +150,7 @@ const processedTitle = useMemo(() => {
           </div>
 
           {/* 상단 캡션 및 다운로드 버튼 영역 */}
-          <div className="absolute top-6 left-10 right-8 flex justify-between items-start z-20">
+          <div className="absolute top-6 left-10 right-8 flex justify-between items-start z-10">
             <span className="text-sm  text-gray-500/80 uppercase tracking-wider">
               {isKo ? '오행으로 보는 나는 누구?' : 'WHO AM I?'}
             </span>

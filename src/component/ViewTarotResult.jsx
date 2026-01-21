@@ -16,16 +16,15 @@ export default function ViewTarotResult({ cardPicked }) {
     }
   }, [aiResult]);
 
-  // 로딩 디자인: 부드러운 퍼플 톤으로 변경
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center py-40 space-y-6 font-sans">
-        <div className="relative w-16 h-16">
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-purple-100 rounded-full"></div>
-          <div className="absolute top-0 left-0 w-full h-full border-4 border-t-purple-500 border-r-purple-400 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col items-center justify-center py-48 space-y-6">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-2 border-purple-100 rounded-full"></div>
+          <div className="absolute inset-0 border-2 border-t-purple-500 rounded-full animate-spin"></div>
         </div>
-        <p className="text-purple-800 font-medium text-lg animate-pulse tracking-wide">
-          ✨ 카드의 목소리를 듣는 중...
+        <p className="text-purple-900/60 font-medium animate-pulse tracking-widest text-sm">
+          Reading your aura...
         </p>
       </div>
     );
@@ -33,8 +32,8 @@ export default function ViewTarotResult({ cardPicked }) {
   if (!fortune) return null;
 
   return (
-    <div className="max-w-lg m-auto relative px-6 pb-32 font-sans antialiased text-stone-800">
-      {/* 타로 카드 애니메이션 (로직 유지, 그림자 부드럽게 변경) */}
+    <div className="max-w-lg m-auto relative px-6 pb-40 font-sans antialiased text-stone-800 bg-[#fafaf9]">
+      {/* 타로 카드 애니메이션 (기존 로직 그대로 유지) */}
       {!!cardPicked.id && (
         <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[10]">
           <div
@@ -58,99 +57,111 @@ export default function ViewTarotResult({ cardPicked }) {
         </div>
       )}
 
-      {/* 리포트 레이아웃 */}
-      <div className="report-container space-y-14 mt-20 animate-in fade-in slide-in-from-bottom-10 duration-[1200ms]">
-        {/* 헤더 섹션: 더 감성적이고 부드럽게 */}
+      {/* 리포트 레이아웃 시작 */}
+      <div className="report-container space-y-14 mt-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        {/* 헤더 섹션 */}
         <header className="text-center space-y-4">
-          <div className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-800 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-sm border border-purple-100/50 mb-2">
-            <span>✦</span> Your Reading
+          <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-purple-50 to-pink-50 text-purple-800 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-sm border border-purple-100/50 mb-2">
+            Tarot Report
           </div>
-          <h2 className="section-title-h2 text-[2.5rem] font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-stone-800 to-purple-900 leading-tight">
+          <h2 className="section-title-h2 text-[2.2rem] font-extrabold text-stone-900 leading-tight">
             {fortune.title}
           </h2>
-          <div className="flex items-center justify-center gap-3 text-purple-300/60">
-            <span className="text-sm">⋆</span>
-            <p className="report-text text-stone-500 font-medium text-base px-2 max-w-xs leading-relaxed">
+          <div className="flex items-center justify-center space-x-2">
+            <span className="h-[1px] w-8 bg-stone-200"></span>
+            <p className="report-text text-stone-500 italic font-medium px-2">
               "{fortune.subTitle}"
             </p>
-            <span className="text-sm">⋆</span>
+            <span className="h-[1px] w-8 bg-stone-200"></span>
           </div>
         </header>
+        {/* 1. 카드 메시지 섹션: 감성적인 화이트 무드 */}
+        <section className="report-card active group p-3 sm:p-6 bg-white rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(167,139,250,0.1)] border border-purple-50/50 transition-all hover:shadow-[0_20px_50px_-12px_rgba(167,139,250,0.18)] relative overflow-hidden">
+          {/* 신비로운 배경 빛 효과 */}
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-48 h-48 bg-purple-50 rounded-full blur-3xl pointer-events-none opacity-60"></div>
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-32 h-32 bg-pink-50 rounded-full blur-2xl pointer-events-none opacity-40"></div>
 
-        {/* 1. 카드 메시지 섹션: 따뜻한 웜톤 그라데이션과 드롭캡 포인트 */}
-        <section className="report-card active group p-8 bg-gradient-to-br from-white via-white to-purple-50/80 rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(167,139,250,0.15)] border border-white ring-1 ring-purple-50 transition-all hover:shadow-[0_25px_50px_-12px_rgba(167,139,250,0.25)] relative overflow-hidden">
-          {/* 배경 장식 */}
-          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-200/20 rounded-full blur-3xl pointer-events-none"></div>
-
-          <div className="relative z-10 mb-6">
-            <h3 className="section-title-h3 text-xl font-bold text-purple-900 flex items-center gap-3">
-              <span className="text-3xl filter drop-shadow-sm">🔮</span> {fortune.cardName}
-            </h3>
-          </div>
-          <div className="relative z-10 report-keyword flex flex-wrap gap-2 mb-8">
-            {fortune.tags?.map((tag, i) => (
-              <span
-                key={i}
-                className="px-4 py-1.5 bg-white/80 text-purple-700 rounded-xl font-semibold text-xs border border-purple-100 shadow-sm"
-              >
-                {tag}
+          <div className="relative z-10">
+            <h3 className="section-title-h3 text-xl font-bold text-stone-800 flex items-center gap-3 mb-6">
+              <span className="w-10 h-10 flex items-center justify-center bg-purple-50 rounded-2xl shadow-inner text-2xl">
+                🔮
               </span>
-            ))}
+              <span className="tracking-tight">{fortune.cardName}</span>
+            </h3>
+
+            <div className="report-keyword flex flex-wrap gap-2 mb-8">
+              {fortune.tags?.map((tag, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1.5 bg-purple-50/50 text-purple-500 rounded-xl font-bold text-[11px] border border-purple-100/50 tracking-wider shadow-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <p className="report-text leading-[1.8] text-stone-600 text-[16px] whitespace-pre-wrap font-medium">
+              {fortune.description}
+            </p>
           </div>
-          {/* 첫 글자 강조(Drop Cap)에 그라데이션 텍스트 적용 */}
-          <p className="relative z-10 report-text leading-loose text-stone-700 text-[17px] whitespace-pre-wrap">
-            <span className="float-left text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-purple-600 to-pink-500 mr-3 leading-[1.1] mt-1">
-              {fortune.description.charAt(0)}
-            </span>
-            {fortune.description.slice(1)}
-          </p>
         </section>
 
-        {/* 2. 상세 분석 섹션: 답답한 박스 대신 부드러운 플로팅 카드 */}
-        <section className="report-card active p-8 bg-white rounded-[2.5rem] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] border border-stone-50">
-          <h3 className="section-title-h3 text-xl font-bold text-stone-800 mb-8 flex items-center gap-3">
-            <span className="text-3xl filter drop-shadow-sm">📍</span> {fortune.analysisTitle}
-          </h3>
+        {/* 2. 상세 분석 섹션: 깔끔하고 정돈된 에어리 무드 */}
+        <section className="report-card active p-3 sm:p-6 bg-white rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.02)] border border-stone-100">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-stone-50">
+            <h3 className="section-title-h3 text-xl font-bold text-stone-800 flex items-center gap-3">
+              <span className="w-10 h-10 flex items-center justify-center bg-stone-50 rounded-2xl text-2xl">
+                📍
+              </span>
+              <span className="tracking-tight">{fortune.analysisTitle}</span>
+            </h3>
+          </div>
+
           <div className="space-y-5">
             {fortune.analysisList?.map((text, i) => (
               <div
                 key={i}
-                className="report-text p-6 bg-gradient-to-r from-purple-50/80 to-transparent rounded-3xl text-stone-700 leading-relaxed shadow-sm border border-purple-50/50 flex gap-4 items-start"
+                className="report-text p-6 bg-gradient-to-r from-stone-50/80 to-transparent rounded-[1.5rem] text-stone-700 leading-relaxed shadow-sm border border-stone-100/50 flex gap-4 transition-transform hover:translate-x-1 duration-300"
               >
-                <span className="text-purple-400 mt-1 text-sm">✦</span>
-                <span>{text}</span>
+                <span className="text-purple-300 font-serif italic text-xl mt-0.5">0{i + 1}</span>
+                <span className="font-medium text-[15px]">{text}</span>
               </div>
             ))}
           </div>
         </section>
 
-        {/* 3. 조언 및 실천 섹션: 깊이 있는 트와일라잇 그라데이션과 글래스모피즘 */}
-        <section className="report-card active p-9 bg-gradient-to-br from-stone-900 via-purple-950 to-violet-900 text-white rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(88,28,135,0.5)] relative overflow-hidden isolation-auto">
-          {/* 장식용 빛 효과 - 더 풍부하게 */}
-          <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-pink-500/20 blur-[80px] rounded-full mix-blend-screen pointer-events-none"></div>
-          <div className="absolute bottom-[-20%] left-[-20%] w-64 h-64 bg-purple-600/20 blur-[80px] rounded-full mix-blend-screen pointer-events-none"></div>
+        {/* 3. 조언 및 실천 섹션: 깊이 있는 트와일라잇 퍼플 무드 */}
+        <section className="report-card active p-3 sm:p-6 bg-gradient-to-br from-stone-900 via-purple-950 to-stone-950 text-white rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(88,28,135,0.4)] relative overflow-hidden">
+          {/* 배경 그라데이션 광채 */}
+          <div className="absolute top-[-20%] right-[-10%] w-72 h-72 bg-purple-600/20 blur-[100px] rounded-full pointer-events-none"></div>
+          <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-pink-500/10 blur-[80px] rounded-full pointer-events-none"></div>
 
-          <h3 className="section-title-h3 text-xl font-bold text-purple-100 mb-8 flex items-center gap-3 relative z-10">
-            <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">🌿</span>{' '}
-            {fortune.adviceTitle}
+          <h3 className="section-title-h3 text-xl font-bold text-purple-200 mb-10 flex items-center gap-3 relative z-10">
+            <span className="w-10 h-10 flex items-center justify-center bg-white/10 backdrop-blur-md rounded-2xl text-2xl ring-1 ring-white/20">
+              🌿
+            </span>
+            <span className="tracking-tight">{fortune.adviceTitle}</span>
           </h3>
-          <ul className="info-list space-y-6 mb-12 relative z-10">
+
+          <ul className="info-list space-y-7 mb-12 relative z-10">
             {fortune.adviceList?.map((action, i) => (
-              <li key={i} className="flex items-start gap-4 text-purple-50/90 group">
-                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-purple-200 ring-1 ring-white/20 group-hover:bg-purple-400 group-hover:text-white group-hover:ring-purple-400 transition-all duration-300 mt-0.5">
-                  <span className="text-xs">✓</span>
+              <li key={i} className="flex items-start gap-5 group">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-300 ring-1 ring-purple-400/40 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 mt-1 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                  <span className="text-[10px]">✦</span>
                 </span>
-                <span className="text-[16px] leading-relaxed font-medium">{action}</span>
+                <span className="text-[16px] leading-relaxed text-purple-50/90 font-light tracking-wide">
+                  {action}
+                </span>
               </li>
             ))}
           </ul>
 
-          {/* 글래스모피즘(유리 질감) 태그 */}
+          {/* 글래스모피즘 태그 */}
           <div className="keyword-list flex flex-wrap gap-2.5 pt-8 border-t border-white/10 relative z-10">
             {fortune.footerTags?.map((tag, i) => (
               <span
                 key={i}
-                className="keyword-tag backdrop-blur-md bg-white/10 border border-white/20 px-4 py-2 rounded-2xl text-xs text-purple-100 font-bold tracking-wider hover:bg-white/20 hover:border-white/40 transition-all cursor-default shadow-sm"
+                className="keyword-tag backdrop-blur-md bg-white/5 border border-white/10 px-4 py-2 rounded-2xl text-[11px] text-purple-100 font-bold tracking-wider hover:bg-white/10 transition-all cursor-default shadow-sm ring-1 ring-white/5"
               >
                 {tag}
               </span>
@@ -158,9 +169,6 @@ export default function ViewTarotResult({ cardPicked }) {
           </div>
         </section>
       </div>
-
-      {/* 기존 사주 스타일 유지 (필요한 경우에만 작동) */}
-      {/* <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} /> */}
     </div>
   );
 }

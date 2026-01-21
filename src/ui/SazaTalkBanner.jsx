@@ -17,7 +17,7 @@ const SazaTalkBanner = () => {
       <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-indigo-200/40 blur-3xl rounded-full" />
 
       {/* 메인 콘텐츠 영역: 패딩을 px-10에서 px-6으로 줄임 */}
-      <div className="relative h-full flex flex-col justify-center px-7 sm:px-10 z-20">
+      <div className="relative h-full flex flex-col justify-center px-7 sm:px-10 z-10">
         <div className="animate-in fade-in slide-in-from-left-5 duration-1000 max-w-[65%] sm:max-w-full">
           {/* 상단 메뉴명 */}
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400/80 mb-1.5 block">

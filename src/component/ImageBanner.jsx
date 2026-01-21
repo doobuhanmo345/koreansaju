@@ -109,7 +109,7 @@ const ImageBanner = () => {
       </div>
 
       {/* 모바일 전용 화살표 네비게이션 (md 미만에서만 표시) */}
-      <div className="flex md:hidden absolute inset-y-0 inset-x-2 items-center justify-between z-20 pointer-events-none">
+      <div className="flex md:hidden absolute inset-y-0 inset-x-2 items-center justify-between z-10 pointer-events-none">
         <button
           onClick={handlePrev}
           className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-sm pointer-events-auto hover:bg-white/50 transition-colors text-slate-600"
@@ -147,7 +147,7 @@ const ImageBanner = () => {
       </div>
 
       {/* 모바일 전용 인디케이터 (점) */}
-      <div className="md:hidden absolute bottom-4 left-8 flex gap-1.5 z-20">
+      <div className="md:hidden absolute bottom-4 left-8 flex gap-1.5 z-10">
         {bannerData.map((_, idx) => (
           <div
             key={idx}
@@ -157,7 +157,7 @@ const ImageBanner = () => {
       </div>
 
       {/* 데스크톱 전용 사이드바 메뉴 (md 이상에서만 표시) */}
-      <div className="hidden md:flex w-24 bg-white/40 backdrop-blur-md border-l border-white/20 flex-col z-20">
+      <div className="hidden md:flex w-24 bg-white/40 backdrop-blur-md border-l border-white/20 flex-col z-10">
         {bannerData.map((item, index) => (
           <button
             key={item.id}
