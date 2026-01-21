@@ -20,7 +20,6 @@ export default function App() {
   const { language } = useLanguage();
   const {
     setEditCount, // 필요시 수동 조작용 (모달 등에서 사용)
-    MAX_EDIT_COUNT,
   } = useUsageLimit(user, userData, language);
 
   // --- Local States ---
