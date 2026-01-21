@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguageContext';
 
 const ImageBanner = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  // 애니메이션 충돌 방지를 위한 ref
+  const contentRef = useRef(null);
 
   const bannerData = [
     {
@@ -12,7 +14,7 @@ const ImageBanner = () => {
       menuTitle: { ko: '오늘의 운세', en: 'Daily' },
       mainTitle: { ko: '오늘 나의\n오행 흐름과 총점은?', en: 'How is your\nenergy today?' },
       accent: { ko: '운세 점수', en: 'Score' },
-      bgColor: '#FFFCEB',
+      bgColor: '#FEF9C3',
       accentColor: '#FBBF24',
       link: '/todaysluck',
       imageUrl: '/images/banner/today.webp',
@@ -22,7 +24,7 @@ const ImageBanner = () => {
       menuTitle: { ko: '만남 지수', en: 'Date' },
       mainTitle: { ko: '소개팅과 썸,\n이뤄질 수 있을까?', en: 'Your spark on\na date' },
       accent: { ko: '첫만남 스파크', en: 'Spark' },
-      bgColor: '#FDF2F2',
+      bgColor: '#FEE2E2',
       accentColor: '#F87171',
       link: '/date',
       imageUrl: '/images/banner/date.webp',
@@ -32,8 +34,8 @@ const ImageBanner = () => {
       menuTitle: { ko: '면접 지수', en: 'Interview' },
       mainTitle: { ko: '떨리는 면접 날\n합격 기운은?', en: 'Will you get\nthe offer?' },
       accent: { ko: '합격 패스', en: 'Pass' },
-      bgColor: '#F0F9FF',
-      accentColor: '#38BDF8',
+      bgColor: '#E0F2FE',
+      accentColor: '#0EA5E9',
       link: '/interview',
       imageUrl: '/images/banner/interview.webp',
     },
@@ -42,23 +44,63 @@ const ImageBanner = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  // --- 스와이프 팔로우 로직 상태 ---
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [translateX, setTranslateX] = useState(0); // 현재 드래그 중인 거리
+  const [isDragging, setIsDragging] = useState(false); // 드래그 중인지 여부
+  const minSwipeDistance = 60; // 스와이프 인식 최소 거리
+
+  // 1. 터치 시작
+  const onTouchStart = (e) => {
+    setIsPaused(true); // 드래그 중 자동 넘김 방지
+    setTouchStartX(e.targetTouches[0].clientX);
+    setIsDragging(true);
+  };
+
+  // 2. 터치 이동 (손가락 따라 배너 움직이기)
+  const onTouchMove = (e) => {
+    if (touchStartX === null) return;
+    const currentX = e.targetTouches[0].clientX;
+    // 이동 거리 계산 (약간의 저항감을 위해 0.8 곱함)
+    const diff = (currentX - touchStartX) * 0.8;
+    setTranslateX(diff);
+  };
+
+  // 3. 터치 종료 (결과 판정)
+  const onTouchEnd = () => {
+    setIsDragging(false);
+    setIsPaused(false);
+
+    if (translateX < -minSwipeDistance) {
+      // 왼쪽으로 충분히 밀었음 -> 다음 슬라이드
+      handleNext();
+    } else if (translateX > minSwipeDistance) {
+      // 오른쪽으로 충분히 밀었음 -> 이전 슬라이드
+      handlePrev();
+    }
+
+    // 중요: 손을 뗐으니 위치를 원상복구 (다음 슬라이드가 자연스럽게 들어오도록)
+    setTranslateX(0);
+    setTouchStartX(null);
+  };
+  // -----------------------------------
+
   useEffect(() => {
     let timer;
-    if (!isPaused) {
+    // 드래그 중이 아닐 때만 자동 재생
+    if (!isPaused && !isDragging) {
       timer = setInterval(() => {
         handleNext();
-      }, 4000);
+      }, 4500);
     }
     return () => clearInterval(timer);
-  }, [isPaused, activeIndex]);
+  }, [isPaused, activeIndex, isDragging]); // isDragging 의존성 추가
 
-  const handlePrev = (e) => {
-    e?.stopPropagation();
+  const handlePrev = () => {
     setActiveIndex((prev) => (prev === 0 ? bannerData.length - 1 : prev - 1));
   };
 
-  const handleNext = (e) => {
-    e?.stopPropagation();
+  const handleNext = () => {
     setActiveIndex((prev) => (prev === bannerData.length - 1 ? 0 : prev + 1));
   };
 
@@ -67,120 +109,137 @@ const ImageBanner = () => {
 
   return (
     <div
-      className="relative w-full max-w-lg h-[240px] mx-auto flex overflow-hidden transition-all duration-700 ease-in-out my-6 rounded-[2rem] border border-slate-50 dark:border-slate-800 shadow-sm group"
-      style={{ backgroundColor: current.bgColor }}
+      className="relative w-full max-w-lg h-[210px] mx-auto flex overflow-hidden transition-all duration-500 ease-in-out my-6 rounded-[1rem]  shadow-xl group hover:shadow-2xl sm:hover:-translate-y-1 touch-pan-y"
+      style={{
+        // 배경색 그라데이션
+        background: `linear-gradient(135deg, ${current.bgColor} 0%, ${current.bgColor} 60%, #ffffff 100%)`,
+      }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      // 터치 이벤트 연결
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
-      {/* 메인 콘텐츠 영역 (모바일에서는 전체 너비 사용) */}
+      {/* 배경 장식 blur */}
       <div
-        className="flex-1 relative flex flex-col justify-center px-8 sm:px-10 cursor-pointer z-10"
-        onClick={() => navigate(current.link)}
+        className="absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl opacity-30 transition-colors duration-700"
+        style={{ backgroundColor: current.accentColor }}
+      />
+
+      {/* 메인 콘텐츠 영역 (움직이는 대상) 
+        - transform으로 위치 이동
+        - isDragging 일 때는 transition을 없애서 즉각 반응하게 함
+      */}
+      <div
+        ref={contentRef}
+        className="flex-1 relative flex flex-col justify-center px-8 cursor-pointer will-change-transform"
+        style={{
+          transform: `translateX(${translateX}px)`,
+          transition: isDragging ? 'none' : 'transform 300ms ease-out, opacity 300ms ease-out',
+          // 드래그 중일 때 약간 투명해지게 효과 추가 (선택사항)
+          opacity: isDragging ? 0.8 : 1,
+        }}
+        onClick={() => {
+          // 드래그가 아닌 클릭일 때만 이동
+          if (Math.abs(translateX) < 5) navigate(current.link);
+        }}
       >
-        <div key={current.id} className="animate-in fade-in slide-in-from-left-5 duration-700 p-3">
-          <span className="text-sm font-black uppercase tracking-[0.3em] text-slate-400 mb-2 sm:mb-3 block">
+        {/* 내부 콘텐츠: 드래그 중에는 기존 CSS 애니메이션 방해 안 받게 key 관리 중요 */}
+        <div
+          key={isDragging ? 'dragging' : current.id}
+          className={
+            !isDragging
+              ? 'z-10 animate-in fade-in slide-in-from-left-6 duration-700 pointer-events-none'
+              : 'pointer-events-none'
+          }
+        >
+          <span
+            className="text-sm font-black uppercase tracking-[0.3em] mb-2.5 block"
+            style={{ color: current.accentColor }}
+          >
             {isKo ? current.menuTitle.ko : current.menuTitle.en}
           </span>
+
           <h2
-            className={`text-2xl sm:text-3xl font-light text-slate-900 leading-[1.2] tracking-tight whitespace-pre-line ${isKo ? 'break-keep' : ''}`}
+            className={`text-2xl sm:text-[1.65rem] font-black text-slate-900 leading-[1.2] tracking-tight whitespace-pre-line  ${isKo ? 'break-keep' : ''}`}
           >
             {(isKo ? current.mainTitle.ko : current.mainTitle.en).split('\n')[0]} <br />
-            <span className="font-serif italic font-medium" style={{ color: current.accentColor }}>
-              {(isKo ? current.mainTitle.ko : current.mainTitle.en).split('\n')[1]}
+            <span className="relative inline-block mt-0.5">
+              <span style={{ color: current.accentColor }}>
+                {(isKo ? current.mainTitle.ko : current.mainTitle.en).split('\n')[1]}
+              </span>
+              <div
+                className="absolute bottom-1 left-0 w-full h-2.5 opacity-30 -z-10"
+                style={{ backgroundColor: current.accentColor }}
+              />
             </span>
           </h2>
 
-          <div className="mt-5 sm:mt-6 flex items-center gap-2">
-            <span className="text-[10px] font-bold py-1.5 px-3 bg-white/60 rounded-full text-slate-500 uppercase tracking-tighter shadow-sm border border-white/50">
+          <div className="mt-5 flex items-center">
+            <span
+              className="text-[11px] font-extrabold py-2 px-5 rounded-full text-white shadow-md transform transition-all group-hover:scale-110"
+              style={{ backgroundColor: current.accentColor }}
+            >
               {isKo ? '지금 확인하기' : 'Check now'}
             </span>
           </div>
         </div>
 
         {/* 배경 이미지 */}
-        <div className="absolute right-6 bottom-3 w-36 h-36 sm:w-44 sm:h-44 pointer-events-none overflow-hidden rounded-br-[2rem]">
+        <div className="absolute z-0 right-4 bottom-2 w-36 h-36 pointer-events-none overflow-hidden transition-transform duration-700 group-hover:scale-110">
           <img
-            key={`img-${current.id}`}
+            key={isDragging ? 'dragging-img' : `img-${current.id}`}
             src={current.imageUrl}
             alt=""
-            className="w-full h-full object-contain object-right-bottom animate-in fade-in zoom-in-95 slide-in-from-right-10 duration-1000 opacity-80"
+            className={
+              !isDragging
+                ? 'w-full h-full object-contain object-right-bottom animate-in fade-in zoom-in-95 slide-in-from-right-10 duration-1000'
+                : 'w-full h-full object-contain object-right-bottom'
+            }
           />
         </div>
       </div>
 
-      {/* 모바일 전용 화살표 네비게이션 (md 미만에서만 표시) */}
-      <div className="flex md:hidden absolute inset-y-0 inset-x-2 items-center justify-between z-10 pointer-events-none">
-        <button
-          onClick={handlePrev}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-sm pointer-events-auto hover:bg-white/50 transition-colors text-slate-600"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </button>
-        <button
-          onClick={handleNext}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-sm pointer-events-auto hover:bg-white/50 transition-colors text-slate-600"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
-      </div>
-
-      {/* 모바일 전용 인디케이터 (점) */}
-      <div className="md:hidden absolute bottom-4 left-8 flex gap-1.5 z-10">
+      {/* 모바일 전용 인디케이터 (점점점) */}
+      <div className="md:hidden absolute bottom-5 left-8 flex gap-1.5 z-20">
         {bannerData.map((_, idx) => (
           <div
             key={idx}
-            className={`h-1 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-4 bg-slate-800' : 'w-1 bg-slate-300'}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-5 bg-slate-800' : 'w-1.5 bg-slate-400/50'}`}
           />
         ))}
       </div>
 
-      {/* 데스크톱 전용 사이드바 메뉴 (md 이상에서만 표시) */}
-      <div className="hidden md:flex w-24 bg-white/40 backdrop-blur-md border-l border-white/20 flex-col z-10">
+      {/* 데스크톱 전용 사이드바 */}
+      <div className="hidden md:flex w-24 bg-white/50 backdrop-blur-xl border-l border-white/60 flex-col z-10">
+        {/* ... (사이드바 코드는 동일) ... */}
         {bannerData.map((item, index) => (
           <button
             key={item.id}
             onClick={() => setActiveIndex(index)}
-            className={`flex-1 flex flex-col items-start justify-center px-4 transition-all duration-500 relative ${
-              activeIndex === index ? 'bg-white/60' : 'hover:bg-white/20'
+            className={`flex-1 flex flex-col items-center justify-center px-2 transition-all duration-500 relative ${
+              activeIndex === index ? 'bg-white/70 shadow-inner' : 'hover:bg-white/30'
             }`}
           >
             <span
-              className={`text-xs font-black tracking-tighter text-left leading-tight ${activeIndex === index ? 'text-slate-900' : 'text-slate-400'}`}
+              className={`text-sm font-black tracking-tighter text-center leading-tight transition-all ${activeIndex === index ? 'text-slate-900 scale-105' : 'text-slate-400'}`}
             >
               {isKo ? item.menuTitle.ko : item.menuTitle.en}
             </span>
             {activeIndex === index && (
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-slate-900 animate-in fade-in duration-500" />
-            )}
-            {activeIndex === index && (
-              <div className="w-full h-[1px] bg-slate-100 mt-2 overflow-hidden">
+              <>
                 <div
-                  className="h-full bg-slate-900 animate-progress origin-left"
-                  style={{ animationDuration: '4s' }}
+                  className="absolute right-0 top-0 bottom-0 w-[4px] animate-in slide-in-from-right duration-500"
+                  style={{ backgroundColor: current.accentColor }}
                 />
-              </div>
+                <div className="w-full h-[2px] bg-slate-200 mt-2 overflow-hidden rounded-full max-w-[30px]">
+                  <div
+                    className="h-full animate-progress origin-left"
+                    style={{ backgroundColor: current.accentColor, animationDuration: '4.5s' }}
+                  />
+                </div>
+              </>
             )}
           </button>
         ))}
