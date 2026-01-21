@@ -1,4 +1,4 @@
-import React from 'react';
+import React ,{useMemo} from 'react';
 import html2canvas from 'html2canvas';
 import { ILJU_DATA, ILJU_DATA_EN } from '../data/ilju_data';
 import { useAuthContext } from '../context/useAuthContext';
@@ -69,7 +69,24 @@ export default function BasicAnaBanner({ inputDate, isTimeUnknown, gender }) {
       el.style.visibility = originalStyle.visibility || 'hidden';
     }
   };
+  
+const processedTitle = useMemo(() => {
+  if (!currentTitle) return { first: '', second: '' };
 
+  const words = currentTitle.split(' ');
+  const articles = ['a', 'an', 'the'];
+
+  // 첫 단어가 관사(a, an, the)이고, 뒤에 단어가 더 있다면 두 단어를 첫 줄로 묶음
+  let splitIndex = 1;
+  if (words.length > 1 && articles.includes(words[0].toLowerCase())) {
+    splitIndex = 2;
+  }
+
+  return {
+    first: words.slice(0, splitIndex).join(' '),
+    second: words.slice(splitIndex).join(' '),
+  };
+}, [currentTitle]);
   return (
     <div className="w-full max-w-lg mx-auto">
       {/* 1. 이미지 저장용 카드 (숨김) */}
@@ -154,9 +171,9 @@ export default function BasicAnaBanner({ inputDate, isTimeUnknown, gender }) {
               {/* 텍스트 정보 */}
               <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-5 duration-1000">
                 <h2 className="text-2xl sm:text-3xl font-light text-slate-900 leading-tight tracking-tight mb-2">
-                  {currentTitle?.split(' ')[0]} <br />
+                  {processedTitle.first} <br />
                   <span className="font-serif italic font-medium text-indigo-700">
-                    {currentTitle?.split(' ').slice(1).join(' ')}
+                    {processedTitle.second}
                   </span>
                 </h2>
                 {/* 하단 행동 유도 텍스트 -> 강조된 가이드 버튼 스타일로 변경 */}

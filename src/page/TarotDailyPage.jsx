@@ -52,42 +52,40 @@ export default function TarotDailyPage() {
 
       try {
         const tarotPrompt = `
-당신은 통찰력 있는 삶의 가이드를 제시하는 타로 마스터입니다. 제공된 CSS 클래스를 사용하여 사용자의 하루를 조망하는 정밀 타로 리포트를 작성하세요. 
-이 리포트는 클릭이나 탭 이동 없이 모든 내용을 한 페이지에 순차적으로 보여주는 '전체 보기' 방식입니다.
+당신은 통찰력 있는 삶의 가이드를 제시하는 타로 마스터입니다. 
+사용자의 하루를 조망하는 정밀 타로 리포트를 반드시 아래의 **JSON 구조**로만 응답하세요.
 
-### 🏗️ 리포트 구조 (필수)
-1. 전체를 <div class="report-container">로 감싸세요.
+### [데이터]
+- 카드: ${pickedCard.kor} (${pickedCard.name})
+- 키워드: ${pickedCard.keyword}
 
-2. **인트로 영역**:
-   - <h2 class="section-title-h2"> ${language === 'ko' ? '오늘의 운세' : 'Tarot Luck of the day'}</h2>
+### [JSON 구조 (필수)]
+{
+  "title": "${language === 'ko' ? '오늘의 운세' : 'Tarot Luck of the day'}",
+  "subTitle": "오늘 당신의 삶을 채울 에너지 흐름",
+  "cardName": "${pickedCard.kor} (${pickedCard.name})",
+  "tags": ["#오늘의에너지", "#행운의흐름", "#타로가이드"],
+  "description": "이 카드(${pickedCard.kor})가 오늘 당신의 삶에 가져올 본질적인 에너지와 그 의미를 상세히 설명하세요. (오늘의 에너지 섹션)",
+  "analysisTitle": "상황별 운세 흐름 (General Fortune)",
+  "analysisList": [
+    "대인관계: 주위 사람들과의 관계 및 소통의 흐름",
+    "업무 및 학업: 추진 중인 일이나 공부에서의 성과와 주의점",
+    "심리적 상태: 오늘 하루 유지하면 좋을 마음가짐"
+  ],
+  "adviceTitle": "오늘을 위한 조언 (Action Plan)",
+  "adviceList": [
+    "오늘 실천하면 좋은 구체적인 행동 지침 1",
+    "오늘 실천하면 좋은 구체적인 행동 지침 2",
+    "오늘 실천하면 좋은 구체적인 행동 지침 3"
+  ],
+  "footerTags": ["#긍정", "#행운", "#조화", "#성장", "#타이밍"]
+}
 
-3. **섹션 1: 오늘의 에너지 (Card Symbolism)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">선택 카드 : ${pickedCard.kor} (${pickedCard.name})</h3>
-   - <div class="report-keyword"> 핵심 키워드 3개를 #해시태그 형식으로 나열.
-   - <p class="report-text">이 카드가 오늘 당신의 삶에 가져올 본질적인 에너지와 그 의미를 상세히 설명하세요.</p>
-
-4. **섹션 2: 오늘의 흐름 (General Fortune)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">상황별 운세 흐름</h3>
-   - <div class="report-text"> 내부에 오늘의 주요 흐름을 작성하세요.
-     - (대인관계, 업무/학업, 심리적 상태 등 3-4개 항목으로 구분하여 작성)
-
-5. **섹션 3: 행운의 가이드 (Action Plan)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">오늘을 위한 조언</h3>
-   - <ul class="info-list">를 사용하여 오늘 실천하면 좋은 행동 지침 3가지를 리스트로 작성하세요.
-   - 리스트 하단에 <div class="keyword-list">를 만들고 5개의 행운 키워드를 <span class="keyword-tag">#키워드</span>로 넣으세요. (설명글 없이 키워드만 출력)
-
-### 🚫 절대 규칙
-1. 모든 마크다운(**, # 등) 사용 금지. 오직 순수 HTML 태그만 출력.
+### [절대 규칙]
+1. 마크다운(\`\`\`) 없이 순수 JSON 텍스트만 출력할 것.
 2. 한자(Hanja) 사용 금지.
-3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}. 섹션 제목도 영어로 작성해줘.
-4. 탭 이동 기능 없이 모든 .report-card에 .active 클래스를 부여하고 display: block으로 출력하세요.
-5. 어조: 차분하고 신비로우면서도 명확한 가이드를 주는 어조 유지.
-
-[데이터]
-카드: ${pickedCard.kor} / 원문명: ${pickedCard.name} / 키워드: ${pickedCard.keyword}
+3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}. (JSON 키값은 영문 유지)
+4. 어조: 차분하고 신비로우면서도 명확한 가이드를 주는 어조 유지.
 `;
         const result = await fetchGeminiAnalysis(tarotPrompt);
 

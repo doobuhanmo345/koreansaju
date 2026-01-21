@@ -70,42 +70,42 @@ export default function TarotMoneyPage() {
 
       try {
         const moneyPrompt = `
-당신은 자산 관리 및 비즈니스 전문 타로 마스터입니다. 제공된 CSS 클래스를 사용하여 경제적 통찰력이 담긴 정밀 재무 리포트를 작성하세요. 
-이 리포트는 모든 내용을 한 페이지에 순차적으로 보여주는 '전체 보기' 방식입니다.
+당신은 자산 관리 및 비즈니스 전문 타로 마스터입니다. 
+제공된 데이터를 바탕으로 경제적 통찰력이 담긴 정밀 재무 리포트를 작성하세요.
+반드시 아래의 **JSON 구조**로만 응답해야 합니다.
 
-### 🏗️ 리포트 구조 (필수)
-1. 전체를 <div class="report-container">로 감싸세요.
+### [데이터]
+- 분야: ${categoryLabel}
+- 카드: ${pickedCard.kor} (${pickedCard.name})
+- 키워드: ${pickedCard.keyword}
 
-2. **인트로 영역**:
-   - <h2 class="section-title-h2">${language === 'ko' ? '타로 금전운' : 'Tarot wealth lcuk'} - ${categoryLabel}</h2>
+### [JSON 구조 (필수)]
+{
+  "title": "${language === 'ko' ? '타로 금전운 리포트' : 'Financial Tarot Report'} - ${categoryLabel}",
+  "subTitle": "${categoryLabel} 분야 자금 흐름 분석",
+  "cardName": "${pickedCard.kor} (${pickedCard.name})",
+  "tags": ["#자금흐름", "#재무기회", "#리스크관리"],
+  "description": "이 카드가 암시하는 현재의 자금 흐름과 경제적 상황에 대한 본질적 의미를 분석하세요. (경제적 상징 섹션)",
+  "analysisTitle": "${categoryLabel} 맞춤 재무 전망",
+  "analysisList": [
+    "현재 분야(${categoryLabel})에서의 구체적인 재무 상황 진단",
+    "투자/지출/수입 등 타이밍에 대한 냉철한 분석",
+    "가장 주의해야 할 경제적 변수와 대응 방향"
+  ],
+  "adviceTitle": "자산 관리 전략 (Action Plan)",
+  "adviceList": [
+    "당장 실천해야 할 구체적인 경제적 행동 지침 1",
+    "당장 실천해야 할 구체적인 경제적 행동 지침 2",
+    "당장 실천해야 할 구체적인 경제적 행동 지침 3"
+  ],
+  "footerTags": ["#수익창출", "#지출통제", "#자산증식", "#재테크", "#안정권"]
+}
 
-3. **섹션 1: 경제적 상징 (Financial Symbolism)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">분석 카드 : ${pickedCard.kor} (${pickedCard.name})</h3>
-   - <div class="report-keyword"> 금전 핵심 키워드 3개를 #해시태그 형식으로 나열.
-   - <p class="report-text">이 카드가 암시하는 현재의 자금 흐름과 경제적 상황에 대한 본질적 의미를 분석하세요.</p>
-
-4. **섹션 2: 금전적 향방 (Wealth Forecast)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">${categoryLabel} 맞춤 재무 전망</h3>
-   - <div class="report-text"> 내부에 구체적인 경제 상황 분석을 작성하세요.
-     - (투자: 매수/매도 타이밍, 소비: 지출 주의점, 수입: 예상되는 이익 등 분야에 맞게 3-4개 항목으로 구체화)
-     - 예: "지금은 투자를 멈출 때", "예상치 못한 부가 수입 기대" 등 실질적인 조언 포함.
-
-5. **섹션 3: 자산 관리 전략 (Action Plan)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">자산 관리 전략</h3>
-   - <ul class="info-list">를 사용하여 당장 실천해야 할 경제적 행동 지침 3가지를 리스트로 작성하세요.
-   - 리스트 하단에 <div class="keyword-list">를 만들고 5개의 금전운 상승 키워드를 <span class="keyword-tag">#키워드</span>로 넣으세요.
-
-### 🚫 절대 규칙
-1. 모든 마크다운(**, # 등) 사용 금지. 오직 순수 HTML 태그만 출력.
+### [절대 규칙]
+1. 마크다운(\`\`\`) 없이 순수 JSON 텍스트만 출력할 것.
 2. 한자(Hanja) 사용 금지.
-3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}. 섹션 제목도 영어로 작성해줘.
+3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}. (JSON 키값은 영문 유지)
 4. 어조: 냉철하고 전문적인 자산 관리사의 어조를 유지하면서도 희망적인 포인트를 짚어줄 것.
-
-[데이터]
-분야: ${categoryLabel} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(moneyPrompt);
         const todayDate = await DateService.getTodayDate();
@@ -288,16 +288,16 @@ export default function TarotMoneyPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
-    const ResultComponent = useCallback(() => {
-      return <ViewTarotResult cardPicked={cardPicked} />;
-    }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
-  
-    return (
-      <AnalysisStepContainer
-        guideContent={renderContent}
-        loadingContent={<TarotLoading />}
-        resultComponent={() => <ResultComponent />}
-        loadingTime={0}
-      />
-    );
-  }
+  const ResultComponent = useCallback(() => {
+    return <ViewTarotResult cardPicked={cardPicked} />;
+  }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
+
+  return (
+    <AnalysisStepContainer
+      guideContent={renderContent}
+      loadingContent={<TarotLoading />}
+      resultComponent={() => <ResultComponent />}
+      loadingTime={0}
+    />
+  );
+}

@@ -40,10 +40,10 @@ const SazaTalkBanner = () => {
       </div>
 
       {/* 마스코트 이미지: 모바일에서 크기를 줄이고 위치 조정 */}
-      <div className="absolute bottom-0 right-0 h-full w-full flex justify-end items-end pointer-events-none z-10">
+      <div className="absolute bottom-1 right-6 h-full w-full flex justify-end items-end pointer-events-none z-10">
         <img
-          src="/images/sazatalk_banner.png"
-          className="h-[90%] sm:h-[105%] w-auto object-contain transition-all duration-700 group-hover:scale-105 origin-bottom-right"
+          src="/images/banner/ama.webp"
+          className="h-[105%] sm:h-[115%] w-auto object-contain transition-all duration-700  origin-bottom-right"
           style={{
             filter: 'drop-shadow(-5px 5px 15px rgba(79, 70, 229, 0.15))',
             marginRight: '-5%',

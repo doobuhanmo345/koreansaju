@@ -40,10 +40,10 @@ const NewYearBanner = () => {
       </div>
 
       {/* 마스코트 이미지 (좌측 배치): 모바일 크기 및 위치 조정 */}
-      <div className="absolute bottom-0 left-0 h-full w-full flex justify-start items-end pointer-events-none z-10">
+      <div className="absolute bottom-0 left-6 h-full w-full flex justify-start items-end pointer-events-none z-10">
         <img
-          src="/images/newyear_banner.png"
-          className="h-[90%] sm:h-[105%] w-auto object-contain transition-all duration-700 group-hover:scale-105 origin-bottom-left"
+          src="/images/banner/newyear.webp"
+          className="h-[100%] sm:h-[115%] w-auto object-contain transition-all duration-700 group-hover:scale-105 origin-bottom-left"
           style={{ 
             filter: 'drop-shadow(5px 5px 15px rgba(220, 38, 38, 0.12))',
             marginLeft: '-5%',

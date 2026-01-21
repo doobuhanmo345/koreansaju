@@ -99,41 +99,41 @@ export default function TarotLovePage() {
 
       try {
         const lovePrompt = `
-당신은 연애 심리 전문 타로 마스터입니다. 제공된 CSS 클래스를 사용하여 한눈에 읽기 좋은 정밀 타로 리포트를 작성하세요. 
-이 리포트는 클릭이나 탭 이동 없이 모든 내용을 한 페이지에 순차적으로 보여주는 '전체 보기' 방식입니다.
+당신은 연애 심리 전문 타로 마스터입니다. 
+상황(${typeLabel})에 따른 정밀 연애 타로 리포트를 작성하세요.
+반드시 아래의 **JSON 구조**로만 응답하세요.
 
-### 🏗️ 리포트 구조 (필수)
-1. 전체를 <div class="report-container">로 감싸세요.
+### [데이터]
+- 연애 상황: ${typeLabel} 
+- 카드: ${pickedCard.kor} (${pickedCard.name})
+- 키워드: ${pickedCard.keyword}
 
-2. **인트로 영역**:
-   - <h2 class="section-title-h2">${language === 'ko' ? '연애운 분석' : 'Tarot Love'}-${typeLabel}</h2>
-3. **섹션 1: 카드 해석 (Symbolism)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">선택 카드 : ${pickedCard.kor} (${pickedCard.name})</h3>
-   - <div class="report-keyword"> 핵심 키워드 3개를 #해시태그 형식으로 나열.
-   - <p class="report-text">카드의 본질적 의미와 현재 상황에서의 상징적 해석을 상세히 설명하세요.</p>
+### [JSON 구조 (필수)]
+{
+  "title": "${language === 'ko' ? '연애운 분석' : 'Tarot Love'}-${typeLabel}",
+  "subTitle": "${ typeLabel + ' 상황 분석'}",
+  "cardName": "${pickedCard.kor} (${pickedCard.name})",
+  "tags": ["#연애운", "#상대방속마음", "#인연"],
+  "description": "선택된 카드(${pickedCard.kor})가 이번 연애운에서 가지는 본질적 의미와 상징적 해석을 상세히 설명하세요. (선택 카드 해석 섹션)",
+  "analysisTitle": "${typeLabel} 맞춤 상황 분석",
+  "analysisList": [
+    "상대방의 현재 심리나 두 사람 사이의 에너지 분석",
+    "현재 상황에서 가장 큰 영향을 미치고 있는 핵심 요소",
+    "조만간 나타날 연애 흐름의 결정적 변화"
+  ],
+  "adviceTitle": "연애 성공을 위한 실천 지침",
+  "adviceList": [
+    "관계를 발전시키기 위한 구체적 행동 1",
+    "관계를 발전시키기 위한 구체적 행동 2",
+    "관계를 발전시키기 위한 구체적 행동 3"
+  ],
+  "footerTags": ["#행운의타이밍", "#확신", "#설렘", "#소통", "#인연"]
+}
 
-4. **섹션 2: 정밀 운세 (Love Fortune)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">${typeLabel} 맞춤 운세</h3>
-   - <div class="report-text"> 내부에 상황별 분석 내용을 작성하세요.
-     - (솔로: 인연의 특징 / 커플: 속마음 / 재회: 연락운 등 상황에 맞게 3-4개 항목 작성)
-
-5. **섹션 3: 조언 및 키워드 (Action Plan)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">조언</h3>
-   - <ul class="info-list">를 사용하여 구체적인 행동 지침 3가지를 리스트로 작성하세요.
-   - 리스트 하단에 <div class="keyword-list">를 만들고 5개의 행운 키워드를 <span class="keyword-tag">#키워드</span>로 넣으세요.
-
-
-### 🚫 절대 규칙
-1. 모든 마크다운(**, # 등) 사용 금지. 오직 순수 HTML 태그만 출력.
-2. 한자(Hanja) 사용 금지.
-3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}.섹션 제목도 영어로 작성해줘.
-4. 탭 이동 기능 없이 모든 .report-card에 .active 클래스를 부여하고 display: block으로 출력하세요.
-
-[데이터]
-상황: ${typeLabel} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
+### [규칙]
+1. 마크다운(\`\`\`) 없이 순수 JSON 텍스트만 출력.
+2. 한자 사용 금지, 연애 심리에 특화된 따뜻한 어조 유지.
+3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}.
 `;
         const result = await fetchGeminiAnalysis(lovePrompt);
         const todayDate = await DateService.getTodayDate();
@@ -315,16 +315,16 @@ export default function TarotLovePage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
-    const ResultComponent = useCallback(() => {
-      return <ViewTarotResult cardPicked={cardPicked} />;
-    }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
-  
-    return (
-      <AnalysisStepContainer
-        guideContent={renderContent}
-        loadingContent={<TarotLoading />}
-        resultComponent={() => <ResultComponent />}
-        loadingTime={0}
-      />
-    );
-  }
+  const ResultComponent = useCallback(() => {
+    return <ViewTarotResult cardPicked={cardPicked} />;
+  }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
+
+  return (
+    <AnalysisStepContainer
+      guideContent={renderContent}
+      loadingContent={<TarotLoading />}
+      resultComponent={() => <ResultComponent />}
+      loadingTime={0}
+    />
+  );
+}

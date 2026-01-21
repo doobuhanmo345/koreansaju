@@ -49,44 +49,42 @@ export default function TarotCounselingPage() {
       setFlippedIdx(null); // 초기화
 
       try {
-        const counselingPrompt = `
-당신은 공감 능력이 뛰어난 심리 상담가이자 타로 마스터입니다. 제공된 CSS 클래스를 사용하여 사용자의 지친 마음을 어루만지는 따뜻한 심리 리포트를 작성하세요. 
-이 리포트는 모든 내용을 한 페이지에 순차적으로 보여주는 '전체 보기' 방식입니다.
+const counselingPrompt = `
+당신은 공감 능력이 뛰어난 심리 상담가이자 타로 마스터입니다. 
+다음 데이터를 바탕으로 사용자의 마음을 어루만지는 심리 리포트를 작성하세요.
+반드시 아래의 **JSON 구조**로만 응답하세요.
 
-### 🏗️ 리포트 구조 (필수)
-1. 전체를 <div class="report-container">로 감싸세요.
+### [데이터]
+- 고민내용: ${userQuestion}
+- 카드: ${pickedCard.kor} (${pickedCard.name})
+- 키워드: ${pickedCard.keyword}
 
-2. **인트로 영역**:
-   - <h2 class="section-title-h2">${language === 'ko' ? '고민 상담' : 'Tarot Counseling'}</h2>
-   - <p class="report-text">"${userQuestion}"</p>
+### [JSON 구조 (필수)]
+{
+  "title": "${language === 'ko' ? '마음 상담 리포트' : 'Psychological Report'}",
+  "subTitle": "${userQuestion}",
+  "cardName": "${pickedCard.kor} (${pickedCard.name})",
+  "tags": ["#힐링", "#공감", "#마음챙김"],
+  "description": "선택된 카드(${pickedCard.kor})가 현재 사용자의 내면 상태에 대해 들려주는 따뜻한 메시지를 작성하세요. (선택된 카드 해석 섹션)",
+  "analysisTitle": "현재 상황 분석 (Deep Counseling)",
+  "analysisList": [
+    "사용자의 고민 상황에 깊이 공감하는 내용",
+    "카드의 상징을 통해 본 현재 심리적 어려움 분석",
+    "변화를 위해 내면에서 찾아야 할 긍정적인 통찰"
+  ],
+  "adviceTitle": "마음을 위한 실천 지침 (Healing Plan)",
+  "adviceList": [
+    "오늘 바로 실천할 수 있는 마음 회복 행동 1",
+    "오늘 바로 실천할 수 있는 마음 회복 행동 2",
+    "오늘 바로 실천할 수 있는 마음 회복 행동 3"
+  ],
+  "footerTags": ["#자존감", "#회복", "#안정", "#위로", "#희망"]
+}
 
-3. **섹션 1: 마음의 거울 (Card Message)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">선택된 : ${pickedCard.kor} (${pickedCard.name})</h3>
-   - <div class="report-keyword"> 힐링 키워드 3개를 #해시태그 형식으로 나열.
-   - <p class="report-text">현재 고민 상황에서 이 카드가 당신의 내면(심리상태)에 대해 어떤 이야기를 들려주는지 따뜻하게 설명하세요.</p>
-
-4. **섹션 2: 당신의 상황 (Deep Counseling)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">현재 상황</h3>
-   - <div class="report-text"> 내부에 사용자의 고민 상황에 깊이 공감하는 내용과 카드의 상징을 연결한 정밀 분석을 작성하세요.
-     - 사용자의 아픔을 먼저 보듬고, 변화를 위한 긍정적인 통찰을 3-4개 문단으로 나누어 제시하세요.
-
-5. **섹션 3: 해결 방안 (Healing Plan)**
-   - <div class="report-card active"> 내부에 작성.
-   - <h3 class="section-title-h3">마음을 위한 실천 지침</h3>
-   - <ul class="info-list">를 사용하여 마음의 회복을 위한 구체적인 행동 지침 3가지를 작성하세요.
-   - 리스트 하단에 <div class="keyword-list">를 만들고 5개의 마음 위로 키워드를 <span class="keyword-tag">#키워드</span>로 넣으세요. (설명 문구 절대 금지)
-
-### 🚫 절대 규칙
-1. 모든 마크다운(**, # 등) 사용 금지. 오직 순수 HTML 태그만 출력.
-2. 한자(Hanja) 사용 금지.
-3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}.섹션 제목도 영어로 작성해줘.
-4. 탭 이동 기능 없이 모든 .report-card에 .active 클래스를 부여하고 display: block으로 출력하세요.
-5. 어조: 매우 따뜻하고 다정하며, 내담자를 존중하는 전문 상담사의 어조 유지.
-
-[데이터]
-고민내용: ${userQuestion} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
+### [규칙]
+1. 마크다운(\`\`\`) 없이 순수 JSON 텍스트만 출력.
+2. 한자 사용 금지, 어조는 매우 다정하고 전문적이어야 함.
+3. 답변 언어: ${language === 'ko' ? '한국어' : 'English'}.
 `;
         const result = await fetchGeminiAnalysis(counselingPrompt);
         const todayDate = await DateService.getTodayDate();

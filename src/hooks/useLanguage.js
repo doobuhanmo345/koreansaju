@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import useLocalStorage from './useLocalStorage';
-import { log } from 'firebase/firestore/pipelines';
+
 
 export function useLanguageLogic() {
-  console.log(localStorage.getItem('userLanguage'));
+
   const determineDefaultLanguage = () => {
     try {
       const savedRaw = localStorage.getItem('userLanguage');
