@@ -206,7 +206,7 @@ export default function AdminPage() {
               {[
                 { key: 'ZApiAnalysis', label: '기본 사주 분석', color: 'text-blue-500' },
                 { key: 'ZLastDaily', label: '일일 운세 결과', color: 'text-amber-500' },
-                { key: 'ZLastNewYear', label: '신년 운세 결과', color: 'text-rose-500' },
+                { key: 'ZNewYear', label: '신년 운세 결과', color: 'text-rose-500' },
                 { key: 'ZCookie', label: '포춘 쿠키', color: 'text-emerald-500' },
               ].map((item) => {
                 const hasData = !!userData?.usageHistory?.[item.key]; // 데이터 존재 여부 확인

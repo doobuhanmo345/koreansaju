@@ -184,7 +184,7 @@ export default function BeforeLogin() {
               // 요구하신 Z 필드명으로 수정
               usageHistory: userData?.usageHistory || {
                 ZLastDaily: null,
-                ZLastNewYear: null,
+                ZNewYear: null,
                 ZApiAnalysis: null,
                 ZWealthAnalysis: null,
                 ZMatchAnalysis: null,

@@ -56,9 +56,9 @@ export function AuthContextProvider({ children }) {
         checkSajuMatch(hist.ZApiAnalysis?.saju, currentSaju)
       ),
       isYearDone: !!(
-        String(hist.ZLastNewYear?.year) === nextYear &&
-        hist.ZLastNewYear?.language === language &&
-        checkSajuMatch(hist.ZLastNewYear?.saju, currentSaju)
+        String(hist.ZNewYear?.year) === nextYear &&
+        hist.ZtNewYear?.language === language &&
+        checkSajuMatch(hist.ZNewYear?.saju, currentSaju)
       ),
       isDailyDone: !!(
         hist.ZLastDaily?.date === todayStr &&
@@ -135,7 +135,7 @@ export function AuthContextProvider({ children }) {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             usageHistory: {
-              ZLastNewYear: null,
+              ZNewYear: null,
               ZLastDaily: null,
               ZCookie: null,
               ZApiAnalysis: null,
