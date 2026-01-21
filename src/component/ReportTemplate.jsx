@@ -30,7 +30,6 @@ const ReportTemplate = ({}) => {
   };
 
   const data = parseAiResponse(aiResult);
-  console.log(aiResult, data);
 
   return (
     <>

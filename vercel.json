@@ -1,18 +1,8 @@
 {
-  "version": 2,
-  "public": true,
   "rewrites": [
     {
-      "source": "/ad",
-      "destination": "/"
-    },
-    {
-      "source": "/interview",
-      "destination": "/"
-    },
-    {
-      "source": "/date",
-      "destination": "/"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
