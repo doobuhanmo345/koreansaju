@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import TarotLoading from '../component/TarotLoading';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import { useAuthContext } from '../context/useAuthContext';
@@ -108,7 +108,7 @@ export default function TarotMoneyPage() {
 분야: ${categoryLabel} / 카드: ${pickedCard.kor} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(moneyPrompt);
-       const todayDate = await DateService.getTodayDate();
+        const todayDate = await DateService.getTodayDate();
 
         await setDoc(
           doc(db, 'users', user.uid),
@@ -128,7 +128,7 @@ export default function TarotMoneyPage() {
           { merge: true },
         );
 
-         setEditCount((prev) => prev + 1);
+        setEditCount((prev) => prev + 1);
         setAiResult(result);
         onStart();
       } catch (e) {
@@ -288,12 +288,16 @@ export default function TarotMoneyPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
-  return (
-    <AnalysisStepContainer
-      guideContent={renderContent}
-      loadingContent={<TarotLoading cardPicked={cardPicked} />}
-      resultComponent={() => <ViewTarotResult cardPicked={cardPicked} />}
-      loadingTime={0}
-    />
-  );
-}
+    const ResultComponent = useCallback(() => {
+      return <ViewTarotResult cardPicked={cardPicked} />;
+    }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
+  
+    return (
+      <AnalysisStepContainer
+        guideContent={tarotContent}
+        loadingContent={<TarotLoading />}
+        resultComponent={() => <ResultComponent />}
+        loadingTime={0}
+      />
+    );
+  }

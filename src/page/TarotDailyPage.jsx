@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewTarotResult from '../component/ViewTarotResult';
 import { useAuthContext } from '../context/useAuthContext';
@@ -90,8 +90,9 @@ export default function TarotDailyPage() {
 카드: ${pickedCard.kor} / 원문명: ${pickedCard.name} / 키워드: ${pickedCard.keyword}
 `;
         const result = await fetchGeminiAnalysis(tarotPrompt);
-        
-const todayDate = await DateService.getTodayDate();
+
+        const todayDate = await DateService.getTodayDate();
+
         await setDoc(
           doc(db, 'users', user.uid),
           {
@@ -239,12 +240,15 @@ const todayDate = await DateService.getTodayDate();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
+  const ResultComponent = useCallback(() => {
+    return <ViewTarotResult cardPicked={cardPicked} />;
+  }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
 
   return (
     <AnalysisStepContainer
       guideContent={tarotContent}
       loadingContent={<TarotLoading />}
-      resultComponent={() => <ViewTarotResult cardPicked={cardPicked} />}
+      resultComponent={() => <ResultComponent />}
       loadingTime={0}
     />
   );

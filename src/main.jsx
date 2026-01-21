@@ -10,7 +10,6 @@ import { LoadingProvider, useLoading } from './context/useLoadingContext';
 import OpenInBrowserPage from './component/OpenInBrowerPage';
 import Test from './Test';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SplashScreen from './page/SplashScreen';
 
 // 🔥 모든 페이지를 lazy loading으로 변경
 const SajuExp = lazy(() => import('./page/SajuExp'));
@@ -19,6 +18,7 @@ const AdminPage = lazy(() => import('./page/AdminPage'));
 const ProtectedRoute = lazy(() => import('./routes/ProtectedRoute'));
 const ApplySaju = lazy(() => import('./page/ApplySaju'));
 const ConsultantDashboard = lazy(() => import('./page/ConsultantDashboard'));
+const SplashScreen = lazy(() => import('./page/SplashScreen'));
 const BeforeLogin = lazy(() => import('./page/BeforeLogin'));
 const MenuBar = lazy(() => import('./component/MenuBar'));
 const LoadingPage = lazy(() => import('./page/LoadingPage'));
@@ -66,7 +66,7 @@ const RootComponent = () => {
   if (isSpecialPage) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950">
-        <Suspense fallback={<SplashScreen />}>
+        <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/ad" element={<Ad />} />
             <Route path="/sazatalkadkr" element={<SazaTalkAdKr />} />
@@ -89,7 +89,9 @@ const RootComponent = () => {
 
   if (loadingUser) {
     return (
-        <SplashScreen />  
+      <Suspense fallback={<LoadingFallback />}>
+        <SplashScreen />
+      </Suspense>
     );
   }
 
@@ -97,7 +99,7 @@ const RootComponent = () => {
   if (!isAdPage && !userData?.birthDate) {
     return (
       <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
-        <Suspense fallback={<SplashScreen/>}>
+        <Suspense fallback={<LoadingFallback />}>
           <BeforeLogin />
         </Suspense>
       </div>
@@ -112,7 +114,7 @@ const RootComponent = () => {
       <div className="pb-24">
         <NavBar />
 
-        <Suspense fallback={<SplashScreen />}>
+        <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
               <Route path="/editprompt" element={<EditPrompt />} />

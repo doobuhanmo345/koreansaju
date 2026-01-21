@@ -189,8 +189,7 @@ const NewYearAdKr = () => {
     const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
 
     try {
-      // 4. 프롬프트 생성 (요청하신 호칭 및 사주 텍스트 반영)
-      // --- [3. 프롬프트 생성: 당신이 주신 로직 그대로 실행] ---
+  
       const dbRef = ref(database);
       const [basicSnap, strictSnap, yearSnap] = await Promise.all([
         get(child(dbRef, 'prompt/new_year_basic')),
@@ -222,9 +221,7 @@ const NewYearAdKr = () => {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-      // --- [프롬프트 생성 로직 끝] ---
-      // 5. API 호출 및 DB 업데이트 (ZLastNewYear 필드 사용)
-
+    
       const result = await fetchGeminiAnalysis(fullPrompt);
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
       const docId = guestId || user?.uid;

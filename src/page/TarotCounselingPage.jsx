@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewTarotResult from '../component/ViewTarotResult';
 import { useAuthContext } from '../context/useAuthContext';
@@ -271,11 +271,15 @@ export default function TarotCounselingPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading]);
+  const ResultComponent = useCallback(() => {
+    return <ViewTarotResult cardPicked={cardPicked} />;
+  }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
+
   return (
     <AnalysisStepContainer
-      guideContent={renderContent}
+      guideContent={tarotContent}
       loadingContent={<TarotLoading />}
-      resultComponent={() => <ViewTarotResult cardPicked={cardPicked} />}
+      resultComponent={() => <ResultComponent />}
       loadingTime={0}
     />
   );

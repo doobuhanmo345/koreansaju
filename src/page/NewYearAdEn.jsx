@@ -222,8 +222,7 @@ const NewYearAdEn = () => {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-      // --- [프롬프트 생성 로직 끝] ---
-      // 5. API 호출 및 DB 업데이트 (ZLastNewYear 필드 사용)
+
 
       const result = await fetchGeminiAnalysis(fullPrompt);
 
