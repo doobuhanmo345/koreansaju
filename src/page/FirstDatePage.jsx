@@ -140,7 +140,7 @@ export default function FirstDatepage() {
     if (selectedDate) {
       const timeUnknown = true;
       const result = calculateSaju(selDate, timeUnknown);
-      setSelectedDateSaju(saju);
+      setSelectedDateSaju(result);
     }
   }, [selectedDate, selDate]);
 
@@ -208,10 +208,7 @@ export default function FirstDatepage() {
         return foundOption ? foundOption.prompt : null;
       });
 
-      const combined =
-       
-        '이 날 만날 사람은 ' +
-        updatedPrompts.filter(Boolean).join(', ');
+      const combined = '이 날 만날 사람은 ' + updatedPrompts.filter(Boolean).join(', ');
       setQuestion(combined);
 
       return newSelections;
@@ -220,7 +217,7 @@ export default function FirstDatepage() {
 
   const datePickerSection = useCallback(() => {
     const today = new Date();
-
+    
     return (
       <div className="w-full max-w-md mx-auto py-8">
         <div className="mb-6">

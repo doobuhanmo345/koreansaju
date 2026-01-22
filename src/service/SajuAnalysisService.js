@@ -7,6 +7,7 @@ import { fetchGeminiAnalysis } from '../api/gemini';
 import { createPromptForGemini } from '../utils/sajuLogic';
 import { getPillars } from '../utils/sajuCalculator';
 import { DateService } from '../utils/dateService';
+import { useAuthContext } from '../context/useAuthContext';
 export const getPromptFromDB = async (path) => {
   try {
     const pathName = `prompt/${path}`;
@@ -191,6 +192,10 @@ class SajuAnalysisService {
         const vars = buildPromptVars(prompts, params, this);
         fullPrompt = this.replaceVariables(prompts[promptPaths[0]], vars);
       }
+      if (true || this.user?.email === 'doobuhanmo3@gmail.com') {
+        console.log(fullPrompt);
+      }
+      console.log(this.userData);
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -637,16 +642,16 @@ class AnalysisPresets {
           today = new Date(p.selectedDate);
         }
 
-        const todayPillars = getPillars(today);
         const additionalPrompt = p.promptAdd;
         const userSajuText = `${p.saju.sky3}${p.saju.grd3}년 ${p.saju.sky2}${p.saju.grd2}월 ${p.saju.sky1}${p.saju.grd1}일 ${p.saju.sky0}${p.saju.grd0}시`;
-        const todaySajuText = `${p.sajuDate.sky3}${p.sajuDate.grd3}년 ${p.sajuDate.sky2}${p.sajuDate.grd2}월 ${p.sajuDate.sky1}${p.sajuDate.grd1}일`;
+        const todaySajuText = selectedDateSaju;
 
         return {
           '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
           '{{DAILY_S_PROMPT}}': prompts[`prompt/daily_s_${p.language}`],
           '{{gender}}': p.gender,
           '{{userSajuText}}': userSajuText,
+          '{{todayDate}}':today,
           '{{todaySajuText}}': todaySajuText,
           '{{displayName}}': service.getDisplayName(),
           '{{question}}': p.question || '', // 질문 추가
