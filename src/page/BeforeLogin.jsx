@@ -17,7 +17,8 @@ import FourPillarVis from '../component/FourPillarVis';
 export default function BeforeLogin() {
   const { user, userData, login } = useAuthContext();
   const { language, setLanguage } = useLanguage();
-
+  
+  const [isSaving, setIsSaving] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [step, setStep] = useState(1);
   const [gender, setGender] = useState('');
@@ -114,11 +115,25 @@ export default function BeforeLogin() {
   // [데이터 무결성: 요구하신 Z 필드명 정확히 반영]
   const [tryLogin, setTryLogin] = useState(false);
 
-  const hasId = async () => {
-    // 상태값 대신 로컬 스토리지를 사용해 기록을 남깁니다.
-    setTryLogin(true);
-    login();
-  };
+const hasId = async () => {
+  setIsAnalyzing(true); // 즉시 분석 중 상태로 변경
+  setTryLogin(true);
+  try {
+    await login();
+  } catch (error) {
+    setIsAnalyzing(false); // 에러 발생 시 해제
+    console.error(error);
+  }
+};
+const handleFinalLogin = async () => {
+  setIsAnalyzing(true); // 즉시 분석 중 상태로 변경
+  try {
+    await login();
+  } catch (error) {
+    setIsAnalyzing(false);
+    console.error(error);
+  }
+};
   useEffect(() => {
     if (user && userData?.birthDate) {
       // CASE 1: 기존 회원
@@ -263,7 +278,7 @@ export default function BeforeLogin() {
     !birthData.day ||
     (!timeUnknown && (!birthData.hour || !birthData.minute));
   // 1. 기존의 useState와 useEffect([step]) 로직을 삭제합니다.
-  const [isSaving, setIsSaving] = useState(false);
+
   // 2. useMemo를 사용하여 입력값이 변경될 때만 계산하도록 설정합니다.
   const sajuData = useMemo(() => {
     // 필수 입력값(연, 월, 일, 성별)이 없으면 계산하지 않음
@@ -476,6 +491,28 @@ export default function BeforeLogin() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 tracking-tight font-light">
+      {/* 렉 방지용 분석 중 오버레이 */}
+      {isAnalyzing && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="space-y-6 text-center">
+            {/* 사자사주 로고 또는 움직이는 아이콘 */}
+            <div className="relative mx-auto w-20 h-20">
+              <div className="absolute inset-0 bg-[#3B82F6] opacity-20 rounded-full animate-ping" />
+              <div className="relative flex items-center justify-center w-full h-full bg-white dark:bg-slate-900 rounded-3xl shadow-xl">
+                <SparklesIcon className="w-10 h-10 text-[#3B82F6] animate-pulse" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-black text-slate-800 dark:text-white">
+                {language === 'ko' ? '로그인 중입니다' : 'Login...'}
+              </h2>
+              <p className="text-sm text-slate-500 animate-pulse">
+                {language === 'ko' ? '잠시만 기다려주세요' : 'Please wait a moment'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-slate-100 dark:border-slate-800">
         {/* Progress Bar */}
         <div className="flex items-center justify-between w-full mb-6 px-2">

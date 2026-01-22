@@ -22,7 +22,11 @@ export function AuthContextProvider({ children }) {
 
   // 1️⃣ 일주 이미지 경로 계산
   const iljuImagePath = useMemo(() => {
-    if (!userData || !userData.saju || !userData.birthDate) return '/images/ilju/default.png';
+    // [보안/에러 방지] 함수 초기화 여부와 데이터 존재 여부를 동시에 체크
+    if (!userData || !userData.saju || !userData.birthDate || typeof calculateSaju !== 'function') {
+      return '/images/ilju/default.png';
+    }
+
     try {
       const data = calculateSaju(
         userData.birthDate,
@@ -30,17 +34,23 @@ export function AuthContextProvider({ children }) {
         userData.isTimeUnknown,
         language,
       );
-      const safeIlju = data?.sky1 ? getRomanizedIlju(data.sky1 + data.grd1) : 'gapja';
+
+      const safeIlju =
+        data?.sky1 && typeof getRomanizedIlju === 'function'
+          ? getRomanizedIlju(data.sky1 + data.grd1)
+          : 'gapja';
+
       const safeGender = userData.gender ? userData.gender.toLowerCase() : 'male';
       return `/images/ilju/${safeIlju}_${safeGender}.png`;
     } catch (e) {
+      console.error('Ilju image path error:', e);
       return '/images/ilju/default.png';
     }
   }, [userData, language]);
 
-  // 2️⃣ 서비스 이용 상태 계산 (이전 코드의 중복 로직 제거)
+  // 2️⃣ 서비스 이용 상태 계산
   const status = useMemo(() => {
-    if (!userData)
+    if (!userData || typeof checkSajuMatch !== 'function')
       return { isMainDone: false, isYearDone: false, isDailyDone: false, isCookieDone: false };
 
     const todayStr = new Date().toLocaleDateString('en-CA');
@@ -57,7 +67,7 @@ export function AuthContextProvider({ children }) {
       ),
       isYearDone: !!(
         String(hist.ZNewYear?.year) === nextYear &&
-        hist.ZtNewYear?.language === language &&
+        hist.ZNewYear?.language === language &&
         checkSajuMatch(hist.ZNewYear?.saju, currentSaju)
       ),
       isDailyDone: !!(
@@ -93,14 +103,14 @@ export function AuthContextProvider({ children }) {
     return () => unsubscribe?.();
   }, []);
 
-  // 4️⃣ 데이터 실시간 동기화 및 로그인 업데이트
+  // 4️⃣ 데이터 실시간 동기화 및 로그인 날짜/신규유저 업데이트
   useEffect(() => {
     if (!user) return;
 
     const userDocRef = doc(db, 'users', user.uid);
     const todayStr = new Date().toLocaleDateString('en-CA');
 
-    // [A] 실시간 데이터 감시 (순수하게 읽기만 수행)
+    // [A] 실시간 데이터 감시 (순수하게 읽기만 수행하여 무한루프 방지)
     const unsubscribeSnapshot = onSnapshot(
       userDocRef,
       (docSnap) => {
@@ -110,17 +120,19 @@ export function AuthContextProvider({ children }) {
         setLoadingUser(false);
       },
       (error) => {
-        console.error(error);
+        console.error('Firestore Snapshot Error:', error);
         setLoadingUser(false);
       },
     );
 
-    // [B] 로그인 날짜 업데이트 (별도의 비동기 함수로 1회성 실행)
-    const updateLoginStatus = async () => {
+    // [B] 로그인 날짜 업데이트 및 초기 데이터 생성 (비동기로 1회 실행)
+    const initializeUserData = async () => {
       try {
         const docSnap = await getDoc(userDocRef);
+
         if (docSnap.exists()) {
           const data = docSnap.data();
+          // 날짜가 다를 때만 업데이트 (깜빡임 최소화)
           if (data.lastLoginDate !== todayStr) {
             await updateDoc(userDocRef, {
               lastLoginDate: todayStr,
@@ -129,7 +141,7 @@ export function AuthContextProvider({ children }) {
             });
           }
         } else {
-          // 신규 유저 생성 로직
+          // 신규 유저 초기 생성
           const initialData = {
             uid: user.uid,
             email: user.email,
@@ -145,21 +157,27 @@ export function AuthContextProvider({ children }) {
             saju: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            usageHistory: { ZtNewYear: null, ZLastDaily: null, ZCookie: null, ZApiAnalysis: null },
+            usageHistory: {
+              ZNewYear: null,
+              ZLastDaily: null,
+              ZCookie: null,
+              ZApiAnalysis: null,
+            },
             question_history: [],
             dailyUsage: {},
           };
           await setDoc(userDocRef, initialData);
         }
-      } catch (err) {
-        console.error('Login update error:', err);
+      } catch (error) {
+        console.error('User Initialization Error:', error);
       }
     };
 
-    updateLoginStatus();
+    initializeUserData();
 
     return () => unsubscribeSnapshot?.();
-  }, [user]); // user가 바뀔 때만 실행
+  }, [user]);
+
   const updateProfileData = async (newData) => {
     if (!user) return;
     const userDocRef = doc(db, 'users', user.uid);
