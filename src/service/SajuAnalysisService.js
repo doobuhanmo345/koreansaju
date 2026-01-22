@@ -149,6 +149,7 @@ class SajuAnalysisService {
 
     try {
       const usageData = this.userData?.usageHistory || {};
+      const editCount = this.userData?.editCount;
 
       // 캐시 체크
       if (cacheKey && usageData[cacheKey]) {
@@ -163,13 +164,26 @@ class SajuAnalysisService {
           return cached.result;
         }
       }
+      // [디버깅 추가] 현재 체크 로직에 영향을 주는 모든 변수를 출력합니다.
+      console.group('🔍 사용량 체크 디버깅');
+      console.log('1. 체크 스킵 여부 (skipUsageCheck):', skipUsageCheck);
+      console.log('2. 게스트 모드 여부 (isGuestMode):', isGuestMode);
+      console.log('3. 현재 편집 횟수 (usageData.editCount):', editCount);
+      console.log('4. 최대 허용 횟수 (this.maxEditCount):', this.maxEditCount);
+      console.log(
+        '5. 최종 판단 - 체크 수행 여부:',
+        !skipUsageCheck && !isGuestMode ? '✅ 수행함' : '❌ 건너뜀',
+      );
+      console.groupEnd();
 
-      // 사용량 체크
+      // 기존 로직 시작
       if (!skipUsageCheck && !isGuestMode) {
-        const currentCount = usageData.editCount || 0;
+        const currentCount = editCount || 0;
         if (currentCount >= this.maxEditCount) {
           this.setLoading?.(false);
           alert(this.uiText?.limitReached?.[this.language] || 'Limit reached');
+          // 페이지 새로고침 (가장 확실하게 상태 초기화)
+          window.location.reload();
           return null;
         }
       }

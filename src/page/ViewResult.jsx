@@ -57,6 +57,7 @@ export default function ViewResult({}) {
   }, [pureHtml]); // pureHtml이 바뀔 때마다 실행
 
   if (loading) return <>로딩중</>;
+  console.log(aiResult)
 
   return (
     <>
