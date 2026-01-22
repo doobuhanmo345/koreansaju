@@ -100,13 +100,27 @@ export function AuthContextProvider({ children }) {
     const userDocRef = doc(db, 'users', user.uid);
     const todayStr = new Date().toLocaleDateString('en-CA');
 
-    // [중요] 로그인 날짜 업데이트는 스냅샷 외부에서 "한 번만" 실행
-    const checkAndUpdateLogin = async () => {
+    // [A] 실시간 데이터 감시 (순수하게 읽기만 수행)
+    const unsubscribeSnapshot = onSnapshot(
+      userDocRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+        setLoadingUser(false);
+      },
+      (error) => {
+        console.error(error);
+        setLoadingUser(false);
+      },
+    );
+
+    // [B] 로그인 날짜 업데이트 (별도의 비동기 함수로 1회성 실행)
+    const updateLoginStatus = async () => {
       try {
         const docSnap = await getDoc(userDocRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          // 날짜가 다를 때만 업데이트하여 불필요한 쓰기 방지
           if (data.lastLoginDate !== todayStr) {
             await updateDoc(userDocRef, {
               lastLoginDate: todayStr,
@@ -115,7 +129,7 @@ export function AuthContextProvider({ children }) {
             });
           }
         } else {
-          // 신규 유저 초기 생성 로직 (기존 코드 유지)
+          // 신규 유저 생성 로직
           const initialData = {
             uid: user.uid,
             email: user.email,
@@ -131,37 +145,21 @@ export function AuthContextProvider({ children }) {
             saju: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            usageHistory: { ZNewYear: null, ZLastDaily: null, ZCookie: null, ZApiAnalysis: null },
+            usageHistory: { ZtNewYear: null, ZLastDaily: null, ZCookie: null, ZApiAnalysis: null },
             question_history: [],
             dailyUsage: {},
           };
           await setDoc(userDocRef, initialData);
         }
-      } catch (error) {
-        console.error('Login update error:', error);
+      } catch (err) {
+        console.error('Login update error:', err);
       }
     };
 
-    checkAndUpdateLogin(); // 1회 실행
-
-    // 실시간 데이터 감시 (여기서는 setUserData만 수행)
-    const unsubscribeSnapshot = onSnapshot(
-      userDocRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        }
-        setLoadingUser(false);
-      },
-      (error) => {
-        console.error(error);
-        setLoadingUser(false);
-      },
-    );
+    updateLoginStatus();
 
     return () => unsubscribeSnapshot?.();
-  }, [user]);
-
+  }, [user]); // user가 바뀔 때만 실행
   const updateProfileData = async (newData) => {
     if (!user) return;
     const userDocRef = doc(db, 'users', user.uid);
