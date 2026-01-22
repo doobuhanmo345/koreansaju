@@ -1191,7 +1191,7 @@ const handleFinalLogin = async () => {
             {/* 구글 로그인 버튼: 모바일 최적화 (텍스트 단축 & 패딩 확보) */}
             <div className="max-w-[280px] mx-auto w-full">
               <button
-                onClick={() => login()}
+                onClick={handleFinalLogin}
                 className="group w-full flex items-center justify-between p-2 bg-[#F8FBFF] dark:bg-blue-900/15 rounded-[28px] border border-[#E0EEFF] dark:border-blue-800/30 transition-all duration-300 shadow-sm active:scale-[0.96]"
               >
                 {/* 왼쪽: 로고 박스 */}

@@ -652,7 +652,7 @@ class AnalysisPresets {
           '{{question}}': p.question || '', // 질문 추가
           '{{langPrompt}}': service.langPrompt?.(service.language) || '',
           '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
-          '{{addPrompt}}': p.additionalPrompt,
+          '{{addPrompt}}': additionalPrompt,
         };
       },
 
