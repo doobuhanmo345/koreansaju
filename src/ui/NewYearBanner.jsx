@@ -27,7 +27,7 @@ const NewYearBanner = () => {
           {/* 메인 타이틀: 모바일 사이즈 최적화 */}
           <h2 className="text-lg sm:text-2xl font-light text-slate-900 leading-[1.3] tracking-tight whitespace-pre-line">
             {isKo ? '뜨겁게 타오를' : 'The Blazing 2026'} <br />
-            <span className="fofnt-serif italic font-medium text-red-600">
+            <span className="font-serif italic font-medium text-red-600">
               {isKo ? '병오년 나의 운세는?' : 'Year of the Red Horse'}
             </span>
           </h2>
