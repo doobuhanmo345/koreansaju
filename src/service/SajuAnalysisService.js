@@ -644,14 +644,14 @@ class AnalysisPresets {
 
         const additionalPrompt = p.promptAdd;
         const userSajuText = `${p.saju.sky3}${p.saju.grd3}년 ${p.saju.sky2}${p.saju.grd2}월 ${p.saju.sky1}${p.saju.grd1}일 ${p.saju.sky0}${p.saju.grd0}시`;
-        const todaySajuText = selectedDateSaju;
+        const todaySajuText = p.selectedDateSaju;
 
         return {
           '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
           '{{DAILY_S_PROMPT}}': prompts[`prompt/daily_s_${p.language}`],
           '{{gender}}': p.gender,
           '{{userSajuText}}': userSajuText,
-          '{{todayDate}}':today,
+          '{{todayDate}}': today,
           '{{todaySajuText}}': todaySajuText,
           '{{displayName}}': service.getDisplayName(),
           '{{question}}': p.question || '', // 질문 추가
