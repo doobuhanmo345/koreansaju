@@ -28,13 +28,12 @@ const ReportTemplate = ({}) => {
       }
     }
   };
-  const {language} =useLanguage()
-const isEn = language === 'en';
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const data = parseAiResponse(aiResult);
 
   return (
     <>
-      
       {true && (
         <div className="sjsj-report-container">
           {/* 헤더 */}
@@ -54,12 +53,10 @@ const isEn = language === 'en';
                 <p className="sjsj-label-main">data.year_info.one_line_label</p>
               </div>
               <div className="sjsj-grid sjsj-grid-3">
-
-                  <div  className="sjsj-premium-card">
-                    <div className="sjsj-card-title">kw.title</div>
-                    <div className="sjsj-card-desc">kw.desc</div>
-                  </div>
-           
+                <div className="sjsj-premium-card">
+                  <div className="sjsj-card-title">kw.title</div>
+                  <div className="sjsj-card-desc">kw.desc</div>
+                </div>
               </div>
             </section>
 
@@ -78,9 +75,7 @@ const isEn = language === 'en';
                       {isEn ? '🔥 Growth Keywords' : '🔥 성장의 키워드'}
                     </div>
                     <ul className="sjsj-list">
-                     
-                        <li>k</li>
-              
+                      <li>k</li>
                     </ul>
                   </div>
                   <div className="sjsj-keyword-col">
@@ -88,11 +83,9 @@ const isEn = language === 'en';
                       {isEn ? '💡 Elements to Utilize' : '💡 활용할 요소'}
                     </div>
                     <ul className="sjsj-list">
-
-                        <li>
-                          <span className="sjsj-check">✓</span> el
-                        </li>
-                  
+                      <li>
+                        <span className="sjsj-check">✓</span> el
+                      </li>
                     </ul>
                   </div>
                   <div className="sjsj-keyword-col">
@@ -100,11 +93,9 @@ const isEn = language === 'en';
                       {isEn ? '⚠️ Elements for Caution' : '⚠️ 주의할 요소'}
                     </div>
                     <ul className="sjsj-list">
-      
-                        <li>
-                          <span className="sjsj-delta">△</span> el
-                        </li>
-       
+                      <li>
+                        <span className="sjsj-delta">△</span> el
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -126,41 +117,33 @@ const isEn = language === 'en';
                   {isEn ? 'Monthly Fortune Analysis' : '월별 운세 상세 분석'}
                 </h2>
               </div>
-          
-                <div  className="sjsj-month-card">
-                  <div className="sjsj-month-header">
-                    <div className="sjsj-month-title">
-                      <h3>
-                       
-                        <span className="sjsj-sub-month">
-                          m.ganji {isEn ? '' : '월'}
-                        </span>
-                      </h3>
-                      <div className="sjsj-progress-bar">
-                        <div className="sjsj-progress-fill" style={{ width: `${100}%` }}></div>
-                      </div>
-                    </div>
-                    <div className="sjsj-star-rating">m.stars</div>
-                  </div>
-                  <div className="sjsj-month-summary-chips">
-                    <div>
-                      <span className="sjsj-check">✓</span> {isEn ? 'Focus: ' : '방향: '}{' '}
-                      m.direction
-                    </div>
-                    <div>
-                      <span className="sjsj-check">✓</span> {isEn ? 'Caution: ' : '주의: '}{' '}
-                      m.caution
-                    </div>
-                    <div>
-                      ▷ {isEn ? 'Action: ' : '활용: '} m.utilize
+
+              <div className="sjsj-month-card">
+                <div className="sjsj-month-header">
+                  <div className="sjsj-month-title">
+                    <h3>
+                      <span className="sjsj-sub-month">m.ganji {isEn ? '' : '월'}</span>
+                    </h3>
+                    <div className="sjsj-progress-bar">
+                      <div className="sjsj-progress-fill" style={{ width: `${100}%` }}></div>
                     </div>
                   </div>
-                  <p className="sjsj-long-text">m.content</p>
-                  <div className="sjsj-card-footer">
-                    <div className="sjsj-footer-msg">m.footer_msg</div>
-                  </div>
+                  <div className="sjsj-star-rating">m.stars</div>
                 </div>
-             
+                <div className="sjsj-month-summary-chips">
+                  <div>
+                    <span className="sjsj-check">✓</span> {isEn ? 'Focus: ' : '방향: '} m.direction
+                  </div>
+                  <div>
+                    <span className="sjsj-check">✓</span> {isEn ? 'Caution: ' : '주의: '} m.caution
+                  </div>
+                  <div>▷ {isEn ? 'Action: ' : '활용: '} m.utilize</div>
+                </div>
+                <p className="sjsj-long-text">m.content</p>
+                <div className="sjsj-card-footer">
+                  <div className="sjsj-footer-msg">m.footer_msg</div>
+                </div>
+              </div>
             </section>
 
             {/* 주의할 점 (마지막 섹션) */}
@@ -175,14 +158,10 @@ const isEn = language === 'en';
                     {isEn ? 'Best Months to Utilize' : '활용하면 좋은 달'}
                   </div>
                   <ul className="space-y-4 mt-4">
-                    
-                      <li  className="sjsj-check">
-                        <strong>item.month</strong>
-                        <p className="sjsj-long-text">
-                          item.reason item.tip
-                        </p>
-                      </li>
-                    
+                    <li className="sjsj-check">
+                      <strong>item.month</strong>
+                      <p className="sjsj-long-text">item.reason item.tip</p>
+                    </li>
                   </ul>
                 </div>
                 <div className="sjsj-premium-card">
@@ -190,14 +169,10 @@ const isEn = language === 'en';
                     {isEn ? 'Months to be Cautious' : '주의해야 할 달'}
                   </div>
                   <ul className="space-y-4 mt-4">
-                   
-                      <li  className="sjsj-check">
-                        <strong>item.month</strong>
-                        <p className="sjsj-long-text">
-                          item.reason item.tip
-                        </p>
-                      </li>
-                  
+                    <li className="sjsj-check">
+                      <strong>item.month</strong>
+                      <p className="sjsj-long-text">item.reason item.tip</p>
+                    </li>
                   </ul>
                 </div>
               </div>

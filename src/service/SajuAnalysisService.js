@@ -118,7 +118,7 @@ class SajuAnalysisService {
     const {
       type,
       params,
-      cacheKey = null,
+      cacheKey,
       validateCache,
       promptPaths,
       buildPromptVars,
@@ -152,29 +152,28 @@ class SajuAnalysisService {
       const editCount = this.userData?.editCount;
 
       // 캐시 체크
+      // 캐시 체크
       if (cacheKey && usageData[cacheKey]) {
         const cached = usageData[cacheKey];
         if (validateCache?.(cached, params)) {
           console.log(`✅ ${type} 캐시 사용`);
+
+          // 1. 데이터 먼저 주입
           this.setAiResult?.(cached.result);
           this.setAiAnalysis?.(cached.result);
+
+          // 2. 로딩 끄기
           this.setLoading?.(false);
           this.setLoadingType?.(null);
-          onComplete?.(cached.result);
+
+          // 3. 리액트가 aiResult를 인지할 시간을 0.1초 준 다음 페이지 전환
+          setTimeout(() => {
+            onComplete?.(cached.result);
+          }, 100);
+
           return cached.result;
         }
       }
-      // [디버깅 추가] 현재 체크 로직에 영향을 주는 모든 변수를 출력합니다.
-      console.group('🔍 사용량 체크 디버깅');
-      console.log('1. 체크 스킵 여부 (skipUsageCheck):', skipUsageCheck);
-      console.log('2. 게스트 모드 여부 (isGuestMode):', isGuestMode);
-      console.log('3. 현재 편집 횟수 (usageData.editCount):', editCount);
-      console.log('4. 최대 허용 횟수 (this.maxEditCount):', this.maxEditCount);
-      console.log(
-        '5. 최종 판단 - 체크 수행 여부:',
-        !skipUsageCheck && !isGuestMode ? '✅ 수행함' : '❌ 건너뜀',
-      );
-      console.groupEnd();
 
       // 기존 로직 시작
       if (!skipUsageCheck && !isGuestMode) {
@@ -209,7 +208,7 @@ class SajuAnalysisService {
       if (true || this.user?.email === 'doobuhanmo3@gmail.com') {
         console.log(fullPrompt);
       }
-      console.log(this.userData);
+  
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -262,7 +261,7 @@ class AnalysisPresets {
         cached.language === p.language &&
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
-        cached.result,
+        !!cached.result,
 
       customPromptBuilder: async (p, service) => {
         return await createPromptForGemini(sajuData, p.language);
@@ -403,7 +402,7 @@ class AnalysisPresets {
         cached.gender2 === p.gender2 &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
         SajuAnalysisService.compareSaju(cached.saju2, p.saju2) &&
-        cached.result,
+        !!cached.result,
 
       buildPromptVars: (prompts, p, service) => {
         const relationLabel =
@@ -473,7 +472,8 @@ class AnalysisPresets {
         cached.language === p.language &&
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
-        cached.result,
+        !!cached.result,
+       
 
       buildPromptVars: (prompts, p, service) => ({
         '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
@@ -560,13 +560,25 @@ class AnalysisPresets {
         return true;
       },
 
-      validateCache: (cached, p) =>
-        cached.date === (p.selectedDate || new Date()) &&
-        cached.language === p.language &&
-        cached.gender === p.gender &&
-        SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
-        cached.result,
+      validateCache: (cached, p) => {
+        // 날짜를 YYYY-MM-DD 스트링으로 변환해서 비교해야 함
+        const todayStr = new Date().toLocaleDateString('en-CA');
+        const targetDate = p.selectedDate
+          ? p.selectedDate instanceof Date
+            ? p.selectedDate.toLocaleDateString('en-CA')
+            : p.selectedDate
+          : todayStr;
 
+        console.log('🔍 캐시 날짜 비교:', cached.date, ' vs ', targetDate);
+
+        return (
+          cached.date === targetDate &&
+          cached.language === p.language &&
+          cached.gender === p.gender &&
+          SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
+          !!cached.result // 결과가 실제로 들어있는지 확인
+        );
+      },
       buildPromptVars: (prompts, p, service) => {
         // selectedDate가 있으면 그 날짜 사용, 없으면 오늘
         let today = new Date();
@@ -647,7 +659,7 @@ class AnalysisPresets {
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.sajuDate, p.sajuDate) &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
-        cached.result,
+        !!cached.result,
 
       buildPromptVars: (prompts, p, service) => {
         // selectedDate가 있으면 그 날짜 사용, 없으면 오늘
@@ -718,7 +730,7 @@ class AnalysisPresets {
         cached.ques2 === p.selectedSubQ &&
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
-        cached.result,
+        !!cached.result,
 
       buildPromptVars: (prompts, p, service) => {
         const qLabel = service.qTypes?.find((r) => r.id === p.selectedQ)?.label || 'General Wealth';

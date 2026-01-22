@@ -1,97 +1,57 @@
 import { reportStyle } from '../data/aiResultConstants';
 import { useLoading } from '../context/useLoadingContext';
 import { useLanguage } from '../context/useLanguageContext';
-
+import { useState, useEffect } from 'react';
 const ReportTemplateToday = ({}) => {
   const { aiResult } = useLoading();
   const { language } = useLanguage();
   const isEn = language === 'en';
 
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
   const parseAiResponse = (rawString) => {
     if (!rawString) return null;
+
+    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
+
     try {
+      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
       const cleaned = rawString
         .replace(/```json/g, '')
         .replace(/```/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
         .trim();
+
       return JSON.parse(cleaned);
     } catch (error) {
+      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
+
       try {
+        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
         const jsonMatch = rawString.match(/\{[\s\S]*\}/);
-        if (jsonMatch) return JSON.parse(jsonMatch[0]);
+        if (jsonMatch) {
+          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
+          return JSON.parse(jsonMatch[0]);
+        }
       } catch (innerError) {
+        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
         return null;
       }
+      return null;
     }
   };
-
-  const data = parseAiResponse(aiResult);
-// const data = {
-//   today: {
-//     date: '2026년 1월 22일 목요일 (형식 엄수)',
-//     score: 85, // 사용자의 사주와 오늘의 일진을 대조하여 산출한 '오늘의 운세 종합 점수' (0~100 사이의 정수)
-//     stars: '★★★★☆', // 위의 score 점수에 비례하는 시각적인 별점 표시
-//     caution: ['오늘 특별히 주의해야 할 요소 3개를 명사형으로'],
-//     action: ['오늘 운을 높이기 위해 실천할 행동 3개를 명사형으로'],
-//     analysis:
-//       '오늘의 전반적인 운의 흐름, 오행의 생극제화에 따른 길흉, 특히 유의해야 할 지점과 긍정적인 변화의 계기를 사주 명리학적으로 심층 분석하여 서술하세요. (500~700자)',
-//     summary: '오늘의 운세를 관통하는 핵심 요약 메시지 한 문장',
-//   },
-//   lucky_elements: {
-//     direction: {
-//       title: '행운의 방향 (예: 남동쪽)',
-//       desc: '해당 방향이 오늘 왜 전략적으로 중요한지 명리학적 근거를 들어 100~200자로 서술.',
-//     },
-//     color: {
-//       title: '행운의 컬러 (예: 딥 퍼플)',
-//       desc: '오늘 부족한 기운을 보강하거나 기운을 돕는 색상과 그 이유를 오행 관점에서 서술.',
-//     },
-//     keywords: {
-//       tags: ['#키워드1', '#키워드2', '#키워드3', '#키워드4', '#키워드5'],
-//       desc: '선정된 5개 키워드가 오늘 당신의 운에 어떤 긍정적 매개체가 되는지 상세 서술.',
-//     },
-//   },
-//   categories: {
-//     love: {
-//       summary: '연애운 핵심 요약',
-//       analysis:
-//         '사용자의 사주와 오늘의 기운을 대조하여 애정운, 인연운, 관계의 흐름을 상세 분석. (300~500자)',
-//     },
-//     wealth: {
-//       summary: '금전운 핵심 요약',
-//       analysis:
-//         '오늘의 재물 흐름, 투자 적기, 소비 주의점, 재운의 상승 요인을 명리학적으로 분석. (300~500자)',
-//     },
-//     career: {
-//       summary: '직장/사업운 핵심 요약',
-//       analysis:
-//         '업무 성과, 조직 내 위치, 비즈니스 결정 및 새로운 프로젝트 추진의 유리함 분석. (300~500자)',
-//     },
-//     health: {
-//       summary: '건강운 핵심 요약',
-//       analysis:
-//         '신체 기운의 강약, 특히 보강해야 할 장기나 주의할 질환을 오행의 조화 관점에서 분석. (300~500자)',
-//     },
-//     study: {
-//       summary: '학업운 핵심 요약',
-//       analysis: '집중력, 지적 탐구의 효율성, 시험이나 공부 성과에 미치는 에너지 분석. (300~500자)',
-//     },
-//   },
-//   tomorrow: {
-//     date: '2026년 1월 23일 금요일 (내일 날짜)',
-//     score: 90, // 내일의 운세 점수
-//     stars: '내일 점수에 맞는 별점',
-//     caution: ['내일 주의할 것 3개'],
-//     action: ['내일 활용할 것 3개'],
-//     analysis:
-//       '내일의 기운을 미리 진단하여, 오늘 밤부터 내일을 어떻게 준비하고 대비해야 할지 심층 분석. (500~700자)',
-//     summary: '내일을 위한 핵심 가이드 한 문장',
-//   },
-// };
-
-console.log(data,aiResult)
+  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
+  console.log(data);
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
+  console.log(data,aiResult);
   // 데이터 없으면 아무것도 안 보여줌
-  if (!data) return null;
+  if (!data) return '결과없음';
 
   return (
     <div className="sjsj-report-container">
@@ -168,7 +128,6 @@ console.log(data,aiResult)
                   <li>
                     <span className="sjsj-delta">△</span>
                     <div>
-                     
                       <strong>{data.lucky_elements.keywords.tags.join(' ')}</strong>
                       <br />
                       {data.lucky_elements.keywords.desc}
@@ -257,6 +216,6 @@ console.log(data,aiResult)
       <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
     </div>
   );
-};
+};;
 
 export default ReportTemplateToday;

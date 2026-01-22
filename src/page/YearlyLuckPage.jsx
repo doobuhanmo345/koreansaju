@@ -67,7 +67,7 @@ export default function YearlyLuckPage() {
   const handleStartClick = async (onstart) => {
     setAiResult('');
     try {
-      console.log('전달할 saju:', saju); // 디버그
+    
       await service.analyze(AnalysisPresets.newYear({ saju, gender, language }));
       onstart();
     } catch (error) {
