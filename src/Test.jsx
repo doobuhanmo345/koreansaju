@@ -6,13 +6,16 @@ import SajuReport from './test/SajuReport';
 import LoadingFourPillar from './component/LoadingFourPillar';
 import { useAuthContext } from './context/useAuthContext';
 import ReportTemplateToday from './component/ReportTemplateToday';
+import ReportTemplateDate from './component/ReportTemplateDate';
+import ReportTemplateInterview from './component/ReportTemplateInterview';
 
 export default function Test() {
   const { userData } = useAuthContext();
   const { language } = useLanguage();
   return (
     <>
-      <ReportTemplateToday />
+      <ReportTemplateInterview />
+      <ReportTemplateDate />
     </>
   );
 }

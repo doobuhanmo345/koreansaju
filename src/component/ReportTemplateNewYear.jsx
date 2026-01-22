@@ -1,4 +1,4 @@
-import { reportStyle } from '../data/aiResultConstants';
+import { reportStyleBlue } from '../data/aiResultConstants';
 import { useLoading } from '../context/useLoadingContext';
 import { useLanguage } from '../context/useLanguageContext';
 import AfterReport from './AfterReport';
@@ -204,7 +204,7 @@ const ReportTemplateNewYear = ({}) => {
               </div>
             </section>
           </div>
-          <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
+          <div dangerouslySetInnerHTML={{ __html: reportStyleBlue }} />
           <AfterReport/>
         </div>
       )}

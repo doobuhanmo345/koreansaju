@@ -1,4 +1,4 @@
-import { reportStyle } from '../data/aiResultConstants';
+import { reportStyleBlue } from '../data/aiResultConstants';
 import { useLoading } from '../context/useLoadingContext';
 import { useLanguage } from '../context/useLanguageContext';
 const ReportTemplate = ({}) => {
@@ -178,7 +178,7 @@ const ReportTemplate = ({}) => {
               </div>
             </section>
           </div>
-          <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
+          <div dangerouslySetInnerHTML={{ __html: reportStyleBlue }} />
         </div>
       )}
     </>

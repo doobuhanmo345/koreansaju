@@ -1226,6 +1226,335 @@ export const reportStyle = `
 }
  </style>
 `;
+export const reportStyleBlue = `
+<style>
+/* 사자사주 리포트 - [맑은 블루 색감 + 누락 없는 모든 클래스 통합본] */
+
+/* 1. 기본 컨테이너 - 배경 제거 및 폰트 설정 */
+.sjsj-report-container {
+  background-color: transparent; 
+  min-height: 100vh;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  color: #334155;
+  line-height: 1.7;
+  letter-spacing: -0.02em;
+}
+
+/* 2. 헤더 영역 - 맑은 블루 그라데이션 */
+
+.sjsj-header {
+  padding: 40px 10px 24px;
+  text-align: center;
+  /* PPT 느낌을 지우는 부드러운 오로라빛 그라데이션 */
+  background: radial-gradient(circle at top left, #f0f7ff 0%, transparent 40%),
+              radial-gradient(circle at top right, #f5f3ff 0%, transparent 40%);
+}
+
+.sjsj-main-title {
+  font-size: 1.85rem;
+  font-weight: 850;
+  margin-bottom: 12px;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; /* 타이틀에 그라데이션 적용 */
+}
+
+.sjsj-header-sub {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 24px 0;
+  font-weight: 500;
+}
+
+/* 3. 섹션 타이틀 - 형광펜 블루 포인트 */
+.sjsj-sub-section-title {
+  display: inline-block;
+  font-size: 1.15rem;
+  color: #1e293b;
+  margin-top: 50px;
+  margin-bottom: 24px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+  border-left: none; /* 딱딱한 선 제거 */
+  padding-left: 0;
+}
+
+.sjsj-sub-section-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 110%;
+  height: 10px;
+  background: #dbeafe;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.sjsj-main-content {
+  font-size: 1.05rem;
+  color: #475569;
+  margin: 24px 0;
+}
+
+/* 4. 배지 및 요약 */
+.sjsj-badge-summary {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  color: #2563eb;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.06);
+  cursor: pointer;
+}
+
+.sjsj-badge-highlight {
+  font-weight: 800;
+  margin-left: 6px;
+  color: #1e293b;
+}
+
+.sjsj-content-inner {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 5. 섹션 및 레이아웃 */
+.sjsj-section { margin-bottom: 64px; }
+.sjsj-section-label { text-align: center; margin-bottom: 24px; }
+
+.sjsj-subTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.sjsj-label-main {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* 6. 그리드 시스템 (반응형 유지) */
+.sjsj-grid { display: grid; gap: 20px; }
+.sjsj-grid-3 {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 24px !important;
+  width: 100% !important;
+}
+
+@media (min-width: 768px) {
+  .sjsj-grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px !important;
+  }
+}
+
+/* 7. 프리미엄 카드 - 둥근 모서리 및 블루 포인트 */
+.sjsj-premium-card {
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 32px;
+  text-align: center;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.04);
+  position: relative;
+}
+
+.sjsj-premium-card.active { border-bottom: 2px solid #2563eb; }
+
+.sjsj-card-title {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.sjsj-card-desc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* 8. 분석 및 키워드 영역 */
+.sjsj-analysis-box {
+  background-color: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.sjsj-info-banner {
+  background-color: #f0f7ff;
+  border-radius: 16px;
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #3b82f6;
+  font-weight: 600;
+  margin-bottom: 32px;
+  border: 1px solid #e0e7ff;
+}
+
+.sjsj-keyword-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .sjsj-keyword-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+.sjsj-keyword-col { padding: 0; border-left: none; }
+.sjsj-keyword-col:first-child { padding-left: 0; }
+
+.sjsj-col-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.text-fire { color: #2563eb; }
+.text-earth { color: #64748b; }
+
+.sjsj-list { list-style: none; padding: 0; margin: 0; font-size: 0.875rem; }
+.sjsj-list li { margin-bottom: 12px; display: flex; align-items: flex-start; }
+.sjsj-check { color: #2563eb; margin-right: 8px; }
+.sjsj-delta { color: #93c5fd; margin-right: 8px; }
+
+/* 9. 월별 카드 스타일 */
+.sjsj-month-card {
+  background-color: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 32px;
+  padding: 40px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.03);
+}
+
+.sjsj-month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.sjsj-month-title { display: flex; align-items: center; gap: 12px; }
+.sjsj-month-title h3 { font-size: 1.5rem; font-weight: 900; color: #0f172a; margin: 0; }
+.sjsj-sub-month { font-size: 0.9rem; color: #94a3b8; }
+
+.sjsj-progress-bar {
+  width: 120px;
+  height: 6px;
+  background-color: #f1f5f9;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.sjsj-progress-fill { width: 33%; height: 100%; background-color: #2563eb; }
+.sjsj-star-rating { font-size: 0.8rem; color: #3b82f6; font-weight: 800; }
+
+.sjsj-month-summary-chips {
+  background-color: #f8faff;
+  border: 1px solid #e0e7ff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.sjsj-long-text {
+  font-size: 0.95rem;
+  line-height: 1.9;
+  color: #334155;
+  margin-bottom: 32px;
+}
+
+.sjsj-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.sjsj-footer-msg { font-size: 0.9rem; font-weight: 800; color: #2563eb; }
+.sjsj-more-link { font-size: 0.8rem; font-weight: 700; color: #94a3b8; cursor: pointer; }
+.sjsj-more-link:hover { text-decoration: underline; color: #64748b; }
+
+.sjsj-icon { display: block; margin: 0 auto 8px; }
+
+/* 10. 리포트 잠금 및 블러 효과 */
+.sjsj-blur-container { position: relative; overflow: hidden; }
+.sjsj-blur-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to bottom, transparent, #ffffff 85%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 24px;
+}
+
+.sjsj-locked-msg {
+  background: #1e293b;
+  padding: 16px 32px;
+  border-radius: 100px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* 11. 조언 박스 - 둥글고 말랑한 감성 */
+.sjsj-advice-highlight-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background-color: #f0f7ff;
+  border: 1px solid #dbeafe;
+  padding: 28px;
+  border-radius: 24px;
+  margin: 40px 0;
+}
+
+.sjsj-advice-highlight-box::before {
+  content: '💡';
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sjsj-advice-text { margin: 0; font-size: 1.05rem !important; line-height: 1.7; color: #1e293b !important; }
+.sjsj-advice-text strong {
+  color: #2563eb;
+  font-weight: 900;
+  background: linear-gradient(to bottom, transparent 70%, #dbeafe 30%);
+}
+</style>
+`;
 export const aiSajuStyle = `<style>
 @import url('https://fonts.googleapis.com/css2?family=Song+Myung&display=swap');  
 /* =================================================== */

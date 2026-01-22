@@ -1,7 +1,8 @@
-import { reportStyle } from '../data/aiResultConstants';
+import { reportStyle, reportStyleBlue } from '../data/aiResultConstants';
 import { useLoading } from '../context/useLoadingContext';
 import { useLanguage } from '../context/useLanguageContext';
 import { useState, useEffect } from 'react';
+import AfterReport from './AfterReport';
 const ReportTemplateToday = ({}) => {
   const { aiResult } = useLoading();
   const { language } = useLanguage();
@@ -49,7 +50,7 @@ const ReportTemplateToday = ({}) => {
       }
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
-  console.log(data,aiResult);
+
   // 데이터 없으면 아무것도 안 보여줌
   if (!data) return '결과없음';
 
@@ -213,9 +214,10 @@ const ReportTemplateToday = ({}) => {
           </div>
         </section>
       </div>
-      <div dangerouslySetInnerHTML={{ __html: reportStyle }} />
+      <div dangerouslySetInnerHTML={{ __html: reportStyleBlue }} />
+      <AfterReport />
     </div>
   );
-};;
+};
 
 export default ReportTemplateToday;
