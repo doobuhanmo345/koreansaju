@@ -93,32 +93,29 @@ export function AuthContextProvider({ children }) {
     return () => unsubscribe?.();
   }, []);
 
-  // 4️⃣ 데이터 실시간 동기화 (가장 큰 병목 해결)
+  // 4️⃣ 데이터 실시간 동기화 및 로그인 업데이트
   useEffect(() => {
     if (!user) return;
 
     const userDocRef = doc(db, 'users', user.uid);
     const todayStr = new Date().toLocaleDateString('en-CA');
 
-    // [최적화] 즉시 Snapshot 연결하여 로딩 제거
-    const unsubscribeSnapshot = onSnapshot(
-      userDocRef,
-      async (docSnap) => {
+    // [중요] 로그인 날짜 업데이트는 스냅샷 외부에서 "한 번만" 실행
+    const checkAndUpdateLogin = async () => {
+      try {
+        const docSnap = await getDoc(userDocRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setUserData(data);
-          setLoadingUser(false);
-
-          // 백그라운드에서 조용히 리셋 업데이트 (화면 로딩 방해 안 함)
+          // 날짜가 다를 때만 업데이트하여 불필요한 쓰기 방지
           if (data.lastLoginDate !== todayStr) {
-            updateDoc(userDocRef, {
+            await updateDoc(userDocRef, {
               lastLoginDate: todayStr,
               editCount: 0,
               updatedAt: new Date().toISOString(),
-            }).catch(() => {});
+            });
           }
         } else {
-          // 신규 유저 생성
+          // 신규 유저 초기 생성 로직 (기존 코드 유지)
           const initialData = {
             uid: user.uid,
             email: user.email,
@@ -134,18 +131,27 @@ export function AuthContextProvider({ children }) {
             saju: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            usageHistory: {
-              ZNewYear: null,
-              ZLastDaily: null,
-              ZCookie: null,
-              ZApiAnalysis: null,
-            },
+            usageHistory: { ZNewYear: null, ZLastDaily: null, ZCookie: null, ZApiAnalysis: null },
             question_history: [],
             dailyUsage: {},
           };
           await setDoc(userDocRef, initialData);
-          setLoadingUser(false);
         }
+      } catch (error) {
+        console.error('Login update error:', error);
+      }
+    };
+
+    checkAndUpdateLogin(); // 1회 실행
+
+    // 실시간 데이터 감시 (여기서는 setUserData만 수행)
+    const unsubscribeSnapshot = onSnapshot(
+      userDocRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+        setLoadingUser(false);
       },
       (error) => {
         console.error(error);

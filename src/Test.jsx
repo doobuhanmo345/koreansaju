@@ -5,14 +5,14 @@ import { useLanguage } from './context/useLanguageContext';
 import SajuReport from './test/SajuReport';
 import LoadingFourPillar from './component/LoadingFourPillar';
 import { useAuthContext } from './context/useAuthContext';
-import ReportTemplate from './component/ReportTemplate';
+import ReportTemplateToday from './component/ReportTemplateToday';
 
 export default function Test() {
   const { userData } = useAuthContext();
   const { language } = useLanguage();
   return (
     <>
-      <ReportTemplate />
+      <ReportTemplateToday />
     </>
   );
 }

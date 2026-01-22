@@ -148,49 +148,69 @@ export default function BeforeLogin() {
   }, [user, userData, tryLogin]);
   useEffect(() => {
     const saveAndRedirect = async () => {
-      if (user?.uid && step === 3) {
-        try {
-          const userRef = doc(db, 'users', user.uid);
-          const pad = (n) => n.toString().padStart(2, '0');
-          const birthDate = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
+      // 저장 중이거나, 필수 데이터가 없거나, step이 3이 아니면 실행 안 함
+      if (isSaving || !user?.uid || step !== 3) return;
 
-          await setDoc(
-            userRef,
-            {
-              saju: saju,
-              birthDate: birthDate,
-              gender: gender,
-              isTimeUnknown: timeUnknown,
-              createdAt: userData?.createdAt || new Date(),
-              updatedAt: new Date(),
-              status: userData?.status || 'active',
-              role: userData?.role || 'user',
-              editCount: userData?.editCount || 0,
-              lastLoginDate: new Date().toLocaleDateString('en-CA'),
-              displayName: user.displayName || '',
-              email: userData?.email || user.email || '',
-              // 요구하신 Z 필드명으로 수정
-              usageHistory: userData?.usageHistory || {
-                ZLastDaily: null,
-                ZNewYear: null,
-                ZApiAnalysis: null,
-                ZWealthAnalysis: null,
-                ZMatchAnalysis: null,
-                ZCookie: null,
-              },
-              question_history: userData?.question_history || [],
+      try {
+        setIsSaving(true); // 저장 시작 (중복 실행 방지)
+
+        const userRef = doc(db, 'users', user.uid);
+        const pad = (n) => n.toString().padStart(2, '0');
+        const birthDate = `${birthData.year}-${pad(birthData.month)}-${pad(birthData.day)}T${timeUnknown ? '12' : pad(birthData.hour)}:${timeUnknown ? '00' : pad(birthData.minute)}`;
+
+        // 한국 시간 기준 오늘 날짜 구하기 (YYYY-MM-DD)
+        const todayKST = new Intl.DateTimeFormat('ko-KR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          timeZone: 'Asia/Seoul',
+        })
+          .format(new Date())
+          .replace(/\. /g, '-')
+          .replace('.', '');
+
+        // 불필요한 업데이트 방지: 이미 오늘 접속했다면 날짜 유지
+        const finalLastLogin =
+          userData?.lastLoginDate === todayKST ? userData.lastLoginDate : todayKST;
+
+        await setDoc(
+          userRef,
+          {
+            saju: saju,
+            birthDate: birthDate,
+            gender: gender,
+            isTimeUnknown: timeUnknown,
+            createdAt: userData?.createdAt || new Date(), // 기존 생성일 유지
+            updatedAt: new Date(),
+            status: userData?.status || 'active',
+            role: userData?.role || 'user',
+            editCount: userData?.editCount || 0,
+            lastLoginDate: finalLastLogin, // 계산된 날짜 적용
+            displayName: user.displayName || '',
+            email: userData?.email || user.email || '',
+            usageHistory: userData?.usageHistory || {
+              ZLastDaily: null,
+              ZNewYear: null,
+              ZApiAnalysis: null,
+              ZWealthAnalysis: null,
+              ZMatchAnalysis: null,
+              ZCookie: null,
             },
-            { merge: true },
-          );
+            question_history: userData?.question_history || [],
+          },
+          { merge: true },
+        );
 
-          window.location.replace('/');
-        } catch (err) {
-          console.error('저장 오류:', err);
-        }
+        // 저장이 확실히 끝난 후 이동
+        window.location.replace('/');
+      } catch (err) {
+        console.error('저장 오류:', err);
+        setIsSaving(false); // 에러 발생 시 재시도 가능하도록 해제
       }
     };
+
     saveAndRedirect();
-  }, [user, step]);
+  }, [user, step, isSaving]); // isSaving을 의존성에 추가하여 중복 방지 로직 완성
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [step]); // step 변수가 바뀔 때마다 실행됨
@@ -243,8 +263,7 @@ export default function BeforeLogin() {
     !birthData.day ||
     (!timeUnknown && (!birthData.hour || !birthData.minute));
   // 1. 기존의 useState와 useEffect([step]) 로직을 삭제합니다.
-  // const [sajuData, setSajuData] = useState(); <- 삭제
-
+  const [isSaving, setIsSaving] = useState(false);
   // 2. useMemo를 사용하여 입력값이 변경될 때만 계산하도록 설정합니다.
   const sajuData = useMemo(() => {
     // 필수 입력값(연, 월, 일, 성별)이 없으면 계산하지 않음
@@ -544,9 +563,8 @@ export default function BeforeLogin() {
                         )}
                       </span>
                     </h2>
-                    
 
-<style>{`
+                    <style>{`
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }

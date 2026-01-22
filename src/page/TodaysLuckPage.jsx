@@ -24,6 +24,7 @@ import { database } from '../lib/firebase';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 import DayLuckPage from './DayLuckPage';
+import ReportTemplateToday from '../component/ReportTemplateToday';
 // 1. 로딩 컴포넌트
 
 // 2. 메인 페이지 컴포넌트
@@ -184,7 +185,7 @@ export default function TodaysLuckPage() {
     <AnalysisStepContainer
       guideContent={sajuGuide}
       loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ViewResult}
+      resultComponent={ReportTemplateToday}
       loadingTime={0}
     />
   );
