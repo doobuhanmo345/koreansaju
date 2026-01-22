@@ -178,14 +178,14 @@ export default function InterviewPage() {
       try {
         await service.analyze(
           AnalysisPresets.dailySpecific({
-            saju,
-            gender,
-            language,
-            selectedDate,
-            question,
+            saju: saju,
+            gender: gender,
+            language: language,
+            selectedDate: selectedDate,
             sajuDate: selectedDateSaju,
-            type: 'interview', // 타입을 면접용으로 변경
-            promptAdd:''
+            question: question,
+            type: 'interview',
+            promptAdd: dbPrompt,
           }),
         );
         onstart();
