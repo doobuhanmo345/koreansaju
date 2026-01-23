@@ -1,10 +1,5 @@
 // 1. React Core
 import { useEffect, useState } from 'react';
-
-// 2. External Libraries (Firebase, Icons)
-import { doc, setDoc, increment } from 'firebase/firestore';
-import { ref, get, child } from 'firebase/database';
-import { database } from '../lib/firebase';
 import {
   CalendarDaysIcon,
   PencilSquareIcon,
@@ -41,10 +36,30 @@ import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
+
 export default function Match({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
   }
+  // const data = {
+  //   score: 92,//1~100사이의 궁합점수
+  //   title: '관계를 요약하는 세련된 한 문장 헤드라인',
+  //   vibe: '두 사람 사이에 흐르는 전반적인 에너지 분위기',
+  //   pros: ['관계의 구체적인 강점 1', '관계의 구체적인 강점 2'],
+  //   cons: ['주의가 필요한 지점 1', '주의가 필요한 지점 2'],
+  //   advice: '마스터가 전하는 짧고 강렬한 핵심 조언',
+  //   keywords: ['키워드1', '키워드2', '키워드3'],
+  //   matchIdentity: '은유적이고 시적인 관계의 정체성 (예: 안개 속의 등불)',
+  //   insights: {
+  //     me: '관계 내에서의 본인 사주 특징 및 기질 분석 (심층 줄글)',
+  //     target: '관계 내에서의 상대방 사주 특징 및 기질 분석 (심층 줄글)',
+  //     synergyPros: '두 사주가 만났을 때 발생하는 긍정적 시너지와 운의 상승 효과 (심층 줄글)',
+  //     synergyCons: '두 사주 사이에서 충돌하거나 조율이 필요한 에너지적 지점 (심층 줄글)',
+  //     solution: '더 나은 관계를 위해 오늘 당장 실천해야 할 구체적인 방안 (심층 줄글)',
+  //     ctaChat: "상황에 맞게 변주된 '사자와의 대화' 유도 문구 (다정하고 매력적으로)",
+  //   },
+  // };
+
   const RELATION_TYPES = [
     {
       id: 'lover',
@@ -133,8 +148,9 @@ export default function Match({}) {
   ];
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
+  const isEn = language === 'en';
   const { user, userData } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender ,saju} = userData || {};
+  const { birthDate: inputDate, isTimeUnknown, gender, saju } = userData || {};
 
   const { setEditCount, MAX_EDIT_COUNT, MAX_LIMIT, isLocked } = useUsageLimit();
 
@@ -193,10 +209,6 @@ export default function Match({}) {
     }
   }, []);
 
-  // --- Handlers ---
-  const handleStartClick = () => {
-    setStep(1);
-  };
   // 뒤로가기
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
@@ -230,42 +242,39 @@ export default function Match({}) {
     }
   };
 
- 
- const service = new SajuAnalysisService({
-   user,
-   userData,
-   language,
-   maxEditCount: MAX_EDIT_COUNT,
-   uiText: UI_TEXT,
-   langPrompt,
-   hanja,
-   setEditCount,
-   setLoading,
-   setAiResult,
- });
+  const service = new SajuAnalysisService({
+    user,
+    userData,
+    language,
+    maxEditCount: MAX_EDIT_COUNT,
+    uiText: UI_TEXT,
+    langPrompt,
+    hanja,
+    setEditCount,
+    setLoading,
+    setAiResult,
+  });
 
- const handleMatch = async () => {
-   setAiResult('');
-   try {
-     await service.analyze(
-       AnalysisPresets.match({
-         saju,
-         saju2,
-         gender,
-         gender2,
-         inputDate,
-         inputDate2,
-         relationship:selectedRel,
-         language,
-       }),
-       
-     );
-    setStep(4);
-   } catch (error) {
-     console.error(error);
-   }
- };
-
+  const handleMatch = async () => {
+    setAiResult('');
+    try {
+      await service.analyze(
+        AnalysisPresets.match({
+          saju,
+          saju2,
+          gender,
+          gender2,
+          inputDate,
+          inputDate2,
+          relationship: selectedRel,
+          language,
+        }),
+      );
+      setStep(4);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
   const checkSajuEqual = (source, target) => {
@@ -283,6 +292,51 @@ export default function Match({}) {
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = (loading && !compaEnergy2.isConsuming) || !user || loading;
   const isDisabled2 = !isAnalysisDone && isLocked;
+  //json
+
+  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
+  const parseAiResponse = (rawString) => {
+    if (!rawString) return null;
+
+    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
+
+    try {
+      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
+      const cleaned = rawString
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
+        .trim();
+
+      return JSON.parse(cleaned);
+    } catch (error) {
+      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
+
+      try {
+        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
+        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
+          return JSON.parse(jsonMatch[0]);
+        }
+      } catch (innerError) {
+        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
+        return null;
+      }
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
+  console.log(data, aiResult);
 
   return (
     <>
@@ -329,8 +383,6 @@ export default function Match({}) {
                   ? ', 정밀한 관계 지도 분석.'
                   : ', Precise Relationship Map Analysis.'}
               </p>
-
-              
 
               {/* 궁합용 이미지 경로 (필요시 수정) */}
               <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
@@ -847,113 +899,79 @@ export default function Match({}) {
           {/* ================================================= */}
           {/* 1. 분석 요약 헤더 (Summary Header) */}
           {/* ================================================= */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 mb-8 relative overflow-hidden">
-            {/* 배경 데코레이션 */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-4 mb-4 relative overflow-hidden">
+            {/* 상단 포인트 라인 */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500"></div>
 
-            <div className="flex flex-col gap-6">
-              {/* ① 관계 배지 (Relationship Badge) */}
-              <div className="flex justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    RELATIONSHIP
+            {/* 헤더 영역: 관계 배지를 우측 상단으로 이동하여 세로 공간 절약 */}
+            <div className="flex justify-between items-start mb-3">
+              <span className="text-[10px] font-black tracking-tighter text-slate-400 uppercase">
+                MATCH ANALYSIS
+              </span>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                  RELATION
+                </span>
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                  {(() => {
+                    const r = RELATION_TYPES.find((t) => t.id === selectedRel);
+                    if (!r) return selectedRel;
+                    return language === 'en' ? r.sub : r.label;
+                  })()}
+                </span>
+              </div>
+            </div>
+
+            {/* 매치업 영역: 더 촘촘하게 배치 */}
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+              {/* [LEFT] ME */}
+              <div className="flex flex-col items-center text-center">
+                <span className="text-[9px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded mb-1">
+                  ME
+                </span>
+                <div className="flex flex-col sm:flex-row items-center gap-1">
+                  <span className="text-base font-bold text-slate-700 dark:text-slate-200">
+                    {inputDate.split('T')[0].slice(2)} {/* 연도 앞자리 잘라서 더 짧게 */}
                   </span>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                    {(() => {
-                      const r = RELATION_TYPES.find((t) => t.id === selectedRel);
-                      if (!r) return selectedRel;
-                      return language === 'en' ? r.sub : r.label;
-                    })()}
+                  <span className="text-xs text-slate-400">
+                    {gender === 'male'
+                      ? language === 'en'
+                        ? 'M'
+                        : '남'
+                      : language === 'en'
+                        ? 'F'
+                        : '여'}
+                    {gender === 'male' ? '👨' : '👩'}
                   </span>
                 </div>
               </div>
 
-              {/* ② 매치업 카드 (Me vs Target) */}
-              <div className="flex flex-col sm:flex-row items-stretch gap-4 md:gap-0">
-                {/* [LEFT] ME */}
-                <div className="flex-1 flex flex-col items-center md:items-end md:pr-8 text-center md:text-right">
-                  <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded mb-2">
-                    ME
-                  </span>
-
-                  {/* 기본 정보 */}
-                  <div className="mb-2">
-                    <span className="text-lg font-bold text-slate-700 dark:text-slate-200 mr-2">
-                      {inputDate.split('T')[0]}
-                    </span>
-                    <span className="text-sm text-slate-500">
-                      {gender === 'male'
-                        ? language === 'en'
-                          ? 'Male'
-                          : '남성'
-                        : language === 'en'
-                          ? 'Female'
-                          : '여성'}
-                      {gender === 'male' ? '👨' : '👩'}
-                    </span>
-                  </div>
-
-                  {/* 사주 간략 (일주 강조) */}
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-slate-400 text-xs">
-                      {language === 'en' ? 'Day Pillar:' : '본원(일주):'}
-                    </span>
-                    <div className="flex flex-col leading-none border border-indigo-200 rounded p-1 bg-indigo-50/50 dark:bg-slate-700 dark:border-slate-600">
-                      <span className="font-bold text-indigo-700 dark:text-indigo-300">
-                        {t(saju.sky1)}
-                      </span>
-                      <span className="font-bold text-indigo-700 dark:text-indigo-300">
-                        {t(saju.grd1)}
-                      </span>
-                    </div>
-                  </div>
+              {/* [CENTER] VS - 더 작고 심플하게 */}
+              <div className="px-3 flex flex-col items-center justify-center">
+                <div className="w-8 h-8 rounded-full border border-slate-100 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-900/50 shadow-inner">
+                  <span className="text-[10px] font-black text-slate-300">VS</span>
                 </div>
+              </div>
 
-                {/* [CENTER] VS Divider */}
-                <div className="relative flex items-center justify-center md:w-12 my-2 md:my-0">
-                  <div className="absolute inset-0 md:left-1/2 md:w-px bg-slate-100 dark:bg-slate-700 md:-translate-x-1/2 hidden md:block"></div>
-                  <div className="relative z-10 bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm">
-                    <span className="text-[10px] font-black text-slate-300">VS</span>
-                  </div>
-                </div>
-
-                {/* [RIGHT] TARGET */}
-                <div className="flex-1 flex flex-col items-center md:items-start md:pl-8 text-center md:text-left">
-                  <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded mb-2">
-                    TARGET
+              {/* [RIGHT] TARGET */}
+              <div className="flex flex-col items-center text-center">
+                <span className="text-[9px] font-black text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded mb-1">
+                  TARGET
+                </span>
+                <div className="flex flex-col sm:flex-row items-center gap-1">
+                  <span className="text-base font-bold text-slate-700 dark:text-slate-200">
+                    {inputDate2.split('T')[0].slice(2)}
                   </span>
-
-                  {/* 기본 정보 */}
-                  <div className="mb-2">
-                    <span className="text-lg font-bold text-slate-700 dark:text-slate-200 mr-2">
-                      {inputDate2.split('T')[0]}
-                    </span>
-                    <span className="text-sm text-slate-500">
-                      {gender2 === 'male'
-                        ? language === 'en'
-                          ? 'Male'
-                          : '남성'
-                        : language === 'en'
-                          ? 'Female'
-                          : '여성'}{' '}
-                      {gender2 === 'male' ? '👨' : '👩'}
-                    </span>
-                  </div>
-
-                  {/* 사주 간략 (일주 강조) */}
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="flex flex-col leading-none border border-emerald-200 rounded p-1 bg-emerald-50/50 dark:bg-slate-700 dark:border-slate-600">
-                      <span className="font-bold text-emerald-600 dark:text-emerald-300">
-                        {t(saju2.sky1)}
-                      </span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-300">
-                        {t(saju2.grd1)}
-                      </span>
-                    </div>
-                    <span className="text-slate-400 text-xs">
-                      {language === 'en' ? ':Day Pillar' : ':본원(일주)'}
-                    </span>
-                  </div>
+                  <span className="text-xs text-slate-400">
+                    {gender2 === 'male'
+                      ? language === 'en'
+                        ? 'M'
+                        : '남'
+                      : language === 'en'
+                        ? 'F'
+                        : '여'}
+                    {gender2 === 'male' ? '👨' : '👩'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -962,18 +980,138 @@ export default function Match({}) {
           {/* ================================================= */}
           {/* 2. AI 분석 결과 본문 (AI Result) */}
           {/* ================================================= */}
-          <div className="prose prose-slate dark:prose-invert max-w-none bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-sm border border-indigo-50 dark:border-slate-700">
-            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
-              <SparklesIcon className="w-5 h-5 text-indigo-500" />
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">
-                {language === 'en' ? 'Detailed Analysis' : '상세 분석 결과'}
-              </h3>
-            </div>
+          <div className="bg-indigo-50/30 dark:bg-slate-800/50 rounded-2xl border border-indigo-100/50 dark:border-slate-700 p-5 sm:p-6 shadow-sm">
+            {!!data && (
+              <div className="flex flex-col gap-8 py-2 animate-up">
+                {/* 1. 상단: 점수 및 핵심 타이틀 */}
+                <section className="text-center">
+                  <span className="font-xs font-bold tracking-[0.2em] text-slate-400 uppercase mb-2 block">
+                    Match Identity
+                  </span>
+                  <h2 className="text-xl font-black text-slate-800 dark:text-white mb-1">
+                    {data.matchIdentity}
+                  </h2>
+                  <p className="text-sm text-indigo-500 font-semibold">{data.title}</p>
 
-            {/* 실제 결과 텍스트 */}
-            <div className="whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300">
-              {aiResult}
-            </div>
+                  <div className="mt-6 max-w-[240px] mx-auto">
+                    <div className="flex justify-between items-end mb-1.5 px-0.5">
+                      <span className="font-xs font-bold text-slate-400 uppercase">
+                        Compatibility
+                      </span>
+                      <span className="text-xl font-black text-slate-800 dark:text-white leading-none">
+                        {data.score}%
+                      </span>
+                    </div>
+                    <div className="h-1 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 transition-all duration-1000"
+                        style={{ width: `${data.score}%` }}
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                {/* 2. 분위기 요약 (얇은 구분선) */}
+                <section className="border-t border-slate-100 dark:border-slate-800 pt-6 text-center">
+                  <p className="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400 italic mb-4">
+                    "{data.vibe}"
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {data.keywords.map((word, i) => (
+                      <span key={i} className="text-[10px] font-medium text-slate-400">
+                        #{word}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+
+                {/* 3. 에너지 분석 (나 vs 상대) - 색상 통일 */}
+                <section className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                  <div>
+                    <h4 className="font-xs font-black text-indigo-500 uppercase tracking-widest mb-2">
+                      Analysis: Me
+                    </h4>
+                    <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      {data.insights.me}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-xs font-black text-indigo-500 uppercase tracking-widest mb-2">
+                      Analysis: Target
+                    </h4>
+                    <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      {data.insights.target}
+                    </p>
+                  </div>
+                </section>
+
+                {/* 4. 시너지 및 조율점 - 불필요한 색상 제거 */}
+                <section className="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                  <div>
+                    <h4 className="font-xs font-black text-slate-800 uppercase tracking-widest mb-2">
+                      {isEn ? 'Synergy' : '관계 시너지'}
+                    </h4>
+                    <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      {data.insights.synergyPros}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-xs font-black text-slate-800 uppercase tracking-widest mb-2">
+                      {isEn ? 'Points of Friction' : '주의할 지점'}
+                    </h4>
+                    <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      {data.insights.synergyCons}
+                    </p>
+                  </div>
+                </section>
+
+                {/* 5. 핵심 요약 리스트 - 깔끔한 점(dot) 처리 */}
+                <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                  <div>
+                    <h4 className="font-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+                      Strengths
+                    </h4>
+                    <ul className="space-y-1.5">
+                      {data.pros.map((item, i) => (
+                        <li key={i} className="text-[13px] text-slate-500 flex gap-2">
+                          <span className="text-indigo-300">·</span> {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+                      Cautions
+                    </h4>
+                    <ul className="space-y-1.5">
+                      {data.cons.map((item, i) => (
+                        <li key={i} className="text-[13px] text-slate-500 flex gap-2">
+                          <span className="text-indigo-300">·</span> {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
+
+                {/* 6. 최종 결론 및 가이드 */}
+                <section className="border-t border-slate-100 dark:border-slate-800 pt-6 pb-4">
+                  <h4 className="font-xs font-black text-indigo-500 uppercase tracking-widest mb-3 text-center">
+                    Master's Conclusion
+                  </h4>
+                  <p className="text-[14px] font-medium text-slate-700 dark:text-slate-200 leading-relaxed text-center max-w-md mx-auto mb-4">
+                    {data.advice}
+                  </p>
+                  <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400 text-center">
+                    {data.insights.solution}
+                  </p>
+                  <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-900 text-center">
+                    <span className="text-xs text-slate-800 font-bold italic">
+                      {data.insights.ctaChat}
+                    </span>
+                  </div>
+                </section>
+              </div>
+            )}
           </div>
 
           {/* 하단 버튼 (다시하기 등) */}

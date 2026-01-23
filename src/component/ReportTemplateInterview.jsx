@@ -9,10 +9,9 @@ const ReportTemplateInterview = ({}) => {
   const { language } = useLanguage();
   const { userData } = useAuthContext();
   const { displayName, birthDate, saju } = userData;
-  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
-  const [isLoaded, setIsLoaded] = useState(false);
+   const [isLoaded, setIsLoaded] = useState(false);
   const bd = toymdt(birthDate);
-
+  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
   const parseAiResponse = (rawString) => {
     if (!rawString) return null;
@@ -61,33 +60,7 @@ const ReportTemplateInterview = ({}) => {
     setIsLoaded(true);
   }, []);
   if (!data) return '결과없음';
-  //   const data = {
-
-  //     interviewType: '기업 면접',
-  //     interviewDate: '2026.02.15',
-  //     concern: '말주변/긴장',
-  //     passIndex: 85,
-
-  //     section01: {
-  //       mood: 'Intellectual Navy Vibe',
-  //       point: 'Blazer & Silver Accessories',
-  //       description: '지민님, 이번 기업 면접에서는 차분하고 논리적인 모습이 가장...',
-  //     },
-  //     section02: {
-  //       goldenTime: '10:00 AM - 11:30 AM',
-  //       luckyItem: 'Blue Silk Tie/Scarf',
-  //     },
-  //     section03: {
-  //       anxietySolution: '긴장이 느껴질 때는 첫 문장만 생각하세요. 사주상...',
-  //       firstImpression: '면접관들은 당신의 안정감에 높은 점수를 줄 것입니다.',
-  //       surpriseQuestionTip: '압박이 들어오면 결론부터 짧게 대답하는 것이 기운에 맞습니다.',
-  //     },
-  //     section04: {
-  //       actionGuideline: '면접이 끝난 후 가벼운 목례가 합격의 쐐기를 박습니다.',
-  //       passSymbol: 'LOGIC',
-  //     },
-  //   };
-
+ 
   return (
     <div className={`rt-container ${isLoaded ? 'is-active' : ''}`}>
       <style>{reusableStyle}</style>
@@ -123,7 +96,7 @@ const ReportTemplateInterview = ({}) => {
             <div className="rt-info-row">
               <span className="rt-info-row__label">BIRTH</span>
               <span className="rt-info-row__value">
-                {bd.year}.{bd.month}.{bd.day} / {bd.time}
+                {bd.year}.{bd.month}.{bd.day} {isTimeUnknown || <>/{bd.time}</>}
               </span>
             </div>
             <div className="rt-info-row">

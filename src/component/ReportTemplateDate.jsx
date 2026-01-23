@@ -125,7 +125,8 @@ const ReportTemplateDate = (
             <div className="rt-info-row">
               <span className="rt-info-row__label">{language === 'en' ? 'BIRTH' : 'BIRTH'}</span>
               <span className="rt-info-row__value">
-                {bd.year}.{bd.month}.{bd.day} / {bd.time}
+                {bd.year}.{bd.month}.{bd.day}
+                {isTimeUnknown || <>/{bd.time}</>}
               </span>
             </div>
             <div className="rt-info-row">
