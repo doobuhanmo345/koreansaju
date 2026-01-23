@@ -24,6 +24,7 @@ import { type } from 'firebase/firestore/pipelines';
 import CustomCalendar from '../component/CustomCalendar';
 import { COLOR_THEMES } from '../data/theme';
 import { getPromptFromDB } from '../service/SajuAnalysisService';
+import ReportTemplateInterview from '../component/ReportTemplateInterview';
 const INTERVIEW_GROUPS = [
   {
     id: 'category',
@@ -372,7 +373,7 @@ export default function InterviewPage() {
     <AnalysisStepContainer
       guideContent={sajuGuide}
       loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ViewResult}
+      resultComponent={ReportTemplateInterview}
       loadingTime={0}
     />
   );

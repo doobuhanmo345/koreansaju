@@ -100,7 +100,7 @@ const ReportTemplateDate = (
           {language === 'en' ? 'PREMIUM ROMANCE DOSSIER' : 'PREMIUM ROMANCE DOSSIER'}
         </div>
         <h1 className="rt-main-title animate-up">
-          {data.userName}
+          {displayName}
           {language === 'en' ? "'s" : '님을 위한'}
           <br />
           <span className="text-highlight">

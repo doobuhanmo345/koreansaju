@@ -3,52 +3,90 @@ import { reportStyleSimple } from '../data/aiResultConstants';
 import { useLanguage } from '../context/useLanguageContext';
 import { toymdt } from '../utils/helpers';
 import { useAuthContext } from '../context/useAuthContext';
-const ReportTemplateInterview = ({
-
-}) => {
-
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-const { userData } = useAuthContext();
-  const { displayName, birthDate, saju } = userData;
-  console.log(displayName, birthDate, saju);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  const bd = toymdt(birthDate);
-  console.log(bd);
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
+import { useLoading } from '../context/useLoadingContext';
+const ReportTemplateInterview = ({}) => {
+  const { aiResult } = useLoading();
   const { language } = useLanguage();
-  const data = {
+  const { userData } = useAuthContext();
+  const { displayName, birthDate, saju } = userData;
+  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
+  const [isLoaded, setIsLoaded] = useState(false);
+  const bd = toymdt(birthDate);
 
-    interviewType: '기업 면접',
-    interviewDate: '2026.02.15',
-    concern: '말주변/긴장',
-    passIndex: 85,
-    
-    section01: {
-      mood: 'Intellectual Navy Vibe',
-      point: 'Blazer & Silver Accessories',
-      description: '지민님, 이번 기업 면접에서는 차분하고 논리적인 모습이 가장...',
-    },
-    section02: {
-      goldenTime: '10:00 AM - 11:30 AM',
-      luckyItem: 'Blue Silk Tie/Scarf',
-    },
-    section03: {
-      anxietySolution: '긴장이 느껴질 때는 첫 문장만 생각하세요. 사주상...',
-      firstImpression: '면접관들은 당신의 안정감에 높은 점수를 줄 것입니다.',
-      surpriseQuestionTip: '압박이 들어오면 결론부터 짧게 대답하는 것이 기운에 맞습니다.',
-    },
-    section04: {
-      actionGuideline: '면접이 끝난 후 가벼운 목례가 합격의 쐐기를 박습니다.',
-      passSymbol: 'LOGIC',
-    },
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
+  const parseAiResponse = (rawString) => {
+    if (!rawString) return null;
+
+    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
+
+    try {
+      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
+      const cleaned = rawString
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
+        .trim();
+
+      return JSON.parse(cleaned);
+    } catch (error) {
+      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
+
+      try {
+        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
+        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
+          return JSON.parse(jsonMatch[0]);
+        }
+      } catch (innerError) {
+        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
+        return null;
+      }
+      return null;
+    }
   };
+
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
+
+  // 데이터 없으면 아무것도 안 보여줌
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+  if (!data) return '결과없음';
+  //   const data = {
+
+  //     interviewType: '기업 면접',
+  //     interviewDate: '2026.02.15',
+  //     concern: '말주변/긴장',
+  //     passIndex: 85,
+
+  //     section01: {
+  //       mood: 'Intellectual Navy Vibe',
+  //       point: 'Blazer & Silver Accessories',
+  //       description: '지민님, 이번 기업 면접에서는 차분하고 논리적인 모습이 가장...',
+  //     },
+  //     section02: {
+  //       goldenTime: '10:00 AM - 11:30 AM',
+  //       luckyItem: 'Blue Silk Tie/Scarf',
+  //     },
+  //     section03: {
+  //       anxietySolution: '긴장이 느껴질 때는 첫 문장만 생각하세요. 사주상...',
+  //       firstImpression: '면접관들은 당신의 안정감에 높은 점수를 줄 것입니다.',
+  //       surpriseQuestionTip: '압박이 들어오면 결론부터 짧게 대답하는 것이 기운에 맞습니다.',
+  //     },
+  //     section04: {
+  //       actionGuideline: '면접이 끝난 후 가벼운 목례가 합격의 쐐기를 박습니다.',
+  //       passSymbol: 'LOGIC',
+  //     },
+  //   };
 
   return (
     <div className={`rt-container ${isLoaded ? 'is-active' : ''}`}>
@@ -60,7 +98,7 @@ const { userData } = useAuthContext();
           {language === 'en' ? 'SUCCESS STRATEGY REPORT' : 'SUCCESS STRATEGY REPORT'}
         </div>
         <h1 className="rt-main-title animate-up">
-          {data.userName}
+          {displayName}
           {language === 'en' ? "'s" : '님의'}
           <br />
           <span className="text-highlight">
@@ -78,7 +116,7 @@ const { userData } = useAuthContext();
       <section className="rt-section rt-profile animate-up">
         <div className="rt-id-card">
           <div className="rt-id-card__header">
-            <span className="rt-id-card__name">{data.userName}</span>
+            <span className="rt-id-card__name">{displayName}</span>
             <span className="rt-id-card__label">CANDIDATE ID</span>
           </div>
           <div className="rt-id-card__body">
