@@ -13,8 +13,6 @@ export const classNames = (...classes) => {
 export const parseAiResponse = (rawString) => {
   if (!rawString) return null;
 
-  console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
-
   let cleaned = rawString.trim();
 
   // 1. 마크다운 코드 블록 제거

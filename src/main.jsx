@@ -10,6 +10,11 @@ import { LoadingProvider, useLoading } from './context/useLoadingContext';
 import OpenInBrowserPage from './component/OpenInBrowerPage';
 import Test from './Test';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Ad from './page/Ad';
+import SazaTalkAd from './page/SazaTalkAd';
+import SazaTalkAdKr from './page/SazaTalkAdKr';
+import SazaTalkAdKr from './page/NewYearAdKr';
+import SazaTalkAdEn from './page/NewYearAdEn';
 
 // 🔥 모든 페이지를 lazy loading으로 변경
 const SajuExp = lazy(() => import('./page/SajuExp'));
@@ -36,31 +41,25 @@ const TarotLovePage = lazy(() => import('./page/TarotLovePage'));
 const FeedbackForm = lazy(() => import('./page/FeedbackForm'));
 const EditPrompt = lazy(() => import('./page/EditPrompt'));
 const SazaTalk = lazy(() => import('./page/SazaTalk'));
-const Ad = lazy(() => import('./page/Ad'));
 const BasicAna = lazy(() => import('./page/BasicAna'));
 const PayWall = lazy(() => import('./page/PayWall'));
-const SazaTalkAd = lazy(() => import('./page/SazaTalkAd'));
-const NewYearAdKr = lazy(() => import('./page/NewYearAdKr'));
-const SazaTalkAdKr = lazy(() => import('./page/SazaTalkAdKr'));
-const NewYearAdEn = lazy(() => import('./page/NewYearAdEn'));
 const TestAnalysisPage = lazy(() => import('./page/TestAnalysisPage'));
 const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
 const FirstDatePage = lazy(() => import('./page/FirstDatePage'));
 const InterviewPage = lazy(() => import('./page/InterviewPage'));
 
 // 🔥 로딩 컴포넌트 (간단하게)
-const LoadingFallback = () => (
-  <SplashScreen />
-);
+const LoadingFallback = () => <SplashScreen />;
 
 const RootComponent = () => {
   const { user, userData, loadingUser } = useAuthContext();
 
-  const pathname = window.location.pathname;
+  const pathname = window.location.pathname.trim(); // 공백 제거
+  console.log('Current Pathname:', pathname); // 실제 경로 확인용
+
   const isSpecialPage =
     /^\/(ad|paywall|sazatalkad|sazatalkadkr|newyearadkr|newyearaden|test2)(\/|$)/.test(pathname);
-  const isAdPage = /^\/ad(\/|$)/.test(pathname);
-  const isBrowserGuide = pathname === '/open-in-browser';
+  const isBrowserGuide = pathname.startsWith('/open-in-browser'); // === 대신 startsWith 추천
 
   // 1. 광고 페이지라면 무조건 여기서 끝냄 (최우선순위 보장)
   if (isSpecialPage) {
@@ -96,7 +95,7 @@ const RootComponent = () => {
   }
 
   // 3. 생년월일 데이터가 없는 경우
-  if (!isAdPage && !userData?.birthDate) {
+  if (!isSpecialPage && !userData?.birthDate) {
     return (
       <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
         <Suspense fallback={<LoadingFallback />}>
