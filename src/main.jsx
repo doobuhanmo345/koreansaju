@@ -47,7 +47,15 @@ const TestAnalysisPage = lazy(() => import('./page/TestAnalysisPage'));
 const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
 const FirstDatePage = lazy(() => import('./page/FirstDatePage'));
 const InterviewPage = lazy(() => import('./page/InterviewPage'));
-
+ export const specialPaths = [
+   '/ad',
+   '/paywall',
+   '/sazatalkad',
+   '/sazatalkadkr',
+   '/newyearadkr',
+   '/newyearaden',
+   '/test2',
+ ];
 // 🔥 로딩 컴포넌트 (간단하게)
 const LoadingFallback = () => <SplashScreen />;
 
@@ -57,15 +65,7 @@ const RootComponent = () => {
   const pathname = window.location.pathname.trim(); // 공백 제거
   console.log('Current Pathname:', pathname); // 실제 경로 확인용
 
-  const specialPaths = [
-    '/ad',
-    '/paywall',
-    '/sazatalkad',
-    '/sazatalkadkr',
-    '/newyearadkr',
-    '/newyearaden',
-    '/test2',
-  ];
+ 
   const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
 
   // 로그 찍어서 false 나오면 정규식/경로 문제임

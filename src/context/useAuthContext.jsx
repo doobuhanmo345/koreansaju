@@ -4,6 +4,7 @@ import { login, logout, onUserStateChange, db } from '../lib/firebase';
 import { useLanguage } from './useLanguageContext';
 import { getRomanizedIlju } from '../data/sajuInt';
 import { calculateSaju } from '../utils/sajuCalculator';
+import { specialPaths } from '../main';
 
 const AuthContext = createContext();
 
@@ -19,7 +20,7 @@ export function AuthContextProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const { language } = useLanguage();
-
+  const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
   // 1️⃣ 일주 이미지 경로 계산
   const iljuImagePath = useMemo(() => {
     // [보안/에러 방지] 함수 초기화 여부와 데이터 존재 여부를 동시에 체크
@@ -82,10 +83,10 @@ export function AuthContextProvider({ children }) {
   // 3️⃣ 인앱 브라우저 체크 및 로그인 감시
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
-    const isAdPage = window.location.pathname.startsWith('/ad');
+
     const isInApp = /kakaotalk|instagram|naver/.test(userAgent);
 
-    if (isInApp && !isAdPage) {
+    if (isSpecialPage && !isAdPage) {
       const currentUrl = window.location.href;
       if (/android/.test(userAgent)) {
         window.location.href = `intent://${currentUrl.replace(/https?:\/\//i, '')}#Intent;scheme=https;package=com.android.chrome;end`;
