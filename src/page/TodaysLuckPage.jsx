@@ -107,7 +107,7 @@ export default function TodaysLuckPage() {
 
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
               <img
-                src="/images/introcard/todaysluck_1.png"
+                src="/images/introcard/todaysluck_1.webp"
                 alt="today's luck"
                 className="w-full h-auto"
               />

@@ -42,6 +42,7 @@ import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
+import { parseAiResponse } from '../utils/helpers';
 export default function Wealth({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -366,37 +367,7 @@ export default function Wealth({}) {
   const q2 = SUB_Q_TYPES?.[selectedQ]?.find((i) => i.id === selectedSubQ)?.desc;
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
-  const parseAiResponse = (rawString) => {
-    if (!rawString) return null;
 
-    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
-
-    try {
-      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
-      const cleaned = rawString
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
-        .trim();
-
-      return JSON.parse(cleaned);
-    } catch (error) {
-      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
-
-      try {
-        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
-        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
-          return JSON.parse(jsonMatch[0]);
-        }
-      } catch (innerError) {
-        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
-        return null;
-      }
-      return null;
-    }
-  };
 
  
   useEffect(() => {
@@ -456,7 +427,7 @@ export default function Wealth({}) {
 
               {/* 이미지 경로 확인 필요 */}
               <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-                <img src="/images/introcard/wealth_1.png" alt="wealth" className="w-full h-auto" />
+                <img src="/images/introcard/wealth_1.webp" alt="wealth" className="w-full h-auto" />
               </div>
             </div>
           </div>

@@ -143,7 +143,7 @@ export default function TarotDailyPage() {
           </p>
           <div className="mb-10 flex justify-center">
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-              <img src="/images/introcard/tarot_1.jpg" alt="sazatalk" className="w-full h-auto" />
+              <img src="/images/introcard/tarot_1.webp" alt="sazatalk" className="w-full h-auto" />
             </div>
           </div>
           <button

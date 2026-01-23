@@ -19,6 +19,7 @@ import dayStem from '../data/dayStem.json';
 import dayBranch from '../data/dayBranch.json';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
+import { parseAiResponse } from '../utils/helpers';
 const SazaTalkAd = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -271,6 +272,7 @@ const SazaTalkAd = () => {
   const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
   const handleAskSaza = async () => {
     const myQuestion = userQuestion;
+
     if (!myQuestion.trim()) return alert('질문을 입력해주세요.');
 
     setLoading(true);
@@ -315,19 +317,34 @@ const SazaTalkAd = () => {
         timestamp: new Date().toISOString(),
         id: Date.now(),
       };
+      // 1. 문서 ID를 안전하게 생성 (특수문자 제거 권장)
+      const timestamp = new Date().getTime(); // ISOString 대신 타임스탬프 권장
+      const userId = guestId || user?.uid;
 
-      // DB 업데이트 (카운트 + 질문로그)
-      await setDoc(
-        doc(db, 'sazatalkad_logs', `${new Date().toISOString()}_${guestId || user?.uid}`),
-        {
-          id: guestId || user?.uid,
-          user: !!user,
-          saju: saju,
-          usageHistory: { question_history: arrayUnion(newQuestionLog) },
-        },
-        { merge: true },
-      );
+      // 2. ID가 없는 경우에 대한 예외 처리 (여기가 핵심!)
+      if (!userId) {
+        alert('사용자 정보를 불러올 수 없습니다. 페이지를 새로고침 해주세요.');
+        setLoading(false); // 로딩 상태 해제
+        return; // ★ 여기서 함수를 종료해야 아래 setDoc이 실행되지 않습니다!
+      }
 
+      const docId = `${timestamp}_${userId}`;
+
+      try {
+        // 3. setDoc 실행
+        await setDoc(
+          doc(db, 'sazatalkad_logs', docId), // 이제 확실히 2개의 세그먼트가 전달됩니다.
+          {
+            id: userId,
+            user: !!user,
+            saju: saju,
+            usageHistory: { question_history: arrayUnion(newQuestionLog) },
+          },
+          { merge: true },
+        );
+      } catch (error) {
+        console.error('Firestore 저장 에러:', error);
+      }
       // App 상태 업데이트
 
       setAiResult(result);
@@ -338,6 +355,16 @@ const SazaTalkAd = () => {
       setLoading(false);
     }
   };
+  const [data, setData] = useState({}); // 파싱된 데이터를 담을 로컬 상태
+
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
   const Loading = () => {
     return (
       // transform-gpu 클래스로 GPU 가속 활성화
@@ -732,10 +759,12 @@ const SazaTalkAd = () => {
           <div className="flex justify-start mt-6">
             <div className="leading-8 w-full bg-slate-100 p-5 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 ">
               {/* 주입되는 HTML 스타일링 제어 */}
-              <div
-                className="prose prose-sm  max-w-none"
-                dangerouslySetInnerHTML={{ __html: pureHtml }}
-              />
+              <div className="leading-8 w-full bg-white p-6 rounded-[24px] rounded-tl-none shadow-sm border border-[#E8DCCF]/50">
+                {data.contents?.map((i) => (
+                  <p>{i}</p>
+                ))}
+                <strong>사자의 조언: {data.saza}</strong>
+              </div>
             </div>
           </div>
           {/* 사이트 이동 안내 및 링크 복사 섹션 */}

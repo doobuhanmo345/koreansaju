@@ -163,7 +163,7 @@ export default function TarotMoneyPage() {
             )}
           </p>
           <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-            <img src="/images/introcard/tarot_1.jpg" alt="sazatalk" className="w-full h-auto" />
+            <img src="/images/introcard/tarot_1.webp" alt="sazatalk" className="w-full h-auto" />
           </div>
           <button
             onClick={() => setStep('category')}

@@ -3,43 +3,13 @@ import { useLoading } from '../context/useLoadingContext';
 import { useLanguage } from '../context/useLanguageContext';
 import { useState, useEffect } from 'react';
 import AfterReport from './AfterReport';
+import { parseAiResponse } from '../utils/helpers';
 const ReportTemplateToday = ({}) => {
   const { aiResult } = useLoading();
   const { language } = useLanguage();
   const isEn = language === 'en';
 
-  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
-  const parseAiResponse = (rawString) => {
-    if (!rawString) return null;
 
-    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
-
-    try {
-      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
-      const cleaned = rawString
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
-        .trim();
-
-      return JSON.parse(cleaned);
-    } catch (error) {
-      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
-
-      try {
-        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
-        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
-          return JSON.parse(jsonMatch[0]);
-        }
-      } catch (innerError) {
-        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
-        return null;
-      }
-      return null;
-    }
-  };
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   console.log(data);
   useEffect(() => {

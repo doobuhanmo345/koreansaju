@@ -5,11 +5,60 @@ import { ENG_MAP } from '../data/constants';
 export const classNames = (...classes) => {
   return classes.filter(Boolean).join(' ');
 };
-/**
+/**P
  * ISO 형식의 일시 문자열을 연, 월, 일, 시간으로 분리하는 함수
  * @param {string} dateTimeStr - "1988-12-02T18:36" 형식
  * @returns {object} { year, month, day, time }
  */
+export const parseAiResponse = (rawString) => {
+  if (!rawString) return null;
+
+  console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
+
+  let cleaned = rawString.trim();
+
+  // 1. 마크다운 코드 블록 제거
+  const codeBlockRegex = /```(?:json)?([\s\S]*?)```/g;
+  const match = codeBlockRegex.exec(cleaned);
+  if (match && match[1]) {
+    cleaned = match[1].trim();
+  }
+
+  // 2. [핵심] 보이지 않는 특수 공백 및 제어 문자 제거
+  // \u00A0(NBSP) 등을 일반 공백으로 치환하고,
+  // 문자열 값 내부가 아닌 곳의 제어 문자를 정리합니다.
+  cleaned = cleaned.replace(/\u00A0/g, ' ');
+
+  try {
+    // 1차 시도: 정공법
+    return JSON.parse(cleaned);
+  } catch (error) {
+    console.warn('⚠️ 1차 파싱 실패, 구조 보정 시도...');
+
+    try {
+      // 3. JSON 형태 ({ } 또는 [ ]) 추출
+      const jsonMatch = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+      if (!jsonMatch) return null;
+
+      let targetJson = jsonMatch[0];
+
+      // 4. [핵심] 문자열 내부의 실제 줄바꿈(\n)을 이스케이프(\n)로 교체
+      // 기존 정규식보다 안전하게 값 영역만 타겟팅합니다.
+      const fixedJson = targetJson
+        .replace(/":\s*"(.*?) "(\s*[,}])|":\s*"(.*?)"(\s*[,}])/gs, (match) => {
+          // 값 내부의 실제 줄바꿈을 찾아 \\n으로 바꿉니다.
+          return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        })
+        // 혹시 모를 마지막 콤마(Trailing Comma) 제거
+        .replace(/,\s*([\]}])/g, '$1');
+
+      return JSON.parse(fixedJson);
+    } catch (innerError) {
+      console.error('❌ 모든 파싱 시도 실패:', innerError.message);
+      return null;
+    }
+  }
+};
 export const toymdt = (dateTimeStr) => {
   if (!dateTimeStr) return { year: '', month: '', day: '', time: '' };
 

@@ -159,11 +159,11 @@ export default function SazaTalk() {
             </p>
 
             <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-              <img
-                src="/images/introcard/sazatalk_1.jpg"
+              {/* <img
+                src="/images/introcard/sazatalk_1.webp"
                 alt="sazatalk"
                 className="w-full h-auto"
-              />
+              /> */}
             </div>
           </div>
 

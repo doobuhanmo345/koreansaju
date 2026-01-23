@@ -2,33 +2,11 @@ import { reportStyleBlue } from '../data/aiResultConstants';
 import { useLoading } from '../context/useLoadingContext';
 import { useLanguage } from '../context/useLanguageContext';
 import AfterReport from './AfterReport';
+import { parseAiResponse } from '../utils/helpers';
 const ReportTemplateNewYear = ({}) => {
   const { aiResult } = useLoading();
   if (!aiResult) return null;
-  const parseAiResponse = (rawString) => {
-    try {
-      // 1. ```json 또는 ``` 태그를 제거하고 앞뒤 공백 제거
-      const cleaned = rawString
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
 
-      return JSON.parse(cleaned);
-    } catch (error) {
-      console.error('1차 파싱 실패, 재시도합니다:', error);
-
-      try {
-        // 2. 만약 태그 제거 후에도 실패하면, 가장 바깥쪽 { } 괄호 안의 내용만 추출
-        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          return JSON.parse(jsonMatch[0]);
-        }
-      } catch (innerError) {
-        console.error('최종 파싱 실패:', innerError);
-        return null;
-      }
-    }
-  };
   const { language } = useLanguage();
   const isEn = language === 'en';
   const data = parseAiResponse(aiResult);

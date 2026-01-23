@@ -248,7 +248,7 @@ export default function FortuneCookie({}) {
                   </div>
                   <div className="m-auto max-w-sm rounded-2xl overflow-hidden">
                     <img
-                      src="/images/introcard/cookie_1.png"
+                      src="/images/introcard/cookie_1.webp"
                       alt="select cookie"
                       className="w-60 h-auto mx-auto"
                     />

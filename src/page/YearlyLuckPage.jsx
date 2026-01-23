@@ -31,8 +31,7 @@ export default function YearlyLuckPage() {
   const [loading, setLoading] = useState(false);
   const [sajuData, setSajuData] = useState(null);
   const { userData, user, isYearDone } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender,saju } = userData || {};
-
+  const { birthDate: inputDate, isTimeUnknown, gender, saju } = userData || {};
 
   const { language } = useLanguage();
   // useUsageLimit에서 editCount와 setEditCount 가져오기
@@ -67,7 +66,6 @@ export default function YearlyLuckPage() {
   const handleStartClick = async (onstart) => {
     setAiResult('');
     try {
-    
       await service.analyze(AnalysisPresets.newYear({ saju, gender, language }));
       onstart();
     } catch (error) {
@@ -105,7 +103,7 @@ export default function YearlyLuckPage() {
 
           <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
             <img
-              src="/images/introcard/newyear_1.png"
+              src="/images/introcard/newyear_1.webp"
               alt="2026 yearly luck"
               className="w-full h-auto"
             />

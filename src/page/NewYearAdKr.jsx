@@ -22,6 +22,7 @@ import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import NewYearKr from './NewYearKr';
 import CopyUrlAd from '../component/CopyUrlAd';
+import { parseAiResponse } from '../utils/helpers';
 const NewYearAdKr = () => {
   const [guestId, setGuestId] = useState('');
 
@@ -128,6 +129,7 @@ const NewYearAdKr = () => {
     cleanedResponse = cleanedResponse.replace(startMarker, '').replace(endMarker, '');
     return cleanedResponse.trim();
   }, [aiResult]);
+
   const guideMessages = {
     ko: {
       putGender: '성별을 선택해주세요',
@@ -184,17 +186,11 @@ const NewYearAdKr = () => {
     setLoading(true);
     setAiResult('');
 
-    const todayDate = new Date().toLocaleDateString('en-CA');
-    const nextYear = new Date().getFullYear() + 1;
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-
     try {
-  
       const dbRef = ref(database);
-      const [basicSnap, strictSnap, yearSnap] = await Promise.all([
+      const [basicSnap, strictSnap] = await Promise.all([
         get(child(dbRef, 'prompt/new_year_basic')),
         get(child(dbRef, `prompt/default_instruction`)),
-        get(child(dbRef, `prompt/new_year_format_${language}`)),
       ]);
 
       if (!basicSnap.exists()) {
@@ -206,9 +202,8 @@ const NewYearAdKr = () => {
 
       const replacements = {
         '{{STRICT_INSTRUCTION}}': strictSnap.val() || '',
-        // '{{NEW_YEAR_FORMAT}}': yearSnap.val() || '',
-        '{{NEW_YEAR_FORMAT}}':
-          '2026년 병오년의 운세를 개략적으로 말해줘. 시작은 <b>태그로 시작해줘. 인사하지 말고 소제목부터. 소제목은 <b>로 감싸주고 질문 형식으로 해줘. 예를 들면 나의 올 한해는? 이렇게  내용은 <p> 내용은 세 문장 정도로.  그렇게 한거를 세개정도 만들어줘.',
+        '{{NEW_YEAR_FORMAT}}': `2026년 병오년의 운세를 개략적으로 말해줘. JSON포멧으로 아래와 같이. 
+          {"q1": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' },"q2": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' },"q3": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' }}`,
         '{{gender}}': gender,
         '{{sajuJson}}': `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
         '{{displayName}}': displayName,
@@ -221,15 +216,15 @@ const NewYearAdKr = () => {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-    
+      console.log(fullPrompt);
       const result = await fetchGeminiAnalysis(fullPrompt);
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
       const docId = guestId || user?.uid;
-
+      setAiResult(result);
       await setDoc(
         doc(db, 'newyearad_logs', docId),
         {
-          id: guestId || user?.uid,
+          id: docId,
           date: safeDate,
           user: !!user,
           saju: saju,
@@ -310,7 +305,18 @@ const NewYearAdKr = () => {
     }
     handleNewYear();
   };
-  
+  const [data, setData] = useState(aiResult); // 파싱된 데이터를 담을 로컬 상태
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
+
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
+
   const Loading = () => {
     return (
       <div className="bg-[#FDF5F0] min-h-screen flex flex-col items-center justify-center overflow-hidden transform-gpu px-6">
@@ -701,7 +707,12 @@ const NewYearAdKr = () => {
                         )}
                         에 태어난 당신의 사주를 기반으로 올해 병오년이 어떨지 풀어드립니다.
                       </p>
-                      <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
+                      <b>{data.q1.q}</b>
+                      <p>{data.q1.a}</p>
+                      <b>{data.q2.q}</b>
+                      <p>{data.q2.a}</p>
+                      <b>{data.q3.q}</b>
+                      <p>{data.q3.a}</p>
                     </div>
 
                     {/* (B) 구분선 */}

@@ -13,6 +13,7 @@ import { useAuthContext } from '../context/useAuthContext';
 import { aiSajuStyle } from '../data/saju_data_prompt';
 import { useLoading } from '../context/useLoadingContext';
 import AfterReport from './AfterReport';
+import { parseAiResponse } from '../utils/helpers';
 
 const ReportTemplateBasic = ({}) => {
   const { aiResult } = useLoading();
@@ -29,37 +30,7 @@ const ReportTemplateBasic = ({}) => {
 
   const [sajuData, setSajuData] = useState(null);
 
-  const parseAiResponse = (rawString) => {
-    if (!rawString) return null;
-
-    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
-
-    try {
-      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
-      const cleaned = rawString
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
-        .trim();
-
-      return JSON.parse(cleaned);
-    } catch (error) {
-      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
-
-      try {
-        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
-        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
-          return JSON.parse(jsonMatch[0]);
-        }
-      } catch (innerError) {
-        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
-        return null;
-      }
-      return null;
-    }
-  };
+ 
 
   useEffect(() => {
     if (aiResult) {

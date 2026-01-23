@@ -1,62 +1,29 @@
 import { useLoading } from '../context/useLoadingContext';
 import { aiSajuStyle } from '../data/aiResultConstants';
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { useLanguage } from '../context/useLanguageContext';
+import { parseAiResponse } from '../utils/helpers';
+
 export default function ViewSazaResult({ userQuestion, onReset }) {
   const { loading, aiResult } = useLoading();
   const scrollElRef = useRef(null); // 컨테이너 참조용
-  const activeTabRef = useRef(0);
   const { language } = useLanguage();
-  const pureHtml = useMemo(() => {
-    if (!aiResult) return '';
-    let cleanedResponse = aiResult.trim();
-    const startMarker = /^\s*```html\s*|^\s*```\s*/i;
-    const endMarker = /\s*```\s*$/;
-    cleanedResponse = cleanedResponse.replace(startMarker, '').replace(endMarker, '');
-    return cleanedResponse.trim();
-  }, [aiResult]);
 
-  // 1. 함수 정의를 하나로 통합 (useCallback을 써도 좋지만 간단하게 외부에 정의 가능)
-  const handleSubTitleClick = (index) => {
-    if (index === undefined) index = activeTabRef.current;
-    activeTabRef.current = index;
+  const [data, setData] = useState({}); // 파싱된 데이터를 담을 로컬 상태
 
-    const container = scrollElRef.current;
-    if (!container) return;
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
 
-    const tiles = container.querySelectorAll('.subTitle-tile');
-    const cards = container.querySelectorAll('.report-card');
-
-    if (tiles.length === 0) return;
-
-    tiles.forEach((t) => t.classList.remove('active'));
-    cards.forEach((c) => {
-      c.style.display = 'none';
-      c.classList.remove('active');
-    });
-
-    if (tiles[index]) tiles[index].classList.add('active');
-    if (cards[index]) {
-      cards[index].style.display = 'block';
-      cards[index].classList.add('active');
-    }
-  };
-
-  // 2. 전역 함수 등록 및 초기화
   useEffect(() => {
-    window.handleSubTitleClick = handleSubTitleClick;
-
-    // HTML이 주입된 후 실행되도록 함
-    if (pureHtml) {
-      const timer = setTimeout(() => {
-        handleSubTitleClick(0);
-      }, 100); // DOM 생성 대기 시간
-      return () => clearTimeout(timer);
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
     }
-  }, [pureHtml]); // pureHtml이 바뀔 때마다 실행
-
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
   if (loading) return <>로딩중</>;
+  console.log(data, aiResult);
 
   return (
     <div ref={scrollElRef} className="max-w-lg m-auto p-4 space-y-6">
@@ -72,11 +39,10 @@ export default function ViewSazaResult({ userQuestion, onReset }) {
       {/* AI의 사주 분석 답변 (왼쪽 정렬 말풍선) */}
       <div className="flex justify-start">
         <div className="leading-8 w-full bg-white dark:bg-slate-800 p-5 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 dark:border-slate-700">
-          {/* 주입되는 HTML 스타일링 제어 */}
-          <div
-            className="prose prose-sm dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: pureHtml }}
-          />
+          {data.contents?.map((i) => (
+            <p>{i}</p>
+          ))}
+          <strong>사자의 조언: {data.saza}</strong>
         </div>
       </div>
       <div className="flex flex-col gap-2 pt-6">

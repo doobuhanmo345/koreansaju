@@ -22,6 +22,7 @@ import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import NewYearEn from './NewYearEn';
 import CopyUrlAd from '../component/CopyUrlAd';
+import { parseAiResponse } from '../utils/helpers';
 const NewYearAdEn = () => {
   const [guestId, setGuestId] = useState('');
 
@@ -120,14 +121,7 @@ const NewYearAdEn = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [loadingText, setLoadingText] = useState('');
   const [aiResult, setAiResult] = useState();
-  const pureHtml = useMemo(() => {
-    if (!aiResult) return '';
-    let cleanedResponse = aiResult.trim();
-    const startMarker = /^\s*```html\s*|^\s*```\s*/i;
-    const endMarker = /\s*```\s*$/;
-    cleanedResponse = cleanedResponse.replace(startMarker, '').replace(endMarker, '');
-    return cleanedResponse.trim();
-  }, [aiResult]);
+
   const guideMessages = {
     ko: {
       putGender: '성별을 선택해주세요',
@@ -184,18 +178,11 @@ const NewYearAdEn = () => {
     setLoading(true);
     setAiResult('');
 
-    const todayDate = new Date().toLocaleDateString('en-CA');
-    const nextYear = new Date().getFullYear() + 1;
-    const keys = ['sky0', 'grd0', 'sky1', 'grd1', 'sky2', 'grd2', 'sky3', 'grd3'];
-
     try {
-      // 4. 프롬프트 생성 (요청하신 호칭 및 사주 텍스트 반영)
-      // --- [3. 프롬프트 생성: 당신이 주신 로직 그대로 실행] ---
       const dbRef = ref(database);
-      const [basicSnap, strictSnap, yearSnap] = await Promise.all([
+      const [basicSnap, strictSnap] = await Promise.all([
         get(child(dbRef, 'prompt/new_year_basic')),
         get(child(dbRef, `prompt/default_instruction`)),
-        get(child(dbRef, `prompt/new_year_format_${language}`)),
       ]);
 
       if (!basicSnap.exists()) {
@@ -207,13 +194,12 @@ const NewYearAdEn = () => {
 
       const replacements = {
         '{{STRICT_INSTRUCTION}}': strictSnap.val() || '',
-        // '{{NEW_YEAR_FORMAT}}': yearSnap.val() || '',
-        '{{NEW_YEAR_FORMAT}}':
-          '2026년 병오년의 운세를 개략적으로 말해줘. **시작은 <b>태그로 시작해줘**. 인사하지 말고 소제목부터. 소제목은 <b>로 감싸주고 질문 형식으로 해줘. 예를 들면 나의 올 한해는? 이렇게  내용은 <p> 내용은 세 문장 정도로.  그렇게 한거를 세개정도 만들어줘.',
+        '{{NEW_YEAR_FORMAT}}': `2026년 병오년의 운세를 개략적으로 말해줘. JSON포멧으로 아래와 같이. 
+          {"q1": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' },"q2": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' },"q3": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' }}`,
         '{{gender}}': gender,
         '{{sajuJson}}': `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
         '{{displayName}}': displayName,
-        '{{langPrompt}}': '**answer in English**',
+        '{{langPrompt}}': '**answer in english**',
         '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
       };
 
@@ -222,17 +208,15 @@ const NewYearAdEn = () => {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-
-
+      console.log(fullPrompt);
       const result = await fetchGeminiAnalysis(fullPrompt);
-
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
       const docId = guestId || user?.uid;
-
+      setAiResult(result);
       await setDoc(
         doc(db, 'newyearad_logs', docId),
         {
-          id: guestId || user?.uid,
+          id: docId,
           date: safeDate,
           user: !!user,
           saju: saju,
@@ -317,9 +301,18 @@ const NewYearAdEn = () => {
   const me = saju?.sky1;
   const meg = saju?.grd1;
 
-  const me_exp = dayStem.find((i) => i.name_kr === me);
-  const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
+  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
 
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
+  console.log(aiResult, data);
   const Loading = () => {
     return (
       <div className="bg-[#FDF5F0] min-h-screen flex flex-col items-center justify-center overflow-hidden transform-gpu px-6">
@@ -726,7 +719,12 @@ const NewYearAdEn = () => {
                         , we will reveal what the 2026 Year of the Fire Horse (Byeong-o) holds for
                         you.
                       </p>
-                      <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
+                      <b>{data.q1.q}</b>
+                      <p>{data.q1.a}</p>
+                      <b>{data.q2.q}</b>
+                      <p>{data.q2.a}</p>
+                      <b>{data.q3.q}</b>
+                      <p>{data.q3.a}</p>
                     </div>
 
                     {/* (B) 구분선 */}

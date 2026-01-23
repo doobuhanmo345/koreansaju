@@ -18,11 +18,12 @@ import { db } from '../lib/firebase';
 import { useAuthContext } from '../context/useAuthContext';
 import dayStem from '../data/dayStem.json';
 import dayBranch from '../data/dayBranch.json';
-import { classNames } from '../utils/helpers';
+import { classNames, parseAiResponse } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import AmaKr from './AmaKr';
 import AdMyInfo from '../component/AdMyInfo';
 import CopyUrlAd from '../component/CopyUrlAd';
+
 const SazaTalkAdKr = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -193,34 +194,31 @@ const SazaTalkAdKr = () => {
   };
   const isFormValid = getProgress() === 100;
   const handleAskSaza = async () => {
-    // 아이디 확인
-    if (true) {
-    
-      const docRef = doc(db, 'sazatalkad_logs', guestId);
+    const currentId = guestId || user?.uid;
+    if (!currentId) {
+      alert('잠시 후 다시 시도하거나 페이지를 새로고침 해주세요.');
+      return; // ID가 없으면 여기서 중단해서 에러를 방지합니다.
+    }
+    // 1. 중복 확인 로직
+
+    try {
+      const docRef = doc(db, 'sazatalkad_logs', currentId); // guestId 대신 currentId 사용
       const docSnap = await getDoc(docRef);
-   
 
       if (docSnap.exists()) {
         const existingData = docSnap.data();
-
-        // 2. 저장된 사주와 현재 사주가 동일한지 비교
-        // JSON.stringify를 사용하면 객체 내부 값까지 간편하게 비교 가능합니다.
+        // sortObject가 정의되어 있는지 꼭 확인하세요!
         if (JSON.stringify(sortObject(existingData.saju)) === JSON.stringify(sortObject(saju))) {
-          // 3. 동일할 경우 알림창 띄우기
           const alertMessage =
             language === 'en'
               ? 'Visit our website! Log in to get 3 premium reports daily for free.'
               : '사자사주 홈페이지에 방문해 보세요! 로그인만 하면 무료로 하루에 세 개씩 프리미엄 리포트를 확인할 수 있어요.';
-
           alert(alertMessage);
-
-          // 4. 로그 출력 후 함수 종료 (아래의 setDoc 실행 안 함)
-          console.log('Duplicate saju data found for ID:', guestId || user?.uid);
-          return;
-        } else {
-   
+          return; // 중복이면 여기서 바로 종료
         }
       }
+    } catch (error) {
+      console.error('기록 확인 중 오류:', error);
     }
     // 아이디확인 끝
     const myQuestion = userQuestion;
@@ -268,14 +266,14 @@ const SazaTalkAdKr = () => {
         timestamp: new Date().toISOString(),
         id: Date.now(),
       };
-   
+
       // DB 업데이트 (카운트 + 질문로그)
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
-      const docId = guestId || user?.uid;
+      // const docId = guestId || user?.uid;
       await setDoc(
-        doc(db, 'sazatalkad_logs', docId),
+        doc(db, 'sazatalkad_logs', currentId),
         {
-          id: guestId || user?.uid,
+          id: currentId,
           date: safeDate,
           user: !!user,
           saju: saju,
@@ -356,12 +354,17 @@ const SazaTalkAdKr = () => {
     }
     userQuestion.trim() && handleAskSaza();
   };
-  //내 일주
-  const me = saju?.sky1;
-  const meg = saju?.grd1;
 
-  const me_exp = dayStem.find((i) => i.name_kr === me);
-  const me_exp_g = dayBranch.find((i) => i.name_kr === meg);
+  const [data, setData] = useState({}); // 파싱된 데이터를 담을 로컬 상태
+
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
 
   const Loading = () => {
     return (
@@ -823,10 +826,10 @@ const SazaTalkAdKr = () => {
               </div>
 
               <div className="leading-8 w-full bg-white p-6 rounded-[24px] rounded-tl-none shadow-sm border border-[#E8DCCF]/50">
-                <div
-                  className="prose prose-sm max-w-none prose-strong:text-[#F47521] prose-strong:font-black prose-headings:text-[#4A3428] text-[#4A3428]"
-                  dangerouslySetInnerHTML={{ __html: pureHtml }}
-                />
+                {data.contents?.map((i) => (
+                  <p>{i}</p>
+                ))}
+                <strong>사자의 조언: {data.saza}</strong>
               </div>
             </div>
 
