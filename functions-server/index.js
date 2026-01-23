@@ -26,7 +26,10 @@ exports.fetchGeminiAnalysis = onCall(
       // 최신 성능이 좋은 gemini-1.5-flash 모델 사용
       const model = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
-      
+        generationConfig: {
+          // 구조가 바뀌더라도 "출력 형식"은 무조건 JSON으로 고정
+          responseMimeType: 'application/json',
+        },
       });
 
       const result = await model.generateContent(prompt);
