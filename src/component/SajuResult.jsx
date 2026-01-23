@@ -319,6 +319,7 @@ const SajuResult = ({ aiResult }) => {
             </div>
           ) : (
             <div>
+              
               <div dangerouslySetInnerHTML={{ __html: pureHtml }} />
               <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} />
             </div>

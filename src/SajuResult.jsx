@@ -307,7 +307,7 @@ const SajuResult = ({ aiResult }) => {
         </div>
       </div>
       {/* 2. AI 분석 결과 */}
-      
+
       <div
         id="share-card"
         className="w-full bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 mb-6 text-center border border-indigo-50 dark:border-slate-700"
@@ -337,13 +337,6 @@ const SajuResult = ({ aiResult }) => {
           )}
         </div>
       </div>
-      {/* 
-      <button
-        onClick={() => handleShare('share-card')}
-        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg active:scale-95 transition-transform"
-      >
-        {isEn ? 'Save Result as Image' : '결과 이미지로 저장하기'}
-      </button> */}
     </div>
   );
 };

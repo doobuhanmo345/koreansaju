@@ -15,6 +15,7 @@ import SajuResult from '../component/SajuResult';
 import { calculateSajuData } from '../utils/sajuLogic';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
+import ReportTemplateBasic from '../component/ReportTemplateBasic';
 
 export default function BasicAnaPage() {
   const [sajuData, setSajuData] = useState(null);
@@ -172,7 +173,7 @@ export default function BasicAnaPage() {
   }, [aiResult]);
 
   // ✅ 5. Result 컴포넌트 참조 고정
-  const resultComp = useCallback(() => <SajuResult aiResult={aiResult} />, [aiResult]);
+  const resultComp = useCallback(() => <ReportTemplateBasic />, [aiResult]);
 
   return (
     <AnalysisStepContainer

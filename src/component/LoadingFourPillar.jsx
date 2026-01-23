@@ -39,6 +39,7 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
     const totalDuration = 75000; // 75초
     const intervalTime = 100;
 
+    // 1. 메인 프로그레스 타이머
     const mainTimer = setInterval(() => {
       if (elapsedRef.current < totalDuration) {
         elapsedRef.current += intervalTime;
@@ -60,22 +61,46 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
       else setAnalysisStep(5);
     }, intervalTime);
 
+    // 2. 다국어 서브 로그 데이터 정의
+    const logData = {
+      ko: {
+        deep: [
+          'Quantum Destiny Mapping...',
+          '운명의 실타래 최종 조율 중',
+          '27인 마스터 데이터 매칭 완료',
+          '결과 보고서 패키징 중...',
+        ],
+        standard: [
+          '오행의 균형도 측정 중...',
+          '지장간 내 숨겨진 기운 추출...',
+          '용신과 희신 교차 검증 중...',
+          '27인 명리학자 가중치 적용...',
+        ],
+      },
+      en: {
+        deep: [
+          'Quantum Destiny Mapping...',
+          'Fine-tuning the threads of fate...',
+          'Master dataset matching complete...',
+          'Packaging success report...',
+        ],
+        standard: [
+          'Measuring Five Elements balance...',
+          'Extracting hidden stem energies...',
+          'Cross-validating auspicious elements...',
+          'Applying 27 Saju master weights...',
+        ],
+      },
+    };
+
+    // 3. 서브 로그 업데이트 타이머
     const logInterval = setInterval(
       () => {
-        const logs = isDeepAnalyzing
-          ? [
-              'Quantum Destiny Mapping...',
-              '운명의 실타래 최종 조율 중',
-              '27인 마스터 데이터 매칭 완료',
-              '결과 보고서 패키징 중...',
-            ]
-          : [
-              '오행의 균형도 측정 중...',
-              '지장간 내 숨겨진 기운 추출...',
-              '용신과 희신 교차 검증 중...',
-              '27인 명리학자 가중치 적용...',
-            ];
-        setSubLog(logs[Math.floor(Math.random() * logs.length)]);
+        const currentLang = language === 'en' ? 'en' : 'ko';
+        const currentMode = isDeepAnalyzing ? 'deep' : 'standard';
+        const selectedLogs = logData[currentLang][currentMode];
+
+        setSubLog(selectedLogs[Math.floor(Math.random() * selectedLogs.length)]);
       },
       isDeepAnalyzing ? 1200 : 2500,
     );
@@ -84,8 +109,7 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
       clearInterval(mainTimer);
       clearInterval(logInterval);
     };
-  }, [isDeepAnalyzing]);
-
+  }, [isDeepAnalyzing, language]); // language 추가: 언어 변경 시 즉시 반영
   const statusMessages = {
     1: '년주 분석: 타고난 가문의 기운과 근본적 에너지 스캔 중 (1/5)',
     2: '월주 분석: 사회적 성취도와 직업적 환경 빅데이터 분석 중 (2/5)',
@@ -138,7 +162,7 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
             <h3 className="text-md font-serif font-light italic text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
               <span className="not-italic font-normal">“</span>
               {language === 'en' ? statusMessagesEn[analysisStep] : statusMessages[analysisStep]}
-             
+
               <span className="not-italic font-normal">”</span>
             </h3>
             <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 transition-opacity duration-1000">

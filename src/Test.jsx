@@ -8,14 +8,16 @@ import { useAuthContext } from './context/useAuthContext';
 import ReportTemplateToday from './component/ReportTemplateToday';
 import ReportTemplateDate from './component/ReportTemplateDate';
 import ReportTemplateInterview from './component/ReportTemplateInterview';
+import ReportTemplateBasic from './component/ReportTemplateBasic';
+
 
 export default function Test() {
   const { userData } = useAuthContext();
   const { language } = useLanguage();
   return (
     <>
-      <ReportTemplateInterview />
-      <ReportTemplateDate />
+      <ReportTemplateBasic />
+
     </>
   );
 }

@@ -1590,7 +1590,9 @@ export const reportStyleSimple = `
     50% { transform: scale(1.03); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3); }
     100% { transform: scale(1); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
   }
-
+ .rt-gap2 {
+ margin-bottom: 20px
+ }
   .rt-container {
     background: #f8fbff;
     min-height: 100vh;
@@ -1633,8 +1635,8 @@ export const reportStyleSimple = `
     box-shadow: 0 10px 30px rgba(37, 99, 235, 0.04);
     border: 1px solid rgba(37, 99, 235, 0.08);
   }
-  .rt-card__title { font-size: 1.15rem; font-weight: 850; margin-bottom: 24px; color: #0f172a; display: inline-block; position: relative; }
-  .rt-card__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 110%; height: 8px; background: #dbeafe; z-index: -1; border-radius: 4px; }
+  .rt-card__title { font-size: 1.15rem;  font-weight: 850; margin-bottom: 24px; color: #0f172a; display: inline-block; position: relative;isolation: isolate; }
+  .rt-card__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 105%; height: 8px; background: #dbeafe; z-index: -1; border-radius: 4px; }
   .rt-card__text { font-size: 0.95rem; line-height: 1.8; color: #475569; }
   .rt-card__text strong { color: #2563eb; font-weight: 800; }
 
