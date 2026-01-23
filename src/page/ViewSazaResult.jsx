@@ -23,8 +23,7 @@ export default function ViewSazaResult({ userQuestion, onReset }) {
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
   if (loading) return <>로딩중</>;
-  console.log(data, aiResult);
-
+  
   return (
     <div ref={scrollElRef} className="max-w-lg m-auto p-4 space-y-6">
       {/* 사용자의 질문 (오른쪽 정렬 말풍선) */}

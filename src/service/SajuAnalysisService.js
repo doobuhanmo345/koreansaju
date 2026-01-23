@@ -206,7 +206,7 @@ class SajuAnalysisService {
         fullPrompt = this.replaceVariables(prompts[promptPaths[0]], vars);
       }
       if (true || this.user?.email === 'doobuhanmo3@gmail.com') {
-        console.log(fullPrompt);
+      
       }
 
       // API 호출

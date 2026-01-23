@@ -208,7 +208,7 @@ const NewYearAdEn = () => {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-      console.log(fullPrompt);
+ 
       const result = await fetchGeminiAnalysis(fullPrompt);
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
       const docId = guestId || user?.uid;
@@ -312,7 +312,7 @@ const NewYearAdEn = () => {
       }
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
-  console.log(aiResult, data);
+ 
   const Loading = () => {
     return (
       <div className="bg-[#FDF5F0] min-h-screen flex flex-col items-center justify-center overflow-hidden transform-gpu px-6">

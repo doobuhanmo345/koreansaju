@@ -11,7 +11,7 @@ const ReportTemplateToday = ({}) => {
 
 
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
-  console.log(data);
+ 
   useEffect(() => {
     if (aiResult) {
       const parsedData = parseAiResponse(aiResult);

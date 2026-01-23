@@ -216,7 +216,7 @@ const NewYearAdKr = () => {
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
-      console.log(fullPrompt);
+   
       const result = await fetchGeminiAnalysis(fullPrompt);
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
       const docId = guestId || user?.uid;
