@@ -208,7 +208,6 @@ class SajuAnalysisService {
       if (true || this.user?.email === 'doobuhanmo3@gmail.com') {
         console.log(fullPrompt);
       }
-  
 
       // API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
@@ -473,7 +472,6 @@ class AnalysisPresets {
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
         !!cached.result,
-       
 
       buildPromptVars: (prompts, p, service) => ({
         '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
@@ -726,21 +724,17 @@ class AnalysisPresets {
 
       validateCache: (cached, p) =>
         cached.language === p.language &&
-        cached.ques === p.selectedQ &&
-        cached.ques2 === p.selectedSubQ &&
+        cached.ques === p.q1 &&
+        cached.ques2 === p.q2 &&
         cached.gender === p.gender &&
         SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
         !!cached.result,
 
       buildPromptVars: (prompts, p, service) => {
-        const qLabel = service.qTypes?.find((r) => r.id === p.selectedQ)?.label || 'General Wealth';
-        const subQDetail =
-          service.subQTypes?.[p.selectedQ]?.find((i) => i.id === p.selectedSubQ)?.prompt || '';
-
         return {
           '{{STRICT_PROMPT}}': prompts['prompt/wealth_strict'],
-          '{{qLabel}}': qLabel,
-          '{{subQuestion}}': subQDetail,
+          '{{qLabel}}': p.q1,
+          '{{subQuestion}}': p.q2,
           '{{gender}}': p.gender,
           '{{todayStr}}': new Date().toLocaleDateString('en-CA'),
           '{{mySajuStr}}': service.getSajuString(p.saju),
@@ -761,8 +755,8 @@ class AnalysisPresets {
               result,
               saju: p.saju,
               gender: p.gender,
-              ques: p.selectedQ,
-              ques2: p.selectedSubQ,
+              ques: p.q1,
+              ques2: p.q2,
               language: p.language,
             },
           },

@@ -336,7 +336,6 @@ export default function Match({}) {
       }
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
-  console.log(data, aiResult);
 
   return (
     <>

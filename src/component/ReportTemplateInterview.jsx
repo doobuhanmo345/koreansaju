@@ -8,8 +8,8 @@ const ReportTemplateInterview = ({}) => {
   const { aiResult } = useLoading();
   const { language } = useLanguage();
   const { userData } = useAuthContext();
-  const { displayName, birthDate, saju } = userData;
-   const [isLoaded, setIsLoaded] = useState(false);
+  const { displayName, birthDate, saju, isTimeUnknown } = userData;
+  const [isLoaded, setIsLoaded] = useState(false);
   const bd = toymdt(birthDate);
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
@@ -60,7 +60,7 @@ const ReportTemplateInterview = ({}) => {
     setIsLoaded(true);
   }, []);
   if (!data) return '결과없음';
- 
+
   return (
     <div className={`rt-container ${isLoaded ? 'is-active' : ''}`}>
       <style>{reusableStyle}</style>

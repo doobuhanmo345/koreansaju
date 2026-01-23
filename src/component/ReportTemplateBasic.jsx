@@ -255,7 +255,7 @@ const ReportTemplateBasic = ({}) => {
                     {isEn ? (
                       <span> {gender} </span>
                     ) : (
-                      <span>{gender === ' male' ? ' 남성' : ' 여성'}</span>
+                      <span>{gender === 'male' ? ' 남성' : ' 여성'}</span>
                     )}
                   </span>
                 </div>

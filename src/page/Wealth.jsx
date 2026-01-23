@@ -216,7 +216,7 @@ export default function Wealth({}) {
   const t = (char) => (language === 'en' ? getEng(char) : char);
   const { language } = useLanguage();
   const { user, userData } = useAuthContext();
-  const { birthDate: inputDate, isTimeUnknown, gender ,saju} = userData || {};
+  const { birthDate: inputDate, isTimeUnknown, gender, saju } = userData || {};
 
   const { MAX_EDIT_COUNT, isLocked, setEditCount, editCount } = useUsageLimit();
 
@@ -293,138 +293,6 @@ export default function Wealth({}) {
     setAiResult('');
   };
 
-  // const handleWealthAnalysis = async () => {
-  //   // 1. 유효성 검사
-  //   if (!user) return alert(UI_TEXT.loginReq[language]);
-
-  //   setLoading(true);
-  //   setAiResult('');
-
-  //   // ✅ [핵심] 비교할 사주 팔자의 키값 8개 (순서 상관없이 값만 비교하기 위함)
-  //   const SAJU_KEYS = ['sky3', 'grd3', 'sky2', 'grd2', 'sky1', 'grd1', 'sky0', 'grd0'];
-
-  //   // ✅ [비교 함수] 두 사주 객체의 8글자 값이 정확히 일치하는지 확인
-  //   const checkSajuEqual = (source, target) => {
-  //     if (!source || !target) return false;
-  //     // 8개 키 중 하나라도 값이 다르면 false 리턴
-  //     return SAJU_KEYS.every((key) => source[key] === target[key]);
-  //   };
-
-  //   try {
-  //     const data = userData.usageHistory || {};
-  //     const currentCount = data.editCount || 0;
-
-  //     // ---------------------------------------------------------
-  //     // 2. 캐시 체크 (사주 글자 정밀 비교)
-  //     // ---------------------------------------------------------
-
-  //     if (data.ZWealthAnalysis) {
-  //       const saved = data.ZWealthAnalysis;
-
-  //       // 1) 기본 정보 비교 (언어, 관계, 성별)
-  //       const isBasicMatch =
-  //         saved.language === language &&
-  //         saved.ques === selectedQ &&
-  //         saved.ques2 === selectedSubQ &&
-  //         saved.gender === gender;
-
-  //       // 2) ★ 사주 글 비교 (saju & saju2)
-  //       // inputDate가 달라도, 사주 8글자가 같으면 캐시를 사용함 (사용자 요청 사항)
-  //       const isMySajuMatch = checkSajuEqual(saved.saju, saju);
-  //       if (isBasicMatch && isMySajuMatch && saved.result) {
-  //         setAiResult(saved.result);
-  //         setLoading(false);
-  //         setStep(4);
-  //         // 필요한 경우 결과창 이동
-
-  //         return;
-  //       }
-  //     }
-
-  //     // ---------------------------------------------------------
-  //     // 3. API 호출 (사주 글자가 달라졌을 때)
-  //     // ---------------------------------------------------------
-  //     console.log('🚀 사주 글자가 변경되었습니다. API를 호출합니다.');
-  //     if (currentCount >= MAX_EDIT_COUNT) {
-  //       setLoading(false);
-
-  //       return alert(UI_TEXT.limitReached[language]);
-  //     }
-
-  //     const mySajuStr = JSON.stringify(saju);
-
-  //     const todayStr = new Date().toLocaleDateString('en-CA');
-  //     // 2. DB에서 프롬프트 조각들 가져오기
-  //     const dbRef = ref(database);
-  //     const [strictSnap, basicSnap] = await Promise.all([
-  //       get(child(dbRef, 'prompt/wealth_strict')), // 전문가 지침
-  //       get(child(dbRef, 'prompt/wealth_basic')), // 전체 뼈대
-  //     ]);
-
-  //     if (!basicSnap.exists()) throw new Error('DB에 재물운 템플릿이 없습니다.');
-
-  //     // 3. 변수 가공
-  //     const qLabel = Q_TYPES.find((r) => r.id === selectedQ)?.label || 'General Wealth';
-  //     const subQDetail = SUB_Q_TYPES[selectedQ]?.find((i) => i.id === selectedSubQ)?.prompt || '';
-  //     const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
-
-  //     const replacements = {
-  //       '{{STRICT_PROMPT}}': strictSnap.val() || '',
-  //       '{{qLabel}}': qLabel,
-  //       '{{subQuestion}}': subQDetail,
-  //       '{{gender}}': gender,
-  //       '{{todayStr}}': todayStr,
-  //       '{{mySajuStr}}': `${mySajuStr} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
-  //       '{{displayName}}': displayName,
-  //       '{{langPrompt}}': typeof langPrompt === 'function' ? langPrompt(language) : '',
-  //     };
-
-  //     // 4. 프롬프트 완성
-  //     let fullPrompt = basicSnap.val();
-  //     Object.entries(replacements).forEach(([key, value]) => {
-  //       fullPrompt = fullPrompt.split(key).join(value || '');
-  //     });
-
-  //     // 5. API 호출
-  //     const result = await fetchGeminiAnalysis(fullPrompt);
-
-  //     const newCount = currentCount + 1;
-
-  //     // ---------------------------------------------------------
-  //     // 4. 저장 (현재의 saju와 saju2를 저장해야 다음 비교 가능)
-  //     // ---------------------------------------------------------
-  //     await setDoc(
-  //       doc(db, 'users', user.uid),
-  //       {
-  //         saju: saju,
-  //         editCount: increment(1),
-  //         lastEditDate: new Date().toLocaleDateString('en-CA'),
-  //         dailyUsage: {
-  //           [new Date().toLocaleDateString('en-CA')]: increment(1),
-  //         },
-  //         usageHistory: {
-  //           ZWealthAnalysis: {
-  //             result: result,
-  //             saju: saju,
-  //             gender: gender,
-  //             ques: selectedQ,
-  //             ques2: selectedSubQ,
-  //             language: language,
-  //           },
-  //         },
-  //       },
-  //       { merge: true },
-  //     );
-  //     setEditCount((prev) => prev + 1);
-  //     setAiResult(result);
-  //     setStep(4); // 필요시 이동
-  //   } catch (e) {
-  //     console.error(e);
-  //     alert(`Error: ${e.message}`);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const service = new SajuAnalysisService({
     user,
     userData,
@@ -445,8 +313,8 @@ export default function Wealth({}) {
         AnalysisPresets.wealth({
           saju,
           gender,
-          selectedQ,
-          selectedSubQ,
+          q1,
+          q2,
           language,
         }),
       );
@@ -474,7 +342,71 @@ export default function Wealth({}) {
   const DISABLED_STYLE = 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200';
   const isDisabled = (loading && !wealthEnergy2.isConsuming) || !user || loading;
   const isDisabled2 = !isAnalysisDone && isLocked;
+  // const data = {
+  //   header: {
+  //     keywords: ['키워드1', '키워드2', '키워드3'],
+  //     keywordSummary: '키워드들에 대한 요약 한문장',
+  //     title: '제목',
+  //     summary: '전체 요약',
+  //   },
+  //   contents: [
+  //     //해당 주제에 대한 내용을 제목과 설명으로 세개 이상
+  //     { title: '제목', desc: '설명. 세문장 이상' },
+  //     { title: '제목', desc: '설명. 세문장 이상' },
+  //     { title: '제목', desc: '설명. 세문장 이상' },
+  //   ],
+  //   conclusion: {
+  //     title: '잘 되기 위한 조언 제목',
+  //     desc: '잘 되기 위한 조언 내용. 두문장 이하',
+  //   },
+  //   tosaza: '사자에게 유도문구',
+  // };
+  const isEn = language === 'en';
+  const q1 = Q_TYPES.find((i) => i.id === selectedQ)?.desc;
+  const q2 = SUB_Q_TYPES?.[selectedQ]?.find((i) => i.id === selectedSubQ)?.desc;
+  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
+  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
+  const parseAiResponse = (rawString) => {
+    if (!rawString) return null;
 
+    console.log('🛠️ 파싱 시도할 원본 문자열:', rawString);
+
+    try {
+      // 1. 마크다운 코드 블록 제거 및 불필요한 공백 제거
+      const cleaned = rawString
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 눈에 안 보이는 제어 문자 제거
+        .trim();
+
+      return JSON.parse(cleaned);
+    } catch (error) {
+      console.error('❌ 1차 파싱 실패 (cleaned):', error.message);
+
+      try {
+        // 2. 정규식으로 { } 내용만 추출해서 다시 시도
+        const jsonMatch = rawString.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          console.log('🧐 정규식 추출 성공, 2차 파싱 시도...');
+          return JSON.parse(jsonMatch[0]);
+        }
+      } catch (innerError) {
+        console.error('❌ 2차 파싱 실패 (regex):', innerError.message);
+        return null;
+      }
+      return null;
+    }
+  };
+
+ 
+  useEffect(() => {
+    if (aiResult) {
+      const parsedData = parseAiResponse(aiResult);
+      if (parsedData) {
+        setData(parsedData); // 파싱 성공 시 데이터 세팅
+      }
+    }
+  }, [aiResult]); // aiResult가 업데이트될 때마다 실행
   return (
     <>
       {/* 상단 단계 표시바 (Stepper) */}
@@ -662,7 +594,7 @@ export default function Wealth({}) {
         </div>
       )}
       {/* ================================================= */}
-      {/* 🟢 STEP 2: 정보 입력 (나 & 상대방) */}
+      {/* 🟢 STEP 2: 정보 입력 
       {/* ================================================= */}
 
       {step === 2 && (
@@ -968,11 +900,66 @@ export default function Wealth({}) {
                 {language === 'en' ? 'Detailed Analysis' : '상세 분석 결과'}
               </h3>
             </div>
+            {/* 테스트 */}
+            <div className="bg-indigo-50/30 dark:bg-slate-800/50 rounded-2xl border border-indigo-100/50 dark:border-slate-700 p-5 sm:p-6 shadow-sm">
+              {!!data && (
+                <div className="flex flex-col gap-8 py-2 animate-up">
+                  {/* 1. 상단: 점수 및 핵심 타이틀 */}
+                  <section className="text-center">
+                    <h2 className="text-xl font-black text-slate-800 dark:text-white mb-1">
+                      {data.header.title}
+                    </h2>
+                    <p className="text-sm text-indigo-500 font-semibold"> {data.header.summary}</p>
+                  </section>
 
-            {/* 실제 결과 텍스트 */}
-            <div className="whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300">
-              {aiResult}
+                  {/* 2. 분위기 요약 (얇은 구분선) */}
+                  <section className="border-t border-slate-100 dark:border-slate-800 pt-6 text-center">
+                    {data.header.keywordSummary}
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {data.header.keywords.map((word, i) => (
+                        <span key={i} className="text-[10px] font-medium text-slate-400">
+                          #{word}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* 3. 에너지 분석 (나 vs 상대) - 색상 통일 */}
+                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                    <div>
+                      {data.contents.map((i) => (
+                        <div key={i} className="mb-5">
+                          <h4 className="font-sm font-black text-slate-600 uppercase tracking-widest mb-2">
+                            {i.title}
+                          </h4>
+                          <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                            {i.desc}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* 6. 최종 결론 및 가이드 */}
+                  <section className="border-t border-slate-100 dark:border-slate-800 pt-6 pb-4">
+                    <h4 className="font-xs font-black text-indigo-500 uppercase tracking-widest mb-3 text-center">
+                      Master's Conclusion
+                    </h4>
+                    <p className="text-[14px] font-medium text-slate-700 dark:text-slate-200 leading-relaxed text-center max-w-md mx-auto mb-4">
+                      {data.conclusion.title}
+                    </p>
+                    <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400 text-center">
+                      {data.conclusion.desc}
+                    </p>
+                    <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-900 text-center">
+                      <span className="text-xs text-slate-800 font-bold italic">{data.tosaza}</span>
+                    </div>
+                  </section>
+                </div>
+              )}
             </div>
+
+         
           </div>
 
           {/* 하단 버튼 (다시하기 등) */}

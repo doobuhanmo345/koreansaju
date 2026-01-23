@@ -36,11 +36,10 @@ const ReportTemplateDate = (
   const { aiResult } = useLoading();
   const { language } = useLanguage();
   const { userData } = useAuthContext();
-  const { displayName, birthDate, saju } = userData;
+  const { displayName, birthDate, saju, isTimeUnknown } = userData;
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   const [isLoaded, setIsLoaded] = useState(false);
   const bd = toymdt(birthDate);
-
 
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
   const parseAiResponse = (rawString) => {
@@ -83,8 +82,6 @@ const ReportTemplateDate = (
       }
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
-
-  // 데이터 없으면 아무것도 안 보여줌
 
   useEffect(() => {
     setIsLoaded(true);
