@@ -20,6 +20,7 @@ export function AuthContextProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const { language } = useLanguage();
+  const pathname = window.location.pathname.trim(); // 공백 제거
   const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
   // 1️⃣ 일주 이미지 경로 계산
   const iljuImagePath = useMemo(() => {
@@ -83,7 +84,7 @@ export function AuthContextProvider({ children }) {
   // 3️⃣ 인앱 브라우저 체크 및 로그인 감시
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
-
+    const isAdPage = window.location.pathname.startsWith('/ad');
     const isInApp = /kakaotalk|instagram|naver/.test(userAgent);
 
     if (isSpecialPage && !isAdPage) {
