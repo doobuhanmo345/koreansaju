@@ -1,23 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { reportStyleSimple } from '../data/aiResultConstants';
 import { useLanguage } from '../context/useLanguageContext';
+import { toymdt } from '../utils/helpers';
+import { useAuthContext } from '../context/useAuthContext';
 const ReportTemplateInterview = ({
 
 }) => {
+
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+const { userData } = useAuthContext();
+  const { displayName, birthDate, saju } = userData;
+  console.log(displayName, birthDate, saju);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  const bd = toymdt(birthDate);
+  console.log(bd);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
   const { language } = useLanguage();
   const data = {
-    userName: '지민',
-    birthDate: '1998.05.24',
+
     interviewType: '기업 면접',
     interviewDate: '2026.02.15',
     concern: '말주변/긴장',
     passIndex: 85,
-    sajuInfo: { year: '戊辰', month: '丁巳', day: '庚申', time: '未知' },
+    
     section01: {
       mood: 'Intellectual Navy Vibe',
       point: 'Blazer & Silver Accessories',
@@ -72,7 +84,9 @@ const ReportTemplateInterview = ({
           <div className="rt-id-card__body">
             <div className="rt-info-row">
               <span className="rt-info-row__label">BIRTH</span>
-              <span className="rt-info-row__value">{data.birthDate}</span>
+              <span className="rt-info-row__value">
+                {bd.year}.{bd.month}.{bd.day} / {bd.time}
+              </span>
             </div>
             <div className="rt-info-row">
               <span className="rt-info-row__label">TARGET</span>
@@ -83,21 +97,24 @@ const ReportTemplateInterview = ({
               <span className="rt-info-row__value">{data.interviewDate}</span>
             </div>
             <div className="rt-saju-grid">
-              <div className="rt-saju-grid__item">
-                <span>{language === 'en' ? 'Hour' : '시'}</span>
-                {data.sajuInfo.time}
-              </div>
+              {saju.grd0 && (
+                <div className="rt-saju-grid__item">
+                  <span>{language === 'en' ? 'Hour' : '시'}</span>
+                  {saju.sky0} {saju.grd0}
+                </div>
+              )}
+
               <div className="rt-saju-grid__item">
                 <span>{language === 'en' ? 'Day' : '일'}</span>
-                {data.sajuInfo.day}
+                {saju.sky1} {saju.grd1}
               </div>
               <div className="rt-saju-grid__item">
                 <span>{language === 'en' ? 'Month' : '월'}</span>
-                {data.sajuInfo.month}
+                {saju.sky2} {saju.grd2}
               </div>
               <div className="rt-saju-grid__item">
                 <span>{language === 'en' ? 'Year' : '년'}</span>
-                {data.sajuInfo.year}
+                {saju.sky3} {saju.grd3}
               </div>
             </div>
           </div>

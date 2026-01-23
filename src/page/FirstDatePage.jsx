@@ -23,6 +23,7 @@ import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisSer
 import { type } from 'firebase/firestore/pipelines';
 import CustomCalendar from '../component/CustomCalendar';
 import { getPromptFromDB } from '../service/SajuAnalysisService';
+import ReportTemplateDate from '../component/ReportTemplateDate';
 
 // 퀘스천 그룹을 컴포넌트 밖으로 이동 (재렌더링 방지)
 const QUESTION_GROUPS = [
@@ -217,7 +218,7 @@ export default function FirstDatepage() {
 
   const datePickerSection = useCallback(() => {
     const today = new Date();
-    
+
     return (
       <div className="w-full max-w-md mx-auto py-8">
         <div className="mb-6">
@@ -413,7 +414,7 @@ export default function FirstDatepage() {
     <AnalysisStepContainer
       guideContent={sajuGuide}
       loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ViewResult}
+      resultComponent={ReportTemplateDate}
       loadingTime={0}
     />
   );

@@ -5,8 +5,28 @@ import { ENG_MAP } from '../data/constants';
 export const classNames = (...classes) => {
   return classes.filter(Boolean).join(' ');
 };
+/**
+ * ISO 형식의 일시 문자열을 연, 월, 일, 시간으로 분리하는 함수
+ * @param {string} dateTimeStr - "1988-12-02T18:36" 형식
+ * @returns {object} { year, month, day, time }
+ */
+export const toymdt = (dateTimeStr) => {
+  if (!dateTimeStr) return { year: '', month: '', day: '', time: '' };
 
-// --- 내부 사용 아이콘/한자 매핑 데이터 ---
+  // 'T'를 기준으로 날짜와 시간을 먼저 분리
+  const [datePart, timePart] = dateTimeStr.split('T');
+
+  // 날짜 부분에서 연, 월, 일을 분리
+  const [year, month, day] = datePart.split('-');
+
+  return {
+    year: year, // "1988"
+    month: month, // "12"
+    day: day, // "02"
+    time: timePart, // "18:36"
+  };
+};
+
 const skyIcons = {
   갑: '🌳',
   을: '🌱',
