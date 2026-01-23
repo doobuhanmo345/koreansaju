@@ -57,8 +57,19 @@ const RootComponent = () => {
   const pathname = window.location.pathname.trim(); // 공백 제거
   console.log('Current Pathname:', pathname); // 실제 경로 확인용
 
-  const isSpecialPage =
-    /^\/(ad|paywall|sazatalkad|sazatalkadkr|newyearadkr|newyearaden|test2)(\/|$)/.test(pathname);
+  const specialPaths = [
+    '/ad',
+    '/paywall',
+    '/sazatalkad',
+    '/sazatalkadkr',
+    '/newyearadkr',
+    '/newyearaden',
+    '/test2',
+  ];
+  const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
+
+  // 로그 찍어서 false 나오면 정규식/경로 문제임
+  console.log('결과:', isSpecialPage, '현재경로:', pathname);
   const isBrowserGuide = pathname.startsWith('/open-in-browser'); // === 대신 startsWith 추천
 
   // 1. 광고 페이지라면 무조건 여기서 끝냄 (최우선순위 보장)
