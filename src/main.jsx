@@ -13,8 +13,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Ad from './page/Ad';
 import SazaTalkAd from './page/SazaTalkAd';
 import SazaTalkAdKr from './page/SazaTalkAdKr';
-import SazaTalkAdKr from './page/NewYearAdKr';
-import SazaTalkAdEn from './page/NewYearAdEn';
+import NewYearAdKr from './page/NewYearAdKr';
+import NewYearAdEn from './page/NewYearAdEn';
 
 // 🔥 모든 페이지를 lazy loading으로 변경
 const SajuExp = lazy(() => import('./page/SajuExp'));
