@@ -1479,6 +1479,31 @@ export const reportStyleBlue = `
   font-weight: 700;
   color: #3b82f6;
 }
+.sjsj-month-summary-chips {
+  background-color: #f8faff;
+  border: 1px solid #e0e7ff;
+  border-radius: 16px;
+  padding: 16px; /* 여백을 조금 더 압축 */
+  margin-bottom: 24px;
+  
+  /* 핵심: 붙어있는 플렉스 설정 */
+  display: flex;
+  flex-wrap: wrap;       /* 자리가 없으면 다음 줄로 */
+  justify-content: center; /* 가운데로 옹기종기 모으기 (왼쪽 정렬 원하면 flex-start) */
+  gap: 8px 12px;         /* 상하 8px, 좌우 12px 고정 간격 */
+  
+  font-size: 12px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* 내부 div나 span을 개별 '칩'으로 보이게 하고 싶을 때 */
+.sjsj-month-summary-chips > div,
+.sjsj-month-summary-chips > span {
+  display: flex;
+  white-space: nowrap;    /* 글자 줄바꿈 방지 */
+
+}
 
 .sjsj-long-text {
   font-size: 0.95rem;
@@ -1555,6 +1580,137 @@ export const reportStyleBlue = `
 }
 </style>
 `;
+export const reportStyleSimple = `
+  @keyframes rtSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes rtPulse {
+    0% { transform: scale(1); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
+    50% { transform: scale(1.03); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3); }
+    100% { transform: scale(1); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
+  }
+
+  .rt-container {
+    background: #f8fbff;
+    min-height: 100vh;
+    padding-bottom: 60px;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    color: #1e293b;
+    overflow-x: hidden;
+  }
+  .animate-up { opacity: 0; }
+  .rt-container.is-active .animate-up { animation: rtSlideUp 0.8s ease-out forwards; }
+  
+  .rt-header { padding: 80px 20px 40px; text-align: center; }
+  .rt-tag { font-size: 0.75rem; font-weight: 800; color: #3b82f6; letter-spacing: 0.25em; margin-bottom: 12px; }
+  .rt-main-title { font-size: 2.2rem; font-weight: 950; line-height: 1.25; color: #0f172a; }
+  .rt-main-title .text-highlight { color: #2563eb; }
+  .rt-desc { font-size: 0.9rem; color: #64748b; margin-top: 16px; font-weight: 500; }
+
+  .rt-id-card {
+    background: #fff; border-radius: 28px; padding: 30px;
+    box-shadow: 0 20px 45px rgba(37, 99, 235, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    max-width: 400px; margin: 24px auto;
+    background-image: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  }
+  .rt-id-card__header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 14px; }
+  .rt-id-card__name { font-size: 1.6rem; font-weight: 900; color: #0f172a; }
+  .rt-id-card__label { font-size: 0.7rem; color: #fff; background: #0f172a; padding: 4px 14px; border-radius: 100px; font-weight: 800; }
+  
+  .rt-info-row { display: flex; margin-bottom: 10px; font-size: 0.85rem; }
+  .rt-info-row__label { width: 70px; color: #94a3b8; font-weight: 600; }
+  .rt-info-row__value { color: #334155; font-weight: 700; }
+
+  .rt-saju-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 24px; }
+  .rt-saju-grid__item { background: #0f172a; color: #fff; border-radius: 16px; padding: 12px 5px; text-align: center; font-size: 0.95rem; font-weight: 700; }
+  .rt-saju-grid__item span { display: block; font-size: 0.65rem; color: #94a3b8; margin-bottom: 4px; }
+
+  .rt-main-content { max-width: 440px; margin: 0 auto; padding: 0 20px; }
+  .rt-card {
+    background: #fff; border-radius: 32px; padding: 32px; margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.04);
+    border: 1px solid rgba(37, 99, 235, 0.08);
+  }
+  .rt-card__title { font-size: 1.15rem; font-weight: 850; margin-bottom: 24px; color: #0f172a; display: inline-block; position: relative; }
+  .rt-card__title::after { content: ''; position: absolute; left: 0; bottom: 0; width: 110%; height: 8px; background: #dbeafe; z-index: -1; border-radius: 4px; }
+  .rt-card__text { font-size: 0.95rem; line-height: 1.8; color: #475569; }
+  .rt-card__text strong { color: #2563eb; font-weight: 800; }
+
+  .rt-ootd-wrapper { display: flex; gap: 12px; margin-bottom: 24px; }
+  .rt-ootd-item { flex: 1; background: #f8fbff; padding: 18px; border-radius: 20px; text-align: center; border: 1px solid #eff6ff; }
+  .rt-ootd-item__label { font-size: 0.7rem; font-weight: 700; color: #3b82f6; display: block; margin-bottom: 6px; }
+  .rt-ootd-item__value { font-size: 0.95rem; font-weight: 900; }
+/* -------------------------------------------------- */
+/* 모바일 대응: 767px 이하일 때 블락 처리 */
+/* -------------------------------------------------- */
+@media (max-width: 767px) {
+  .rt-ootd-wrapper {
+    display: block; /* 가로 정렬 해제 */
+  }
+
+  .rt-ootd-item {
+    margin-bottom: 12px; /* 아이템 간 세로 간격 */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .rt-ootd-item:last-child {
+    margin-bottom: 0; /* 마지막 아이템 여백 제거 */
+  }
+}
+  .rt-analysis-list__item { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+  .rt-analysis-list__sub-title { font-size: 0.9rem; font-weight: 900; color: #2563eb; margin-bottom: 8px; display: block; }
+  
+  .rt-score-box { text-align: center; margin-bottom: 28px; }
+  .rt-score-box__val { font-size: 3.2rem; font-weight: 950; color: #2563eb; letter-spacing: -2px; }
+  .rt-progress { background: #f1f5f9; height: 12px; border-radius: 100px; margin-top: 10px; overflow: hidden; }
+  .rt-progress__fill { height: 100%; background: #2563eb; transition: width 1.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  .rt-timing-grid { display: flex; gap: 12px; margin-top: 24px; }
+  .rt-timing-grid__item { flex: 1; border: 1.5px solid #e0e7ff; padding: 16px; border-radius: 20px; text-align: center; }
+  .rt-timing-grid__item span { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+  .rt-timing-grid__item strong { font-size: 0.85rem; font-weight: 800; }
+  @media (max-width: 767px) {
+  .rt-timing-grid {
+    display: block; /* 가로 정렬 해제 */
+  }
+
+  .rt-timing-grid__item {
+    margin-bottom: 12px; /* 세로로 쌓일 때 아이템 간격 */
+    width: 100%; /* 부모 너비에 맞춤 */
+    box-sizing: border-box; /* 패딩이 너비를 넘지 않게 조절 */
+  }
+
+  .rt-timing-grid__item:last-child {
+    margin-bottom: 0; /* 마지막 아이템은 여백 제거 */
+  }
+}
+
+  .rt-tip-box { background: #f8faff; padding: 20px; border-radius: 20px; border: 1px solid #eff6ff; }
+  .rt-tip-box__label { font-size: 0.9rem; font-weight: 900; color: #2563eb; display: block; margin-bottom: 8px; }
+
+  .rt-final-badge { 
+    margin-top: 32px; background: #2563eb; color: #fff; padding: 20px; 
+    border-radius: 100px; text-align: center; font-weight: 900; 
+    animation: rtPulse 2.5s infinite;
+  }
+
+  .rt-footer { padding: 40px 20px; text-align: center; }
+  .rt-btn-primary { 
+    background: #0f172a; color: #fff; border: none; padding: 22px; 
+    border-radius: 100px; font-weight: 900; width: 100%; font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  .rt-container.is-active .animate-up:nth-child(1) { animation-delay: 0.2s; }
+  .rt-container.is-active .animate-up:nth-child(2) { animation-delay: 0.4s; }
+  .rt-container.is-active .rt-card:nth-of-type(1) { animation-delay: 0.6s; }
+  .rt-container.is-active .rt-card:nth-of-type(2) { animation-delay: 0.8s; }
+  .rt-container.is-active .rt-card:nth-of-type(3) { animation-delay: 1.0s; }
+`;
+
 export const aiSajuStyle = `<style>
 @import url('https://fonts.googleapis.com/css2?family=Song+Myung&display=swap');  
 /* =================================================== */

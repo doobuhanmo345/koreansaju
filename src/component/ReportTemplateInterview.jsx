@@ -1,20 +1,42 @@
 import React, { useEffect, useState } from 'react';
+import { reportStyleSimple } from '../data/aiResultConstants';
+import { useLanguage } from '../context/useLanguageContext';
+const ReportTemplateInterview = ({
 
-const ReportTemplateInterview = ({ data = {
-  userName: '지수',
-  birthDate: '1999년 10월 12일',
-  sajuInfo: { year: '己卯', month: '甲戌', day: '癸酉', time: '未知' },
-  interviewDate: '2026.02.10 (TUE)',
-  interviewType: '기업 면접', // 기업 면접, 동아리/학회, 국가고시, 기타
-  persona: '차분함/논리적', // 열정/적극적, 겸손/성실, 창의/개성
-  concern: '말주변/긴장', // 직무/지식, 압박 면접
-  passIndex: 88,
-} }) => {
+}) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+  const { language } = useLanguage();
+  const data = {
+    userName: '지민',
+    birthDate: '1998.05.24',
+    interviewType: '기업 면접',
+    interviewDate: '2026.02.15',
+    concern: '말주변/긴장',
+    passIndex: 85,
+    sajuInfo: { year: '戊辰', month: '丁巳', day: '庚申', time: '未知' },
+    section01: {
+      mood: 'Intellectual Navy Vibe',
+      point: 'Blazer & Silver Accessories',
+      description: '지민님, 이번 기업 면접에서는 차분하고 논리적인 모습이 가장...',
+    },
+    section02: {
+      goldenTime: '10:00 AM - 11:30 AM',
+      luckyItem: 'Blue Silk Tie/Scarf',
+    },
+    section03: {
+      anxietySolution: '긴장이 느껴질 때는 첫 문장만 생각하세요. 사주상...',
+      firstImpression: '면접관들은 당신의 안정감에 높은 점수를 줄 것입니다.',
+      surpriseQuestionTip: '압박이 들어오면 결론부터 짧게 대답하는 것이 기운에 맞습니다.',
+    },
+    section04: {
+      actionGuideline: '면접이 끝난 후 가벼운 목례가 합격의 쐐기를 박습니다.',
+      passSymbol: 'LOGIC',
+    },
+  };
 
   return (
     <div className={`rt-container ${isLoaded ? 'is-active' : ''}`}>
@@ -22,12 +44,22 @@ const ReportTemplateInterview = ({ data = {
 
       {/* [RT-HEADER] 메인 타이틀 */}
       <header className="rt-header">
-        <div className="rt-tag animate-up">SUCCESS STRATEGY REPORT</div>
+        <div className="rt-tag animate-up">
+          {language === 'en' ? 'SUCCESS STRATEGY REPORT' : 'SUCCESS STRATEGY REPORT'}
+        </div>
         <h1 className="rt-main-title animate-up">
-          {data.userName}님의<br />
-          <span className="text-highlight">면접 합격운 분석 리포트</span>
+          {data.userName}
+          {language === 'en' ? "'s" : '님의'}
+          <br />
+          <span className="text-highlight">
+            {language === 'en' ? 'Interview Success Analysis' : '면접 합격운 분석 리포트'}
+          </span>
         </h1>
-        <p className="rt-desc animate-up">면접 장소의 기운과 당신의 사주 흐름을 결합한 필승 전략입니다.</p>
+        <p className="rt-desc animate-up">
+          {language === 'en'
+            ? "A winning strategy combining the venue's energy with your destiny flow."
+            : '면접 장소의 기운과 당신의 사주 흐름을 결합한 필승 전략입니다.'}
+        </p>
       </header>
 
       {/* [RT-PROFILE] 응시자 정보 카드 */}
@@ -51,97 +83,126 @@ const ReportTemplateInterview = ({ data = {
               <span className="rt-info-row__value">{data.interviewDate}</span>
             </div>
             <div className="rt-saju-grid">
-              <div className="rt-saju-grid__item"><span>시</span>{data.sajuInfo.time}</div>
-              <div className="rt-saju-grid__item"><span>일</span>{data.sajuInfo.day}</div>
-              <div className="rt-saju-grid__item"><span>월</span>{data.sajuInfo.month}</div>
-              <div className="rt-saju-grid__item"><span>년</span>{data.sajuInfo.year}</div>
+              <div className="rt-saju-grid__item">
+                <span>{language === 'en' ? 'Hour' : '시'}</span>
+                {data.sajuInfo.time}
+              </div>
+              <div className="rt-saju-grid__item">
+                <span>{language === 'en' ? 'Day' : '일'}</span>
+                {data.sajuInfo.day}
+              </div>
+              <div className="rt-saju-grid__item">
+                <span>{language === 'en' ? 'Month' : '월'}</span>
+                {data.sajuInfo.month}
+              </div>
+              <div className="rt-saju-grid__item">
+                <span>{language === 'en' ? 'Year' : '년'}</span>
+                {data.sajuInfo.year}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <main className="rt-main-content">
-        
         {/* 01. 면접 무드 & 복장 가이드 */}
         <section className="rt-card animate-up">
-          <h2 className="rt-card__title">01. 합격을 부르는 Vibe 전략</h2>
+          <h2 className="rt-card__title">
+            {language === 'en' ? '01. Vibe Strategy for Success' : '01. 합격을 부르는 Vibe 전략'}
+          </h2>
           <div className="rt-ootd-wrapper">
             <div className="rt-ootd-item">
               <span className="rt-ootd-item__label">MOOD</span>
-              <span className="rt-ootd-item__value">"신뢰감 있는 네이비 무드"</span>
+              <span className="rt-ootd-item__value">"{data.section01.mood}"</span>
             </div>
             <div className="rt-ootd-item">
               <span className="rt-ootd-item__label">POINT</span>
-              <span className="rt-ootd-item__value">깔끔한 자켓 & 실버 시계</span>
+              <span className="rt-ootd-item__value">{data.section01.point}</span>
             </div>
           </div>
-          <p className="rt-card__text">
-            {data.userName}님, 이번 {data.interviewType}에서는 <strong>'{data.persona}'</strong> 모습이 가장 강력한 무기입니다. 
-            논리적인 이미지를 강조하기 위해 <strong>딥 네이비</strong> 컬러를 메인으로 활용하세요. 
-            화려한 장식보다는 <strong>실버 톤의 시계나 액세서리</strong>로 시간 관리에 철저한 전문성을 보여주는 것이 합격운을 높입니다.
-          </p>
+          <p className="rt-card__text">{data.section01.description}</p>
         </section>
 
         {/* 02. 합격운 및 면접 지수 */}
         <section className="rt-card animate-up">
-          <h2 className="rt-card__title">02. 면접 합격 지수</h2>
+          <h2 className="rt-card__title">
+            {language === 'en' ? '02. Interview Success Index' : '02. 면접 합격 지수'}
+          </h2>
           <div className="rt-score-box">
-            <div className="rt-score-box__label">최종 합격 가능성</div>
-            <div className="rt-score-box__val">{data.passIndex}<span>%</span></div>
+            <div className="rt-score-box__label">
+              {language === 'en' ? 'Final Pass Probability' : '최종 합격 가능성'}
+            </div>
+            <div className="rt-score-box__val">
+              {data.passIndex}
+              <span>%</span>
+            </div>
             <div className="rt-progress">
-              <div className="rt-progress__fill" style={{ width: isLoaded ? `${data.passIndex}%` : '0%' }}></div>
+              <div
+                className="rt-progress__fill"
+                style={{ width: isLoaded ? `${data.passIndex}%` : '0%' }}
+              ></div>
             </div>
           </div>
           <div className="rt-timing-grid">
             <div className="rt-timing-grid__item">
-              <span>면접 골든 타임</span>
-              <strong>오전 10시 - 11시</strong>
+              <span>{language === 'en' ? 'Golden Time' : '면접 골든 타임'}</span>
+              <strong>{data.section02.goldenTime}</strong>
             </div>
             <div className="rt-timing-grid__item">
-              <span>행운의 아이템</span>
-              <strong>블루 계열의 손수건</strong>
+              <span>{language === 'en' ? 'Lucky Item' : '행운의 아이템'}</span>
+              <strong>{data.section02.luckyItem}</strong>
             </div>
           </div>
         </section>
 
-        {/* 03. 맞춤형 인사이트 (걱정 해결) */}
+        {/* 03. 맞춤형 인사이트 */}
         <section className="rt-card animate-up">
-          <h2 className="rt-card__title">03. 필승 마인드셋 & 인사이트</h2>
+          <h2 className="rt-card__title">
+            {language === 'en' ? '03. Winning Mindset & Insights' : '03. 필승 마인드셋 & 인사이트'}
+          </h2>
           <div className="rt-analysis-list">
             <div className="rt-analysis-list__item">
-              <span className="rt-analysis-list__sub-title">불안 요소 해결 ({data.concern})</span>
-              <p>
-                <strong>{data.concern}</strong>이 가장 걱정되시나요? 사주 흐름상 당일 말문이 트이는 기운이 강합니다. 
-                첫 문장만 외운다는 생각으로 임하세요. 당신의 <strong>{data.persona}</strong> 성향은 긴장할수록 오히려 진가를 발휘할 것입니다.
-              </p>
+              <span className="rt-analysis-list__sub-title">
+                {language === 'en' ? `Resolving Anxiety` : `불안 요소 해결`} ({data.concern})
+              </span>
+              <p>{data.section03.anxietySolution}</p>
             </div>
             <div className="rt-analysis-list__item is-warning">
-              <span className="rt-analysis-list__sub-title">면접관이 느낄 첫인상</span>
-              <p>면접관들은 당신을 <strong>'조직에 빠르게 스며드는 안정적인 인재'</strong>로 평가할 확률이 높습니다. 본인의 강점을 겸손하지만 명확하게 어필하세요.</p>
+              <span className="rt-analysis-list__sub-title">
+                {language === 'en' ? 'Impression on Interviewers' : '면접관이 느낄 첫인상'}
+              </span>
+              <p>{data.section03.firstImpression}</p>
             </div>
             <div className="rt-analysis-list__item is-success">
-              <span className="rt-analysis-list__sub-title">예상 돌발 질문 대응</span>
-              <p>압박 면접 시, 당황하지 말고 <strong>3초간 심호흡 후</strong> 결론부터 말하세요. 논리적인 기운이 당신의 편에 서 있습니다.</p>
+              <span className="rt-analysis-list__sub-title">
+                {language === 'en' ? 'Handling Surprise Questions' : '예상 돌발 질문 대응'}
+              </span>
+              <p>{data.section03.surpriseQuestionTip}</p>
             </div>
           </div>
         </section>
 
-        {/* 04. 최종 행운 배지 */}
+        {/* 04. 최종 합격 제언 */}
         <section className="rt-card animate-up">
-          <h2 className="rt-card__title">04. 최종 합격 제언</h2>
+          <h2 className="rt-card__title">
+            {language === 'en' ? '04. Final Recommendation' : '04. 최종 합격 제언'}
+          </h2>
           <div className="rt-tip-box">
-            <span className="rt-tip-box__label">면접 후 행동 지침</span>
-            <p>면접장을 나올 때의 마지막 인사와 미소가 합격을 결정짓는 한 방이 될 거예요. 끝까지 <strong>{data.persona}</strong> 이미지를 유지하세요.</p>
+            <span className="rt-tip-box__label">
+              {language === 'en' ? 'Post-Interview Guidelines' : '면접 후 행동 지침'}
+            </span>
+            <p>{data.section04.actionGuideline}</p>
           </div>
           <div className="rt-final-badge">
-             PASS SYMBOL: <span>CONFIDENCE</span>
+            PASS SYMBOL: <span>{data.section04.passSymbol}</span>
           </div>
         </section>
-
       </main>
 
       <footer className="rt-footer animate-up">
-        <button className="rt-btn-primary">합격 부적 저장하기</button>
+        <button className="rt-btn-primary">
+          {language === 'en' ? 'Save Success Amulet' : '합격 부적 저장하기'}
+        </button>
       </footer>
     </div>
   );
