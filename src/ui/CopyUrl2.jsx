@@ -83,9 +83,9 @@ const CopyUrl2 = ({ saju, from }) => {
               </>
             ) : (
               <>
-                지금 홈페이지 방문하면
+                지금 사자사주에서
                 <br />
-                <span className="text-[#F47521]">프리미엄 리포트가 무료</span>
+                <span className="text-[#F47521]">풀버전 무료로 보기</span>
               </>
             )}
           </h2>
@@ -108,7 +108,7 @@ const CopyUrl2 = ({ saju, from }) => {
             onClick={() => handleAction(saju, from)}
             className="w-full h-[58px] bg-[#3A322F] hover:bg-[#2D2725] text-white rounded-[20px] font-semibold text-base shadow-lg shadow-stone-200 transition-all active:scale-[0.96] flex items-center justify-center gap-2"
           >
-            <span>{language === 'en' ? 'Get Free Report' : '무료로 리포트 받기'}</span>
+            <span>{language === 'en' ? 'Get Free Report' : '사자사주 접속'}</span>
             <svg
               width="18"
               height="18"
@@ -127,7 +127,7 @@ const CopyUrl2 = ({ saju, from }) => {
           <p className="mt-4 text-[12px] text-stone-400 font-medium">
             {language === 'en'
               ? '* Safe connection via default browser'
-              : '* 안전한 결제를 위해 외부 브라우저를 연결합니다'}
+              : '* 안전한 접속을 위해 외부 브라우저를 연결합니다'}
           </p>
         </div>
       </div>
@@ -177,11 +177,11 @@ const CopyUrl2 = ({ saju, from }) => {
               </div>
               <p className="text-[#3A322F] font-bold text-xl mb-3">주소가 복사되었습니다!</p>
               <p className="text-[#6D625B] text-sm mb-8 leading-relaxed">
-                인스타그램 환경에서는 결제가 어려울 수 있어요.
+                인스타그램 환경에서는 사자사주 접속이 어려워요.
                 <br />
                 상단 <b>[더보기]</b> 버튼을 누르고
                 <br />
-                <b>[Safari / Chrome으로 열기]</b>를 선택해 주세요!
+                <b>[인터넷 브라우저로 열기]</b>를 선택해 주세요!
               </p>
               <button
                 className="w-full py-4 bg-[#3A322F] text-white rounded-2xl font-bold transition-transform active:scale-95"

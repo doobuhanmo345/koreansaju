@@ -368,8 +368,6 @@ export default function Wealth({}) {
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
 
-
- 
   useEffect(() => {
     if (aiResult) {
       const parsedData = parseAiResponse(aiResult);
@@ -865,12 +863,6 @@ export default function Wealth({}) {
           {/* 2. AI 분석 결과 본문 (AI Result) */}
           {/* ================================================= */}
           <div className="prose prose-slate dark:prose-invert max-w-none bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-sm border border-indigo-50 dark:border-slate-700">
-            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
-              <SparklesIcon className="w-5 h-5 text-indigo-500" />
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">
-                {language === 'en' ? 'Detailed Analysis' : '상세 분석 결과'}
-              </h3>
-            </div>
             {/* 테스트 */}
             <div className="bg-indigo-50/30 dark:bg-slate-800/50 rounded-2xl border border-indigo-100/50 dark:border-slate-700 p-5 sm:p-6 shadow-sm">
               {!!data && (
@@ -896,7 +888,7 @@ export default function Wealth({}) {
                   </section>
 
                   {/* 3. 에너지 분석 (나 vs 상대) - 색상 통일 */}
-                  <section className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+                  <section className="grid grid-cols-1gap-x-10 gap-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
                     <div>
                       {data.contents.map((i) => (
                         <div key={i} className="mb-5">
@@ -923,14 +915,14 @@ export default function Wealth({}) {
                       {data.conclusion.desc}
                     </p>
                     <div className="mt-8 pt-6 border-t border-slate-50 dark:border-slate-900 text-center">
-                      <span className="text-xs text-slate-800 font-bold italic">{data.tosaza}</span>
+                      <span className="text-xs text-slate-800 font-bold italic">
+                        {data.tosaza} 사자에게 물어보기를 이용해 보세요.
+                      </span>
                     </div>
                   </section>
                 </div>
               )}
             </div>
-
-         
           </div>
 
           {/* 하단 버튼 (다시하기 등) */}
