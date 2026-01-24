@@ -46,7 +46,7 @@ export default function ReportTemplateSelDate() {
           {displayName}{language === 'en' ? "'s" : '님을 위한'}
           <br />
           <span className="text-highlight">
-            {language === 'en' ? 'Best Date Selection' : '맞춤 택일 리포트'}
+            {language === 'en' ? 'Best Date Selection' : '길일  선정 리포트'}
           </span>
         </h1>
         <p className="rt-desc animate-up">
@@ -83,7 +83,7 @@ export default function ReportTemplateSelDate() {
       <main className="rt-main-content">
         <section className="rt-card animate-up">
           <h2 className="rt-card__title">
-            {language === 'en' ? '01. Purpose & Flow' : '01. 택일 범위와 기운의 목적'}
+            {language === 'en' ? '01. Purpose & Flow' : '01. 길일 선정 정보'}
           </h2>
           <div className="rt-ootd-wrapper mb-4">
             <div className="rt-ootd-item">

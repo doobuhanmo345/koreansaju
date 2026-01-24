@@ -97,3 +97,22 @@ export const seldate_var = [
   { key: '{{langPrompt}}', label: '언어' },
   { key: '{{hanjaPrompt}}', label: '한자' },
 ];
+export const selbirth_var = [
+  { key: '{{STRICT_INSTRUCTION}}', label: '(DB)STRICT_INSTRUCTION' },
+  { key: '{{SELBIRTH_FORMAT}}', label: '(DB)selbirth_format' },
+  { key: '{{calendarData}}', label: '세부 만세력 데이터' },
+  { key: '{{displayName}}', label: '사용자 이름' },
+  { key: '{{mySajuStr}}', label: '사용자 사주' },
+  { key: '{{partnerSajuStr}}', label: '배우자 사주(문자열)' },
+  { key: '{{userGender}}', label: '사용자 성별(문자)' },
+  { key: '{{partnerGender}}', label: '배우자 성별(문자)' },
+  { key: '{{startDate}}', label: '택일 시작일' },
+  { key: '{{endDate}}', label: '택일 종료일' },
+  { key: '{{purpose}}', label: '목적 및 정보 요약' },
+  { key: '{{birthMethod}}', label: '출산 방식' },
+  { key: '{{babyGender}}', label: '아이 성별' },
+  { key: '{{partnerBirthDate}}', label: '배우자 생일' },
+  { key: '{{partnerTimeUnknown}}', label: '배우자 생시 모름 여부' },
+  { key: '{{langPrompt}}', label: '언어 설정' },
+  { key: '{{hanjaPrompt}}', label: '한자 설정' },
+];
