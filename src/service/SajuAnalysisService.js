@@ -147,26 +147,25 @@ class SajuAnalysisService {
     this.setLoadingType?.(loadingType);
     this.setAiResult?.('');
 
+    console.time('FullAnalysis');
+
     try {
       const usageData = this.userData?.usageHistory || {};
       const editCount = this.userData?.editCount;
 
       // 캐시 체크
-      // 캐시 체크
       if (cacheKey && usageData[cacheKey]) {
         const cached = usageData[cacheKey];
         if (validateCache?.(cached, params)) {
           console.log(`✅ ${type} 캐시 사용`);
-
-          // 1. 데이터 먼저 주입
+          console.timeEnd('FullAnalysis');
+          
           this.setAiResult?.(cached.result);
           this.setAiAnalysis?.(cached.result);
 
-          // 2. 로딩 끄기
           this.setLoading?.(false);
           this.setLoadingType?.(null);
 
-          // 3. 리액트가 aiResult를 인지할 시간을 0.1초 준 다음 페이지 전환
           setTimeout(() => {
             onComplete?.(cached.result);
           }, 100);
@@ -175,13 +174,13 @@ class SajuAnalysisService {
         }
       }
 
-      // 기존 로직 시작
+      // 기존 로직: editCount 체크 등
       if (!skipUsageCheck && !isGuestMode) {
         const currentCount = editCount || 0;
         if (currentCount >= this.maxEditCount) {
           this.setLoading?.(false);
+          console.timeEnd('FullAnalysis');
           alert(this.uiText?.limitReached?.[this.language] || 'Limit reached');
-          // 페이지 새로고침 (가장 확실하게 상태 초기화)
           window.location.reload();
           return null;
         }
@@ -191,16 +190,21 @@ class SajuAnalysisService {
 
       // 프롬프트 생성
       let fullPrompt;
+      console.time('PromptBuild');
       if (useCustomPromptBuilder && customPromptBuilder) {
         fullPrompt = await customPromptBuilder(params, this);
         if (!fullPrompt) {
+          console.timeEnd('PromptBuild');
+          console.timeEnd('FullAnalysis');
           alert('데이터베이스에서 프롬프트를 불러오지 못했습니다.');
           return null;
         }
       } else {
         const prompts = await this.fetchPrompts(promptPaths);
         if (!prompts[promptPaths[0]]) {
-          throw new Error(`${type} 템플릿이 DB에 없습니다.`);
+           console.timeEnd('PromptBuild');
+           console.timeEnd('FullAnalysis');
+           throw new Error(`${type} 템플릿이 DB에 없습니다.`);
         }
         const vars = buildPromptVars(prompts, params, this);
         fullPrompt = this.replaceVariables(prompts[promptPaths[0]], vars);
@@ -210,7 +214,9 @@ class SajuAnalysisService {
       }
 
       // API 호출
+      console.time('GeminiCall');
       const result = await fetchGeminiAnalysis(fullPrompt);
+      console.timeEnd('GeminiCall');
 
       // DB 저장
       if (buildSaveData) {
@@ -227,8 +233,10 @@ class SajuAnalysisService {
       this.setAiAnalysis?.(result);
       onComplete?.(result);
 
+      console.timeEnd('FullAnalysis');
       return result;
     } catch (error) {
+      console.timeEnd('FullAnalysis');
       console.error('발생한 에러:', error);
       alert(`분석 중 오류가 발생했습니다: ${error.message}`);
       throw error;

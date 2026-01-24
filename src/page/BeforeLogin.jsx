@@ -14,6 +14,7 @@ import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { calculateSajuData } from '../utils/sajuLogic';
 import dayStem from '../data/dayStem.json';
 import FourPillarVis from '../component/FourPillarVis';
+import CityInput from '../ui/CityInput';
 export default function BeforeLogin() {
   const { user, userData, login } = useAuthContext();
   const { language, setLanguage } = useLanguage();
@@ -31,6 +32,7 @@ export default function BeforeLogin() {
   };
   const [birthData, setBirthData] = useState(birthInit);
   const [timeUnknown, setTimeUnknown] = useState(false);
+  const [birthCity, setBirthCity] = useState(''); // [NEW] 태어난 도시 추가
   const pad = (n) => n?.toString().padStart(2, '0') || '00';
   const memoizedBirthDate = useMemo(() => {
     const { year, month, day, hour, minute } = birthData;
@@ -193,6 +195,7 @@ const handleFinalLogin = async () => {
           {
             saju: saju,
             birthDate: birthDate,
+            birthCity: birthCity, // [NEW] 태어난 도시 저장
             gender: gender,
             isTimeUnknown: timeUnknown,
             createdAt: userData?.createdAt || new Date(), // 기존 생성일 유지
@@ -801,7 +804,7 @@ const handleFinalLogin = async () => {
                           <span className="font-bold dark:text-white text-xl px-1">:</span>
                           <input
                             type="number"
-                            placeholder={language === 'ko' ? '태어난 시간' : 'Birth time'}
+                            placeholder={language === 'ko' ? '태어난 분' : 'Birth minute'}
                             value={birthData.minute}
                             className="flex-1 min-w-0 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white border-2 border-transparent focus:border-[#3B82F6] outline-none font-bold text-center"
                             onChange={(e) =>
@@ -810,12 +813,15 @@ const handleFinalLogin = async () => {
                           />
                         </div>
                       )}
-                      <label className="flex items-center gap-3 cursor-pointer w-fit group ml-1">
+
+                      {/* 시간 모름 체크박스 */}
+                      <label 
+                        className="flex items-center justify-center gap-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      >
                         <input
                           type="checkbox"
                           checked={timeUnknown}
                           onChange={(e) => setTimeUnknown(e.target.checked)}
-                          className="w-5 h-5 accent-[#3B82F6]"
                         />
                         <span className="text-sm font-bold text-slate-500 group-hover:text-[#3B82F6] transition-colors">
                           {t.time_unknown}

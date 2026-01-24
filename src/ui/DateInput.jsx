@@ -5,15 +5,83 @@ const DAYS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const DAYS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const DateInput = forwardRef(
-  ({ label, value, onChange, min, max, className = '', required = false, disabled = false, language = 'ko' }, ref) => {
+  ({ label, value, onChange, min, max, className = '', required = false, disabled = false, language = 'ko', color = 'rose' }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
+
+    // Color Variants Definition
+    const variants = {
+      rose: {
+        text: 'text-rose-500',
+        textHover: 'hover:text-rose-600',
+        groupHoverText: 'group-hover:text-rose-400',
+        border: 'border-rose-400',
+        borderHover: 'hover:border-rose-300',
+        ring: 'ring-rose-100 dark:ring-rose-900/30',
+        bg: 'bg-rose-500',
+      },
+      emerald: {
+        text: 'text-emerald-500',
+        textHover: 'hover:text-emerald-600',
+        groupHoverText: 'group-hover:text-emerald-400',
+        border: 'border-emerald-400',
+        borderHover: 'hover:border-emerald-300',
+        ring: 'ring-emerald-100 dark:ring-emerald-900/30',
+        bg: 'bg-emerald-500',
+      },
+      indigo: {
+        text: 'text-indigo-500',
+        textHover: 'hover:text-indigo-600',
+        groupHoverText: 'group-hover:text-indigo-400',
+        border: 'border-indigo-400',
+        borderHover: 'hover:border-indigo-300',
+        ring: 'ring-indigo-100 dark:ring-indigo-900/30',
+        bg: 'bg-indigo-500',
+      },
+      blue: {
+        text: 'text-blue-500',
+        textHover: 'hover:text-blue-600',
+        groupHoverText: 'group-hover:text-blue-400',
+        border: 'border-blue-400',
+        borderHover: 'hover:border-blue-300',
+        ring: 'ring-blue-100 dark:ring-blue-900/30',
+        bg: 'bg-blue-500',
+      },
+      purple: {
+        text: 'text-purple-500',
+        textHover: 'hover:text-purple-600',
+        groupHoverText: 'group-hover:text-purple-400',
+        border: 'border-purple-400',
+        borderHover: 'hover:border-purple-300',
+        ring: 'ring-purple-100 dark:ring-purple-900/30',
+        bg: 'bg-purple-500',
+      },
+    };
+
+    const theme = variants[color] || variants.rose;
 
     // Parse initial value or default to today
     const selectedDate = value ? new Date(value) : null;
     
     // View state for calendar (what month we are looking at)
     const [viewDate, setViewDate] = useState(selectedDate || new Date());
+    
+    // ... existing useState for viewDate is fine, but I need to make sure I don't break the existing code structure.
+    // Actually, simply pasting the hook logic again might overwrite. 
+    // I should only replace the component definition start and the return functionality, leaving the logic in between if possible, or rewrite logic block.
+    // Given replace_file_content constraints, I'll rewrite the component body to be safe or target specific blocks.
+    // But since I need 'theme' variable available throughout, I probably should wrap the whole function body or define it early.
+    
+    // Let's use the provided 'start line' and 'end line' to replace the top part and the return part?
+    // No, that's disjointed.
+    // I will replace the ENTIRE DateInput definition content to ensure 'theme' is defined at top and used everywhere correctly.
+    // But I must include the truncated logic parts.
+    // Wait, I can see the previous file content from step 481? No, that was SelDatePage.
+    // Step 348 had the full content of DateInput.jsx.
+    // The previous edit (485, 486) changed rose to emerald.
+    // I will rewrite the whole component to be clean.
+    
+    // ... (logic for helper functions: getDaysInMonth, etc. - I will just copy them)
 
     // Close on click outside
     useEffect(() => {
@@ -112,7 +180,7 @@ const DateInput = forwardRef(
         {label && (
           <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
             {label}
-            {required && <span className="text-rose-500 ml-1">*</span>}
+            {required && <span className={`${theme.text} ml-1`}>*</span>}
           </label>
         )}
         <div className="relative group">
@@ -124,15 +192,15 @@ const DateInput = forwardRef(
               border rounded-xl shadow-sm
               transition-all duration-300
               ${isOpen 
-                ? 'border-rose-400 ring-2 ring-rose-100 dark:ring-rose-900/30' 
-                : 'border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-slate-500 hover:shadow-md'
+                ? `${theme.border} ring-2 ${theme.ring}` 
+                : `border-slate-200 dark:border-slate-700 ${theme.borderHover} dark:hover:border-slate-500 hover:shadow-md`
               }
               ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-50' : 'cursor-pointer'}
             `}
           >
              <div className="flex items-center gap-3">
                <CalendarDaysIcon className={`h-5 w-5 transition-colors duration-300 ${
-                 isOpen ? 'text-rose-500' : 'text-slate-400 group-hover:text-rose-400'
+                 isOpen ? theme.text : `text-slate-400 ${theme.groupHoverText}`
                }`} />
                <span className={`text-[15px] ${
                  value 
@@ -198,12 +266,12 @@ const DateInput = forwardRef(
                       className={`
                         h-9 w-9 rounded-full flex items-center justify-center text-sm transition-all font-serif
                         ${isSelected 
-                          ? 'bg-rose-500 text-white font-bold shadow-md' 
+                          ? `${theme.bg} text-white font-bold shadow-md` 
                           : isDisabledDay
                             ? 'text-slate-300 cursor-not-allowed'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-rose-600'
+                            : `text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 ${theme.textHover}`
                         }
-                        ${!isSelected && isToday ? 'ring-1 ring-slate-300 dark:ring-slate-500 font-bold text-rose-500' : ''}
+                        ${!isSelected && isToday ? `ring-1 ring-slate-300 dark:ring-slate-500 font-bold ${theme.text}` : ''}
                       `}
                     >
                       {day}

@@ -109,7 +109,7 @@ export default function SelDatePage() {
             <div className="flex items-baseline gap-3">
               <h2 className="text-xl font-light text-slate-900 dark:text-white tracking-tight">
                 <span className="font-bold">01.</span>
-                <span className="ml-3 italic font-serif text-rose-500/80">
+                <span className="ml-3 italic font-serif text-emerald-600/80">
                   {language === 'ko' ? '목적 선택' : 'Select Purpose'}
                 </span>
               </h2>
@@ -128,7 +128,7 @@ export default function SelDatePage() {
                   px-4 py-3 text-sm font-medium rounded-lg transition-all duration-300
                   ${
                     selectedPurpose === opt.id
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md ring-2 ring-rose-200 dark:ring-rose-900'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md ring-2 ring-emerald-200 dark:ring-emerald-900'
                       : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-slate-400'
                   }
                 `}
@@ -145,7 +145,7 @@ export default function SelDatePage() {
               <div className="flex items-baseline gap-3">
                 <h2 className="text-xl font-light text-slate-900 dark:text-white tracking-tight">
                   <span className="font-bold">02.</span>
-                  <span className="ml-3 italic font-serif text-rose-500/80">
+                  <span className="ml-3 italic font-serif text-emerald-600/80">
                     {language === 'ko' ? '기간 선택' : 'Date Range'}
                   </span>
                 </h2>
@@ -163,6 +163,7 @@ export default function SelDatePage() {
                     onChange={(e) => setStartDate(e.target.value)}
                     className="w-full"
                     language={language}
+                    color="emerald"
                  />
                  <DateInput 
                     label="END DATE"
@@ -171,6 +172,7 @@ export default function SelDatePage() {
                     onChange={(e) => setEndDate(e.target.value)}
                     className="w-full"
                     language={language}
+                    color="emerald"
                  />
                </div>
 
@@ -195,7 +197,7 @@ export default function SelDatePage() {
                  </button>
                </div>
             </div>
-            <p className="text-center mt-3 text-xs text-rose-500/80 italic">
+            <p className="text-center mt-3 text-xs text-emerald-600/80 italic">
                 * {language === 'ko' ? '선택하신 기간 중에서 가장 좋은 날짜들을 뽑아드립니다' : 'Finding the best dates within this period'}
             </p>
           </div>
@@ -217,7 +219,7 @@ export default function SelDatePage() {
             </div>
             <h2 className="text-4xl font-light text-slate-900 dark:text-white leading-[1.1] tracking-tight">
               {language === 'ko' ? '찾아 드리는' : 'Finding your'} <br />
-              <span className="font-serif italic font-medium text-rose-500/80">
+              <span className="font-serif italic font-medium text-emerald-600/80">
                 {language === 'ko' ? '최고의 날' : 'Best Days'}
               </span>
             </h2>
@@ -258,7 +260,7 @@ export default function SelDatePage() {
               <div className="flex items-center justify-center gap-3">
                 {language === 'ko' ? '좋은 날짜 받기' : 'Find Best Dates'}
                 {isLocked ? (
-                  <LockClosedIcon className="w-4 h-4 text-rose-400" />
+                  <LockClosedIcon className="w-4 h-4 text-emerald-400" />
                 ) : (
                   user && <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
                 )}

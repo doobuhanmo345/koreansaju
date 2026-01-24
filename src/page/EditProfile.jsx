@@ -15,6 +15,7 @@ import {
 import FourPillarVis from '../component/FourPillarVis';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { DateService } from '../utils/dateService';
+import CityInput from '../ui/CityInput';
 export default function EditProfile() {
   const { user, userData, updateProfileData } = useAuthContext();
   const { language } = useLanguage();
@@ -27,6 +28,7 @@ export default function EditProfile() {
     birthTime: '12:00',
     isTimeUnknown: false,
     gender: 'female',
+    birthCity: '',
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -43,6 +45,7 @@ export default function EditProfile() {
         birthTime: bTime,
         isTimeUnknown: !!userData.isTimeUnknown,
         gender: userData.gender || 'female',
+        birthCity: userData.birthCity || '',
       });
     }
   }, [userData, user]);
@@ -77,6 +80,7 @@ export default function EditProfile() {
       const updateData = {
         displayName: formData.displayName,
         birthDate: `${formData.birthDate}T${effectiveTime}`,
+        birthCity: formData.birthCity,
         isTimeUnknown: formData.isTimeUnknown,
         gender: formData.gender,
         updatedAt: todayDate,
@@ -258,6 +262,19 @@ export default function EditProfile() {
                 </div>
               </div>
             </div>
+            
+             {/* 태어난 도시 입력 */}
+             <div>
+                <label className="block text-xs font-black text-indigo-500 uppercase tracking-wider mb-2 ml-1">
+                  {language === 'ko' ? '태어난 도시' : 'City of Birth'}
+                </label>
+                <CityInput
+                   name="birthCity"
+                   value={formData.birthCity || ''}
+                   language={language}
+                   onChange={handleChange}
+                />
+             </div>
           </div>
         </div>
 

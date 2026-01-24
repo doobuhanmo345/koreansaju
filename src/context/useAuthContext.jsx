@@ -155,6 +155,7 @@ export function AuthContextProvider({ children }) {
             lastLoginDate: todayStr,
             gender: 'female',
             birthDate: '',
+            birthCity: '',
             isTimeUnknown: false,
             saju: null,
             createdAt: new Date().toISOString(),
