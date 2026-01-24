@@ -45,6 +45,7 @@ const BasicAna = lazy(() => import('./page/BasicAna'));
 const PayWall = lazy(() => import('./page/PayWall'));
 const TestAnalysisPage = lazy(() => import('./page/TestAnalysisPage'));
 const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
+const SelDatePage = lazy(() => import('./page/SelDatePage'));
 const FirstDatePage = lazy(() => import('./page/FirstDatePage'));
 const InterviewPage = lazy(() => import('./page/InterviewPage'));
  export const specialPaths = [
@@ -63,13 +64,13 @@ const RootComponent = () => {
   const { user, userData, loadingUser } = useAuthContext();
 
   const pathname = window.location.pathname.trim(); // 공백 제거
-  console.log('Current Pathname:', pathname); // 실제 경로 확인용
+ 
 
  
   const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
 
   // 로그 찍어서 false 나오면 정규식/경로 문제임
-  console.log('결과:', isSpecialPage, '현재경로:', pathname);
+ 
   const isBrowserGuide = pathname.startsWith('/open-in-browser'); // === 대신 startsWith 추천
 
   // 1. 광고 페이지라면 무조건 여기서 끝냄 (최우선순위 보장)
@@ -142,11 +143,11 @@ const RootComponent = () => {
             <Route path="/basic" element={<BasicAnaPage />} />
             <Route path="/todaysluck" element={<TodaysLuckPage />} />
             <Route path="/dayluck" element={<DayLuckPage />} />
-            <Route path="/date" element={<FirstDatePage />} />
+            <Route path="/seldate" element={<SelDatePage />} />
             <Route path="/interview" element={<InterviewPage />} />
             <Route path="/2026luck" element={<YearlyLuckPage />} />
             <Route path="/test" element={<Test />} />
-
+            <Route path="/date" element={<FirstDatePage />} />
             <Route path="/wealth" element={<Wealth />} />
             <Route path="/match" element={<Match />} />
             <Route path="/fortunecookie" element={<FortuneCookie />} />

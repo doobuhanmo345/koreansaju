@@ -764,6 +764,73 @@ class AnalysisPresets {
       },
     };
   }
+
+  static selDate(params) {
+    return {
+      type: 'selDate',
+      params,
+      cacheKey: 'ZSelDate',
+      loadingType: 'main',
+      promptPaths: ['prompt/seldate_basic', 'prompt/default_instruction', 'prompt/seldate_format'],
+
+      customValidation: (p, service) => {
+        if (!p.purpose) {
+          alert('어떤 일을 위한 날짜인지 선택해주세요.');
+          return false;
+        }
+        if (!p.startDate || !p.endDate) {
+          alert('시작 날짜와 종료 날짜를 모두 선택해주세요.');
+          return false;
+        }
+        return true;
+      },
+
+      validateCache: (cached, p) =>
+        cached.startDate === p.startDate &&
+        cached.endDate === p.endDate &&
+        cached.purpose === p.purpose &&
+        cached.language === p.language &&
+        cached.gender === p.gender &&
+        SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
+        !!cached.result,
+
+      buildPromptVars: (prompts, p, service) => {
+        return {
+          '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
+          '{{SELDATE_FORMAT}}': prompts['prompt/seldate_format'],
+          '{{gender}}': p.gender,
+          '{{mySajuStr}}': service.getSajuString(p.saju),
+          '{{displayName}}': service.getDisplayName(),
+          '{{startDate}}': p.startDate,
+          '{{endDate}}': p.endDate,
+          '{{purpose}}': p.purpose,
+          '{{langPrompt}}': service.langPrompt?.(service.language) || '',
+          '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
+        };
+      },
+
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
+        return {
+          saju: p.saju,
+          editCount: increment(1),
+          lastEditDate: todayStr,
+          usageHistory: {
+            ZSelDate: {
+              result,
+              startDate: p.startDate,
+              endDate: p.endDate,
+              purpose: p.purpose,
+              saju: p.saju,
+              language: p.language,
+              gender: p.gender,
+            },
+          },
+          dailyUsage: { [todayStr]: increment(1) },
+        };
+      },
+    };
+  }
 }
 
 export { SajuAnalysisService, AnalysisPresets };

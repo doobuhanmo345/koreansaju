@@ -177,6 +177,14 @@ export default function MobileNav() {
                 icon: <CalendarDaysIcon className="w-6 h-6" />,
                 path: '/date',
               },
+              {
+                name: isKo ? '택일 비서' : 'Select Day',
+                desc: isKo
+                  ? '중요한 그날의 데이트, 과연 어떨까'
+                  : 'Will your date go well? See your romantic energy.',
+                icon: <CalendarDaysIcon className="w-6 h-6" />,
+                path: '/seldate',
+              },
             ],
           },
           {

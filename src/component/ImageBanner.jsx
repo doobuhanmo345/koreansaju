@@ -20,6 +20,16 @@ const ImageBanner = () => {
       imageUrl: '/images/banner/today.webp',
     },
     {
+      id: 1,
+      menuTitle: { ko: '택일 비서', en: 'Select Day' },
+      mainTitle: { ko: '이사·계약·여행\n언제가 좋을까?', en: 'Best day for\nbig decisions' },
+      accent: { ko: '길일 추천', en: 'Good Day' },
+      bgColor: '#F0FDF4', // Greenish
+      accentColor: '#16A34A',
+      link: '/seldate', // Rotue to SelDatePage
+      imageUrl: '/images/banner/seldate.webp', // Assuming this or use a placeholder/similar
+    },
+    {
       id: 2,
       menuTitle: { ko: '만남 지수', en: 'Date' },
       mainTitle: { ko: '소개팅과 썸,\n이뤄질 수 있을까?', en: 'Your spark on\na date' },
@@ -96,11 +106,13 @@ const ImageBanner = () => {
     return () => clearInterval(timer);
   }, [isPaused, activeIndex, isDragging]); // isDragging 의존성 추가
 
-  const handlePrev = () => {
+  const handlePrev = (e) => {
+    e?.stopPropagation(); 
     setActiveIndex((prev) => (prev === 0 ? bannerData.length - 1 : prev - 1));
   };
 
-  const handleNext = () => {
+  const handleNext = (e) => {
+    e?.stopPropagation();
     setActiveIndex((prev) => (prev === bannerData.length - 1 ? 0 : prev + 1));
   };
 
@@ -133,7 +145,7 @@ const ImageBanner = () => {
       */}
       <div
         ref={contentRef}
-        className="flex-1 relative flex flex-col justify-center px-8 cursor-pointer will-change-transform"
+        className="flex-1 relative flex flex-col justify-center px-12 md:px-8 cursor-pointer will-change-transform"
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isDragging ? 'none' : 'transform 300ms ease-out, opacity 300ms ease-out',
@@ -187,7 +199,7 @@ const ImageBanner = () => {
         </div>
 
         {/* 배경 이미지 */}
-        <div className="absolute z-0 right-4 bottom-2 w-36 h-36 pointer-events-none overflow-hidden transition-transform duration-700 group-hover:scale-110">
+        <div className="absolute z-0 right-12 md:right-4 bottom-2 w-36 h-36 pointer-events-none overflow-hidden transition-transform duration-700 group-hover:scale-110">
           <img
             key={isDragging ? 'dragging-img' : `img-${current.id}`}
             src={current.imageUrl}
@@ -201,12 +213,31 @@ const ImageBanner = () => {
         </div>
       </div>
 
+       {/* 모바일 전용 네비게이션 버튼 (Left/Right) */}
+      <button 
+        onClick={handlePrev}
+        className="md:hidden absolute left-1 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm rounded-full text-slate-600 shadow-sm transition-all active:scale-95"
+      >
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button 
+        onClick={handleNext}
+        className="md:hidden absolute right-1 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm rounded-full text-slate-600 shadow-sm transition-all active:scale-95"
+      >
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
       {/* 모바일 전용 인디케이터 (점점점) */}
-      <div className="md:hidden absolute bottom-5 left-8 flex gap-1.5 z-20">
+      <div className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
         {bannerData.map((_, idx) => (
           <div
             key={idx}
-            className={`h-1.5 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-5 bg-slate-800' : 'w-1.5 bg-slate-400/50'}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-4 bg-slate-800' : 'w-1.5 bg-slate-400/50'}`}
           />
         ))}
       </div>
