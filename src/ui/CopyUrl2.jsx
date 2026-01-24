@@ -1,12 +1,45 @@
 import React, { useState } from 'react';
 
-const PremiumReportCard = ({ language = 'ko' }) => {
+const CopyUrl2 = ({ language = 'ko' }) => {
   const [showGuide, setShowGuide] = useState(false);
 
   const handleAction = async (saju, from) => {
     // 이동할 최종 목적지 URL
     const targetUrl = window.location.origin;
     const ua = navigator.userAgent.toLowerCase();
+    // 2. 로그 저장 (addDoc으로 간단하게)
+    try {
+      await setDoc(doc(db, 'copy_url_logs', new Date().toISOString()), {
+        saju: saju,
+        language: language,
+        origin: from,
+        createdAt: serverTimestamp(), // 서버 시간 기준 저장
+      });
+    } catch (e) {
+      console.error('로그 저장 실패:', e);
+    }
+
+    // 1. 카카오톡: 외부 브라우저 강제 호출
+    if (ua.includes('kakaotalk')) {
+      window.location.href = `kakaotalk://web/openExternalApp?url=${encodeURIComponent(targetUrl)}`;
+      return;
+    }
+
+    // 2. 인스타그램 / 페이스북: 강제 이동 불가 -> 가이드 표시 + 주소 복사
+    if (ua.includes('instagram') || ua.includes('fbav')) {
+      navigator.clipboard.writeText(targetUrl);
+      setShowGuide(true);
+      return;
+    }
+
+    // 3. 기타 일반 브라우저: 즉시 이동
+    window.location.href = '/';
+  };
+
+  const handleCopy = async (saju, from) => {
+    // 이동할 최종 목적지 URL
+    navigator.clipboard.writeText(window.location.origin + '/');
+    alert(language === 'en' ? 'Link copied!' : '주소가 복사되었습니다!');
     // 2. 로그 저장 (addDoc으로 간단하게)
     try {
       await setDoc(doc(db, 'copy_url_logs', new Date().toISOString()), {
@@ -72,10 +105,7 @@ const PremiumReportCard = ({ language = 'ko' }) => {
 
           {/* 주소 복사 영역 (인앱 대응용) */}
           <div
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.origin + '/');
-              alert(language === 'en' ? 'Link copied!' : '주소가 복사되었습니다!');
-            }}
+            onClick={handleCopy}
             className="group cursor-pointer bg-orange-50/50 border border-dashed border-orange-200 rounded-2xl py-3 px-4 mb-6 hover:bg-orange-50 transition-colors"
           >
             <p className="text-[10px] text-orange-400 font-bold mb-1 tracking-widest uppercase">
@@ -180,4 +210,4 @@ const PremiumReportCard = ({ language = 'ko' }) => {
   );
 };
 
-export default PremiumReportCard;
+export default CopyUrl2;
