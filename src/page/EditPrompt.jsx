@@ -8,7 +8,8 @@ import {
   basic_var,
   wealth_var,
   daily_var,
-  daily_s_var
+  daily_s_var,
+  seldate_var
 } from '../data/promptVar';
 
 const EditPrompt = () => {

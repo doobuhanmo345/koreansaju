@@ -27,9 +27,6 @@ const HANJA_MAP = {
 
 /**
  * 주어진 Date 객체를 lunar-javascript을 사용해 사주 팔자(년/월/일/시주)로 변환합니다.
- * 이 함수는 오직 Date 객체와 HANJA_MAP에 의존하는 순수 로직입니다.
- * @param {Date} targetDate - 계산할 날짜와 시간을 가진 Date 객체
- * @returns {object | null} 8글자 사주 데이터 및 날짜 정보 또는 null
  */
 export const getPillars = (targetDate) => {
   try {
@@ -39,11 +36,11 @@ export const getPillars = (targetDate) => {
       targetDate.getDate(),
       targetDate.getHours(),
       targetDate.getMinutes(),
-      targetDate.getSeconds(), // getPillars는 초까지 사용했으므로 포함
+      targetDate.getSeconds(),
     );
 
     const lunar = solar.getLunar();
-    const baZi = lunar.getBaZi(); // [년주, 월주, 일주, 시주] (한자 문자열 배열)
+    const baZi = lunar.getBaZi();
 
     const parsePillar = (ganjiHanja) => {
       const skyHanja = ganjiHanja[0];
@@ -65,57 +62,39 @@ export const getPillars = (targetDate) => {
       grd1: dayP.grd, // 일
       sky0: hourP.sky,
       grd0: hourP.grd, // 시
-      date: targetDate.toLocaleDateString('en-CA'), // YYYY-MM-DD 형식
+      date: targetDate.toLocaleDateString('en-CA'), // YYYY-MM-DD
     };
   } catch (error) {
-    // console.error('사주 계산 실패:', error); // 에러 출력은 calculateSaju에서 처리하는 것이 일반적
     return null;
   }
 };
 
-/**
- * 외부 입력(inputDate)을 받아 사주 팔자를 계산합니다.
- * 기존 calculateSaju 로직을 유지하면서 getPillars를 활용합니다.
- */
 export const calculateSaju = (inputDate, isTimeUnknown = false) => {
   if (!inputDate) return null;
   const dateObj = new Date(inputDate);
   if (isNaN(dateObj.getTime())) return null;
 
-  // 1. 핵심 계산 로직은 getPillars 함수를 호출하여 재사용
   const pillarsData = getPillars(dateObj);
-
   if (!pillarsData) return null;
 
-  // 2. isTimeUnknown 조건에 따라 시주(sky0, grd0) 처리
   return {
     sky3: pillarsData.sky3,
-    grd3: pillarsData.grd3, // 연
+    grd3: pillarsData.grd3,
     sky2: pillarsData.sky2,
-    grd2: pillarsData.grd2, // 월
+    grd2: pillarsData.grd2,
     sky1: pillarsData.sky1,
-    grd1: pillarsData.grd1, // 일
+    grd1: pillarsData.grd1,
     sky0: isTimeUnknown ? '' : pillarsData.sky0,
-    grd0: isTimeUnknown ? '' : pillarsData.grd0, // 시
+    grd0: isTimeUnknown ? '' : pillarsData.grd0,
   };
 };
 
-
-// ... 기존 HANJA_MAP 및 getPillars 코드는 동일 ...
-
-/**
- * 음력 입력을 받아 사주 팔자를 계산합니다.
- * @param {string} inputDate - "YYYY-MM-DD HH:mm:ss" 형식
- * @param {boolean} isLeapMonth - 윤달 여부 (true면 윤달)
- * @param {boolean} isTimeUnknown - 시간 모름 여부
- */
 export const calculateSajuLunar = (inputDate, isLeapMonth = false, isTimeUnknown = false) => {
   if (!inputDate) return null;
   const dateObj = new Date(inputDate);
   if (isNaN(dateObj.getTime())) return null;
 
   try {
-    // 1. 음력 객체 생성 (년, 월, 일, 시, 분, 초)
     const lunar = Lunar.fromYmdHms(
       dateObj.getFullYear(),
       dateObj.getMonth() + 1,
@@ -125,13 +104,7 @@ export const calculateSajuLunar = (inputDate, isLeapMonth = false, isTimeUnknown
       dateObj.getSeconds(),
     );
 
-    // 2. 만약 윤달(isLeapMonth)이라면 처리 (라이브러리 지원 기능)
-    // Lunar 객체는 생성 시점의 날짜를 음력으로 보지만,
-    // 실제 입력이 '윤달'인 경우에 대한 처리가 필요하면 해당 API를 확인해야 합니다.
-    // 기본적으로 lunar.getBaZi()는 해당 음력 시점의 정확한 간지를 반환합니다.
-
     const baZi = lunar.getBaZi();
-
     const parsePillar = (ganjiHanja) => {
       const skyHanja = ganjiHanja[0];
       const grdHanja = ganjiHanja[1];
@@ -155,5 +128,71 @@ export const calculateSajuLunar = (inputDate, isLeapMonth = false, isTimeUnknown
     };
   } catch (error) {
     return null;
+  }
+};
+
+export const calculateCalendarRange = (startDateStr, endDateStr) => {
+  try {
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+    let current = new Date(start);
+    const lines = [];
+
+    let count = 0;
+    while (current <= end && count < 100) {
+      const pillars = getPillars(current);
+      if (pillars) {
+        const line = `${pillars.date}: ${pillars.sky3}${pillars.grd3}(년) ${pillars.sky2}${pillars.grd2}(월) ${pillars.sky1}${pillars.grd1}(일)`;
+        lines.push(line);
+      }
+      current.setDate(current.getDate() + 1);
+      count++;
+    }
+    return lines.join('\n');
+  } catch (error) {
+    return '';
+  }
+};
+
+/**
+ * 시작일~종료일 사이의 '모든 시간대(12시) 만세력'을 생성합니다.
+ * AI가 시두법을 직접 계산하지 않고, 미리 계산된 데이터를 보고 '선택'만 하게 합니다.
+ */
+export const calculateDetailedCalendarRange = (startDateStr, endDateStr) => {
+  try {
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+    let current = new Date(start);
+    const lines = [];
+
+    const ZODIACS = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해'];
+    const HOURS = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+
+    let count = 0;
+    while (current <= end && count < 60) {
+      const baseYear = current.getFullYear();
+      const baseMonth = current.getMonth();
+      const baseDate = current.getDate();
+
+      const dailyPillars = getPillars(new Date(baseYear, baseMonth, baseDate, 12));
+      if (dailyPillars) {
+        const dateHead = `${dailyPillars.date} (${dailyPillars.sky1}${dailyPillars.grd1}일):`;
+        const hourPillars = [];
+
+        for (let i = 0; i < 12; i++) {
+          const testDate = new Date(baseYear, baseMonth, baseDate, HOURS[i], 30);
+          const p = getPillars(testDate);
+          if (p) {
+            hourPillars.push(`${ZODIACS[i]}(${p.sky0}${p.grd0})`);
+          }
+        }
+        lines.push(`${dateHead} ${hourPillars.join(' ')}`);
+      }
+      current.setDate(current.getDate() + 1);
+      count++;
+    }
+    return lines.join('\n');
+  } catch (error) {
+    return '';
   }
 };

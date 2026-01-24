@@ -46,18 +46,30 @@ export default function SelDatePage() {
 
   const isDisabled = !user || loading || !selectedPurpose || !startDate || !endDate;
 
-  const handleQuickSelect = (months) => {
+  // 최대 100일 제한 계산
+  const maxDate = useMemo(() => {
+    const start = new Date(startDate);
+    const max = new Date(start);
+    max.setDate(start.getDate() + 100);
+    return max.toISOString().split('T')[0];
+  }, [startDate]);
+
+  const handleQuickSelect = (amount, unit = 'months') => {
      const start = new Date(startDate);
      const end = new Date(start);
-     end.setMonth(start.getMonth() + months);
+     
+     if (unit === 'weeks') {
+       end.setDate(start.getDate() + (amount * 7));
+     } else {
+       end.setMonth(start.getMonth() + amount);
+     }
+     
+     // 100일 초과 시 maxDate로 설정 (혹은 단순 적용)
+     // 2달은 60일 정도라 100일 안넘으므로 안전함.
      setEndDate(end.toISOString().split('T')[0]);
   };
   
-  const handleThisYear = () => {
-      const today = new Date();
-      const end = new Date(today.getFullYear(), 11, 31);
-      setEndDate(end.toISOString().split('T')[0]);
-  }
+  // const handleThisYear = ... (제거: 100일 넘을 수 있음)
 
   const service = useMemo(
     () =>
@@ -78,6 +90,17 @@ export default function SelDatePage() {
 
   const handleStartClick = useCallback(
     async (onStart) => {
+      // 100일 제한 유효성 검사
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = end - start;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 100) {
+        alert(language === 'ko' ? '기간은 최대 100일까지 선택 가능합니다.' : 'Date range cannot exceed 100 days.');
+        return;
+      }
+
       setAiResult('');
       try {
         const purposeLabel = PURPOSE_OPTIONS.find(p => p.id === selectedPurpose);
@@ -103,7 +126,7 @@ export default function SelDatePage() {
 
   const selectionSection = useCallback(() => {
     return (
-      <div className="w-full max-w-md mx-auto py-8">
+      <div className="w-full max-w-xl mx-auto py-8">
         <div className="mb-10">
           <header className="mb-6 px-1">
             <div className="flex items-baseline gap-3">
@@ -151,7 +174,7 @@ export default function SelDatePage() {
                 </h2>
               </div>
               <p className="mt-4 text-sm text-slate-400 dark:text-slate-500 font-bold uppercase tracking-[0.2em]">
-                {language === 'ko' ? '언제가 좋을지 알아볼까요?' : 'When are you planning?'}
+                {language === 'ko' ? '언제가 좋을지 알아볼까요? (최대 100일)' : 'When are you planning? (Max 100 days)'}
               </p>
             </header>
 
@@ -169,6 +192,7 @@ export default function SelDatePage() {
                     label="END DATE"
                     value={endDate}
                     min={startDate}
+                    max={maxDate} // 100일 제한 적용
                     onChange={(e) => setEndDate(e.target.value)}
                     className="w-full"
                     language={language}
@@ -178,22 +202,22 @@ export default function SelDatePage() {
 
                <div className="flex flex-wrap gap-2 justify-center">
                  <button 
-                  onClick={() => handleQuickSelect(1)}
+                  onClick={() => handleQuickSelect(2, 'weeks')}
                   className="px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 rounded-full border border-slate-200 dark:border-slate-600 transition-colors"
                  >
-                    +1 {language === 'ko' ? '개월' : 'Month'}
+                    +2 {language === 'ko' ? '주' : 'Weeks'}
                  </button>
                  <button 
-                  onClick={() => handleQuickSelect(3)}
+                  onClick={() => handleQuickSelect(1, 'months')}
                   className="px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 rounded-full border border-slate-200 dark:border-slate-600 transition-colors"
                  >
-                    +3 {language === 'ko' ? '개월' : 'Months'}
+                    +1 {language === 'ko' ? '달' : 'Month'}
                  </button>
                   <button 
-                  onClick={handleThisYear}
+                  onClick={() => handleQuickSelect(2, 'months')}
                   className="px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 rounded-full border border-slate-200 dark:border-slate-600 transition-colors"
                  >
-                    {language === 'ko' ? '올해 말까지' : 'Until Year End'}
+                    +2 {language === 'ko' ? '달' : 'Months'}
                  </button>
                </div>
             </div>
@@ -204,7 +228,7 @@ export default function SelDatePage() {
         )}
       </div>
     );
-  }, [language, selectedPurpose, startDate, endDate]);
+  }, [language, selectedPurpose, startDate, endDate, maxDate]);
 
   const sajuGuide = useCallback(
     (onStart) => {

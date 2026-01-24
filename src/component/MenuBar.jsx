@@ -180,10 +180,17 @@ export default function MobileNav() {
               {
                 name: isKo ? '택일 비서' : 'Select Day',
                 desc: isKo
-                  ? '중요한 그날의 데이트, 과연 어떨까'
-                  : 'Will your date go well? See your romantic energy.',
+                  ? '이사, 결혼, 계약 등 중요한 날을 위한 길일 선택'
+                  : 'Find the most auspicious days for your important events.',
                 icon: <CalendarDaysIcon className="w-6 h-6" />,
                 path: '/seldate',
+              },  {
+                name: isKo ? '출산 택일' : 'Childbirth Selection',
+                desc: isKo
+                  ? '아이와 부모의 기운에 맞는 조화로운 출산 택일'
+                  : 'Find the most auspicious birth dates for your child.',
+                icon: <CalendarDaysIcon className="w-6 h-6" />,
+                path: '/selbirth',
               },
             ],
           },

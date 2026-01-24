@@ -220,7 +220,7 @@ export default function FirstDatepage() {
     const today = new Date();
 
     return (
-      <div className="w-full max-w-md mx-auto py-8">
+      <div className="w-full max-w-xl mx-auto py-8">
         <div className="mb-6">
           <header className="mb-6 px-1">
             <div className="flex items-baseline gap-3">

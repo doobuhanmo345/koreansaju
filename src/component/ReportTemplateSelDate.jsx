@@ -6,6 +6,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import { useAuthContext } from '../context/useAuthContext';
 import { toymdt, parseAiResponse } from '../utils/helpers';
 import { useLoading } from '../context/useLoadingContext';
+import AfterReport from './AfterReport';
 
 export default function ReportTemplateSelDate() {
   const { aiResult } = useLoading();
@@ -30,43 +31,7 @@ export default function ReportTemplateSelDate() {
     setIsLoaded(true);
   }, []);
 
-  // --- 인앱 브라우저 대응 로직 ---
-  const handleAction = async (sajuStr, from) => {
-    const targetUrl = window.location.origin;
-    const ua = navigator.userAgent.toLowerCase();
 
-    // 1. 로그 저장 (백그라운드)
-    const logId = `${new Date().getTime()}_${Math.random().toString(36).substr(2, 5)}`;
-    setDoc(doc(db, 'copy_url_logs', logId), {
-      saju: sajuStr || 'unknown',
-      language: language,
-      origin: from,
-      createdAt: serverTimestamp(),
-    }).catch(e => console.error('Log error:', e));
-
-    // 2. 환경별 이동
-    if (ua.includes('kakaotalk')) {
-      window.location.href = `kakaotalk://web/openExternalApp?url=${encodeURIComponent(targetUrl)}`;
-      return;
-    }
-
-    if (ua.includes('instagram') || ua.includes('fbav')) {
-      try {
-        await navigator.clipboard.writeText(targetUrl);
-      } catch (e) {
-        const t = document.createElement("input");
-        t.value = targetUrl;
-        document.body.appendChild(t);
-        t.select();
-        document.execCommand("copy");
-        document.body.removeChild(t);
-      }
-      setShowGuide(true);
-      return;
-    }
-
-    window.location.href = '/';
-  };
 
   if (!data) return <div className="p-10 text-center text-stone-400">결과를 불러오는 중이거나 데이터가 없습니다.</div>;
 
@@ -160,44 +125,9 @@ export default function ReportTemplateSelDate() {
           </section>
         )}
 
-        {/* --- 결제/공유 유도 섹션 추가 --- */}
-        <section className="mt-12 mb-8 px-2 animate-up">
-          <div className="bg-[#FEFAF7] rounded-[32px] border border-orange-100 p-8 text-center shadow-sm">
-            <h3 className="text-[#3A322F] text-lg font-bold mb-2">
-              {language === 'en' ? 'Get Premium Version' : '더 자세한 프리미엄 분석'}
-            </h3>
-            <p className="text-[#6D625B] text-sm mb-6 leading-relaxed">
-              {language === 'en' 
-                ? 'Check out all auspicious dates for the year.' 
-                : '올해의 모든 길일과 상세 시간대 분석을\n무료 이벤트로 확인해보세요.'}
-            </p>
-            <button
-              onClick={() => handleAction(`${saju.sky1}${saju.grd1}`, 'report_bottom')}
-              className="w-full h-[56px] bg-[#3A322F] text-white rounded-2xl font-bold flex items-center justify-center gap-2"
-            >
-              {language === 'en' ? 'View Full Report' : '전체 리포트 무료로 받기'}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" /></svg>
-            </button>
-          </div>
-        </section>
+       <AfterReport/>
       </main>
 
-      {/* 가이드 오버레이 */}
-      {showGuide && (
-        <div className="fixed inset-0 z-[9999] bg-black/80 flex flex-col items-end pt-4 pr-6" onClick={() => setShowGuide(false)}>
-          <div className="text-white text-right animate-bounce mb-4">
-            <p className="text-lg font-bold">여기 버튼을 클릭!</p>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="ml-auto transform rotate-[270deg]"><path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </div>
-          <div className="w-full px-6 mt-20 text-center">
-            <div className="bg-white rounded-[32px] p-8">
-              <p className="font-bold text-xl mb-2 text-stone-900">주소 복사 완료!</p>
-              <p className="text-sm text-stone-500 mb-6 leading-relaxed">인스타그램에서는 결제가 원활하지 않을 수 있습니다.<br/>복사된 주소를 <b>Safari</b>나 <b>Chrome</b>에 붙여넣어 주세요.</p>
-              <button className="w-full py-4 bg-[#3A322F] text-white rounded-2xl font-bold">알겠습니다</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

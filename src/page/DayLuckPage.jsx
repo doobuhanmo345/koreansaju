@@ -105,7 +105,7 @@ export default function DayLuckPage() {
     const today = new Date();
 
     return (
-      <div className="w-full max-w-md mx-auto py-8">
+      <div className="w-full max-w-xl mx-auto py-8">
         {/* Header Section: 아이콘 없이 텍스트로만 깔끔하게 */}
         <div className="mb-6">
           <label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-4">

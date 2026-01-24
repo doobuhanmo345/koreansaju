@@ -218,7 +218,7 @@ export default function InterviewPage() {
 
   const datePickerSection = useCallback(
     () => (
-      <div className="w-full max-w-md mx-auto py-8">
+      <div className="w-full max-w-xl mx-auto py-8">
         <header className="mb-10 px-1">
           <h2 className="text-xl font-light text-slate-900 dark:text-white tracking-tight">
             <span className="font-bold">01.</span>

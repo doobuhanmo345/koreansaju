@@ -46,6 +46,7 @@ const PayWall = lazy(() => import('./page/PayWall'));
 const TestAnalysisPage = lazy(() => import('./page/TestAnalysisPage'));
 const DayLuckPage = lazy(() => import('./page/DayLuckPage'));
 const SelDatePage = lazy(() => import('./page/SelDatePage'));
+const SelBirthPage = lazy(() => import('./page/SelBirthPage'));
 const FirstDatePage = lazy(() => import('./page/FirstDatePage'));
 const InterviewPage = lazy(() => import('./page/InterviewPage'));
  export const specialPaths = [
@@ -144,6 +145,7 @@ const RootComponent = () => {
             <Route path="/todaysluck" element={<TodaysLuckPage />} />
             <Route path="/dayluck" element={<DayLuckPage />} />
             <Route path="/seldate" element={<SelDatePage />} />
+            <Route path="/selbirth" element={<SelBirthPage />} />
             <Route path="/interview" element={<InterviewPage />} />
             <Route path="/2026luck" element={<YearlyLuckPage />} />
             <Route path="/test" element={<Test />} />

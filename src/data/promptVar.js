@@ -84,3 +84,16 @@ export const match_var = [
   { key: '{{langPrompt}}', label: '언어' },
   { key: '{{hanjaPrompt}}', label: '한자' },
 ];
+
+export const seldate_var = [
+  { key: '{{STRICT_INSTRUCTION}}', label: '(DB)STRICT_INSTRUCTION' },
+  { key: '{{SELDATE_FORMAT}}', label: '(DB)seldate_format' },
+  { key: '{{startDate}}', label: '시작일' },
+  { key: '{{endDate}}', label: '종료일' },
+  { key: '{{purpose}}', label: '목적' },
+  { key: '{{gender}}', label: '성별' },
+  { key: '{{mySajuStr}}', label: '사용자 사주' },
+  { key: '{{displayName}}', label: '사용자 이름' },
+  { key: '{{langPrompt}}', label: '언어' },
+  { key: '{{hanjaPrompt}}', label: '한자' },
+];

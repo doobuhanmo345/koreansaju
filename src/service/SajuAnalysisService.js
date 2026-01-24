@@ -5,7 +5,7 @@ import { ref, get, child } from 'firebase/database';
 import { db, database } from '../lib/firebase';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { createPromptForGemini } from '../utils/sajuLogic';
-import { getPillars } from '../utils/sajuCalculator';
+import { getPillars, calculateCalendarRange, calculateDetailedCalendarRange, calculateSaju } from '../utils/sajuCalculator';
 import { DateService } from '../utils/dateService';
 import { useAuthContext } from '../context/useAuthContext';
 export const getPromptFromDB = async (path) => {
@@ -45,9 +45,11 @@ class SajuAnalysisService {
     this.setAiResult = context.setAiResult;
     this.setAiAnalysis = context.setAiAnalysis;
     this.setStep = context.setStep;
+    this.setLastParams = context.setLastParams;
   }
 
   static compareSaju(source, target) {
+    if (!source && !target) return true;
     if (!source || !target) return false;
     return this.SAJU_KEYS.every((key) => source[key] === target[key]);
   }
@@ -134,6 +136,8 @@ class SajuAnalysisService {
       onComplete,
     } = config;
 
+    this.setLastParams?.(params);
+
     if (!isGuestMode && !this.user) {
       alert(this.uiText?.loginReq?.[this.language] || 'Please login');
       return null;
@@ -209,8 +213,18 @@ class SajuAnalysisService {
         const vars = buildPromptVars(prompts, params, this);
         fullPrompt = this.replaceVariables(prompts[promptPaths[0]], vars);
       }
+
+      // [Hotfix] selDate 타입인 경우 달력 데이터 강제 주입 (템플릿 변수가 없어도 무조건 들어가도록)
+      // 사용자가 템플릿을 수정하지 않아도 정확한 만세력 데이터가 전달되게 합니다.
+      if (type === 'selDate' && params.startDate && params.endDate) {
+        const calendarData = calculateCalendarRange(params.startDate, params.endDate);
+        if (calendarData) {
+          fullPrompt += `\n\n[IMPORTANT: Accurate Saju Calendar Data]\nUse this data to determine the daily Ganji (Il-jin). Do NOT hallucinate.\n${calendarData}\n----------------------------------\n`;
+        }
+      }
+
       if (true || this.user?.email === 'doobuhanmo3@gmail.com') {
-      
+        console.log('✅ Final Prompt with Calendar:', fullPrompt);
       }
 
       // API 호출
@@ -803,9 +817,27 @@ class AnalysisPresets {
         !!cached.result,
 
       buildPromptVars: (prompts, p, service) => {
+        console.log('📅 SelDate Params:', p.startDate, p.endDate);
+        const calendarData = calculateCalendarRange(p.startDate, p.endDate);
+        console.log('📅 Generated Calendar Data Length:', calendarData?.length);
+
+        const dayDiff = Math.ceil((new Date(p.endDate) - new Date(p.startDate)) / (1000 * 60 * 60 * 24));
+        
+        // 날짜가 너무 많으면(31일 초과) 달력 데이터를 다 넣지 말고, 중요 팁만 제공하거나 요약
+        // 하지만 calculateCalendarRange에서 이미 100일로 제한함.
+
+        const augmentedInstruction = `${prompts['prompt/default_instruction']}
+        
+        [중요: 실제 만세력 계산 데이터]
+        아래는 선택된 기간의 정확한 일진(Day Pillar) 정보입니다. 택일 시 반드시 이 데이터를 참조하여 계산하세요. 없는 날짜를 지어내지 마세요.
+        ${calendarData || '(데이터 생성 실패)'}
+        ---------------------------------------------
+        `;
+
         return {
-          '{{STRICT_INSTRUCTION}}': prompts['prompt/default_instruction'],
+          '{{STRICT_INSTRUCTION}}': augmentedInstruction,
           '{{SELDATE_FORMAT}}': prompts['prompt/seldate_format'],
+          '{{calendarData}}': calendarData, // 프롬프트에 {{calendarData}} 변수가 있으면 여기에 들어감
           '{{gender}}': p.gender,
           '{{mySajuStr}}': service.getSajuString(p.saju),
           '{{displayName}}': service.getDisplayName(),
@@ -832,6 +864,114 @@ class AnalysisPresets {
               saju: p.saju,
               language: p.language,
               gender: p.gender,
+            },
+          },
+          dailyUsage: { [todayStr]: increment(1) },
+        };
+      },
+    };
+  }
+
+  static selBirth(params) {
+    return {
+      type: 'selBirth',
+      params,
+      cacheKey: 'ZSelBirth',
+      loadingType: 'main',
+      // selbirth 전용 프롬프트 사용
+      promptPaths: ['prompt/selbirth_basic', 'prompt/default_instruction', 'prompt/selbirth_format'],
+
+      customValidation: (p, service) => {
+        if (!p.startDate || !p.endDate) {
+          alert('날짜 범위가 올바르지 않습니다.');
+          return false;
+        }
+        return true;
+      },
+
+      validateCache: (cached, p) => {
+        const currentPSaju = p.partnerBirthDate ? calculateSaju(p.partnerBirthDate, p.partnerTimeUnknown) : null;
+        return (
+          cached.startDate === p.startDate &&
+          cached.endDate === p.endDate &&
+          cached.language === p.language &&
+          cached.gender === p.gender &&
+          cached.birthMethod === p.birthMethod &&
+          cached.babyGender === p.babyGender &&
+          cached.partnerBirthDate === p.partnerBirthDate &&
+          SajuAnalysisService.compareSaju(cached.saju, p.saju) &&
+          SajuAnalysisService.compareSaju(cached.partnerSaju, currentPSaju) &&
+          !!cached.result
+        );
+      },
+
+      buildPromptVars: (prompts, p, service) => {
+        console.log('👶 SelBirth Params:', p.startDate, p.endDate);
+        const calendarData = calculateDetailedCalendarRange(p.startDate, p.endDate);
+        
+        const birthMethodLabel = p.birthMethod === 'natural' 
+          ? (service.language === 'ko' ? '자연분만' : 'Natural Birth')
+          : (service.language === 'ko' ? '제왕절개' : 'Cesarean Section');
+
+        let partnerSajuInfo = '';
+        if (p.partnerBirthDate) {
+          const pSaju = calculateSaju(p.partnerBirthDate, p.partnerTimeUnknown);
+          if (pSaju) {
+            partnerSajuInfo = `\n[배우자(상대 부모) 사주 정보]\n${service.getSajuString(pSaju)}\n`;
+          }
+        }
+
+        const augmentedInstruction = `${prompts['prompt/default_instruction']}
+        
+        [중요: 실제 만세력 계산 데이터]
+        아래는 선택된 기간의 정확한 일진(Day Pillar) 정보입니다. 출산 택일 시 반드시 이 데이터를 참조하여, 아기의 사주(특히 일주)가 좋게 나오는 날짜를 선정하세요. 
+        ${calendarData || '(데이터 생성 실패)'}
+        ---------------------------------------------
+        [출산 방식: ${birthMethodLabel}]
+        ${partnerSajuInfo}
+        `;
+
+        return {
+          '{{STRICT_INSTRUCTION}}': augmentedInstruction,
+          '{{SELBIRTH_FORMAT}}': prompts['prompt/selbirth_format'],
+          '{{calendarData}}': calendarData,
+          '{{displayName}}': service.getDisplayName(),
+          '{{mySajuStr}}': service.getSajuString(p.saju),
+          '{{partnerSajuStr}}': partnerSajuInfo,
+          '{{userGender}}': p.gender === 'female' ? (service.language === 'ko' ? '여성' : 'Female') : (service.language === 'ko' ? '남성' : 'Male'),
+          '{{partnerGender}}': p.gender === 'female' ? (service.language === 'ko' ? '남성' : 'Male') : (service.language === 'ko' ? '여성' : 'Female'),
+          '{{startDate}}': p.startDate,
+          '{{endDate}}': p.endDate,
+          '{{purpose}}': p.purpose,
+          '{{birthMethod}}': birthMethodLabel,
+          '{{babyGender}}': p.babyGender === 'boy' ? (service.language === 'ko' ? '남아' : 'Boy') : p.babyGender === 'girl' ? (service.language === 'ko' ? '여아' : 'Girl') : (service.language === 'ko' ? '성별모름' : 'Unknown'),
+          '{{partnerBirthDate}}': p.partnerBirthDate ? p.partnerBirthDate.split('T')[0] : '',
+          '{{partnerTimeUnknown}}': p.partnerTimeUnknown ? 'true' : 'false',
+          '{{langPrompt}}': service.langPrompt?.(service.language) || '',
+          '{{hanjaPrompt}}': service.hanja?.(service.language) || '',
+        };
+      },
+
+      buildSaveData: async (result, p, service) => {
+        const todayStr = await service.getToday();
+        return {
+          saju: p.saju,
+          editCount: increment(1),
+          lastEditDate: todayStr,
+          usageHistory: {
+            ZSelBirth: {
+              result,
+              saju: p.saju,
+              startDate: p.startDate,
+              endDate: p.endDate,
+              language: p.language,
+              gender: p.gender,
+              dueDate: p.dueDate,
+              birthMethod: p.birthMethod,
+              babyGender: p.babyGender,
+              partnerBirthDate: p.partnerBirthDate,
+            
+              partnerSaju: p.partnerBirthDate ? calculateSaju(p.partnerBirthDate, p.partnerTimeUnknown) : null,
             },
           },
           dailyUsage: { [todayStr]: increment(1) },
