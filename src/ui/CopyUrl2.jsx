@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-
-const CopyUrl2 = ({ language = 'ko' }) => {
+import { db } from '../lib/firebase';
+import { collection, setDoc, doc, serverTimestamp } from 'firebase/firestore';
+const CopyUrl2 = ({ saju, from }) => {
   const [showGuide, setShowGuide] = useState(false);
-
+  const language = 'ko';
   const handleAction = async (saju, from) => {
     // 이동할 최종 목적지 URL
     const targetUrl = window.location.origin;
     const ua = navigator.userAgent.toLowerCase();
+
     // 2. 로그 저장 (addDoc으로 간단하게)
     try {
       await setDoc(doc(db, 'copy_url_logs', new Date().toISOString()), {
@@ -41,6 +43,7 @@ const CopyUrl2 = ({ language = 'ko' }) => {
     navigator.clipboard.writeText(window.location.origin + '/');
     alert(language === 'en' ? 'Link copied!' : '주소가 복사되었습니다!');
     // 2. 로그 저장 (addDoc으로 간단하게)
+    const ua = navigator.userAgent.toLowerCase();
     try {
       await setDoc(doc(db, 'copy_url_logs', new Date().toISOString()), {
         saju: saju,
@@ -51,22 +54,6 @@ const CopyUrl2 = ({ language = 'ko' }) => {
     } catch (e) {
       console.error('로그 저장 실패:', e);
     }
-
-    // 1. 카카오톡: 외부 브라우저 강제 호출
-    if (ua.includes('kakaotalk')) {
-      window.location.href = `kakaotalk://web/openExternalApp?url=${encodeURIComponent(targetUrl)}`;
-      return;
-    }
-
-    // 2. 인스타그램 / 페이스북: 강제 이동 불가 -> 가이드 표시 + 주소 복사
-    if (ua.includes('instagram') || ua.includes('fbav')) {
-      navigator.clipboard.writeText(targetUrl);
-      setShowGuide(true);
-      return;
-    }
-
-    // 3. 기타 일반 브라우저: 즉시 이동
-    window.location.href = '/';
   };
 
   return (
@@ -105,7 +92,7 @@ const CopyUrl2 = ({ language = 'ko' }) => {
 
           {/* 주소 복사 영역 (인앱 대응용) */}
           <div
-            onClick={handleCopy}
+            onClick={() => handleCopy(saju, from)}
             className="group cursor-pointer bg-orange-50/50 border border-dashed border-orange-200 rounded-2xl py-3 px-4 mb-6 hover:bg-orange-50 transition-colors"
           >
             <p className="text-[10px] text-orange-400 font-bold mb-1 tracking-widest uppercase">
@@ -118,7 +105,7 @@ const CopyUrl2 = ({ language = 'ko' }) => {
 
           {/* 콜 투 액션 버튼 */}
           <button
-            onClick={handleAction}
+            onClick={() => handleAction(saju, from)}
             className="w-full h-[58px] bg-[#3A322F] hover:bg-[#2D2725] text-white rounded-[20px] font-semibold text-base shadow-lg shadow-stone-200 transition-all active:scale-[0.96] flex items-center justify-center gap-2"
           >
             <span>{language === 'en' ? 'Get Free Report' : '무료로 리포트 받기'}</span>
