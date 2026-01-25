@@ -181,6 +181,27 @@ export function AuthContextProvider({ children }) {
     return () => unsubscribeSnapshot?.();
   }, [user]);
 
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      await login();
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        // 사용자가 닫았을 때는 조용히 무시
+        return;
+      }
+      console.error('Login Error:', error);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const cancelLogin = () => {
+    setIsLoggingIn(false);
+  };
+
   const updateProfileData = async (newData) => {
     if (!user) return;
     const userDocRef = doc(db, 'users', user.uid);
@@ -193,8 +214,10 @@ export function AuthContextProvider({ children }) {
         user,
         userData,
         loadingUser,
+        isLoggingIn,
         iljuImagePath,
-        login,
+        login: handleLogin,
+        cancelLogin, // 내보내기
         logout,
         updateProfileData,
         ...status,

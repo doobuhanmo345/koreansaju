@@ -494,28 +494,6 @@ const handleFinalLogin = async () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 tracking-tight font-light">
-      {/* 렉 방지용 분석 중 오버레이 */}
-      {isAnalyzing && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="space-y-6 text-center">
-            {/* 사자사주 로고 또는 움직이는 아이콘 */}
-            <div className="relative mx-auto w-20 h-20">
-              <div className="absolute inset-0 bg-[#3B82F6] opacity-20 rounded-full animate-ping" />
-              <div className="relative flex items-center justify-center w-full h-full bg-white dark:bg-slate-900 rounded-3xl shadow-xl">
-                <SparklesIcon className="w-10 h-10 text-[#3B82F6] animate-pulse" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-xl font-black text-slate-800 dark:text-white">
-                {language === 'ko' ? '로그인 중입니다' : 'Login...'}
-              </h2>
-              <p className="text-sm text-slate-500 animate-pulse">
-                {language === 'ko' ? '잠시만 기다려주세요' : 'Please wait a moment'}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 space-y-6 border border-slate-100 dark:border-slate-800">
         {/* Progress Bar */}
         <div className="flex items-center justify-between w-full mb-6 px-2">

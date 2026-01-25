@@ -22,7 +22,7 @@ import { useLanguage } from '../context/useLanguageContext';
 
 export default function MobileNav() {
   const [activeMenu, setActiveMenu] = useState(null);
-  const { userData, iljuImagePath } = useAuthContext();
+  const { user, userData, iljuImagePath, login } = useAuthContext();
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -93,20 +93,22 @@ export default function MobileNav() {
       });
     }
 
-    profileItems.push(
-      {
-        name: isKo ? '프로필 수정' : 'Edit Profile',
-        desc: isKo ? '이름, 생년월일 정보 변경' : 'Change Name, Birthdate',
-        icon: <UserCircleIcon className="w-6 h-6" />,
-        path: '/editprofile',
-      },
-      {
-        name: isKo ? '상담 내역' : 'History',
-        desc: isKo ? '내가 본 운세 기록 확인' : 'Check Fortune Records',
-        icon: <PresentationChartLineIcon className="w-6 h-6" />,
-        path: null,
-      },
-    );
+    if (user) {
+      profileItems.push(
+        {
+          name: isKo ? '프로필 수정' : 'Edit Profile',
+          desc: isKo ? '이름, 생년월일 정보 변경' : 'Change Name, Birthdate',
+          icon: <UserCircleIcon className="w-6 h-6" />,
+          path: '/editprofile',
+        },
+        {
+          name: isKo ? '상담 내역' : 'History',
+          desc: isKo ? '내가 본 운세 기록 확인' : 'Check Fortune Records',
+          icon: <PresentationChartLineIcon className="w-6 h-6" />,
+          path: null,
+        },
+      );
+    }
 
     return {
       fortune: {
@@ -237,14 +239,14 @@ export default function MobileNav() {
           },
           {
             name: isKo ? '크레딧 상점' : 'Credit Shop',
-            desc: isKo ? '유료 크레딧 패키지 구매' : 'Buy Credit Packages',
+            desc: isKo ? '준비 중입니다' : 'Coming Soon',
             icon: <CreditCardIcon className="w-6 h-6" />,
-            path: '/credits/shop',
+            path: null,
           },
         ],
       },
       profile: {
-        title: isKo ? '내 정보 관리' : 'Account',
+        title: user ? (isKo ? '내 정보 관리' : 'Account') : (isKo ? '마이 페이지' : 'My Page'),
         color: 'text-indigo-500',
         items: profileItems,
       },
@@ -299,77 +301,105 @@ export default function MobileNav() {
 
               {activeMenu === 'profile' && (
                 <div className="mb-8">
-                  {/* 프로필 카드 UI 영역 */}
-                  <div className="relative overflow-hidden p-6 rounded-[2rem] bg-white dark:bg-[#1a1a2e] text-slate-800 dark:text-white shadow-xl border border-slate-100 dark:border-white/5 group transition-colors">
-                    {/* 배경 그라데이션 광원 효과 */}
+                  {user ? (
+                    <div className="relative overflow-hidden p-6 rounded-[2rem] bg-white dark:bg-[#1a1a2e] text-slate-800 dark:text-white shadow-xl border border-slate-100 dark:border-white/5 group transition-colors">
+                      {/* 배경 그라데이션 광원 효과 */}
 
-                    <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-50 dark:bg-purple-600/10 rounded-full blur-[60px]" />
+                      <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-50 dark:bg-purple-600/10 rounded-full blur-[60px]" />
 
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-6">
-                        {/* 📸 캐릭터 이미지 영역 */}
-                        <div className="relative shrink-0 w-32 h-32">
-                          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100 to-purple-100 dark:from-indigo-500/20 dark:to-purple-500/20 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-500" />
-                          <div className="absolute inset-0 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-3xl border border-white dark:border-white/10 shadow-inner" />
-                          <img
-                            src={iljuImagePath}
-                            className="relative w-full h-full object-contain p-2 transition-all duration-500 scale-110"
-                            alt="ilju character"
-                            onError={(e) => (e.target.style.display = 'none')}
-                          />
-                        </div>
-
-                        {/* 📝 유저 정보 영역 */}
-                        <div className="flex-1 min-w-0">
-                          <div className="mb-3">
-                            <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 tracking-[0.2em] uppercase mb-1">
-                              User Information
-                            </p>
-                            <h2 className="text-2xl font-black truncate tracking-tight text-slate-900 dark:text-white">
-                              {userData?.displayName || 'Guest'}
-                            </h2>
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-6">
+                          {/* 📸 캐릭터 이미지 영역 */}
+                          <div className="relative shrink-0 w-32 h-32">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-100 to-purple-100 dark:from-indigo-500/20 dark:to-purple-500/20 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-500" />
+                            <div className="absolute inset-0 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-3xl border border-white dark:border-white/10 shadow-inner" />
+                            <img
+                              src={iljuImagePath}
+                              className="relative w-full h-full object-contain p-2 transition-all duration-500 scale-110"
+                              alt="ilju character"
+                              onError={(e) => (e.target.style.display = 'none')}
+                            />
                           </div>
 
-                          {/* 정보 리스트: 주신 구조 그대로 유지 */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-3 text-[13px]">
-                              <span className="text-slate-400 dark:text-white/40 font-bold w-12">
-                                {isKo ? '성별' : 'Gender'}
-                              </span>
-                              <span className="font-semibold text-slate-700 dark:text-white/90">
-                                {userData?.gender === 'male'
-                                  ? isKo
-                                    ? '남성'
-                                    : 'Male'
-                                  : isKo
-                                    ? '여성'
-                                    : 'Female'}
-                              </span>
+                          {/* 📝 유저 정보 영역 */}
+                          <div className="flex-1 min-w-0">
+                            <div className="mb-3">
+                              <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 tracking-[0.2em] uppercase mb-1">
+                                User Information
+                              </p>
+                              <h2 className="text-2xl font-black truncate tracking-tight text-slate-900 dark:text-white">
+                                {userData?.displayName || 'User'}
+                              </h2>
                             </div>
 
-                            <div className="w-full h-[1px] bg-slate-100 dark:bg-white/10" />
+                            {/* 정보 리스트: 주신 구조 그대로 유지 */}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-3 text-[13px]">
+                                <span className="text-slate-400 dark:text-white/40 font-bold w-12">
+                                  {isKo ? '성별' : 'Gender'}
+                                </span>
+                                <span className="font-semibold text-slate-700 dark:text-white/90">
+                                  {userData?.gender === 'male'
+                                    ? isKo
+                                      ? '남성'
+                                      : 'Male'
+                                    : isKo
+                                      ? '여성'
+                                      : 'Female'}
+                                </span>
+                              </div>
 
-                            <div className="flex items-center gap-3 text-[13px]">
-                              <span className="text-slate-400 dark:text-white/40 font-bold w-12">
-                                {isKo ? '생일' : 'Birth'}
-                              </span>
-                              <span className="font-semibold text-slate-700 dark:text-white/90">
-                                {userData?.isTimeUnknown ? (
-                                  formatBirth(userData?.birthDate).slice(0, -10)
-                                ) : (
-                                  <div
-                                    dangerouslySetInnerHTML={{
-                                      __html: formatBirth(userData?.birthDate),
-                                    }}
-                                  />
-                                )}
-                              </span>
+                              <div className="w-full h-[1px] bg-slate-100 dark:bg-white/10" />
+
+                              <div className="flex items-center gap-3 text-[13px]">
+                                <span className="text-slate-400 dark:text-white/40 font-bold w-12">
+                                  {isKo ? '생일' : 'Birth'}
+                                </span>
+                                <span className="font-semibold text-slate-700 dark:text-white/90">
+                                  {userData?.isTimeUnknown ? (
+                                    formatBirth(userData?.birthDate).slice(0, -10)
+                                  ) : (
+                                    <div
+                                      dangerouslySetInnerHTML={{
+                                        __html: formatBirth(userData?.birthDate),
+                                      }}
+                                    />
+                                  )}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="relative overflow-hidden p-8 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center transition-all">
+                      {/* 장식 요소 최소화하여 통일감 강조 */}
+                      <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center mb-5">
+                        <SparklesIcon className="w-8 h-8 text-indigo-500" />
+                      </div>
+                      
+                      <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+                        {isKo ? '당신의 운명을 그려보세요' : 'Discover Your Destiny'}
+                      </h2>
+                      
+                      <p className="text-[13px] text-slate-400 dark:text-slate-500 mb-6 leading-relaxed break-keep">
+                        {isKo 
+                          ? '로그인 한 번으로 정밀한 사주 분석과 매일 새로운 운세를 경험하세요.' 
+                          : 'Sign in to unlock personalized Saju insights and daily updates.'}
+                      </p>
+                      
+                      <button
+                        onClick={() => {
+                          login();
+                          setActiveMenu(null);
+                        }}
+                        className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-[14px] transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
+                      >
+                        {isKo ? '로그인 / 시작하기' : 'Get Started Now'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -432,7 +462,7 @@ export default function MobileNav() {
             className={`flex flex-col items-center gap-1 ${activeMenu === 'profile' ? 'text-indigo-600' : 'text-slate-400'}`}
           >
             <UserCircleIcon className="w-6 h-6" />
-            <span className="text-[10px] font-black">{isKo ? '내 정보' : 'Profile'}</span>
+            <span className="text-[10px] font-black">{user ? (isKo ? '내 정보' : 'Profile') : (isKo ? '마이 페이지' : 'My Page')}</span>
           </button>
         </div>
       </nav>

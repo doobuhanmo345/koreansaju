@@ -150,7 +150,7 @@ export default function NavBar() {
       {/* [오른쪽] 유틸 버튼 그룹 */}
       <div className="flex items-center gap-1">
         {/* 크레딧 & 포춘쿠키 미니바 */}
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 mr-1">
+        {!!user ? <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 mr-1">
           <div className="flex items-center gap-1 border-r border-slate-300 dark:border-slate-600 pr-2">
             <BoltIcon
               className={`w-4 h-4 ${MAX_EDIT_COUNT - editCount === 0 ? 'text-red-500' : 'text-amber-500'} fill-current`}
@@ -172,7 +172,8 @@ export default function NavBar() {
               <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
             )}
           </button>
-        </div>
+        </div>:<></>}
+     
 
         {/* 알림 리스트 아이콘 */}
         <NotificationList />

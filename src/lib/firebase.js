@@ -35,14 +35,17 @@ export const database = getDatabase(app);
 // setPersistence(auth, browserSessionPersistence)... 부분 삭제
 // 이유: 이 부분이 실행될 때 브라우저가 sessionStorage 접근을 막으면 에러가 터집니다.
 
+// 초기화: Persistence 설정 (비동기지만 초기화 시점에 수행)
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error('Persistence 오류:', error);
+});
+
 // 구글 로그인 설정
 const provider = new GoogleAuthProvider();
 
 export async function login() {
   try {
-    // 1. Persistence 설정 (표준적인 단일 인자 방식으로 변경)
-    // 인자를 배열이 아닌 단일 객체로 넣어야 합니다.
-    await setPersistence(auth, browserLocalPersistence);
+    // 1. Persistence 설정 제거 (초기화 시점으로 이동)
 
     // 2. 구글 프로바이더 설정
     const provider = new GoogleAuthProvider();

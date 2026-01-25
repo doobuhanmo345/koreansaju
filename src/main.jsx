@@ -61,11 +61,13 @@ const MessagesPage = lazy(() => import('./page/MessagesPage'));
    '/test2',
    '/open-in-browser',
  ];
+import LoginLoadingOverlay from './component/LoginLoadingOverlay';
+
 // 🔥 로딩 컴포넌트 (간단하게)
 const LoadingFallback = () => <SplashScreen />;
 
 const RootComponent = () => {
-  const { user, userData, loadingUser } = useAuthContext();
+  const { user, userData, loadingUser, isLoggingIn, cancelLogin } = useAuthContext();
 
   const pathname = window.location.pathname.trim(); // 공백 제거
  
@@ -135,6 +137,7 @@ const RootComponent = () => {
   return (
     <div className="min-h-screen relative px-3 py-6 bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
       <ScrollToTop />
+      {isLoggingIn && <LoginLoadingOverlay onCancel={cancelLogin} />}
 
       <div className="pb-24">
         <NavBar />
