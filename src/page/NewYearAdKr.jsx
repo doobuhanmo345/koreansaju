@@ -73,7 +73,7 @@ const NewYearAdKr = () => {
     if (userData) return;
 
     try {
-      await addDoc(collection(db, 'newYear_funnel_logs'), {
+      await addDoc(collection(db, 'newyearad_funnel_logs'), {
         step: stepName,
         uid: currentGuestId || guestId,
         isLoggedIn: false, // 비회원임을 명확히 기록

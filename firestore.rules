@@ -12,8 +12,8 @@ service cloud.firestore {
       allow read, create, update: if true; 
     }
     match /sazatalk_funnel_logs/{docId} { allow create: if true; }
-        match /newyearad_funnel_logs/{docId} { allow create: if true; }
-        match /newyearad_logs/{docId} { allow create: if true; }
+        match /newyearad_funnel_logs/{docId} { allow read, create, update: if true; }
+        match /newyearad_logs/{docId} { allow read, create, update: if true; }
         match /copy_url_logs/{docId} { allow create: if true; }
         
         
