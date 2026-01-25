@@ -55,6 +55,18 @@ const NewYearAdKr = () => {
     logStep(step, id);
   }, [step, userData, loadingUser]); // 의존성 배열에 loading과 userData 추가
 
+  // [NEW] 인앱 브라우저가 아닌 경우 메인으로 리다이렉트 (외부 브라우저 열기 대응)
+  useEffect(() => {
+    // 1. 이미 메인페이지거나 로컬호스트 개발 중일때는 정책에 따라 제외할 수 있으나,
+    // 유저 요청대로 "외부 브라우저 진입 시 메인으로" 이동 처리
+    const ua = navigator.userAgent.toLowerCase();
+    const isInApp = /kakaotalk|instagram|naver|facebook|fbav/.test(ua);
+    
+    if (!isInApp) {
+      window.location.replace('/');
+    }
+  }, []);
+
   // 공통 로그 저장 함수
   const logStep = async (stepName, currentGuestId, extraData = {}) => {
     // userData가 존재하면(로그인 상태면) 함수를 여기서 종료

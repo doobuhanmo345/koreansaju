@@ -55,6 +55,16 @@ const NewYearAdEn = () => {
     logStep(step, id);
   }, [step, userData, loadingUser]); // 의존성 배열에 loading과 userData 추가
 
+  // [NEW] Redirect to main if not in-app browser
+  useEffect(() => {
+    const ua = navigator.userAgent.toLowerCase();
+    const isInApp = /kakaotalk|instagram|naver|facebook|fbav/.test(ua);
+    
+    if (!isInApp) {
+      window.location.replace('/');
+    }
+  }, []);
+
   // 공통 로그 저장 함수
   const logStep = async (stepName, currentGuestId, extraData = {}) => {
     // userData가 존재하면(로그인 상태면) 함수를 여기서 종료

@@ -135,7 +135,7 @@ const RootComponent = () => {
 
   // 4. 정상 상태
   return (
-    <div className="min-h-screen relative px-3 py-6 bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
+    <div className="min-h-screen relative px-3 bg-gray-50 dark:bg-slate-900 transition-colors animate-in fade-in duration-700">
       <ScrollToTop />
       {isLoggingIn && <LoginLoadingOverlay onCancel={cancelLogin} />}
 

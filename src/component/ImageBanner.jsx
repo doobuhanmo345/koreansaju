@@ -121,7 +121,7 @@ const ImageBanner = () => {
 
   return (
     <div
-      className="relative z-0 w-full max-w-lg h-[210px] mx-auto flex overflow-hidden transition-all duration-500 ease-in-out my-6 rounded-[1rem]  shadow-xl group hover:shadow-2xl sm:hover:-translate-y-1 touch-pan-y"
+      className="relative z-0 w-full max-w-lg h-[210px] mx-auto flex overflow-hidden transition-all duration-500 ease-in-out my-2 rounded-[1rem]  shadow-xl group hover:shadow-2xl sm:hover:-translate-y-1 touch-pan-y"
       style={{
         // 배경색 그라데이션
         background: `linear-gradient(135deg, ${current.bgColor} 0%, ${current.bgColor} 60%, #ffffff 100%)`,
