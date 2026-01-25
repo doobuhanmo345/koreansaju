@@ -509,13 +509,13 @@ export const createPromptForGemini = async (sajuData, language = 'ko') => {
     const dbRef = ref(database);
 
     const [templateSnap, instructionSnap, formatSnap] = await Promise.all([
-      get(child(dbRef, 'prompt/basic')), // 전체 프롬프트 뼈대
+      get(child(dbRef, 'prompt/basic_basic')), // 전체 프롬프트 뼈대
       get(child(dbRef, 'prompt/default_instruction')), // "당신은 역학자입니다..."
       get(child(dbRef, `prompt/basic_format_${language}`)), // 사용자님이 주신 HTML
     ]);
 
     if (!templateSnap.exists() || !formatSnap.exists()) {
-      console.error('DB 데이터 누락: prompt/basic 또는 target_format을 확인하세요.');
+      console.error('DB 데이터 누락: prompt/basic_basic_basic 또는 target_format을 확인하세요.');
       return '';
     }
 

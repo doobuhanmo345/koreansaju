@@ -144,7 +144,7 @@ export default function FortuneCookie({}) {
           </div>
           <div className="m-auto max-w-sm rounded-2xl overflow-hidden ">
             <img
-              src="/images/introcard/cookie_2.png"
+              src="/images/introcard/cookie_2.webp"
               alt="cookie started"
               className="w-60 h-auto mx-auto"
             />
@@ -186,7 +186,7 @@ export default function FortuneCookie({}) {
                   <div className="text-center">
                     <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
                       <img
-                        src="/images/introcard/cookie_result.png"
+                        src="/images/introcard/cookie_result.webp"
                         alt="cookie result"
                         className="w-full h-auto"
                       />

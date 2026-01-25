@@ -13,24 +13,53 @@ import {
   deleteDoc,
   addDoc,
 } from 'firebase/firestore';
-import { useAuthContext } from '../context/useAuthContext';
-import { CheckIcon, XMarkIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { 
+  UsersIcon, 
+  CurrencyDollarIcon, 
+  DocumentTextIcon, 
+  EnvelopeIcon, 
+  AdjustmentsHorizontalIcon,
+  MagnifyingGlassIcon,
+  TrashIcon,
+  ArrowPathIcon,
+  CheckIcon
+} from '@heroicons/react/24/outline';
+import MessageModal from '../component/MessageModal';
 
 export default function AdminPage() {
   const { user, userData } = useAuthContext();
   const [newCount, setNewCount] = useState(0);
+  const [adminCurrentPage, setAdminCurrentPage] = useState('dashboard');
 
   // 추가된 상태: 명리학자 신청 목록 및 모달 제어
   const [applications, setApplications] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
+  const [searchEmail, setSearchEmail] = useState('');
+  const [adminPage, setAdminPage] = useState(1);
+  const itemsPerPage = 10;
   const [rejectReason, setRejectReason] = useState('');
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
+  const [selectedUserForReply, setSelectedUserForReply] = useState(null);
+  const [selectedMsgId, setSelectedMsgId] = useState(null);
+  const [showProcessed, setShowProcessed] = useState(false);
 
   // 1단계: 거절 버튼 클릭 시 모달 열기
   const openRejectModal = (app) => {
     setSelectedApp(app);
     setRejectReason(''); // 사유 초기화
     setIsRejectModalOpen(true);
+  };
+
+  // 메시지 응답 모달 열기
+  const openReplyModal = (msg) => {
+    setSelectedUserForReply({
+      uid: msg.senderId,
+      displayName: msg.senderName
+    });
+    setSelectedMsgId(msg.id);
+    setIsReplyModalOpen(true);
   };
 
   // 2단계: 모달에서 '거절 확정' 클릭 시 실행되는 실제 로직
@@ -77,16 +106,49 @@ export default function AdminPage() {
 
   // 2. 추가된 Effect: 명리학자 신청 대기 목록 실시간 로드 (로직 유지)
   useEffect(() => {
-    if (userData.role !== 'admin' && userData.role !== 'super_admin') return;
+    if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) return;
 
     const q = query(collection(db, 'consultant_applications'), where('status', '==', 'pending'));
-
     const unsubscribe = onSnapshot(q, (snap) => {
       setApplications(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
 
     return unsubscribe;
-  }, [userData]);
+  }, [userData.uid, userData.role]);
+
+  // 추가된 Effect: 모든 메시지 실시간 로드 (관리자용)
+  useEffect(() => {
+    if (!userData || (userData.role !== 'admin' && userData.role !== 'super_admin')) return;
+
+    const q = query(collection(db, 'direct_messages'), where('receiverId', '==', 'admin'));
+    const unsubscribe = onSnapshot(q, (snap) => {
+      setMessages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+    }, (error) => {
+      console.error('Error loading admin inquiries:', error);
+    });
+
+    return unsubscribe;
+  }, [userData.uid, userData.role]);
+
+  const handleMarkProcessed = async (msgId, status = true) => {
+    try {
+      await updateDoc(doc(db, 'direct_messages', msgId), { isProcessed: status });
+      
+      // 처리 완료 시, 해당 메시지와 관련된 모든 관리자용 알림을 삭제하여 '사라지게' 함
+      if (status) {
+        const q_notif = query(collection(db, 'notifications'), where('sourceMessageId', '==', msgId));
+        const snap = await getDocs(q_notif);
+        if (!snap.empty) {
+          const batch = writeBatch(db);
+          snap.docs.forEach(d => batch.delete(d.ref));
+          await batch.commit();
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update status');
+    }
+  };
 
   if (!user) return <div className="p-10 text-center">로그인이 필요합니다.</div>;
   if (userData.role !== 'admin' && userData.role !== 'super_admin')
@@ -355,6 +417,133 @@ export default function AdminPage() {
               )}
             </div>
           </section>
+ 
+          {/* 4. 유저 문의 관리 섹션 (미니 게시판 형태) */}
+          <section className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+              <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 flex items-center gap-2 uppercase tracking-tighter">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                Inquiry Board
+              </h3>
+              <div className="flex items-center gap-3">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{showProcessed ? 'Viewing All' : 'Active Only'}</span>
+                <button 
+                  onClick={() => setShowProcessed(!showProcessed)}
+                  className={`relative w-9 h-5 rounded-full transition-all duration-300 ${showProcessed ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                >
+                  <div className={`absolute top-1 w-3 h-3 bg-white rounded-full shadow-sm transition-transform duration-300 ${showProcessed ? 'translate-x-5' : 'translate-x-1'}`}></div>
+                </button>
+              </div>
+            </div>
+
+            <div className="divide-y divide-gray-50 dark:divide-slate-800/50">
+              {(() => {
+                const filtered = messages.filter(m => showProcessed || !m.isProcessed);
+                const totalPages = Math.ceil(filtered.length / itemsPerPage);
+                const currentItems = filtered.slice((adminPage - 1) * itemsPerPage, adminPage * itemsPerPage);
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="py-16 text-center text-slate-400">
+                      <p className="text-[11px] font-bold uppercase tracking-widest">No inquiries found in this view</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <>
+                    {currentItems.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`group px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${
+                          msg.isProcessed 
+                          ? 'bg-slate-50/30 dark:bg-slate-900/10' 
+                          : 'hover:bg-blue-50/30 dark:hover:bg-blue-900/5'
+                        }`}
+                      >
+                        <div className="flex-grow min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`w-1.5 h-1.5 rounded-full ${msg.isProcessed ? 'bg-slate-300' : 'bg-blue-500'}`}></span>
+                            <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase truncate max-w-[120px]">
+                              {msg.senderName}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-600">
+                              {msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleDateString() : 'Pending'}
+                            </span>
+                          </div>
+                          <p className={`text-xs font-medium leading-normal truncate group-hover:whitespace-normal ${msg.isProcessed ? 'text-slate-400 italic line-through decoration-slate-300' : 'text-slate-600 dark:text-slate-400'}`}>
+                            {msg.text}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          {!msg.isProcessed ? (
+                            <>
+                              <button
+                                onClick={() => openReplyModal(msg)}
+                                className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-md"
+                              >
+                                Reply
+                              </button>
+                              <button
+                                onClick={() => handleMarkProcessed(msg.id, true)}
+                                className="p-2 text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition-all"
+                                title="Mark as Done"
+                              >
+                                <CheckIcon className="w-5 h-5" />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => handleMarkProcessed(msg.id, false)}
+                              className="px-3 py-1.5 text-[9px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 rounded-lg transition-all"
+                            >
+                              Cancel / Restore
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Admin Board Pagination UI */}
+                    {totalPages > 1 && (
+                      <div className="p-4 bg-slate-50/50 dark:bg-slate-800/20 flex justify-center items-center gap-2">
+                        <button 
+                          onClick={() => setAdminPage(p => Math.max(1, p - 1))}
+                          disabled={adminPage === 1}
+                          className="px-3 py-1 text-[10px] font-black text-slate-400 hover:text-blue-600 disabled:opacity-30 uppercase tracking-widest"
+                        >
+                          Prev
+                        </button>
+                        <div className="flex gap-1">
+                          {[...Array(totalPages)].map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setAdminPage(i + 1)}
+                              className={`w-6 h-6 rounded-lg text-[10px] font-black transition-all ${
+                                adminPage === i + 1 
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30' 
+                                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              }`}
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
+                        </div>
+                        <button 
+                          onClick={() => setAdminPage(p => Math.min(totalPages, p + 1))}
+                          disabled={adminPage === totalPages}
+                          className="px-3 py-1 text-[10px] font-black text-slate-400 hover:text-blue-600 disabled:opacity-30 uppercase tracking-widest"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </section>
 
           {/* 거절 사유 입력 모달 */}
           {isRejectModalOpen && (
@@ -398,9 +587,19 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          {/* 답변하기용 MessageModal */}
+          <MessageModal 
+            isOpen={isReplyModalOpen}
+            onClose={() => setIsReplyModalOpen(false)}
+            receiverId={selectedUserForReply?.uid}
+            receiverName={selectedUserForReply?.displayName}
+            originalMessageId={selectedMsgId}
+          />
+
         </div>
 
-        <footer className="pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
+        <footer className="pt-10 border-t border-gray-100 dark:border-gray-800 text-center">
           <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-semibold">
             Administrator Access Only
           </p>

@@ -10,7 +10,7 @@ import {
   daily_var,
   daily_s_var,
   seldate_var,
-  selbirth_var
+  selbirth_var,
 } from '../data/promptVar';
 
 const EditPrompt = () => {
@@ -21,6 +21,8 @@ const EditPrompt = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isVarsOpen, setIsVarsOpen] = useState(false);
   const promptArea = useRef(null);
 
   // 1. 전체 프롬프트 목록 가져오기 (prompt 노드 전체 탐색)
@@ -133,7 +135,7 @@ const EditPrompt = () => {
   };
 
   const variableMapper = {
-    basic: basic_var,
+    basic_basic: basic_var,
     match_basic: match_var,
     daily_basic: daily_var,
     new_year_basic: new_year_var,
@@ -141,19 +143,24 @@ const EditPrompt = () => {
     wealth_basic: wealth_var,
     daily_s_basic: daily_s_var,
     seldate_basic: seldate_var,
-    selbirth_basic: selbirth_var
+    selbirth_basic: selbirth_var,
   };
 
   // 필터링 및 그룹화 로직
-  const filteredPrompts = promptList.filter(path => 
-    path.toLowerCase().includes(searchTerm.toLowerCase())
-  ).sort();
+  const filteredPrompts = promptList
+    .filter((path) => path.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort();
+
+  // globalInstruction (default_instruction)은 별도로 추출
+  const isGlobalMatch = 'default_instruction'.toLowerCase().includes(searchTerm.toLowerCase());
+  const hasGlobalInstruction = promptList.includes('default_instruction') && isGlobalMatch;
+  const mainPrompts = filteredPrompts.filter((p) => p !== 'default_instruction');
 
   // 그룹화 (예: seldate_basic, seldate_format -> group 'seldate')
-  const promptGroups = filteredPrompts.reduce((acc, path) => {
+  const promptGroups = mainPrompts.reduce((acc, path) => {
     const parts = path.split('_');
     let prefix = 'core';
-    
+
     if (path.includes('_')) {
       if (parts[0] === 'daily' && parts[1] === 's') {
         prefix = 'daily_s';
@@ -163,7 +170,7 @@ const EditPrompt = () => {
         prefix = parts[0];
       }
     }
-    
+
     if (!acc[prefix]) acc[prefix] = [];
     acc[prefix].push(path);
     return acc;
@@ -172,20 +179,22 @@ const EditPrompt = () => {
   const [expandedGroups, setExpandedGroups] = useState({ core: true });
 
   const toggleGroup = (group) => {
-    setExpandedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+    setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
   };
 
   useEffect(() => {
     // 검색어가 있으면 모든 그룹 자동 펼치기
     if (searchTerm) {
-      const allExpanded = Object.keys(promptGroups).reduce((acc, key) => ({ ...acc, [key]: true }), {});
+      const allExpanded = Object.keys(promptGroups).reduce(
+        (acc, key) => ({ ...acc, [key]: true }),
+        {},
+      );
       setExpandedGroups(allExpanded);
     }
   }, [searchTerm]);
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-slate-50 dark:bg-slate-950 min-h-screen text-slate-900 dark:text-slate-100 transition-colors duration-500">
-      
       {/* HEADER SECTION */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
@@ -198,8 +207,8 @@ const EditPrompt = () => {
           </p>
         </div>
 
-        <div className="flex bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800">
-          <input 
+        <div className="flex justify-between bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800">
+          <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -213,50 +222,138 @@ const EditPrompt = () => {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
+        {/* MOBILE NAVIGATION TOGGLE (Visible only on mobile) */}
+        <div className="lg:hidden sticky top-6 z-50">
+          <button
+            onClick={() => setIsNavOpen(!isNavOpen)}
+            className="w-full flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M4 6h16M4 12h16m-7 6h7"
+                  />
+                </svg>
+              </div>
+              <div className="text-left">
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">
+                  Current Command
+                </div>
+                <div className="text-sm font-black text-blue-600 truncate max-w-[180px]">
+                  {targetPath}
+                </div>
+              </div>
+            </div>
+            <div className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
+              {isNavOpen ? 'Close Menu' : 'Browse Files'}
+            </div>
+          </button>
+        </div>
+
         {/* SIDEBAR: NAVIGATION */}
-        <aside className="lg:col-span-1 space-y-6">
-          
+        <aside
+          className={`lg:col-span-1 space-y-6 ${isNavOpen ? 'block' : 'hidden lg:block'} animate-in fade-in slide-in-from-top-4 lg:animate-none`}
+        >
+          {/* Global Instruction (Featured) */}
+          {hasGlobalInstruction && (
+            <div className="mb-2">
+              <h3 className="text-[11px] font-black text-amber-500 uppercase tracking-[0.2em] mb-4 px-2 flex items-center gap-2">
+                <span className="w-1 h-3 bg-amber-500 rounded-full"></span>
+                System Global
+              </h3>
+              <button
+                onClick={() => {
+                  setTargetPath('default_instruction');
+                  setIsNavOpen(false);
+                }}
+                className={`w-full text-left px-4 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+                  targetPath === 'default_instruction'
+                    ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30 scale-[1.02]'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-amber-100 dark:border-amber-900/20 hover:border-amber-400'
+                }`}
+              >
+                default_instruction
+              </button>
+            </div>
+          )}
+
           <div className="space-y-4">
             {Object.entries(promptGroups).map(([groupName, items]) => (
-              <div key={groupName} className="bg-white/50 dark:bg-slate-900/30 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 overflow-hidden transition-all">
+              <div
+                key={groupName}
+                className="bg-white/50 dark:bg-slate-900/30 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 overflow-hidden transition-all"
+              >
                 {/* Group Header */}
-                <button 
+                <button
                   onClick={() => toggleGroup(groupName)}
                   className="w-full flex items-center justify-between px-4 py-3 hover:bg-white dark:hover:bg-slate-800 transition-colors"
                 >
                   <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <span className={`w-1 h-3 rounded-full ${groupName === 'core' ? 'bg-blue-600' : 'bg-slate-400'}`}></span>
+                    <span
+                      className={`w-1 h-3 rounded-full ${groupName === 'core' ? 'bg-blue-600' : 'bg-slate-400'}`}
+                    ></span>
                     {groupName}
                   </span>
-                  <svg className={`w-3 h-3 text-slate-300 transition-transform ${expandedGroups[groupName] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-3 h-3 text-slate-300 transition-transform ${expandedGroups[groupName] ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
                 {/* Group Items */}
                 {expandedGroups[groupName] && (
                   <div className="px-2 pb-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
-                    {items.map(path => {
+                    {items.map((path) => {
                       const isBasic = path.endsWith('_basic') || path === 'basic';
                       return (
                         <button
                           key={path}
-                          onClick={() => setTargetPath(path)}
+                          onClick={() => {
+                            setTargetPath(path);
+                            setIsNavOpen(false);
+                          }}
                           className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/item ${
                             targetPath === path
-                            ? 'bg-blue-600 text-white shadow-lg'
-                            : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
+                              ? 'bg-blue-300 text-white shadow-lg'
+                              : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
                           }`}
                         >
                           <div className="flex items-center justify-between relative z-10">
-                            <span className={isBasic ? 'text-blue-600 dark:text-blue-400 group-hover/item:text-blue-500' : ''}>
-                               {targetPath === path ? path : path}
+                            <span
+                              className={
+                                isBasic
+                                  ? 'text-blue-600 dark:text-blue-400 group-hover/item:text-blue-500'
+                                  : ''
+                              }
+                            >
+                              {targetPath === path ? path : path}
                             </span>
                             {isBasic && (
-                              <span className={`px-1.5 py-0.5 rounded-md text-[8px] font-black tracking-tighter shadow-sm ${
-                                targetPath === path ? 'bg-white text-blue-600' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
-                              }`}>
+                              <span
+                                className={`px-1.5 py-0.5 rounded-md text-[8px] font-black tracking-tighter shadow-sm ${
+                                  targetPath === path
+                                    ? 'bg-white text-blue-600'
+                                    : 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
+                                }`}
+                              >
                                 CORE
                               </span>
                             )}
@@ -275,45 +372,62 @@ const EditPrompt = () => {
 
           {/* Quick Create Section */}
           <div className="pt-6">
-             <div className="p-5 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-500/20 shadow-sm shadow-emerald-500/5">
-                <label className="block text-[10px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-3">
-                  Quick Create
-                </label>
-                <input
-                  type="text"
-                  value={newPathName}
-                  onChange={(e) => setNewPathName(e.target.value)}
-                  placeholder="New path name..."
-                  className="w-full bg-white dark:bg-slate-900 p-3 rounded-xl border border-emerald-100 dark:border-emerald-500/20 text-xs mb-3 outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-inner"
-                />
-                <button
-                  onClick={handleAddPath}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
-                >
-                  Confirm Addition
-                </button>
-             </div>
+            <div className="p-5 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-500/20 shadow-sm shadow-emerald-500/5">
+              <label className="block text-[10px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-3">
+                Quick Create
+              </label>
+              <input
+                type="text"
+                value={newPathName}
+                onChange={(e) => setNewPathName(e.target.value)}
+                placeholder="New path name..."
+                className="w-full bg-white dark:bg-slate-900 p-3 rounded-xl border border-emerald-100 dark:border-emerald-500/20 text-xs mb-3 outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-inner"
+              />
+              <button
+                onClick={handleAddPath}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
+              >
+                Confirm Addition
+              </button>
+            </div>
+          </div>
+
+
+          {/* Danger Zone (High Visibility, Isolated) */}
+          <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
+            <div className="p-5 bg-rose-50/50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-500/20">
+              <label className="block text-[10px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Danger Zone
+              </label>
+              <button
+                onClick={handleDeletePath}
+                className="w-full py-3 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm"
+              >
+                Delete This File
+              </button>
+              <p className="mt-2 text-[9px] text-slate-400 text-center font-bold uppercase tracking-tighter">
+                Action cannot be undone
+              </p>
+            </div>
           </div>
         </aside>
 
         {/* MAIN EDITOR AREA */}
-        <main className="lg:col-span-3 space-y-6">
-          
+        <main className="lg:col-span-3 space-y-6 overflow-x-hidden">
           {/* EDITOR HEADER */}
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-4">
               <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
                 Editing: <span className="text-blue-600">{targetPath}</span>
               </h2>
-              <button 
-                onClick={handleDeletePath}
-                className="text-[10px] font-black text-rose-500 hover:text-rose-600 uppercase tracking-widest transition-colors"
-              >
-                Delete File
-              </button>
             </div>
             {message.text && (
-              <div className={`text-[11px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-right-2 ${message.type === 'success' ? 'text-emerald-500' : 'text-rose-500'}`}>
+              <div
+                className={`text-[11px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-right-2 ${message.type === 'success' ? 'text-emerald-500' : 'text-rose-500'}`}
+              >
                 {message.text}
               </div>
             )}
@@ -321,28 +435,56 @@ const EditPrompt = () => {
 
           {/* VARIABLE INSERTION TRAY */}
           {variableMapper[targetPath] && (
-            <div className="p-4 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2 mb-4 ml-1">
-                <span className="w-1 h-3 bg-blue-600 rounded-full"></span>
-                <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                  Insert Variables
-                </span>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {variableMapper[targetPath].map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => insertVariable(item.key)}
-                    className="text-left p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 border border-slate-100 dark:border-slate-700 rounded-xl transition-all group active:scale-95"
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+              {/* Variable Header / Toggle for Mobile */}
+              <button
+                onClick={() => setIsVarsOpen(!isVarsOpen)}
+                className="w-full flex items-center justify-between p-4 cursor-pointer"
+              >
+                <div className="flex items-center gap-2 ml-1">
+                  <span className="w-1 h-3 bg-blue-600 rounded-full"></span>
+                  <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    Insert Variables
+                  </span>
+                  <span className="ml-2 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[9px] font-bold text-slate-400">
+                    {variableMapper[targetPath].length} AVAILABLE
+                  </span>
+                </div>
+                <div>
+                  <svg
+                    className={`w-4 h-4 text-slate-300 transition-transform ${isVarsOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <div className="text-[11px] text-blue-600 dark:text-blue-400 font-black mb-0.5 truncate group-hover:text-blue-700">
-                      {item.key}
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-medium truncate">
-                      {item.label}
-                    </div>
-                  </button>
-                ))}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {/* Variable Content - Collapsible for all */}
+              <div className={`p-4 pt-0 ${isVarsOpen ? 'block' : 'hidden'}`}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {variableMapper[targetPath].map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => insertVariable(item.key)}
+                      className="text-left p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 border border-slate-100 dark:border-slate-700 rounded-xl transition-all group active:scale-95"
+                    >
+                      <div className="text-[11px] text-blue-600 dark:text-blue-400 font-black mb-0.5 truncate group-hover:text-blue-700">
+                        {item.key}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-medium truncate">
+                        {item.label}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -354,7 +496,8 @@ const EditPrompt = () => {
               value={promptContent}
               ref={promptArea}
               onChange={(e) => setPromptContent(e.target.value)}
-              className="relative w-full h-[650px] p-8 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-mono text-sm leading-relaxed rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800" spellCheck="false"
+              className="relative w-full h-[400px] lg:h-[650px] p-8 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-mono text-sm leading-relaxed rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+              spellCheck="false"
             />
           </div>
 
@@ -363,9 +506,9 @@ const EditPrompt = () => {
             onClick={handleSave}
             disabled={isLoading}
             className={`w-full py-6 rounded-3xl font-black text-sm uppercase tracking-[0.4em] text-white shadow-2xl transition-all transform active:scale-[0.98] ${
-              isLoading 
-              ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed' 
-              : 'bg-slate-900 dark:bg-white dark:text-slate-900 hover:opacity-90 shadow-slate-300/50 dark:shadow-none'
+              isLoading
+                ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed'
+                : 'bg-slate-900 dark:bg-white dark:text-slate-900 hover:opacity-90 shadow-slate-300/50 dark:shadow-none'
             }`}
           >
             {isLoading ? 'Processing Signal...' : `Publish ${targetPath} Changes`}

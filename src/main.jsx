@@ -49,6 +49,7 @@ const SelDatePage = lazy(() => import('./page/SelDatePage'));
 const SelBirthPage = lazy(() => import('./page/SelBirthPage'));
 const FirstDatePage = lazy(() => import('./page/FirstDatePage'));
 const InterviewPage = lazy(() => import('./page/InterviewPage'));
+const MessagesPage = lazy(() => import('./page/MessagesPage'));
  export const specialPaths = [
    '/ad',
    '/paywall',
@@ -57,6 +58,7 @@ const InterviewPage = lazy(() => import('./page/InterviewPage'));
    '/newyearadkr',
    '/newyearaden',
    '/test2',
+   '/open-in-browser',
  ];
 // 🔥 로딩 컴포넌트 (간단하게)
 const LoadingFallback = () => <SplashScreen />;
@@ -68,7 +70,7 @@ const RootComponent = () => {
  
 
  
-  const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
+  const isSpecialPage = specialPaths.some((path) => pathname === path || pathname.startsWith(path + '/'));
 
   // 로그 찍어서 false 나오면 정규식/경로 문제임
  
@@ -154,6 +156,7 @@ const RootComponent = () => {
             <Route path="/match" element={<Match />} />
             <Route path="/fortunecookie" element={<FortuneCookie />} />
             <Route path="/editprofile" element={<EditProfile />} />
+            <Route path="/messages" element={<MessagesPage />} />
 
             <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin']} />}>
               <Route path="/admin" element={<AdminPage />} />

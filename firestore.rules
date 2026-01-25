@@ -25,15 +25,36 @@ service cloud.firestore {
       allow read, update: if false; 
     }
 
-    // [신규] 알림 컬렉션 규칙 (본인만 접근 가능)
+    // [신규] 알림 컬렉션 규칙 (본인만 접근 가능, 단 관리자에게 보내는 알림은 허용 및 관리자 삭제 허용)
     match /notifications/{notificationId} {
-      allow read, update: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        (resource.data.targetRole == 'admin' && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin']) ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super_admin']
+      );
+      allow create: if request.auth != null && (
+        request.resource.data.userId == request.auth.uid || 
+        request.resource.data.targetRole == 'admin'
+      );
     }
 
     // 3. [기존] 로그인 유저 전용 규칙
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // [신규] 메시지 컬렉션 규칙 (본인 관련 메시지만 접근 가능)
+    match /direct_messages/{messageId} {
+      allow create: if request.auth != null && request.resource.data.senderId == request.auth.uid;
+      allow read: if request.auth != null && (
+        resource.data.senderId == request.auth.uid || 
+        resource.data.receiverId == request.auth.uid ||
+        resource.data.receiverId == 'admin'
+      );
+      allow update: if request.auth != null && (
+        resource.data.receiverId == request.auth.uid ||
+        resource.data.receiverId == 'admin'
+      );
     }
     
     // 보안을 위해 그 외 모든 접근은 기본적으로 차단

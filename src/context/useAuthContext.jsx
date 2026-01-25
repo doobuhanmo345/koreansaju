@@ -84,7 +84,7 @@ export function AuthContextProvider({ children }) {
   // 3️⃣ 인앱 브라우저 체크 및 로그인 감시
   useEffect(() => {
     const userAgent = navigator.userAgent.toLowerCase();
-    const isSpecialPage = specialPaths.some((path) => pathname.startsWith(path));
+    const isSpecialPage = specialPaths.some((path) => pathname === path || pathname.startsWith(path + '/'));
     const isInApp = /kakaotalk|instagram|naver/.test(userAgent);
 
     if (!isSpecialPage && !!isInApp) {
