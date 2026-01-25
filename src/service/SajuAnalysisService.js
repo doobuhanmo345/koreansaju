@@ -314,7 +314,11 @@ class AnalysisPresets {
       params,
       promptPaths: ['prompt/saza_basic', 'prompt/saza_strict', 'prompt/saza_format'],
 
-      customValidation: (p) => {
+      customValidation: (p, service) => {
+        if (!service.userData?.birthDate) {
+          alert(service.uiText?.saveFirst?.[service.language] || '생년월일을 먼저 저장해주세요.');
+          return false;
+        }
         if (!p.question?.trim()) {
           alert('질문을 입력해주세요.');
           return false;
@@ -408,7 +412,11 @@ class AnalysisPresets {
       cacheKey: 'ZMatchAnalysis',
       promptPaths: ['prompt/match_basic', 'prompt/match_strict', 'prompt/match_specific'],
 
-      customValidation: (p) => {
+      customValidation: (p, service) => {
+        if (!service.userData?.birthDate) {
+          alert(service.uiText?.saveFirst?.[service.language] || '생년월일을 먼저 저장해주세요.');
+          return false;
+        }
         if (!p.saju2?.sky1) {
           alert('상대방 정보를 입력해주세요.');
           return false;
@@ -743,6 +751,14 @@ class AnalysisPresets {
       params,
       cacheKey: 'ZWealthAnalysis',
       promptPaths: ['prompt/wealth_basic', 'prompt/wealth_strict'],
+
+      customValidation: (p, service) => {
+        if (!service.userData?.birthDate) {
+          alert(service.uiText?.saveFirst?.[service.language] || '생년월일을 먼저 저장해주세요.');
+          return false;
+        }
+        return true;
+      },
 
       validateCache: (cached, p) =>
         cached.language === p.language &&

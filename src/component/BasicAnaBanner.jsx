@@ -87,6 +87,9 @@ const processedTitle = useMemo(() => {
     second: words.slice(splitIndex).join(' '),
   };
 }, [currentTitle]);
+
+  const hasData = !!userData?.birthDate;
+
   return (
     <div className="w-full max-w-lg mx-auto">
       {/* 1. 이미지 저장용 카드 (숨김) */}
@@ -124,80 +127,77 @@ const processedTitle = useMemo(() => {
           <div
             style={{ fontSize: '24px', fontWeight: '800', color: '#111827', marginBottom: '10px' }}
           >
-            {currentTitle}
+            {hasData ? currentTitle : '??'}
           </div>
-          <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>{currentDesc}</div>
+          <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
+            {hasData ? currentDesc : (isKo ? '정보를 입력하면 당신의 성향을 분석해 드립니다.' : 'Register your info to see your personality analysis.')}
+          </div>
         </div>
       </div>
 
-      {/* 2. 실제 배너: 색상 농도를 높인 버전 */}
-      {userData?.birthDate && (
-        <div
-          onClick={() => navigate('/basic')}
-          className="cursor-pointer relative w-full h-[200px] rounded-[2rem] border border-gray-100 shadow-md overflow-hidden group transition-all duration-300  mx-auto"
-          // 농도가 확실한 인디고 파스텔
-        >
-          {/* 배경 대형 텍스트 (한자 일주) */}
-          <div className="absolute left-[30%] top-[10%] text-[90px] font-black opacity-[0.05] italic select-none pointer-events-none text-gray-900 whitespace-nowrap">
-            {language === 'en' ? (
-              <>
-                {ENG_MAP[saju.sky1]?.toUpperCase()}
-                {ENG_MAP[saju.grd1]?.toUpperCase()}
-              </>
-            ) : (
-              <> {saju.sky1 + saju.grd1}</>
-            )}
-          </div>
+      {/* 2. 실제 배너 */}
+      <div
+        onClick={() => navigate('/basic')}
+        className="cursor-pointer relative w-full h-[200px] rounded-[2rem] border border-gray-100 shadow-md overflow-hidden group transition-all duration-300 mx-auto bg-white"
+      >
+        {/* 배경 대형 텍스트 (한자 일주) */}
+        <div className="absolute left-[30%] top-[10%] text-[90px] font-black opacity-[0.05] italic select-none pointer-events-none text-gray-900 whitespace-nowrap">
+          {!hasData ? '??' : (language === 'en' ? (
+            <>
+              {ENG_MAP[saju.sky1]?.toUpperCase()}
+              {ENG_MAP[saju.grd1]?.toUpperCase()}
+            </>
+          ) : (
+            <> {saju.sky1 + saju.grd1}</>
+          ))}
+        </div>
 
-          {/* 상단 캡션 및 다운로드 버튼 영역 */}
-          <div className="absolute top-6 left-10 right-8 flex justify-between items-start z-10">
-            <span className="text-sm  text-gray-500/80 uppercase tracking-wider">
-              {isKo ? '오행으로 보는 나는 누구?' : 'WHO AM I?'}
-            </span>
-            <div></div>
-            {/* <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleShareImg('share-card');
-              }}
-              className="p-2.5 rounded-full bg-white/60 hover:bg-gray-600 hover:text-white text-gray-500 transition-all active:scale-90 shadow-sm"
-            >
-              <FaDownload className="h-3 w-3" />
-            </button> */}
-          </div>
+        {/* 상단 캡션 */}
+        <div className="absolute top-6 left-10 right-8 flex justify-between items-start z-10">
+          <span className="text-sm text-gray-500/80 uppercase tracking-wider">
+            {isKo ? '오행으로 보는 나는 누구?' : 'WHO AM I?'}
+          </span>
+        </div>
 
-          <div className="relative h-full flex flex-col justify-center px-10 z-10 pt-4">
-            <div className="flex items-center gap-4">
-              {/* 텍스트 정보 */}
-              <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-5 duration-1000">
-                <h2 className="text-2xl sm:text-3xl font-light text-slate-900 leading-tight tracking-tight mb-2">
-                  {processedTitle.first} <br />
-                  <span className="font-serif italic font-medium text-indigo-700">
-                    {processedTitle.second}
-                  </span>
-                </h2>
-                {/* 하단 행동 유도 텍스트 -> 강조된 가이드 버튼 스타일로 변경 */}
-                <div className="mt-3">
-                  <span className="inline-flex items-center text-[10px] font-bold py-1 px-3 bg-gray-300  rounded-full text-gray-600 uppercase tracking-tighter group-hover:bg-gray-600 group-hover:text-white transition-all duration-300">
-                    {isKo ? '상세 분석 확인하기' : 'View Full Report'}
-                    <span className="ml-1 text-[12px] leading-none">→</span>
-                  </span>
-                </div>
+        <div className="relative h-full flex flex-col justify-center px-10 z-10 pt-4">
+          <div className="flex items-center gap-4">
+            {/* 텍스트 정보 */}
+            <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-5 duration-1000">
+              <h2 className="text-2xl sm:text-3xl font-light text-slate-900 leading-tight tracking-tight mb-2">
+                {hasData ? processedTitle.first : (isKo ? '로그인 하고 ' : 'Log in and ')} <br />
+                <span className="font-serif italic font-medium text-indigo-700">
+                  {hasData ? processedTitle.second : (isKo ? '나의 오행 확인!' : 'Discover My Element!')}
+                </span>
+              </h2>
+              {/* 하단 행동 유도 텍스트 */}
+              <div className="mt-3">
+                <span className="inline-flex items-center text-[10px] font-bold py-1 px-3 bg-gray-100 rounded-full text-gray-600 uppercase tracking-tighter group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                  {hasData 
+                    ? (isKo ? '상세 분석 확인하기' : 'View Full Report')
+                    : (isKo ? '정보 등록하고 확인하기' : 'Register to View')}
+                  <span className="ml-1 text-[12px] leading-none">→</span>
+                </span>
               </div>
+            </div>
 
-              {/* 일주 이미지 */}
-              <div className="relative shrink-0 animate-in fade-in zoom-in duration-1000">
-                <div className="absolute inset-0 bg-white/40 blur-2xl rounded-full scale-110"></div>
+            {/* 일주 이미지 / 플레이스홀더 */}
+            <div className="relative shrink-0 animate-in fade-in zoom-in duration-1000">
+              <div className="absolute inset-0 bg-white/40 blur-2xl rounded-full scale-110"></div>
+              {hasData ? (
                 <img
                   src={iljuImagePath}
-                  className="relative w-28 h-28 sm:w-32 sm:h-32 object-contain transition-transform group-hover:scale-110 duration-700"
+                  className="relative w-28 h-28 sm:w-32 sm:h-32 object-contain transition-transform group-hover:rotate-6 duration-700"
                   alt="ilju"
                 />
-              </div>
+              ) : (
+                <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center bg-gray-50 rounded-full border-2 border-dashed border-gray-200 group-hover:border-indigo-300 transition-colors">
+                  <span className="text-4xl font-serif italic text-gray-200 group-hover:text-indigo-200 transition-colors">?</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

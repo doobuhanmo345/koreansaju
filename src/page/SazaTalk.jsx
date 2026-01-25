@@ -16,12 +16,14 @@ import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisSer
 import AnalyzeButton from '../component/AnalyzeButton';
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
+import { useNavigate } from 'react-router-dom';
 import ViewSazaResult from './ViewSazaResult';
 
 export default function SazaTalk() {
+  const navigate = useNavigate();
   const { setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
-  const { saju, gender, birthDate: inputDate } = userData;
+  const { saju, gender, birthDate: inputDate } = userData || {};
   const { language } = useLanguage();
   const { setEditCount, MAX_EDIT_COUNT, editCount, isLocked } = useUsageLimit();
   const [step, setStep] = useState('input'); // 'intro' | 'input' | 'selection'
@@ -43,6 +45,11 @@ export default function SazaTalk() {
   });
 
   const handleSazaTest = async (onstart) => {
+    if (!inputDate) {
+      alert(language === 'ko' ? '사주 정보를 먼저 등록해 주세요.' : 'Please register your Saju info first.');
+      navigate('/');
+      return;
+    }
     setAiResult('');
     try {
       await service.analyze(

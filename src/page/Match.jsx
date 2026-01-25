@@ -1,5 +1,6 @@
 // 1. React Core
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CalendarDaysIcon,
   PencilSquareIcon,
@@ -38,6 +39,7 @@ import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 import StartButton from '../component/StartButton';
 export default function Match({}) {
+  const navigate = useNavigate();
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
   }
@@ -256,6 +258,11 @@ export default function Match({}) {
   });
 
   const handleMatch = async () => {
+    if (!inputDate) {
+      alert(language === 'ko' ? '사주 정보를 먼저 등록해 주세요.' : 'Please register your Saju info first.');
+      navigate('/');
+      return;
+    }
     setAiResult('');
     try {
       await service.analyze(
@@ -512,10 +519,12 @@ export default function Match({}) {
                 <div className="flex items-center justify-center gap-2 bg-slate-50 dark:bg-slate-700/30 py-3 rounded-xl mb-6 text-sm font-medium text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
                   <CalendarDaysIcon className="w-4 h-4 text-indigo-400" />
                   <span className="font-mono tracking-wide text-slate-700 dark:text-slate-300">
-                    {isTimeUnknown ? inputDate.split('T')[0] : inputDate.replace('T', ' ')}
+                    {inputDate 
+                      ? (isTimeUnknown ? inputDate.split('T')[0] : inputDate.replace('T', ' '))
+                      : (isEn ? 'Please register your info' : '정보를 먼저 등록해주세요')}
                   </span>
-                  <span className="text-lg ml-1">{gender === 'male' ? '👨' : '👩'}</span>
-                  {isTimeUnknown && (
+                  {inputDate && <span className="text-lg ml-1">{gender === 'male' ? '👨' : '👩'}</span>}
+                  {inputDate && isTimeUnknown && (
                     <span className="text-[10px] bg-white dark:bg-slate-600 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-500 text-slate-400">
                       {UI_TEXT.unknownTime[language]}
                     </span>

@@ -67,19 +67,20 @@ export default function App() {
   return (
     <div>
       {/* sronly처리할 것 */}
-
-      <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-lg border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto mb-2 p-2 px-4 dark:text-white flex items-center justify-between">
+{!!user && <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-lg border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto mb-2 p-2 px-4 dark:text-white flex items-center justify-between">
         {userData?.birthDate ? (
           <MyInfoBar />
         ) : (
           <span className="text-xs text-slate-400 mx-auto">데이터가 없습니다.</span>
         )}
-      </div>
+      </div>}
+      
       {/* 배너 */}
       <ImageBanner />
 
       <SazaTalkBanner />
       <NewYearBanner />
+      
       <BasicAnaBanner inputDate={inputDate} isTimeUnknown={isTimeUnknown} gender={gender} />
       <IconWrapper
         title={
