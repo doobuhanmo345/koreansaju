@@ -13,7 +13,7 @@ import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
 import { PencilSquareIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
-
+import AnalyzeButton from '../component/AnalyzeButton';
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
 import ViewSazaResult from './ViewSazaResult';
@@ -272,41 +272,16 @@ export default function SazaTalk() {
           }
           className="w-full h-40 p-4 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 focus:border-transparent outline-none resize-none text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-inner placeholder:text-slate-400 dark:placeholder:text-slate-500"
         />
-
-        <button
-          onClick={() => userQuestion.trim() && handleSazaTest(onStart)}
-          disabled={!userQuestion.trim()}
-          className={classNames(
-            'w-full gap-3 py-4 mt-6 rounded-xl font-bold transition-all',
-            userQuestion.trim()
-              ? 'bg-purple-600 dark:bg-purple-700 text-white shadow-lg shadow-purple-100 dark:shadow-none'
-              : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed',
-          )}
-        >
-          <div className="flex gap-3 justify-center align-center">
-            <div className="flex justify-center items-center">
-              {language === 'ko' ? '물어보기' : 'Ask Saza'}
-            </div>
-
-            {/* 부모 컨테이너: justify-center 추가 */}
-            <div className="flex justify-center items-center text-center mt-1">
-              {isLocked ? (
-                <div className="mt-1 flex items-center justify-center gap-1 backdrop-blur-sm px-2 py-1 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40">
-                  <span className="flex items-center justify-center">
-                    <LockClosedIcon className="w-4 h-4 text-amber-500" />
-                  </span>
-                </div>
-              ) : (
-                user && (
-                  /* 배지 컨테이너: mx-auto를 넣어 부모 안에서 중앙을 잡도록 설정 */
-                  <div className="relative scale-90 w-10 flex justify-center mx-auto">
-                    <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </button>
+ <AnalyzeButton
+       onClick={() => userQuestion.trim() && handleSazaTest(onStart)}
+        disabled={!userQuestion.trim()}
+        loading={loading}
+        isDone={false}
+        label= {language === 'ko' ? '사자에게 물어보기' : 'Ask Saza'}
+        color='purple'
+        cost={-1}
+      />
+     
       </div>
     );
   };

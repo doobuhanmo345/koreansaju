@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react'; // 1. useMemo 추가
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
-
+import AnalyzeButton from '../component/AnalyzeButton';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import EnergyBadge from '../ui/EnergyBadge';
 import { useAuthContext } from '../context/useAuthContext';
@@ -105,35 +105,16 @@ export default function BasicAnaPage() {
               </div>
             </div>
           </div>
-
-          <button
-            onClick={() => handleStartClick(onStart)}
-            disabled={isDisabled || isDisabled2}
-            className={classNames(
-              'w-full px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
-              isDisabled
-                ? DISABLED_STYLE
-                : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white hover:-translate-y-1',
-            )}
-          >
-            {language === 'ko' ? '평생 운세 보기' : 'Analyze Saju'}
-            {isMainDone ? (
-              <div className="flex items-center bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
-                <span className="text-[9px] font-bold text-white uppercase">Free</span>
-                <TicketIcon className="w-3 h-3 text-white" />
-              </div>
-            ) : isLocked ? (
-              <div className="mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border border-gray-500/50 bg-gray-400/40">
-                <LockClosedIcon className="w-4 h-4 text-amber-500" />
-              </div>
-            ) : (
-              user && (
-                <div className="relative scale-90">
-                  <EnergyBadge active={!!userData?.birthDate} consuming={loading} cost={-1} />
-                </div>
-              )
-            )}
-          </button>
+ <AnalyzeButton
+        onClick={()=>handleStartClick(onStart)}
+        disabled={isDisabled || isDisabled2}
+        loading={loading}
+        isDone={isMainDone}
+        label= {language === 'ko' ? '평생 운세 보기' : 'Analyze Saju'}
+        color='indigo'
+        cost={-1}
+      />
+          
 
           {isLocked ? (
             <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">

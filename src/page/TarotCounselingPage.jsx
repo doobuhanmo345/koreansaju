@@ -19,6 +19,8 @@ import {
   PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import TarotLoading from '../component/TarotLoading';
+import StartButton from '../component/StartButton';
+
 
 export default function TarotCounselingPage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
@@ -142,12 +144,8 @@ const counselingPrompt = `
           <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
             <img src="/images/introcard/tarot_1.webp" alt="sazatalk" className="w-full h-auto" />
           </div>
-          <button
-            onClick={() => setStep('input')}
-            className="w-full py-4 bg-purple-600 text-white rounded-xl font-bold shadow-lg"
-          >
-            {language === 'ko' ? '상담 시작하기' : 'Get Started'}
-          </button>
+          <StartButton onClick={() => setStep('input')} color='purple'/>  
+         
         </div>
       );
     }

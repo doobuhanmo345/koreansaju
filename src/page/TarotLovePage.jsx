@@ -22,7 +22,7 @@ import {
 import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
 import { DateService } from '../utils/dateService';
-
+import StartButton from '../component/StartButton';
 export default function TarotLovePage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
@@ -192,13 +192,15 @@ export default function TarotLovePage() {
           <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
             <img src="/images/introcard/tarot_1.webp" alt="sazatalk" className="w-full h-auto" />
           </div>
-
-          <button
+<StartButton
             onClick={() => setStep('type_select')}
-            className="w-full py-4 bg-rose-500 text-white rounded-xl font-bold shadow-lg shadow-rose-100 dark:shadow-none"
-          >
-            {language === 'ko' ? '사랑의 해답 찾기' : 'Finding the answer to love'}
-          </button>
+            disabled={false}
+            loading={loading}
+            isDone={false}
+            label={language === 'ko' ? '사랑의 해답 찾기' : 'Finding the answer to love'}
+            color='rose'
+          />    
+        
         </div>
       );
     }

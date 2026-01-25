@@ -15,7 +15,7 @@ import ReportTemplateSelBirth from '../component/ReportTemplateSelBirth';
 
 import DateInput from '../ui/DateInput';
 import BdInput from '../ui/BdInput';
-
+import AnalyzeButton from '../component/AnalyzeButton';
 export default function SelBirthPage() {
   const { loading, setLoading, setAiResult, aiResult, setLastParams } = useLoading();
   const { userData, user } = useAuthContext();
@@ -292,25 +292,15 @@ export default function SelBirthPage() {
           <section className="mb-12">{selectionSection()}</section>
 
           <footer className="space-y-6">
-            <button
+            <AnalyzeButton
               onClick={() => handleStartClick(onStart)}
               disabled={isDisabled}
-              className={classNames(
-                'w-full py-5 text-sm font-bold tracking-widest uppercase transition-all duration-500',
-                isDisabled
-                  ? 'text-slate-300 cursor-not-allowed bg-slate-50 dark:bg-slate-800'
-                  : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98]',
-              )}
-            >
-              <div className="flex items-center justify-center gap-3">
-                {language === 'ko' ? '좋은 날짜 받기' : 'Find Best Dates'}
-                {isLocked ? (
-                  <LockClosedIcon className="w-4 h-4 text-emerald-400" />
-                ) : (
-                  user && <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-                )}
-              </div>
-            </button>
+              loading={false}
+              isDone={false}
+              label={language === 'ko' ? '좋은 날짜 받기' : 'Find Best Dates'}
+              color='emerald'
+            />  
+            
           </footer>
         </div>
       );

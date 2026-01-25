@@ -22,7 +22,7 @@ import { database } from '../lib/firebase';
 import LoadingFourPillar from '../component/LoadingFourPillar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 import ReportTemplateNewYear from '../component/ReportTemplateNewYear';
-
+import AnalyzeButton from '../component/AnalyzeButton';
 // 1. 로딩 컴포넌트
 
 // 2. 메인 페이지 컴포넌트
@@ -110,40 +110,15 @@ export default function YearlyLuckPage() {
           </div>
         </div>
         {/* 시작 버튼: handleYearlyStartClick (가칭) 연결 */}
-        <button
-          onClick={() => handleStartClick(onStart)}
-          disabled={isDisabled || isDisabled2}
-          className={classNames(
-            'w-full  px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
-            isDisabled
-              ? DISABLED_STYLE
-              : 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white shadow-red-200 hover:-translate-y-1',
-          )}
-        >
-          {language === 'ko' ? '2026 신년 운세 보기' : 'Check the 2026 Fortune'}
-          {isYearDone ? (
-            <div className="flex items-center gap-1 backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
-              <span className="text-[9px] font-bold text-white uppercase">Free</span>
-              <TicketIcon className="w-3 h-3 text-white" />
-            </div>
-          ) : isLocked ? (
-            <>
-              <div
-                className="mt-1 flex items-center gap-1 backdrop-blur-sm px-2 py-0.5 rounded-full border shadow-sm relative z-10 border-gray-500/50 bg-gray-400/40" // 잠겼을 때
-              >
-                <span className="text-[9px] font-bold text-white tracking-wide uppercase">
-                  <LockClosedIcon className="w-4 h-4 text-amber-500" />
-                </span>
-              </div>
-            </>
-          ) : (
-            user && (
-              <div className="relative scale-90">
-                <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-              </div>
-            )
-          )}
-        </button>
+        <AnalyzeButton
+        onClick={()=>handleStartClick(onStart)}
+        disabled={isDisabled || isDisabled2}
+        loading={loading}
+        isDone={isYearDone}
+        label= {language === 'ko' ? '2026 신년 운세 보기' : 'Check the 2026 Fortune'}
+        color='red'
+        cost={-1}
+      />
         {isLocked ? (
           <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
             <ExclamationTriangleIcon className="w-4 h-4" />{' '}

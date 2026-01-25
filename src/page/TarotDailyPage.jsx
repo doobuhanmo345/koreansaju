@@ -15,6 +15,7 @@ import { SparklesIcon } from '@heroicons/react/24/outline';
 import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
 import { DateService } from '../utils/dateService';
+import StartButton from '../component/StartButton';
 
 // [2] 메인 페이지 컴포넌트
 export default function TarotDailyPage() {
@@ -146,12 +147,7 @@ export default function TarotDailyPage() {
               <img src="/images/introcard/tarot_1.webp" alt="sazatalk" className="w-full h-auto" />
             </div>
           </div>
-          <button
-            onClick={() => setStep('selection')}
-            className="w-full py-4 font-bold rounded-xl shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:-translate-y-1 transition-all"
-          >
-            {language === 'ko' ? '시작하기' : 'Get Started'}
-          </button>
+          <StartButton onClick={() => setStep('selection')} color='indigo'/>
         </div>
       );
     }

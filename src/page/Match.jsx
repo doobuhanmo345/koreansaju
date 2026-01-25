@@ -36,7 +36,7 @@ import ModifyBd from '../ui/ModifyBd';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
-
+import StartButton from '../component/StartButton';
 export default function Match({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -364,25 +364,14 @@ export default function Match({}) {
             </div>
           </div>
 
-          <button
+       
+          <StartButton
             onClick={() => setStep(1)} // 다음 단계로 이동
             disabled={loading || (isLocked && !isAnalysisDone)}
-            className={classNames(
-              'w-full px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
-              loading
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white shadow-rose-200 hover:-translate-y-1',
-            )}
-          >
-            {loading
-              ? language === 'ko'
-                ? '기운 대조 중...'
-                : 'Matching...'
-              : language === 'ko'
-                ? '궁합 분석 시작하기'
-                : 'Start Match Analysis'}
-            {/* 이미 분석한 적이 있다면 무료 티켓 표시 */}
-          </button>
+            isDone={false}
+            label={language === 'ko' ? '궁합 분석 시작하기' : 'Start Match Analysis'}
+            color='rose'
+          />
           {isLocked && !isAnalysisDone ? (
             <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
               <ExclamationTriangleIcon className="w-4 h-4" />

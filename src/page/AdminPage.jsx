@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import {
   doc,
+  getDoc,
+  getDocs,
   updateDoc,
   deleteField,
   collection,
@@ -22,10 +24,11 @@ import {
   MagnifyingGlassIcon,
   TrashIcon,
   ArrowPathIcon,
-  CheckIcon
+  CheckIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import MessageModal from '../component/MessageModal';
-
+import { useAuthContext } from '../context/useAuthContext';
 export default function AdminPage() {
   const { user, userData } = useAuthContext();
   const [newCount, setNewCount] = useState(0);
@@ -100,7 +103,8 @@ export default function AdminPage() {
   // 1. 기존 editCount 초기값 설정 (로직 유지)
   useEffect(() => {
     if (userData?.editCount !== undefined) {
-      setNewCount(userData.editCount);
+      const maxCount = ['admin', 'super_admin'].includes(userData?.role) ? 10 : 3;
+      setNewCount(maxCount - userData.editCount);
     }
   }, [userData]);
 
@@ -186,11 +190,14 @@ export default function AdminPage() {
 
   const handleUpdateCount = async () => {
     try {
-      const bonus = ['admin', 'super_admin'].includes(userData?.role) ? 10 : 3;
-      await updateDoc(docRef, { editCount: -Number(newCount) + bonus });
-      alert('숫자가 업데이트되었습니다.');
+      const maxCount = ['admin', 'super_admin'].includes(userData?.role) ? 10 : 3;
+      // editCount = maxCount - targetRemaining
+      const targetEditCount = maxCount - Number(newCount);
+      await updateDoc(docRef, { editCount: targetEditCount });
+      alert(`성공! 이제 ${newCount}회 남았습니다.`);
     } catch (error) {
       console.error('수정 실패:', error);
+      alert('필드 수정에 실패했습니다.');
     }
   };
 
@@ -234,8 +241,9 @@ export default function AdminPage() {
             <div className="flex gap-2">
               <input
                 type="number"
+                value={newCount}
                 onChange={(e) => setNewCount(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 transition-all"
+                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 transition-all font-bold"
               />
               <button
                 onClick={handleUpdateCount}
@@ -249,10 +257,7 @@ export default function AdminPage() {
                 Current Value
               </span>
               <span className="text-sm font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                {['admin', 'super_admin'].includes(userData?.role)
-                  ? -userData?.editCount + 10
-                  : -userData?.editCount + 3}{' '}
-                회
+                {(['admin', 'super_admin'].includes(userData?.role) ? 10 : 3) - (userData?.editCount || 0)} 회
               </span>
             </div>
           </div>

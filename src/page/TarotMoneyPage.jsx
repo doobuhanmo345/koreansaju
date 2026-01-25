@@ -15,6 +15,7 @@ import { BanknotesIcon, SparklesIcon, ChevronRightIcon } from '@heroicons/react/
 import CreditIcon from '../ui/CreditIcon';
 import ViewTarotResult from '../component/ViewTarotResult';
 import { DateService } from '../utils/dateService';
+import StartButton from '../component/StartButton';
 export default function TarotMoneyPage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
@@ -165,12 +166,8 @@ export default function TarotMoneyPage() {
           <div className="m-auto my-3 max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
             <img src="/images/introcard/tarot_1.webp" alt="sazatalk" className="w-full h-auto" />
           </div>
-          <button
-            onClick={() => setStep('category')}
-            className="w-full py-4 bg-amber-500 text-white rounded-md font-bold shadow-lg shadow-amber-200 dark:shadow-none"
-          >
-            {language === 'ko' ? '나의 재물운 확인하기' : 'Check my wealth luck'}
-          </button>
+          <StartButton onClick={() => setStep('category')} color='amber'/>  
+         
         </div>
       );
     }

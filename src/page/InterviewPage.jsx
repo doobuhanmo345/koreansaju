@@ -25,6 +25,7 @@ import CustomCalendar from '../component/CustomCalendar';
 import { COLOR_THEMES } from '../data/theme';
 import { getPromptFromDB } from '../service/SajuAnalysisService';
 import ReportTemplateInterview from '../component/ReportTemplateInterview';
+import AnalyzeButton from '../component/AnalyzeButton';
 const INTERVIEW_GROUPS = [
   {
     id: 'category',
@@ -331,25 +332,14 @@ export default function InterviewPage() {
           <section className="mb-12">{datePickerSection()}</section>
 
           <footer className="space-y-6">
-            <button
+            <AnalyzeButton
               onClick={() => handleStartClick(onStart)}
               disabled={isDisabled || isDisabled2}
-              className={classNames(
-                'w-full py-5 text-sm font-bold tracking-widest uppercase transition-all duration-500',
-                isDisabled
-                  ? 'text-slate-300 cursor-not-allowed bg-slate-50 dark:bg-slate-800'
-                  : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98]',
-              )}
-            >
-              <div className="flex items-center justify-center gap-3">
-                {language === 'ko' ? '합격운 확인하기' : 'Check Pass Luck'}
-                {isLocked ? (
-                  <LockClosedIcon className="w-4 h-4 text-rose-400" />
-                ) : (
-                  user && <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-                )}
-              </div>
-            </button>
+              loading={loading}
+              isDone={false}
+              label={language === 'ko' ? '합격운 확인하기' : 'Check Pass Luck'}
+              color='blue'
+            />  
           </footer>
         </div>
       );

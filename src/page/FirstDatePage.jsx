@@ -24,6 +24,7 @@ import { type } from 'firebase/firestore/pipelines';
 import CustomCalendar from '../component/CustomCalendar';
 import { getPromptFromDB } from '../service/SajuAnalysisService';
 import ReportTemplateDate from '../component/ReportTemplateDate';
+import AnalyzeButton from '../component/AnalyzeButton';
 
 // 퀘스천 그룹을 컴포넌트 밖으로 이동 (재렌더링 방지)
 const QUESTION_GROUPS = [
@@ -355,30 +356,14 @@ export default function FirstDatepage() {
           <section className="mb-12">{datePickerSection()}</section>
 
           <footer className="space-y-6">
-            <button
+            <AnalyzeButton
               onClick={() => handleStartClick(onStart)}
               disabled={isDisabled || isDisabled2}
-              className={classNames(
-                'w-full py-5 text-sm font-bold tracking-widest uppercase transition-all duration-500',
-                isDisabled
-                  ? 'text-slate-300 cursor-not-allowed bg-slate-50 dark:bg-slate-800'
-                  : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 active:scale-[0.98]',
-              )}
-            >
-              <div className="flex items-center justify-center gap-3">
-                {language === 'ko' ? '운세 확인하기' : 'Check Fortune'}
-
-                {false ? (
-                  <span className="text-[10px] px-2 py-0.5 border border-white/30 rounded text-white/70 font-medium">
-                    FREE
-                  </span>
-                ) : isLocked ? (
-                  <LockClosedIcon className="w-4 h-4 text-rose-400" />
-                ) : (
-                  user && <EnergyBadge active={userData?.birthDate} consuming={loading} cost={-1} />
-                )}
-              </div>
-            </button>
+              loading={false}
+              isDone={false}
+              label={language === 'ko' ? '운세 확인하기' : 'Check Fortune'}
+              color='rose'
+            />
           </footer>
         </div>
       );

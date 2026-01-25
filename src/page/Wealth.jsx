@@ -26,7 +26,7 @@ import { db } from '../lib/firebase';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { getEng } from '../utils/helpers';
 import { UI_TEXT, langPrompt, hanja } from '../data/constants';
-
+import StartButton from '../component/StartButton';
 // 4. Contexts
 import { useAuthContext } from '../context/useAuthContext';
 import { useLanguage } from '../context/useLanguageContext';
@@ -430,34 +430,13 @@ export default function Wealth({}) {
             </div>
           </div>
 
-          <button
+          <StartButton
             onClick={handleStartClick}
             disabled={loading}
-            className={classNames(
-              'w-full px-10 py-4 font-bold rounded-xl shadow-lg dark:shadow-none transform transition-all flex items-center justify-center gap-2',
-              loading
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-emerald-200 hover:-translate-y-1',
-            )}
-          >
-            {loading
-              ? language === 'ko'
-                ? '준비 중...'
-                : 'Loading...'
-              : language === 'ko'
-                ? '나의 재물운 분석하기'
-                : 'Analyze My Wealth'}
-
-            {/* 무료 분석 가능 시 티켓 표시 */}
-            {isAnalysisDone && (
-              <div className="flex items-center backdrop-blur-md bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
-                <span className="text-[9px] font-bold text-white uppercase tracking-tighter">
-                  Free
-                </span>
-                <TicketIcon className="w-3 h-3 text-white ml-0.5" />
-              </div>
-            )}
-          </button>
+            isDone={false}
+            label={language === 'ko' ? '나의 재물운 분석하기' : 'Start Wealth Analysis'}
+            color='emerald'
+          />  
         </div>
       )}
       {/* ================================================= */}
