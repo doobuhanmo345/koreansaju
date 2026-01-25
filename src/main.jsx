@@ -24,7 +24,8 @@ const ProtectedRoute = lazy(() => import('./routes/ProtectedRoute'));
 const ApplySaju = lazy(() => import('./page/ApplySaju'));
 const ConsultantDashboard = lazy(() => import('./page/ConsultantDashboard'));
 const SplashScreen = lazy(() => import('./page/SplashScreen'));
-const BeforeLogin = lazy(() => import('./page/BeforeLogin'));
+// const BeforeLogin = lazy(() => import('./page/BeforeLogin'));
+const NoBirthday = lazy(() => import('./page/NoBirthday'));
 const MenuBar = lazy(() => import('./component/MenuBar'));
 const LoadingPage = lazy(() => import('./page/LoadingPage'));
 const Wealth = lazy(() => import('./page/Wealth'));
@@ -108,13 +109,23 @@ const RootComponent = () => {
       </Suspense>
     );
   }
+  // 3. 로그아웃 상태 (Guest)
+  // if (!user && !isSpecialPage) {
+  //   return (
+  //     <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
+  //       <Suspense fallback={<LoadingFallback />}>
+  //         <BeforeLogin />
+  //       </Suspense>
+  //     </div>
+  //   );
+  // }
 
-  // 3. 생년월일 데이터가 없는 경우
-  if (!isSpecialPage && !userData?.birthDate) {
+  // 4. 로그인 되었으나 생일 정보가 없는 경우 (New User)
+  if (user && !userData?.birthDate) {
     return (
       <div className="bg-gray-50 dark:bg-slate-900 animate-in fade-in duration-700">
         <Suspense fallback={<LoadingFallback />}>
-          <BeforeLogin />
+          <NoBirthday />
         </Suspense>
       </div>
     );

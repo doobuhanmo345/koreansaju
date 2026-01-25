@@ -121,7 +121,7 @@ const ImageBanner = () => {
 
   return (
     <div
-      className="relative w-full max-w-lg h-[210px] mx-auto flex overflow-hidden transition-all duration-500 ease-in-out my-6 rounded-[1rem]  shadow-xl group hover:shadow-2xl sm:hover:-translate-y-1 touch-pan-y"
+      className="relative z-0 w-full max-w-lg h-[210px] mx-auto flex overflow-hidden transition-all duration-500 ease-in-out my-6 rounded-[1rem]  shadow-xl group hover:shadow-2xl sm:hover:-translate-y-1 touch-pan-y"
       style={{
         // 배경색 그라데이션
         background: `linear-gradient(135deg, ${current.bgColor} 0%, ${current.bgColor} 60%, #ffffff 100%)`,
@@ -216,7 +216,7 @@ const ImageBanner = () => {
        {/* 모바일 전용 네비게이션 버튼 (Left/Right) */}
       <button 
         onClick={handlePrev}
-        className="md:hidden absolute left-1 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm rounded-full text-slate-600 shadow-sm transition-all active:scale-95"
+        className="md:hidden absolute left-1 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm rounded-full text-slate-600 shadow-sm transition-all active:scale-95"
       >
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -225,7 +225,7 @@ const ImageBanner = () => {
 
       <button 
         onClick={handleNext}
-        className="md:hidden absolute right-1 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm rounded-full text-slate-600 shadow-sm transition-all active:scale-95"
+        className="md:hidden absolute right-1 top-1/2 -translate-y-1/2 z-10 p-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm rounded-full text-slate-600 shadow-sm transition-all active:scale-95"
       >
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -233,7 +233,7 @@ const ImageBanner = () => {
       </button>
 
       {/* 모바일 전용 인디케이터 (점점점) */}
-      <div className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+      <div className="md:hidden absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-[5]">
         {bannerData.map((_, idx) => (
           <div
             key={idx}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthContext } from './context/useAuthContext';
 import { useLanguage } from './context/useLanguageContext';
 import { useUsageLimit } from './context/useUsageLimit';
-import BeforeLogin from './page/BeforeLogin';
+
 import { useNavigate } from 'react-router-dom';
 import MainIcons from './component/MainIcons';
 import SubIcons from './component/SubIcons';
@@ -63,7 +63,7 @@ export default function App() {
     }
   }, [user, userData]);
 
-  if (!userData?.birthDate) return <BeforeLogin />;
+
   return (
     <div>
       {/* sronly처리할 것 */}
