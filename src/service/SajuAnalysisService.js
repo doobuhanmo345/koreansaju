@@ -234,12 +234,18 @@ class SajuAnalysisService {
 
       // DB 저장
       if (buildSaveData) {
-        const saveData = await buildSaveData(result, params, this);
-        if (isGuestMode && guestId && guestCollection) {
-          await setDoc(doc(db, guestCollection, guestId), saveData, { merge: true });
-        } else if (this.user) {
-          await setDoc(doc(db, 'users', this.user.uid), saveData, { merge: true });
-          this.setEditCount?.((prev) => prev + 1);
+        try {
+          const saveData = await buildSaveData(result, params, this);
+          if (isGuestMode && guestId && guestCollection) {
+            await setDoc(doc(db, guestCollection, guestId), saveData, { merge: true });
+          } else if (this.user) {
+            await setDoc(doc(db, 'users', this.user.uid), saveData, { merge: true });
+            this.setEditCount?.((prev) => prev + 1);
+          }
+        } catch (dbError) {
+          console.error('DB Save Failed (Non-critical):', dbError);
+          // DB 저장 실패해도 결과는 사용자에게 보여줘야 하므로 에러를 swallow하고 진행
+          // 필요하다면 토스트 메시지 등을 띄울 수 있음
         }
       }
 
@@ -401,10 +407,10 @@ class AnalysisPresets {
           user: !!service.user,
           saju: p.saju,
           usageHistory: {
-            question_history: arrayUnion({
-              question: p.question,
-              timestamp: new Date().toISOString(),
-            }),
+            // question_history: arrayUnion({
+            //   question: p.question,
+            //   timestamp: new Date().toISOString(),
+            // }),
           },
         };
       },

@@ -38,6 +38,7 @@ import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 import StartButton from '../component/StartButton';
+import MatchAppeal from './MatchAppeal';
 export default function Match({}) {
   const navigate = useNavigate();
   function classNames(...classes) {
@@ -335,62 +336,65 @@ export default function Match({}) {
       )}
 
       {step === 0 && (
-        <div className="max-w-lg mx-auto text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
-          <div>
-            <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-              {language === 'ko' ? '사주로 보는' : 'Reading the Fate'}
-              <br />
-              <span className="relative text-rose-600 dark:text-rose-500">
-                {language === 'ko' ? '운명적 궁합 & 조화' : 'Destined Match & Harmony'}
-                <div className="absolute inset-0 bg-rose-200/50 dark:bg-rose-800/60 blur-md rounded-full scale-100"></div>
-              </span>
-            </h2>
+        <div className="w-full animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <div className="max-w-lg mx-auto text-center px-6 mb-12">
+            <div>
+              <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+                {language === 'ko' ? '사주로 보는' : 'Reading the Fate'}
+                <br />
+                <span className="relative text-rose-600 dark:text-rose-500">
+                  {language === 'ko' ? '운명적 궁합 & 조화' : 'Destined Match & Harmony'}
+                  <div className="absolute inset-0 bg-rose-200/50 dark:bg-rose-800/60 blur-md rounded-full scale-100"></div>
+                </span>
+              </h2>
 
-            <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
-              <p className="text-sm">
-                <strong>
-                  {language === 'ko' ? '두 사람의 에너지 조화' : 'Harmony of Two Energies'}
-                </strong>
-                {language === 'ko' ? '와 ' : ' and '}
-                <strong>
-                  {language === 'ko' ? '서로에게 미치는 영향' : 'Mutual Impact on Fate'}
-                </strong>
-                {language === 'ko'
-                  ? ', 정밀한 관계 지도 분석.'
-                  : ', Precise Relationship Map Analysis.'}
-              </p>
+              <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
+                <p className="text-sm">
+                  <strong>
+                    {language === 'ko' ? '두 사람의 에너지 조화' : 'Harmony of Two Energies'}
+                  </strong>
+                  {language === 'ko' ? '와 ' : ' and '}
+                  <strong>
+                    {language === 'ko' ? '서로에게 미치는 영향' : 'Mutual Impact on Fate'}
+                  </strong>
+                  {language === 'ko'
+                    ? ', 정밀한 관계 지도 분석.'
+                    : ', Precise Relationship Map Analysis.'}
+                </p>
 
-              {/* 궁합용 이미지 경로 (필요시 수정) */}
-              <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-                <img
-                  src="/images/introcard/match_1.webp"
-                  alt="Relationship Match Intro"
-                  className="w-full h-auto"
-                />
+                {/* 궁합용 이미지 경로 (필요시 수정) */}
+                <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+                  <img
+                    src="/images/introcard/match_1.webp"
+                    alt="Relationship Match Intro"
+                    className="w-full h-auto"
+                  />
+                </div>
               </div>
             </div>
+
+            <StartButton
+              onClick={() => setStep(1)} // 다음 단계로 이동
+              disabled={loading || (isLocked && !isAnalysisDone)}
+              isDone={false}
+              label={language === 'ko' ? '궁합 분석 시작하기' : 'Start Match Analysis'}
+              color='rose'
+            />
+            {isLocked && !isAnalysisDone ? (
+              <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+                <ExclamationTriangleIcon className="w-4 h-4" />
+                {language === 'ko' ? '크레딧이 부족합니다.' : 'Not enough credits.'}
+              </p>
+            ) : (
+              <p className="mt-4 text-[11px] text-slate-400">
+                {language === 'ko'
+                  ? '이미 분석된 궁합은 크레딧을 재소모하지 않습니다.'
+                  : 'Analysis already done does not consume credits again.'}
+              </p>
+            )}
           </div>
 
-       
-          <StartButton
-            onClick={() => setStep(1)} // 다음 단계로 이동
-            disabled={loading || (isLocked && !isAnalysisDone)}
-            isDone={false}
-            label={language === 'ko' ? '궁합 분석 시작하기' : 'Start Match Analysis'}
-            color='rose'
-          />
-          {isLocked && !isAnalysisDone ? (
-            <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
-              <ExclamationTriangleIcon className="w-4 h-4" />
-              {language === 'ko' ? '크레딧이 부족합니다.' : 'Not enough credits.'}
-            </p>
-          ) : (
-            <p className="mt-4 text-[11px] text-slate-400">
-              {language === 'ko'
-                ? '이미 분석된 궁합은 크레딧을 재소모하지 않습니다.'
-                : 'Analysis already done does not consume credits again.'}
-            </p>
-          )}
+          <MatchAppeal />
         </div>
       )}
       {/* ================================================= */}

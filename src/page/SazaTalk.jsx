@@ -51,35 +51,53 @@ export default function SazaTalk() {
   const handleHistoryCapture = async () => {
     if (historyContentRef.current) {
       const original = historyContentRef.current;
+      
+      // 1. 임시 컨테이너 생성 (화면 밖이지만 렌더링은 되도록)
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '-9999px'; // 화면 밖으로 이동
+      container.style.zIndex = '-9999';
+      container.style.width = '550px'; // 모바일에서도 적절한 너비 고정
+      document.body.appendChild(container);
+
+      // 2. 내용 복제 및 주입
       const clone = original.cloneNode(true);
       
-      // 클론 스타일 조정: 전체 내용을 표시하도록 설정
-      clone.style.width = `${original.offsetWidth}px`;
+      // 클론 스타일 강제 조정
+      clone.style.width = '100%';
       clone.style.height = 'auto';
       clone.style.maxHeight = 'none';
       clone.style.overflow = 'visible';
-      clone.style.position = 'absolute';
-      clone.style.top = '-10000px';
-      clone.style.left = '-10000px';
-      clone.style.background = getComputedStyle(original).background; // 배경색 유지
+      clone.style.borderRadius = '0'; // 캡처 시 둥근 모서리 제거 (선택 사항)
+      clone.style.background = '#ffffff'; // 배경색 강제 지정 (투명 방지)
+      
+      // 다크모드 대응: 클론 내부의 텍스트 색상 등을 강제로 밝은 배경에 맞게 조정이 필요할 수 있음
+      // 여기서는 우선 원본 스타일을 따라가되, 배경만 흰색으로 고정합니다.
+      
+      container.appendChild(clone);
 
-      document.body.appendChild(clone);
+      // 3. 이미지 생성이 완료될 때까지 잠시 대기 (이미지 로딩 등)
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       try {
         const canvas = await html2canvas(clone, {
           backgroundColor: '#ffffff',
-          scale: 2,
-          useCORS: true, // 이미지 등 외부 리소스 로드 허용
+          scale: 2, // 고해상도
+          useCORS: true,
+          windowWidth: 550, // 캡처 윈도우 기준 너비 설정
         });
+        
         const link = document.createElement('a');
         link.download = `saza_history_${new Date().toISOString().slice(0, 10)}.png`;
-        link.href = canvas.toDataURL();
+        link.href = canvas.toDataURL('image/png');
         link.click();
       } catch (err) {
         console.error('Failed to capture image: ', err);
         alert(language === 'ko' ? '이미지 저장에 실패했습니다.' : 'Failed to save image.');
       } finally {
-        document.body.removeChild(clone);
+        // 4. 뒷정리
+        document.body.removeChild(container);
       }
     }
   };
@@ -126,10 +144,9 @@ export default function SazaTalk() {
     }
 
     if (latestSazaTalk) {
-      const confirmMsg = language === 'ko' 
-        ? "새로운 질문을 하시면 이전 답변은 사라집니다. 계속하시겠습니까?" 
-        : "Asking a new question will delete the previous answer. Do you want to continue?";
-      if (!window.confirm(confirmMsg)) return;
+      if (!window.confirm(UI_TEXT.overwriteConfirm?.[language] || (language === 'ko' ? "새로운 질문을 하시면 이전 답변은 사라집니다. 계속하시겠습니까?" : "Asking a new question will delete the previous answer. Do you want to continue?"))) {
+        return;
+      }
     }
 
     setAiResult('');

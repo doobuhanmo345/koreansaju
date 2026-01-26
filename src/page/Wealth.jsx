@@ -43,6 +43,7 @@ import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 import { parseAiResponse } from '../utils/helpers';
+import WealthAppeal from './WealthAppeal';
 export default function Wealth({}) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -398,45 +399,50 @@ export default function Wealth({}) {
 
       {/* ================================================= */}
       {/* 🟢 STEP 0: 인트로 화면 (추가된 부분) */}
+      {/* 🟢 STEP 0: 인트로 화면 (Appeal 적용) */}
       {/* ================================================= */}
       {step === 0 && (
-        <div className="max-w-lg mx-auto  text-center px-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
-          <div>
-            <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-              {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}
-              <br />
-              <span className="relative text-emerald-600 dark:text-emerald-500">
-                {language === 'ko' ? '평생 재물운 & 투자운' : 'Lifetime Wealth & Investment'}
-                <div className="absolute inset-0 bg-emerald-200/50 dark:bg-emerald-800/60 blur-md rounded-full scale-100"></div>
-              </span>
-            </h2>
+        <div className="w-full animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <div className="max-w-lg mx-auto text-center px-6 mb-12">
+            <div>
+              <h2 className="text-3xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
+                {language === 'ko' ? '오행으로 읽는' : 'Reading the Five Elements'}
+                <br />
+                <span className="relative text-emerald-600 dark:text-emerald-500">
+                  {language === 'ko' ? '평생 재물운 & 투자운' : 'Lifetime Wealth & Investment'}
+                  <div className="absolute inset-0 bg-emerald-200/50 dark:bg-emerald-800/60 blur-md rounded-full scale-100"></div>
+                </span>
+              </h2>
 
-            <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
-              <p className="text-sm">
-                <strong>
-                  {language === 'ko' ? '타고난 금전의 그릇' : 'Innate Wealth Capacity'}
-                </strong>
-                {language === 'ko' ? '과 ' : ' and '}
-                <strong>
-                  {language === 'ko' ? '재물이 모이는 시기' : 'Strategic Financial Timing'}
-                </strong>
-                {language === 'ko' ? ', 당신의 재물 지도 분석.' : ', Analyzing your financial map.'}
-              </p>
+              <div className="space-y-4 text-slate-600 dark:text-slate-400 mb-10 leading-relaxed break-keep">
+                <p className="text-sm">
+                  <strong>
+                    {language === 'ko' ? '타고난 금전의 그릇' : 'Innate Wealth Capacity'}
+                  </strong>
+                  {language === 'ko' ? '과 ' : ' and '}
+                  <strong>
+                    {language === 'ko' ? '재물이 모이는 시기' : 'Strategic Financial Timing'}
+                  </strong>
+                  {language === 'ko' ? ', 당신의 재물 지도 분석.' : ', Analyzing your financial map.'}
+                </p>
 
-              {/* 이미지 경로 확인 필요 */}
-              <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
-                <img src="/images/introcard/wealth_1.webp" alt="wealth" className="w-full h-auto" />
+                {/* 이미지 경로 확인 필요 */}
+                <div className="m-auto max-w-sm rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800">
+                  <img src="/images/introcard/wealth_1.webp" alt="wealth" className="w-full h-auto" />
+                </div>
               </div>
             </div>
+
+            <StartButton
+              onClick={handleStartClick}
+              disabled={loading}
+              isDone={false}
+              label={language === 'ko' ? '나의 재물운 분석하기' : 'Start Wealth Analysis'}
+              color='emerald'
+            />
           </div>
 
-          <StartButton
-            onClick={handleStartClick}
-            disabled={loading}
-            isDone={false}
-            label={language === 'ko' ? '나의 재물운 분석하기' : 'Start Wealth Analysis'}
-            color='emerald'
-          />  
+          <WealthAppeal />
         </div>
       )}
       {/* ================================================= */}
