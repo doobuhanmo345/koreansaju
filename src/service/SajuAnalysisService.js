@@ -338,15 +338,21 @@ class AnalysisPresets {
 
       buildSaveData: async (result, p, service) => {
         const todayStr = await service.getToday();
+        const timestamp = new Date().toISOString();
         return {
           saju: p.saju,
           editCount: increment(1),
           lastEditDate: todayStr,
           usageHistory: {
+        
+            Zsazatalk: {
+              question: p.question,
+              result: result,
+              timestamp: timestamp,
+            },
             question_history: arrayUnion({
               question: p.question,
-              sajuKey: p.saju,
-              timestamp: new Date().toISOString(),
+              timestamp: timestamp,
             }),
           },
           dailyUsage: { [todayStr]: increment(1) },

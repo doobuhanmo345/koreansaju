@@ -3,21 +3,24 @@ import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
 import { db } from '../lib/firebase';
-import { setDoc, doc, increment, arrayUnion } from 'firebase/firestore';
+import { setDoc, doc, increment, arrayUnion, getDoc } from 'firebase/firestore';
 import { useLoading } from '../context/useLoadingContext';
 import { UI_TEXT } from '../data/constants';
+import html2canvas from 'html2canvas';
 import { useLanguage } from '../context/useLanguageContext';
 import { classNames } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
-import { PencilSquareIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, LockClosedIcon, ClockIcon, XMarkIcon, ClipboardDocumentIcon, CameraIcon } from '@heroicons/react/24/outline';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
 import AnalyzeButton from '../component/AnalyzeButton';
 import { langPrompt, hanja } from '../data/constants';
 import EnergyBadge from '../ui/EnergyBadge';
 import { useNavigate } from 'react-router-dom';
 import ViewSazaResult from './ViewSazaResult';
+import { parseAiResponse } from '../utils/helpers';
+import { aiSajuStyle } from '../data/aiResultConstants';
 
 export default function SazaTalk() {
   const navigate = useNavigate();
@@ -30,6 +33,76 @@ export default function SazaTalk() {
 
   const [userQuestion, setUserQuestion] = useState('');
   const [loading, setLoading] = useState(false);
+  const [latestSazaTalk, setLatestSazaTalk] = useState(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const historyContentRef = useRef(null);
+
+  const handleHistoryCopy = async () => {
+    if (!latestSazaTalk?.result) return;
+    try {
+      await navigator.clipboard.writeText(latestSazaTalk.result);
+      alert(language === 'ko' ? '복사되었습니다.' : 'Copied to clipboard.');
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const handleHistoryCapture = async () => {
+    if (historyContentRef.current) {
+      const original = historyContentRef.current;
+      const clone = original.cloneNode(true);
+      
+      // 클론 스타일 조정: 전체 내용을 표시하도록 설정
+      clone.style.width = `${original.offsetWidth}px`;
+      clone.style.height = 'auto';
+      clone.style.maxHeight = 'none';
+      clone.style.overflow = 'visible';
+      clone.style.position = 'absolute';
+      clone.style.top = '-10000px';
+      clone.style.left = '-10000px';
+      clone.style.background = getComputedStyle(original).background; // 배경색 유지
+
+      document.body.appendChild(clone);
+
+      try {
+        const canvas = await html2canvas(clone, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          useCORS: true, // 이미지 등 외부 리소스 로드 허용
+        });
+        const link = document.createElement('a');
+        link.download = `saza_history_${new Date().toISOString().slice(0, 10)}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      } catch (err) {
+        console.error('Failed to capture image: ', err);
+        alert(language === 'ko' ? '이미지 저장에 실패했습니다.' : 'Failed to save image.');
+      } finally {
+        document.body.removeChild(clone);
+      }
+    }
+  };
+
+  // 최근 기록 불러오기 (마운트 시)
+  useEffect(() => {
+    if (user?.uid) {
+      const fetchHistory = async () => {
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.usageHistory?.Zsazatalk) {
+              setLatestSazaTalk(data.usageHistory.Zsazatalk);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching SazaTalk history:', error);
+        }
+      };
+      fetchHistory();
+    }
+  }, [user]);
   const service = new SajuAnalysisService({
     user,
     userData,
@@ -50,9 +123,17 @@ export default function SazaTalk() {
       navigate('/');
       return;
     }
+
+    if (latestSazaTalk) {
+      const confirmMsg = language === 'ko' 
+        ? "새로운 질문을 하시면 이전 답변은 사라집니다. 계속하시겠습니까?" 
+        : "Asking a new question will delete the previous answer. Do you want to continue?";
+      if (!window.confirm(confirmMsg)) return;
+    }
+
     setAiResult('');
     try {
-      await service.analyze(
+      const result = await service.analyze(
         AnalysisPresets.saza({
           saju: saju,
           gender: gender,
@@ -60,12 +141,18 @@ export default function SazaTalk() {
           question: userQuestion,
         }),
       );
+      if (result) {
+        setLatestSazaTalk({
+          question: userQuestion,
+          result: result,
+          timestamp: new Date().toISOString(),
+        });
+      }
       onstart();
     } catch (error) {
       console.error(error);
     }
-  };
-
+  }
   const Loading = () => {
     return (
       // transform-gpu 클래스로 GPU 가속 활성화
@@ -263,11 +350,23 @@ export default function SazaTalk() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 mb-4 text-purple-600">
-          <PencilSquareIcon className="w-5 h-5" />
-          <h3 className="font-bold">
-            {language === 'ko' ? '당신의 고민을 들려주세요' : 'Tell me what is on your mind'}
-          </h3>
+
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2 text-purple-600">
+            <PencilSquareIcon className="w-5 h-5" />
+            <h3 className="font-bold">
+              {language === 'ko' ? '당신의 고민을 들려주세요' : 'Tell me what is on your mind'}
+            </h3>
+          </div>
+          {latestSazaTalk && (
+            <button
+              onClick={() => setIsHistoryOpen(true)}
+              className="px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800 text-violet-600 dark:text-violet-400 text-[10px] font-bold flex items-center gap-1 hover:bg-violet-100 transition-colors shadow-sm"
+            >
+              <ClockIcon className="w-3 h-3" />
+              {language === 'ko' ? '최근 결과' : 'Recent Result'}
+            </button>
+          )}
         </div>
         <textarea
           value={userQuestion}
@@ -288,6 +387,107 @@ export default function SazaTalk() {
         color='purple'
         cost={-1}
       />
+
+      {/* Recent History Modal */}
+      {isHistoryOpen && latestSazaTalk && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-violet-50/50 dark:bg-violet-900/10">
+              <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400">
+                <ClockIcon className="w-5 h-5" />
+                <h2 className="font-black tracking-tight">{language === 'ko' ? '최근 상담 내역' : 'Recent History'}</h2>
+              </div>
+              <button 
+                onClick={() => setIsHistoryOpen(false)}
+                className="p-2 rounded-full hover:bg-white dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors"
+                aria-label="Close"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div ref={historyContentRef} className="p-6 max-h-[70vh] overflow-y-auto space-y-6">
+               <div>
+                  <div className="text-[10px] font-black text-violet-500 uppercase mb-2 tracking-widest">{language === 'ko' ? '기존 질문' : 'Previous Question'}</div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                     <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{latestSazaTalk.question}</p>
+                  </div>
+               </div>
+
+               <div>
+                  <div className="text-[10px] font-black text-violet-500 uppercase mb-2 tracking-widest">{language === 'ko' ? '사자의 답변' : "Saza's Answer"}</div>
+                  <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-violet-100/50 dark:border-violet-900/20 shadow-sm overflow-hidden text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                     {(() => {
+                       const data = parseAiResponse(latestSazaTalk.result) || {};
+                       return (
+                         <div className="leading-8 w-full">
+                           {data.contents && Array.isArray(data.contents) ? (
+                             data.contents.map((i, idx) => (
+                               <p key={idx}>{i}</p>
+                             ))
+                           ) : (
+                             <p>{typeof data.contents === 'string' ? data.contents : ''}</p>
+                           )}
+
+                           {data.saza && (
+                             <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700">
+                               <strong className="text-indigo-600 dark:text-indigo-400 block mb-1">
+                                 {language === 'en' ? "Saza's Advice" : '사자의 조언'}
+                               </strong>
+                               {typeof data.saza === 'object' ? (
+                                 <div className="text-sm">
+                                   {data.saza.category && (
+                                     <span className="inline-block px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold mr-2">
+                                       {data.saza.category}
+                                     </span>
+                                   )}
+                                   <p className="inline italic">"{data.saza.advice}"</p>
+                                 </div>
+                               ) : (
+                                 <p className="italic">"{data.saza}"</p>
+                               )}
+                             </div>
+                           )}
+                           {/* 스타일 주입 */}
+                           <div dangerouslySetInnerHTML={{ __html: aiSajuStyle }} />
+                         </div>
+                       );
+                     })()}
+                  </div>
+               </div>
+            </div>
+
+            {/* Custom Utility Buttons for History */}
+            <div className="px-6 py-2 flex justify-end gap-2 bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800">
+                 <button 
+                  onClick={handleHistoryCopy}
+                  className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-400 hover:text-slate-600 transition-colors px-2 py-1 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <ClipboardDocumentIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                  {language === 'ko' ? '텍스트 복사' : 'Copy Text'}
+                </button>
+                <button 
+                  onClick={handleHistoryCapture}
+                  className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-400 hover:text-slate-600 transition-colors px-2 py-1 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <CameraIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                  {language === 'ko' ? '이미지 저장' : 'Save Image'}
+                </button>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 text-center">
+               <p className="text-[11px] text-slate-400 break-keep leading-relaxed font-medium">
+                 {language === 'ko' 
+                   ? '최근 1건의 내역만 저장되며,\n새로운 질문 시 이전 답변은 사라집니다.' 
+                   : 'Only the last session is saved and will be\noverwritten by a new question.'}
+               </p>
+            </div>
+          </div>
+        </div>
+      )}
      
       </div>
     );
