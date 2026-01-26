@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import ViewSazaResult from './ViewSazaResult';
 import { parseAiResponse } from '../utils/helpers';
 import { aiSajuStyle } from '../data/aiResultConstants';
+import SazaTalkAppeal from './SazaTalkAppeal';
 
 export default function SazaTalk() {
   const navigate = useNavigate();
@@ -307,8 +308,14 @@ export default function SazaTalk() {
                 : 'Fortunes that have already been analyzed do not use credits.'}
             </p>
           )}
+        
+        {/* SazaTalk Premium Appeal Section */}
+        <div className="mt-16 -mx-6">
+           <SazaTalkAppeal />
         </div>
-      );
+        
+      </div>
+    );
     }
 
     return (
@@ -387,7 +394,11 @@ export default function SazaTalk() {
         color='purple'
         cost={-1}
       />
-
+ {/* SazaTalk Premium Appeal Section */}
+        <div className="mt-16 -mx-6">
+           <SazaTalkAppeal />
+        </div>
+        
       {/* Recent History Modal */}
       {isHistoryOpen && latestSazaTalk && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
