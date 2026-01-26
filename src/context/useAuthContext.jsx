@@ -194,7 +194,7 @@ export function AuthContextProvider({ children }) {
       }
       console.error('Login Error:', error);
     } finally {
-      setIsㅇLoggingIn(false);
+      setIsLoggingIn(false);
     }
   };
 
