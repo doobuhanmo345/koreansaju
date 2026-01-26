@@ -23,7 +23,7 @@ export default function ViewSazaResult({ userQuestion, onReset }) {
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
   if (loading) return <>로딩중</>;
-  
+  console.log(aiResult,data)
   return (
     <div ref={scrollElRef} className="max-w-lg m-auto p-4 space-y-6">
       {/* 사용자의 질문 (오른쪽 정렬 말풍선) */}
@@ -38,10 +38,33 @@ export default function ViewSazaResult({ userQuestion, onReset }) {
       {/* AI의 사주 분석 답변 (왼쪽 정렬 말풍선) */}
       <div className="flex justify-start">
         <div className="leading-8 w-full bg-white dark:bg-slate-800 p-5 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 dark:border-slate-700">
-          {data.contents?.map((i) => (
-            <p>{i}</p>
-          ))}
-          <strong>사자의 조언: {data.saza}</strong>
+          {data.contents && Array.isArray(data.contents) ? (
+            data.contents.map((i, idx) => (
+              <p key={idx}>{i}</p>
+            ))
+          ) : (
+            <p>{typeof data.contents === 'string' ? data.contents : ''}</p>
+          )}
+
+          {data.saza && (
+            <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700">
+              <strong className="text-indigo-600 dark:text-indigo-400 block mb-1">
+                {language === 'en' ? "Saza's Advice" : '사자의 조언'}
+              </strong>
+              {typeof data.saza === 'object' ? (
+                <div className="text-sm">
+                  {data.saza.category && (
+                    <span className="inline-block px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold mr-2">
+                      {data.saza.category}
+                    </span>
+                  )}
+                  <p className="inline italic">"{data.saza.advice}"</p>
+                </div>
+              ) : (
+                <p className="italic">"{data.saza}"</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-2 pt-6">
