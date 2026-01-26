@@ -8,12 +8,14 @@ import { useUsageLimit } from './context/useUsageLimit';
 import { useNavigate } from 'react-router-dom';
 import MainIcons from './component/MainIcons';
 import SubIcons from './component/SubIcons';
+import SelIcons from './component/SelIcons';
 import SazaTalkBanner from './ui/SazaTalkBanner';
 import NewYearBanner from './ui/NewYearBanner';
 import MyInfoBar from './component/MyInfoBar';
 import ImageBanner from './component/ImageBanner';
 import BasicAnaBanner from './component/BasicAnaBanner';
 import IconWrapper from './ui/IconWrapper';
+
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
@@ -102,6 +104,25 @@ export default function App() {
       >
         <MainIcons />
       </IconWrapper>
+
+      {/* New Selection Icons Section */}
+      <IconWrapper
+        title={
+          <>
+            {language === 'ko' ? '중요한 날을 위한 분석' : 'Analysis for Important Days'}
+          </>
+        }
+        subTitle={
+          <>
+            {language === 'ko'
+              ? '면접, 만남, 출산... 그 날의 기운을 미리 확인하세요'
+              : 'Interview, Date, Birth... Check the energy of the day in advance'}
+          </>
+        }
+      >
+        <SelIcons />
+      </IconWrapper>
+
       <IconWrapper
         title={<>{language === 'ko' ? '감성 운세' : 'Emotional Fortune'}</>}
         subTitle={
