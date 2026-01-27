@@ -69,7 +69,11 @@ export const wealth_var = [
   { key: '{{todayStr}}', label: '오늘 정보' },
   { key: '{{mySajuStr}}', label: '사용자 사주' },
   { key: '{{displayName}}', label: '사용자 이름' },
-  { key: '{{langPrompt}}', label: '언어' },
+  { key: '{{langPrompt}}', label: '언어' }, 
+  { key: '{{qPrompt}}', label: '질문에 대한 프롬프트' },
+  { key: '{{thisYear}}', label: '올해' },
+  { key: '{{thisMonth}}', label: '이달' },
+  { key: '{{nextMonth}}', label: '다음달' },
 ];
 
 export const match_var = [

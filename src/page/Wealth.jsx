@@ -126,7 +126,7 @@ export default function Wealth({}) {
         desc: '재물 창고(재고)와 소비 성향 분석',
         descEn: 'Analysis of wealth retention capacity and spending habits.',
         prompt:
-          "Perform a deep dive into the 'Wealth Accumulation' potential of this chart. Identify the 'Hole' where money leaks out (e.g., Gyeop-jae interference or lack of an Earth-element storage). Then, suggest the most effective wealth-keeping strategy (e.g., utilizing 'In-seong' for patience or 'Gwan-seong' for strict budgeting) tailored to this specific elemental balance.",
+          "겁재의 탈재 기운이나 식상 과다로 인한 감정적 소비를 짚어주고 보완책 제시. Perform a deep dive into the 'Wealth Accumulation' potential of this chart. Identify the 'Hole' where money leaks out (e.g., Gyeop-jae interference or lack of an Earth-element storage). Then, suggest the most effective wealth-keeping strategy (e.g., utilizing 'In-seong' for patience or 'Gwan-seong' for strict budgeting) tailored to this specific elemental balance.",
       },
     ],
 
@@ -138,7 +138,7 @@ export default function Wealth({}) {
         labelEn: 'Luck for this and next month',
         desc: '단기적인 자금 융통과 흐름',
         descEn: 'Short-term cash flow and liquidity analysis.',
-        prompt: 'Analyze the financial flow for the current month and the next month specifically.',
+        prompt: '월운의 합충을 분석하여 당장 60일 이내의 현금 흐름과 유의할 날짜 특정. Analyze the financial flow for the current month and the next month specifically.',
       },
       {
         id: 'next_year',
@@ -146,7 +146,7 @@ export default function Wealth({}) {
         labelEn: 'Financial luck for 2026',
         desc: '내년의 전체적인 총운과 승부처',
         descEn: 'Overall fortune and key opportunities for the upcoming year.',
-        prompt: 'Predict the overall financial fortune and key opportunities for the year 2026.',
+        prompt: '병오년의 화(Fire) 기운이 본인의 일간과 만드는 상호작용을 통한 연간 자산 흐름 분석. Predict the overall financial fortune and key opportunities for the year 2026.',
       },
       {
         id: 'caution',
@@ -154,7 +154,7 @@ export default function Wealth({}) {
         labelEn: 'When to be cautious (Financial Loss)',
         desc: '돈이 나가는 시기와 피해야 할 행동',
         descEn: 'Periods of financial loss and actions to avoid.',
-        prompt: 'Identify months or periods with high risk of financial loss (Son-jae-su).',
+        prompt: ' 형, 충이 들어오는 달을 정확히 명시하고 계약이나 큰 지출을 피해야 할 이유 설명. Identify months or periods with high risk of financial loss (Son-jae-su).',
       },
     ],
 
@@ -166,7 +166,7 @@ export default function Wealth({}) {
         labelEn: 'Stocks / Crypto (Aggressive)',
         desc: '변동성이 큰 시장에서의 승률',
         descEn: 'Success rate in high-volatility markets.',
-        prompt: 'Analyze suitability for high-risk, high-return investments like stocks or crypto.',
+        prompt: '편재와 식신의 생재 능력을 분석하여 변동성 자산 투자 적합도와 진입 시점 제안. Analyze suitability for high-risk, high-return investments like stocks or crypto.',
       },
       {
         id: 'real_estate',
@@ -174,7 +174,7 @@ export default function Wealth({}) {
         labelEn: 'Real Estate (Document Luck)',
         desc: '집을 사도 되는지, 이사 운이 있는지',
         descEn: 'Buying property and luck regarding moving.',
-        prompt: 'Analyze luck related to real estate, property documents, and moving.',
+        prompt: '인성(문서) 기운이 관성(권위)과 만나는 시기를 분석하여 실거주 및 투자 목적의 취득운 분석. Analyze luck related to real estate, property documents, and moving.',
       },
       {
         id: 'safe',
@@ -182,7 +182,7 @@ export default function Wealth({}) {
         labelEn: 'Savings / Safe Assets',
         desc: '지키는 것이 중요한 시기인지 확인',
         descEn: 'Check if asset protection is prioritized over investment.',
-        prompt: 'Check if conservative asset management (savings) is better than investing now.',
+        prompt: '사주상 금(Metal)이나 토(Earth)의 보존 능력을 확인하여 자산을 지키는 방식 제안.Check if conservative asset management (savings) is better than investing now.',
       },
     ],
 
@@ -194,7 +194,7 @@ export default function Wealth({}) {
         labelEn: 'Should I start a business?',
         desc: '창업 시기와 성공 가능성',
         descEn: 'Optimal timing for starting up and success potential.',
-        prompt: 'Analyze the timing and potential success for starting a new business.',
+        prompt: '독립적 의지(비겁)와 실행력(식상)이 대운과 맞물리는지 분석하여 창업 시기 결정. Analyze the timing and potential success for starting a new business.',
       },
       {
         id: 'partnership',
@@ -202,7 +202,7 @@ export default function Wealth({}) {
         labelEn: 'Partnership vs. Solo',
         desc: '누구와 함께하는 게 좋은지, 혼자가 좋은지',
         descEn: 'Pros and cons of partnership vs. going solo.',
-        prompt: 'Analyze whether partnership is beneficial or if they should work alone.',
+        prompt: '타인과의 에너지 분배(비겁의 희기)를 분석하여 협력 구조와 지분 분할에 대한 명확한 가이드. Analyze whether partnership is beneficial or if they should work alone.',
       },
       {
         id: 'item',
@@ -211,7 +211,7 @@ export default function Wealth({}) {
         desc: '물장사, 금속, 교육 등 오행 기반 추천',
         descEn: 'Industry recommendations based on your Five Elements.',
         prompt:
-          'Recommend suitable business industries based on their favorable elements (Yong-sin).',
+          '오행 물상을 현대적 유망 산업(핀테크, 플랫폼, 콘텐츠 등) 중 가장 강한 기운 1~2개로 매핑. Recommend suitable business industries based on their favorable elements (Yong-sin).',
       },
     ],
   };
@@ -317,6 +317,7 @@ export default function Wealth({}) {
           gender,
           q1,
           q2,
+          qprompt,
           language,
         }),
       );
@@ -334,7 +335,7 @@ export default function Wealth({}) {
     return SAJU_KEYS.every((key) => source[key] === target[key]);
   };
   const isAnalysisDone =
-    userData?.usageHistory.ZWealthAnalysis &&
+    userData?.usageHistory?.ZWealthAnalysis &&
     userData.usageHistory.ZWealthAnalysis.language === language &&
     userData.usageHistory.ZWealthAnalysis.gender === gender &&
     userData.usageHistory.ZWealthAnalysis.ques === selectedQ &&
@@ -363,9 +364,10 @@ export default function Wealth({}) {
   //   },
   //   tosaza: '사자에게 유도문구',
   // };
-  const isEn = language === 'en';
+
   const q1 = Q_TYPES.find((i) => i.id === selectedQ)?.desc;
   const q2 = SUB_Q_TYPES?.[selectedQ]?.find((i) => i.id === selectedSubQ)?.desc;
+  const qprompt = SUB_Q_TYPES?.[selectedQ]?.find((i) => i.id === selectedSubQ)?.prompt;
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
 
@@ -377,6 +379,7 @@ export default function Wealth({}) {
       }
     }
   }, [aiResult]); // aiResult가 업데이트될 때마다 실행
+  console.log(aiResult)
   return (
     <>
       {/* 상단 단계 표시바 (Stepper) */}

@@ -781,12 +781,26 @@ class AnalysisPresets {
         !!cached.result,
 
       buildPromptVars: (prompts, p, service) => {
+        const today = new Date();
+        const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        
+        const thisP = getPillars(today);
+        const nextP = getPillars(nextMonthDate);
+
+        const thisYearPillar = `${thisP.sky3}${thisP.grd3}`;
+        const thisMonthPillar = `${thisP.sky2}${thisP.grd2}`;
+        const nextMonthPillar = `${nextP.sky2}${nextP.grd2}`;
+
         return {
           '{{STRICT_PROMPT}}': prompts['prompt/wealth_strict'],
           '{{qLabel}}': p.q1,
           '{{subQuestion}}': p.q2,
+          '{{qPrompt}}': p.qprompt,
           '{{gender}}': p.gender,
-          '{{todayStr}}': new Date().toLocaleDateString('en-CA'),
+          '{{thisYear}}': `${today.getFullYear()}년 (${thisYearPillar}년)`,
+          '{{thisMonth}}': `${today.getMonth() + 1}월 (${thisMonthPillar}월)`,
+          '{{nextMonth}}': `${nextMonthDate.getMonth() + 1}월 (${nextMonthPillar}월)`,
+          '{{todayStr}}': today.toLocaleDateString('en-CA'),
           '{{mySajuStr}}': service.getSajuString(p.saju),
           '{{displayName}}': service.getDisplayName(),
           '{{langPrompt}}': service.langPrompt?.(service.language) || '',

@@ -15,44 +15,60 @@ export const parseAiResponse = (rawString) => {
 
   let cleaned = rawString.trim();
 
-  // 1. 마크다운 코드 블록 제거
-  const codeBlockRegex = /```(?:json)?([\s\S]*?)```/g;
-  const match = codeBlockRegex.exec(cleaned);
+  // 1. 마크다운 코드 블록 제거 (JSON 블록 우선 추출)
+  const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)```/;
+  const match = cleaned.match(codeBlockRegex);
   if (match && match[1]) {
     cleaned = match[1].trim();
   }
 
-  // 2. [핵심] 보이지 않는 특수 공백 및 제어 문자 제거
-  // \u00A0(NBSP) 등을 일반 공백으로 치환하고,
-  // 문자열 값 내부가 아닌 곳의 제어 문자를 정리합니다.
+  // 2. 만약 여전히 앞뒤에 쓰레기 텍스트가 있다면 { } 또는 [ ] 범위를 강제로 찾음
+  const firstBrace = cleaned.indexOf('{');
+  const firstBracket = cleaned.indexOf('[');
+  let start = -1;
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    start = firstBrace;
+  } else if (firstBracket !== -1) {
+    start = firstBracket;
+  }
+
+  const lastBrace = cleaned.lastIndexOf('}');
+  const lastBracket = cleaned.lastIndexOf(']');
+  let end = -1;
+  if (lastBrace !== -1 && (lastBracket === -1 || lastBrace > lastBracket)) {
+    end = lastBrace;
+  } else if (lastBracket !== -1) {
+    end = lastBracket;
+  }
+
+  if (start !== -1 && end !== -1 && end > start) {
+    cleaned = cleaned.substring(start, end + 1);
+  }
+
+  // 3. 특수 문자 정리 (\u00A0 등)
   cleaned = cleaned.replace(/\u00A0/g, ' ');
 
   try {
     // 1차 시도: 정공법
     return JSON.parse(cleaned);
   } catch (error) {
-    console.warn('⚠️ 1차 파싱 실패, 구조 보정 시도...');
-
+    console.warn('⚠️ JSON 파싱 1차 실패, 보정 시도...');
+    
     try {
-      // 3. JSON 형태 ({ } 또는 [ ]) 추출
-      const jsonMatch = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-      if (!jsonMatch) return null;
+      // 4. 보정 시도: 
+      // (1) 줄바꿈 문자(\n)가 문자열 내부에 그냥 있을 경우 \\n으로 이스케이프
+      let fixed = cleaned.replace(/"([\s\S]*?)"/g, (m, p1) => {
+        return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+      });
 
-      let targetJson = jsonMatch[0];
+      // (2) 마지막 콤마 (Trailing Comma) 제거
+      fixed = fixed.replace(/,\s*([\]}])/g, '$1');
 
-      // 4. [핵심] 문자열 내부의 실제 줄바꿈(\n)을 이스케이프(\n)로 교체
-      // 기존 정규식보다 안전하게 값 영역만 타겟팅합니다.
-      const fixedJson = targetJson
-        .replace(/":\s*"(.*?) "(\s*[,}])|":\s*"(.*?)"(\s*[,}])/gs, (match) => {
-          // 값 내부의 실제 줄바꿈을 찾아 \\n으로 바꿉니다.
-          return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-        })
-        // 혹시 모를 마지막 콤마(Trailing Comma) 제거
-        .replace(/,\s*([\]}])/g, '$1');
-
-      return JSON.parse(fixedJson);
+      return JSON.parse(fixed);
     } catch (innerError) {
       console.error('❌ 모든 파싱 시도 실패:', innerError.message);
+      // 디버깅을 위해 에러 로그를 더 자세히 찍어줌
+      console.log('Failing JSON string:', cleaned);
       return null;
     }
   }
