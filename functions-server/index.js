@@ -38,8 +38,9 @@ exports.fetchGeminiAnalysis = onCall(
 
       return { text };
     } catch (error) {
-      console.error('Gemini 서버 에러:', error);
-      throw new HttpsError('internal', 'AI 분석 중 오류가 발생했습니다.');
+      console.error('Gemini 서버 에러 상세:', error);
+      // 에러 메시지를 포함하여 클라이언트에 전달 (디버깅 용이성)
+      throw new HttpsError('internal', error.message || 'AI 분석 중 알 수 없는 오류가 발생했습니다.');
     }
   },
 );

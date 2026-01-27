@@ -22,15 +22,35 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }); // 2.5 대신 안정적인 1.5로 우선 테스트
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+      },
+    });
 
     const { prompt } = req.body;
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+    let lastError;
+    const maxRetries = 2;
 
-    return res.status(200).json({ text: response.text() });
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return res.status(200).json({ text: response.text() });
+      } catch (error) {
+        lastError = error;
+        console.error(`다시 시도해 주세요 ${attempt + 1} :`, error);
+        if (attempt < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          continue;
+        }
+      }
+    }
+
+    return res.status(500).json({ error: lastError?.message || '호출 실패 (3회 시도)' });
   } catch (error) {
-    console.error('Gemini 호출 에러 상세:', error);
+    console.error('서버 에러 상세:', error);
     return res.status(500).json({ error: error.message });
   }
 }

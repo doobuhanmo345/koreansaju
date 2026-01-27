@@ -90,17 +90,28 @@
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 export const fetchGeminiAnalysis = async (prompt) => {
-  try {
-    const functions = getFunctions(undefined, 'asia-northeast3'); // 서버와 동일한 리전 설정
- const geminiFunction = httpsCallable(functions, 'fetchGeminiAnalysis', {
-   timeout: 300000,
- });
-    const result = await geminiFunction({ prompt });
+  const maxRetries = 2;
+  let lastError;
 
-    // Cloud Functions의 반환 데이터는 result.data에 담겨 옵니다.
-    return result.data.text;
-  } catch (error) {
-    console.error('프론트엔드 통신 에러:', error);
-    throw new Error(error.message || 'AI 분석 호출 중 오류가 발생했습니다.');
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const functions = getFunctions(undefined, 'asia-northeast3');
+      const geminiFunction = httpsCallable(functions, 'fetchGeminiAnalysis', {
+        timeout: 300000,
+      });
+      const result = await geminiFunction({ prompt });
+      return result.data.text;
+    } catch (error) {
+      lastError = error;
+      console.error(`호출 시도 ${attempt + 1} :`, error);
+      
+      // 마지막 시도가 아니면 1초 대기 후 재시도
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        continue;
+      }
+    }
   }
+
+  throw new Error(lastError?.message || '분석 호출 중 오류가 발생했습니다. (3회 시도 모두 실패)');
 };
