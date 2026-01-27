@@ -172,6 +172,15 @@ export default function LoadingFourPillar({ isTimeUnknown, saju }) {
                 <>{subLog || '당신만의 고유한 빛을 찾아내고 있습니다'}</>
               )}
             </p>
+            {/* 페이지 이탈 방지 경고 추가 */}
+            <div className="mt-4 animate-pulse flex items-center justify-center gap-1.5">
+              <span className="text-amber-500 dark:text-amber-400 text-xs">⚠️</span>
+              <p className="text-[12px] font-bold text-rose-500/90 dark:text-rose-400/90 tracking-tight">
+                {language === 'en' 
+                  ? 'Analysis in progress. Please do not leave this page.' 
+                  : '분석 중입니다. 페이지를 나가지 마세요.'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
