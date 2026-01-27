@@ -282,7 +282,7 @@ export default function MobileNav() {
   return (
     <>
       <div
-        className={`fixed inset-0 z-40 bg-white dark:bg-slate-950 transition-transform duration-500 ease-in-out ${activeMenu ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`fixed inset-0 z-[60] bg-white dark:bg-slate-950 transition-transform duration-500 ease-in-out ${activeMenu ? 'translate-y-0' : 'translate-y-full'}`}
       >
         {activeMenu &&
           menuData[activeMenu] && ( // 방어 코드 추가
@@ -431,7 +431,7 @@ export default function MobileNav() {
           )}
       </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8 pt-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800">
+      <nav className="fixed bottom-0 left-0 right-0 z-[70] px-6 pb-8 pt-4 bg-white/90 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-md mx-auto flex justify-between items-center">
           <button
             onClick={() => {

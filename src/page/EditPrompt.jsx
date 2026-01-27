@@ -14,7 +14,7 @@ import {
 } from '../data/promptVar';
 
 const EditPrompt = () => {
-  const [targetPath, setTargetPath] = useState('basic');
+  const [targetPath, setTargetPath] = useState('default_instruction');
   const [promptList, setPromptList] = useState(['basic', 'default', 'premium', 'test']);
   const [newPathName, setNewPathName] = useState('');
   const [promptContent, setPromptContent] = useState('');
@@ -223,7 +223,7 @@ const EditPrompt = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* MOBILE NAVIGATION TOGGLE (Visible only on mobile) */}
-        <div className="lg:hidden sticky top-6 z-50">
+        <div className="lg:hidden sticky top-6 z-30">
           <button
             onClick={() => setIsNavOpen(!isNavOpen)}
             className="w-full flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800"

@@ -211,7 +211,7 @@ export default function Wealth({}) {
         desc: '물장사, 금속, 교육 등 오행 기반 추천',
         descEn: 'Industry recommendations based on your Five Elements.',
         prompt:
-          '오행 물상을 현대적 유망 산업(핀테크, 플랫폼, 콘텐츠 등) 중 가장 강한 기운 1~2개로 매핑. Recommend suitable business industries based on their favorable elements (Yong-sin).',
+          '의뢰자의 사주를 고려하여 사업/창업할 때 맞는 업종 또는 아이템 영역을 2~3개로 매핑. Recommend suitable business industries based on their favorable elements (Yong-sin).',
       },
     ],
   };
