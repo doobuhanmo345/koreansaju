@@ -174,7 +174,7 @@ export default function Wealth({}) {
         labelEn: 'Real Estate (Document Luck)',
         desc: '집을 사도 되는지, 이사 운이 있는지',
         descEn: 'Buying property and luck regarding moving.',
-        prompt: '인성(문서) 기운이 관성(권위)과 만나는 시기를 분석하여 실거주 및 투자 목적의 취득운 분석. Analyze luck related to real estate, property documents, and moving.',
+        prompt: '인성(문서) 기운이 관성(권위)과 만나는 시기를 분석하여 실거주 및 투자 목적의 부동산 취득운 분석. 의뢰자에게 유리한 취득 방식(청약 및 매매)와 취득 자산 종류(아파트, 상가, 오피스텔) 등 다양하게 분석. Analyze luck related to real estate, property documents, and moving',
       },
       {
         id: 'safe',
@@ -783,13 +783,13 @@ export default function Wealth({}) {
             </button>
           </div>
           {isLocked ? (
-            <p className="mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
+            <p className="text-center mt-4 text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
               <ExclamationTriangleIcon className="w-4 h-4" />{' '}
               {/* 아이콘이 없다면 ⚠️ 이모지로 대체 가능 */}
               {language === 'ko' ? '크레딧이 부족합니다..' : 'not Enough credit'}
             </p>
           ) : (
-            <p className="mt-4 text-[11px] text-slate-400">
+            <p className="text-center mt-4 text-[11px] text-slate-400">
               {language === 'ko'
                 ? '이미 분석된 운세는 크래딧을 재소모하지 않습니다.'
                 : 'Fortunes that have already been analyzed do not use credits.'}
