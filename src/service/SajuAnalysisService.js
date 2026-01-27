@@ -782,14 +782,19 @@ class AnalysisPresets {
 
       buildPromptVars: (prompts, p, service) => {
         const today = new Date();
-        const nextMonthDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
         
-        const thisP = getPillars(today);
-        const nextP = getPillars(nextMonthDate);
+        // 연 중순, 월 중순을 기준으로 기운을 가져와서 월운/연운의 경계(절기) 오류 방지
+        const midThisYear = new Date(today.getFullYear(), 6, 15); // 7월 15일 (연 중순)
+        const midThisMonth = new Date(today.getFullYear(), today.getMonth(), 15); // 이번 달 15일 (월 중순)
+        const midNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 15); // 다음 달 15일 (다음 달 중순)
+        
+        const yearP = getPillars(midThisYear);
+        const thisMonthP = getPillars(midThisMonth);
+        const nextMonthP = getPillars(midNextMonth);
 
-        const thisYearPillar = `${thisP.sky3}${thisP.grd3}`;
-        const thisMonthPillar = `${thisP.sky2}${thisP.grd2}`;
-        const nextMonthPillar = `${nextP.sky2}${nextP.grd2}`;
+        const thisYearPillar = `${yearP.sky3}${yearP.grd3}`;
+        const thisMonthPillar = `${thisMonthP.sky2}${thisMonthP.grd2}`;
+        const nextMonthPillar = `${nextMonthP.sky2}${nextMonthP.grd2}`;
 
         return {
           '{{STRICT_PROMPT}}': prompts['prompt/wealth_strict'],
@@ -799,7 +804,7 @@ class AnalysisPresets {
           '{{gender}}': p.gender,
           '{{thisYear}}': `${today.getFullYear()}년 (${thisYearPillar}년)`,
           '{{thisMonth}}': `${today.getMonth() + 1}월 (${thisMonthPillar}월)`,
-          '{{nextMonth}}': `${nextMonthDate.getMonth() + 1}월 (${nextMonthPillar}월)`,
+          '{{nextMonth}}': `${midNextMonth.getMonth() + 1}월 (${nextMonthPillar}월)`,
           '{{todayStr}}': today.toLocaleDateString('en-CA'),
           '{{mySajuStr}}': service.getSajuString(p.saju),
           '{{displayName}}': service.getDisplayName(),
