@@ -15,9 +15,9 @@ const SelIcons = () => {
 
   const navItems = [
     {
-      label: `${ko ? '좋은 날짜 받기' : 'Auspicious Date'}`,
+      label: `${ko ? '길일 받기' : 'Auspicious Date'}`,
       path: '/seldate',
-      desc: ko ? '이사, 계약 등 중요한 날을 위한 택일' : 'Select best dates for moving, contracts etc.',
+      desc: ko ? '이사, 계약 등 중요한 날을 위한 길일 선정' : 'Select best dates for moving, contracts etc.',
       icon: <CalendarDaysIcon className="w-6 h-6" />,
     },
     {

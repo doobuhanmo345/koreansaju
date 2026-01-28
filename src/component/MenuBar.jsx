@@ -180,7 +180,7 @@ export default function MobileNav() {
                 path: '/date',
               },
               {
-                name: isKo ? '택일 비서' : 'Select Day',
+                name: isKo ? '길일 선정' : 'Select Day',
                 desc: isKo
                   ? '이사, 결혼, 계약 등 중요한 날을 위한 길일 선택'
                   : 'Find the most auspicious days for your important events.',

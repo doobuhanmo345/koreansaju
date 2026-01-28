@@ -21,7 +21,7 @@ const ImageBanner = () => {
     },
     {
       id: 1,
-      menuTitle: { ko: '택일 비서', en: 'Select Day' },
+      menuTitle: { ko: '택일 선정', en: 'Select Day' },
       mainTitle: { ko: '이사·계약·여행\n언제가 좋을까?', en: 'Best day for\nbig decisions' },
       accent: { ko: '길일 추천', en: 'Good Day' },
       bgColor: '#F0FDF4', // Greenish
