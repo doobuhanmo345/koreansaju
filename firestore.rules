@@ -15,6 +15,7 @@ service cloud.firestore {
         match /newyearad_funnel_logs/{docId} { allow read, create, update: if true; }
         match /newyearad_logs/{docId} { allow read, create, update: if true; }
         match /copy_url_logs/{docId} { allow create: if true; }
+        match /menu_click_logs/{docId} { allow create: if true; }
         
         
     

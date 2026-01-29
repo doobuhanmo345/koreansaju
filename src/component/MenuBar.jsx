@@ -19,6 +19,8 @@ import { useAuthContext } from '../context/useAuthContext';
 import { RiAdminFill } from 'react-icons/ri';
 import { GiYinYang } from 'react-icons/gi';
 import { useLanguage } from '../context/useLanguageContext';
+import { db } from '../lib/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 export default function MobileNav() {
   const [activeMenu, setActiveMenu] = useState(null);
@@ -56,12 +58,25 @@ export default function MobileNav() {
     }
   };
 
-  const handleItemClick = (path) => {
-    if (!path) {
+  const handleItemClick = async (item) => {
+    if (!item.path) {
+      // 🚀 준비중인 항목 클릭 시 서비스 로그 기록
+      try {
+        await addDoc(collection(db, 'menu_click_logs'), {
+          menuName: item.name,
+          uid: user?.uid || 'guest',
+          isLoggedIn: !!user,
+          timestamp: serverTimestamp(),
+          language: language
+        });
+      } catch (e) {
+        console.error('Logging click error:', e);
+      }
+
       alert(isKo ? '준비중입니다.' : 'Coming soon!');
       return;
     }
-    navigate(path);
+    navigate(item.path);
     setActiveMenu(null);
   };
 
@@ -255,7 +270,7 @@ export default function MobileNav() {
 
   const MenuItem = ({ item, color }) => (
     <button
-      onClick={() => handleItemClick(item.path)}
+      onClick={() => handleItemClick(item)}
       className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 active:scale-[0.97] transition-all"
     >
       <div className="flex items-center gap-3.5 text-left">
