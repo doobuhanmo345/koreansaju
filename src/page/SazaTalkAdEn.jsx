@@ -259,17 +259,17 @@ const SazaTalkAdEn = () => {
       });
 
       // 4. API 호출
+      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
       const result = await fetchGeminiAnalysis(fullPrompt);
 
       const newQuestionLog = {
-        question: myQuestion,
-        sajuKey: saju,
-        timestamp: new Date().toISOString(),
-        id: Date.now(),
+        question: myQuestion,   
+     
+    
       };
 
       // DB 업데이트 (카운트 + 질문로그)
-      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+      
       // const docId = guestId || user?.uid;
       await setDoc(
         doc(db, 'sazatalkad_logs', currentId),
@@ -278,7 +278,7 @@ const SazaTalkAdEn = () => {
           date: safeDate,
           user: !!user,
           saju: saju,
-          usageHistory: { question_history: arrayUnion(newQuestionLog) },
+          question_history: arrayUnion(newQuestionLog) ,
         },
         { merge: true },
       );

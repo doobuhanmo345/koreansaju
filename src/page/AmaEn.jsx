@@ -17,14 +17,18 @@ export default function AmaEn({ question, setQuestion, setStep }) {
   const inputRef = useRef(null);
 
   const handleSubmit = () => {
-    if (!question.trim()) {
+    const currentVal = inputRef.current?.value || '';
+    if (currentVal.trim()) {
+      setQuestion(currentVal);
+      setStep(1);
+    } else if (!currentVal.trim()) {
       alert('Please enter your question');
       return;
+    } else {
+      setStep(1);
     }
-
-    setStep(1);
   };
-
+console.log(question);
   const scrollToInput = () => {
     inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     inputRef.current?.focus();
@@ -94,8 +98,7 @@ export default function AmaEn({ question, setQuestion, setStep }) {
               <input
                 ref={inputRef}
                 type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
+             
                 placeholder="What are you most curious about?"
                 className="w-full bg-white border border-[#E8DCCF] py-5 sm:py-6 pl-6 sm:pl-7 pr-14 rounded-2xl text-[#4A3428] placeholder-[#C4B5A9] text-base sm:text-lg shadow-sm focus:outline-none focus:border-[#F47521] transition-colors"
               />
