@@ -15,7 +15,7 @@ import MyInfoBar from './component/MyInfoBar';
 import ImageBanner from './component/ImageBanner';
 import BasicAnaBanner from './component/BasicAnaBanner';
 import IconWrapper from './ui/IconWrapper';
-
+import Footer from './component/Footer';
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
@@ -135,6 +135,7 @@ export default function App() {
       >
         <SubIcons />
       </IconWrapper>
+      <Footer />
     </div>
   );
 }
