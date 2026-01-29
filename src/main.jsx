@@ -15,6 +15,7 @@ import SazaTalkAd from './page/SazaTalkAd';
 import SazaTalkAdKr from './page/SazaTalkAdKr';
 import NewYearAdKr from './page/NewYearAdKr';
 import NewYearAdEn from './page/NewYearAdEn';
+import SazaTalkAdEn from './page/SazaTalkAdEn';
 
 // 🔥 모든 페이지를 lazy loading으로 변경
 const SajuExp = lazy(() => import('./page/SajuExp'));
@@ -88,7 +89,7 @@ const RootComponent = () => {
             <Route path="/ad" element={<Ad />} />
             <Route path="/sazatalkadkr" element={<SazaTalkAdKr />} />
             <Route path="/paywall" element={<PayWall />} />
-            <Route path="/sazatalkad" element={<SazaTalkAd />} />
+            <Route path="/sazatalkad" element={<SazaTalkAdEn />} />
             <Route path="/newyearadkr" element={<NewYearAdKr />} />
             <Route path="/newyearaden" element={<NewYearAdEn />} />
             <Route path="/test2" element={<TestAnalysisPage />} />

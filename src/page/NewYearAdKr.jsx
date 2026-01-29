@@ -57,12 +57,12 @@ const NewYearAdKr = () => {
 
   // [NEW] 인앱 브라우저가 아닌 경우 메인으로 리다이렉트 (외부 브라우저 열기 대응)
   useEffect(() => {
-    // 1. 이미 메인페이지거나 로컬호스트 개발 중일때는 정책에 따라 제외할 수 있으나,
-    // 유저 요청대로 "외부 브라우저 진입 시 메인으로" 이동 처리
     const ua = navigator.userAgent.toLowerCase();
-    const isInApp = /kakaotalk|instagram|naver|facebook|fbav/.test(ua);
+    const isInApp = /kakaotalk|instagram|naver|facebook|fban|fbav|line|snapchat|threads|whatsapp|zalo/.test(ua);
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     
-    if (!isInApp) {
+    // 인앱 브라우저도 아니고 로컬 호스트도 아니면 메인으로 리다이렉트
+    if (!isInApp && !isLocal) {
       window.location.replace('/');
     }
   }, []);

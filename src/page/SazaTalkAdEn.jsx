@@ -4,8 +4,7 @@ import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
 import { ref, get, child } from 'firebase/database';
 import { database } from '../lib/firebase';
-import { setDoc, doc, increment, arrayUnion } from 'firebase/firestore';
-import CopyUrl2 from '../ui/CopyUrl2';
+import { setDoc, doc, getDoc, arrayUnion } from 'firebase/firestore';
 import {
   ChatBubbleLeftRightIcon,
   CakeIcon,
@@ -19,18 +18,22 @@ import { db } from '../lib/firebase';
 import { useAuthContext } from '../context/useAuthContext';
 import dayStem from '../data/dayStem.json';
 import dayBranch from '../data/dayBranch.json';
-import { classNames } from '../utils/helpers';
+import { classNames, parseAiResponse } from '../utils/helpers';
 import { fetchGeminiAnalysis } from '../api/gemini';
-import NewYearEn from './NewYearEn';
-import CopyUrlAd from '../component/CopyUrlAd';
-import { parseAiResponse } from '../utils/helpers';
-const NewYearAdEn = () => {
-  const [guestId, setGuestId] = useState('');
 
+import AdMyInfo from '../component/AdMyInfo';
+import CopyUrlAd from '../component/CopyUrlAd';
+import AmaEn from './AmaEn';
+
+const SazaTalkAdEn = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [guestId, setGuestId] = useState('');
+  const [sajuData, setSajuData] = useState();
   const [step, setStep] = useState(0.5); // '0.5' '1', 'input' 'result'
   const { language, setLanguage } = useLanguage();
   const { user, userData, loadingUser } = useAuthContext();
-  const [sajuData, setSajuData] = useState();
   const [userQuestion, setUserQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState('');
@@ -55,24 +58,13 @@ const NewYearAdEn = () => {
     logStep(step, id);
   }, [step, userData, loadingUser]); // 의존성 배열에 loading과 userData 추가
 
-  // [NEW] Redirect to main if not in-app browser
-  useEffect(() => {
-    const ua = navigator.userAgent.toLowerCase();
-    const isInApp = /kakaotalk|instagram|naver|facebook|fban|fbav|line|snapchat|threads|whatsapp|zalo/.test(ua);
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    if (!isInApp && !isLocal) {
-      window.location.replace('/');
-    }
-  }, []);
-
   // 공통 로그 저장 함수
   const logStep = async (stepName, currentGuestId, extraData = {}) => {
     // userData가 존재하면(로그인 상태면) 함수를 여기서 종료
     if (userData) return;
 
     try {
-      await addDoc(collection(db, 'newyearad_funnel_logs'), {
+      await addDoc(collection(db, 'sazatalk_funnel_logs'), {
         step: stepName,
         uid: currentGuestId || guestId,
         isLoggedIn: false, // 비회원임을 명확히 기록
@@ -133,7 +125,14 @@ const NewYearAdEn = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [loadingText, setLoadingText] = useState('');
   const [aiResult, setAiResult] = useState();
-
+  const pureHtml = useMemo(() => {
+    if (!aiResult) return '';
+    let cleanedResponse = aiResult.trim();
+    const startMarker = /^\s*```html\s*|^\s*```\s*/i;
+    const endMarker = /\s*```\s*$/;
+    cleanedResponse = cleanedResponse.replace(startMarker, '').replace(endMarker, '');
+    return cleanedResponse.trim();
+  }, [aiResult]);
   const guideMessages = {
     ko: {
       putGender: '성별을 선택해주세요',
@@ -180,71 +179,118 @@ const NewYearAdEn = () => {
       setStep(1);
     } else if (step === 1) {
       setStep(0.5);
-      console.log(step);
+    } else if (step === 'result') {
+      setStep('input');
     }
   };
+  //키값 정열
+  const sortObject = (obj) => {
+    if (obj === null || typeof obj !== 'object') return obj;
+    return Object.keys(obj)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = sortObject(obj[key]); // 중첩 객체까지 재귀적으로 정렬
+        return acc;
+      }, {});
+  };
   const isFormValid = getProgress() === 100;
-  const handleNewYear = async () => {
-    // 1. 기본 방어 로직
+  const handleAskSaza = async () => {
+    const currentId = guestId || user?.uid;
+    if (!currentId) {
+      alert('Please try again in a moment or refresh the page.');
+      return; // ID가 없으면 여기서 중단해서 에러를 방지합니다.
+    }
+    // 1. 중복 확인 로직
+
+    try {
+      const docRef = doc(db, 'sazatalkad_logs', currentId); // guestId 대신 currentId 사용
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const existingData = docSnap.data();
+        // sortObject가 정의되어 있는지 꼭 확인하세요!
+        if (JSON.stringify(sortObject(existingData.saju)) === JSON.stringify(sortObject(saju))) {
+          const alertMessage =
+            language === 'en'
+              ? 'Visit our website! Log in to get 3 premium reports daily for free.'
+              : '사자사주 홈페이지에 방문해 보세요! 로그인만 하면 무료로 하루에 세 개씩 프리미엄 리포트를 확인할 수 있어요.';
+          alert(alertMessage);
+          return; // 중복이면 여기서 바로 종료
+        }
+      }
+    } catch (error) {
+      console.error('기록 확인 중 오류:', error);
+    }
+    // 아이디확인 끝
+    const myQuestion = userQuestion;
+    if (!myQuestion.trim()) return alert('Please enter your question.');
 
     setLoading(true);
-    setAiResult('');
 
     try {
       const dbRef = ref(database);
-      const [basicSnap, strictSnap] = await Promise.all([
-        get(child(dbRef, 'prompt/new_year_basic')),
-        get(child(dbRef, `prompt/default_instruction`)),
+      const [basicSnap, strictSnap, formatSnap] = await Promise.all([
+        get(child(dbRef, 'prompt/saza_basic')),
+        get(child(dbRef, `prompt/saza_strict`)),
+        get(child(dbRef, `prompt/saza_format`)),
       ]);
 
-      if (!basicSnap.exists()) {
-        throw new Error('신년운세 기본 뼈대가 DB에 없습니다.');
-      }
+      if (!basicSnap.exists()) throw new Error('DB에 사자 템플릿이 없습니다.');
 
-      const template = basicSnap.val();
-      const displayName = userData?.displayName || (language === 'ko' ? '선생님' : 'User');
+      // 2. 텍스트 가공 (기존 로직 유지)
+      const displayName = userData?.displayName || 'guest';
+      const sajuInfo = `Gender:${gender}, Birth:${birthData.year}-${birthData.month}-${birthData.day}, Pillars:${JSON.stringify(saju)} (sky3+grd3=Year, sky2+grd2=Month, sky1+grd1=Day, sky0+grd0=Hour). Name:${displayName}`;
+      const todayInfo = `Current time:${new Date().toLocaleString()}. 2026 is Year of the Fire Horse. `;
 
       const replacements = {
-        '{{STRICT_INSTRUCTION}}': strictSnap.val() || '',
-        '{{NEW_YEAR_FORMAT}}': `2026년 병오년의 운세를 개략적으로 말해줘. JSON포멧으로 아래와 같이. 
-          {"q1": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' },"q2": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' },"q3": { "q": '질문형식의 소제목', "a": '세문장 정도의 내용' }}`,
-        '{{gender}}': gender,
-        '{{sajuJson}}': `${JSON.stringify(saju)} - sky3+grd3 는 연주, sky2+grd2는 월주, sky1+grd1은 일주, sky0+grd0는 시주야`,
-        '{{displayName}}': displayName,
-        '{{langPrompt}}': '**answer in english**',
+        '{{STRICT_PROMPT}}': strictSnap.val() || '',
+        '{{SAZA_FORMAT}}': formatSnap.val() || '',
+        '{{myQuestion}}': myQuestion,
+        '{{sajuInfo}}': sajuInfo,
+        '{{todayInfo}}': todayInfo,
+        '{{langPrompt}}': '**Please answer in English with 150~200 words**',
         '{{hanjaPrompt}}': typeof hanja === 'function' ? hanja(language) : '',
       };
 
-      let fullPrompt = template;
-
+      // 3. 프롬프트 조립
+      let fullPrompt = basicSnap.val();
       Object.entries(replacements).forEach(([key, value]) => {
         fullPrompt = fullPrompt.split(key).join(value || '');
       });
 
+      // 4. API 호출
       const result = await fetchGeminiAnalysis(fullPrompt);
+
+      const newQuestionLog = {
+        question: myQuestion,
+        sajuKey: saju,
+        timestamp: new Date().toISOString(),
+        id: Date.now(),
+      };
+
+      // DB 업데이트 (카운트 + 질문로그)
       const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
-      const docId = guestId || user?.uid;
-      setAiResult(result);
+      // const docId = guestId || user?.uid;
       await setDoc(
-        doc(db, 'newyearad_logs', docId),
+        doc(db, 'sazatalkad_logs', currentId),
         {
-          id: docId,
+          id: currentId,
           date: safeDate,
           user: !!user,
           saju: saju,
+          usageHistory: { question_history: arrayUnion(newQuestionLog) },
         },
         { merge: true },
       );
 
-      // 6. 결과 반영 및 이동
+      // App 상태 업데이트
 
       setAiResult(result);
+      setStep('result');
     } catch (e) {
-      console.error(e);
-      alert(`Error: ${e.message}`);
+      alert(e);
     } finally {
       setLoading(false);
-      setStep('result');
     }
   };
   const handleNextStep = () => {
@@ -307,14 +353,10 @@ const NewYearAdEn = () => {
         return;
       }
     }
-    handleNewYear();
+    userQuestion.trim() && handleAskSaza();
   };
-  //내 일주
-  const me = saju?.sky1;
-  const meg = saju?.grd1;
 
-  const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
-  // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
+  const [data, setData] = useState({}); // 파싱된 데이터를 담을 로컬 상태
 
   useEffect(() => {
     if (aiResult) {
@@ -378,7 +420,7 @@ const NewYearAdEn = () => {
             <div className="w-full mt-6 space-y-2">
               <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-orange-100 shadow-inner">
                 <div
-                  className="h-full bg-[#F47521] rounded-full shadow-[0_0_10px_rgba(244,117,33,0.5)] animate-[loading_40s_linear_forwards]"
+                  className="h-full bg-[#F47521] rounded-full shadow-[0_0_10px_rgba(244,117,33,0.5)] animate-[loading_30s_linear_forwards]"
                   style={{ width: '0%' }}
                 ></div>
               </div>
@@ -410,7 +452,6 @@ const NewYearAdEn = () => {
       </div>
     );
   };
-
   if (loading) return <Loading />;
   return (
     <div className="bg-white">
@@ -432,45 +473,51 @@ const NewYearAdEn = () => {
       <div className="max-w-3xl mx-auto">
         {step === 0.5 && (
           <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-700">
-            <NewYearEn setStep={() => setStep(1)} />
+            <AmaEn
+              setStep={() => setStep(1)}
+              question={userQuestion}
+              setQuestion={setUserQuestion}
+            />
           </div>
         )}
         {step === 1 && !isAnalyzing && (
           <>
-            <div className="min-h-screen bg-gradient-to-b from-[#FFF8F3] via-[#FFF0E8] to-[#FFE8E0] font-serif text-[#5C4B51] px-6 py-12 selection:bg-[#FFE0D0] selection:text-[#8B6F5C]">
+            <div className="min-h-screen bg-[#FDF5F0] font-sans text-[#4A3428] px-6 py-10 selection:bg-orange-100 selection:text-orange-700">
               {/* 상단 타이틀 섹션 */}
-              <div className="text-center mb-12 sm:mb-16">
-                <div className="flex justify-center items-center gap-2.5 mb-6 sm:mb-8">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#FFD4B8] to-[#FFC4A3] rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-lg shadow-orange-200/50">
-                    ✨
+              <div className="text-center mb-8">
+                <div className="flex justify-center items-center gap-1.5 mb-4">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-xl">
+                    🦁
                   </div>
-                  <span className="text-2xl sm:text-3xl font-bold tracking-wide text-[#8B6F5C] italic">
-                    Cosmic Insights
-                  </span>
+                  <span className="text-xl font-bold tracking-tight text-[#333]">Saza Saju</span>
                 </div>
-                <h2
-                  className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight break-keep text-[#7A5C52]"
-                  style={{ fontFamily: 'Georgia, serif' }}
-                >
-                  Discover your cosmic elements through your birth details
+                <h2 className="text-lg font-black leading-tight break-keep">
+                  {language === 'ko'
+                    ? '생년월일을 바탕으로 나의 오행을 분석합니다'
+                    : 'Analyzing your Five Elements based on your birth date.'}
                 </h2>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {/* 성별 선택 */}
-                <div className="flex gap-4 mb-6">
+                <div className="flex gap-2 mb-4">
                   {['male', 'female'].map((g) => (
                     <button
                       key={g}
                       onClick={() => setGender(g)}
-                      className={`flex-1 py-6 sm:py-7 rounded-3xl border-2 font-semibold text-base sm:text-lg transition-all shadow-lg ${
+                      className={`flex-1 py-4 rounded-2xl border-2 font-bold transition-all shadow-sm ${
                         gender === g
-                          ? 'border-[#D4A088] bg-gradient-to-br from-white to-[#FFF9F5] text-[#D4A088] shadow-orange-200/40'
-                          : 'border-[#F5E6DD] bg-white/60 text-[#C4B5A9] shadow-orange-100/20'
+                          ? 'border-[#F47521] bg-white text-[#F47521]'
+                          : 'border-white bg-white/50 text-[#C4B5A9]'
                       }`}
-                      style={{ fontFamily: 'Georgia, serif' }}
                     >
-                      {g === 'male' ? 'Male' : 'Female'}
+                      {g === 'male'
+                        ? language === 'ko'
+                          ? '남성'
+                          : 'Male'
+                        : language === 'ko'
+                          ? '여성'
+                          : 'Female'}
                     </button>
                   ))}
                 </div>
@@ -482,10 +529,11 @@ const NewYearAdEn = () => {
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder="Birth Year (YYYY)"
+                      placeholder={
+                        language === 'ko' ? '태어난 연도를 입력해주세요' : 'Birth Year(YYYY)'
+                      }
                       value={birthData.year}
-                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
-                      style={{ fontFamily: 'Georgia, serif' }}
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, year: e.target.value.slice(0, 4) })
                       }
@@ -500,10 +548,11 @@ const NewYearAdEn = () => {
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder="Birth Month (MM)"
+                      placeholder={
+                        language === 'ko' ? '태어난 월을 입력해주세요' : 'Birth Month(MM)'
+                      }
                       value={birthData.month}
-                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
-                      style={{ fontFamily: 'Georgia, serif' }}
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, month: e.target.value.slice(0, 2) })
                       }
@@ -518,10 +567,9 @@ const NewYearAdEn = () => {
                   <div className="overflow-hidden">
                     <input
                       type="number"
-                      placeholder="Birth Day (DD)"
+                      placeholder={language === 'ko' ? '태어난 날을 입력해주세요' : 'Birth Day(DD)'}
                       value={birthData.day}
-                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
-                      style={{ fontFamily: 'Georgia, serif' }}
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, day: e.target.value.slice(0, 2) })
                       }
@@ -536,9 +584,8 @@ const NewYearAdEn = () => {
                   <div className="overflow-hidden px-0.5">
                     <input
                       type="number"
-                      placeholder="Birth Hour (HH)"
-                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
-                      style={{ fontFamily: 'Georgia, serif' }}
+                      placeholder={language === 'ko' ? '태어난 시 (HH)' : 'Birth Hour (HH)'}
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, hour: e.target.value.slice(0, 2) })
                       }
@@ -553,9 +600,8 @@ const NewYearAdEn = () => {
                   <div className="overflow-hidden px-0.5">
                     <input
                       type="number"
-                      placeholder="Birth Minute (mm)"
-                      className="w-full p-6 sm:p-7 bg-gradient-to-br from-white to-[#FFF9F5] rounded-3xl border-2 border-[#F5E6DD] focus:border-[#D4A088] focus:shadow-lg focus:shadow-orange-200/30 outline-none font-semibold text-center text-base sm:text-lg shadow-md placeholder-[#C4B5A9] transition-all"
-                      style={{ fontFamily: 'Georgia, serif' }}
+                      placeholder={language === 'ko' ? '태어난 분 (mm)' : 'Birth Minute (mm)'}
+                      className="w-full p-5 bg-white rounded-2xl border-2 border-transparent focus:border-[#F47521] outline-none font-bold text-center shadow-sm placeholder-[#C4B5A9]"
                       onChange={(e) =>
                         setBirthData({ ...birthData, minute: e.target.value.slice(0, 2) })
                       }
@@ -567,74 +613,69 @@ const NewYearAdEn = () => {
                 <div
                   className={`grid transition-all duration-500 ease-in-out ${isDayDone ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <label className="flex items-center gap-3 cursor-pointer w-fit mx-auto py-4 overflow-hidden group">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={timeUnknown}
-                        onChange={(e) => setTimeUnknown(e.target.checked)}
-                        className="w-6 h-6 accent-[#D4A088] cursor-pointer rounded-md"
-                      />
-                    </div>
-                    <span
-                      className="text-base sm:text-lg font-semibold text-[#C4B5A9] group-hover:text-[#D4A088] transition-colors"
-                      style={{ fontFamily: 'Georgia, serif' }}
-                    >
-                      Time unknown
+                  <label className="flex items-center gap-2 cursor-pointer w-fit mx-auto py-2 overflow-hidden group">
+                    <input
+                      type="checkbox"
+                      checked={timeUnknown}
+                      onChange={(e) => setTimeUnknown(e.target.checked)}
+                      className="w-5 h-5 accent-[#F47521] cursor-pointer"
+                    />
+                    <span className="text-md font-bold text-[#C4B5A9] group-hover:text-[#F47521] transition-colors">
+                      {language === 'ko' ? '시간을 몰라요' : 'time unknown'}
                     </span>
                   </label>
                 </div>
               </div>
 
               {/* 가이드 메시지 영역 */}
-              <div className="mt-12 sm:mt-16 mb-6">
-                <div className="flex items-center justify-center gap-3 sm:gap-4">
-                  <div className="relative flex h-3 w-3 sm:h-3.5 sm:w-3.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E8B4A0] opacity-60"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 bg-[#D4A088]"></span>
-                  </div>
-                  <span
-                    className="text-base sm:text-lg md:text-xl font-semibold text-[#D4A088] italic"
-                    style={{ fontFamily: 'Georgia, serif' }}
-                  >
-                    {!gender
-                      ? 'Select your gender'
-                      : !isYearDone
-                        ? 'Enter your birth year'
-                        : !isMonthDone
-                          ? 'Enter your birth month'
-                          : !isDayDone
-                            ? 'Enter your birth day'
-                            : !timeUnknown && !isHourDone
-                              ? 'Enter your birth hour'
-                              : !timeUnknown && !isMinuteDone
-                                ? 'Enter your birth minute'
-                                : 'Ready to reveal your cosmic elements ✨'}
+              <div className="mt-8 mb-4">
+                <div className="flex items-center justify-center gap-2 animate-pulse">
+                  <div className="w-2 h-2 bg-[#F47521] rounded-full" />
+                  <span className="text-[16px] font-bold text-[#F47521]">
+                    {language === 'ko'
+                      ? !gender
+                        ? guideMessages.ko.putGender
+                        : !isYearDone
+                          ? guideMessages.ko.putYear
+                          : !isMonthDone
+                            ? guideMessages.ko.putMonth
+                            : !isDayDone
+                              ? guideMessages.ko.putDay
+                              : !timeUnknown && !isHourDone
+                                ? guideMessages.ko.putHour
+                                : !timeUnknown && !isMinuteDone
+                                  ? guideMessages.ko.putMin
+                                  : guideMessages.ko.ready
+                      : !gender
+                        ? guideMessages.en.putGender
+                        : !isYearDone
+                          ? guideMessages.en.putYear
+                          : !isMonthDone
+                            ? guideMessages.en.putMonth
+                            : !isDayDone
+                              ? guideMessages.en.putDay
+                              : !timeUnknown && !isHourDone
+                                ? guideMessages.en.putHour
+                                : !timeUnknown && !isMinuteDone
+                                  ? guideMessages.en.putMin
+                                  : guideMessages.en.ready}
                   </span>
                 </div>
               </div>
 
               {/* 프로그레스 바 섹션 */}
-              <div className="space-y-4 mb-12 sm:mb-16">
-                <div className="flex justify-between items-center px-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-xs sm:text-sm font-semibold text-[#C4B5A9] uppercase tracking-widest"
-                      style={{ fontFamily: 'Georgia, serif' }}
-                    >
+              <div className="space-y-2 mb-8">
+                <div className="flex justify-between items-center px-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] font-black text-[#C4B5A9] uppercase tracking-wider">
                       Progress
                     </span>
                   </div>
-                  <span
-                    className="text-[#D4A088] text-sm sm:text-base font-bold"
-                    style={{ fontFamily: 'Georgia, serif' }}
-                  >
-                    {getProgress()}%
-                  </span>
+                  <span className="text-[#F47521] text-xs font-black">{getProgress()}%</span>
                 </div>
-                <div className="w-full h-3.5 sm:h-4 bg-gradient-to-r from-white to-[#FFF9F5] rounded-full overflow-hidden shadow-md border-2 border-[#F5E6DD]">
+                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden shadow-sm border border-orange-50">
                   <div
-                    className="h-full bg-gradient-to-r from-[#E8B4A0] to-[#D4A088] transition-all duration-700 ease-out rounded-full shadow-lg shadow-orange-200/50"
+                    className="h-full bg-[#F47521] transition-all duration-700 ease-out rounded-full shadow-[0_0_8px_rgba(244,117,33,0.3)]"
                     style={{ width: `${getProgress()}%` }}
                   />
                 </div>
@@ -644,10 +685,9 @@ const NewYearAdEn = () => {
               {isFormValid && (
                 <button
                   onClick={handleNextStep}
-                  className="w-full py-6 sm:py-7 bg-gradient-to-r from-[#E8B4A0] to-[#D4A088] text-white rounded-full font-semibold text-lg sm:text-xl shadow-xl shadow-orange-200/40 animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all hover:shadow-2xl hover:shadow-orange-200/50"
-                  style={{ fontFamily: 'Georgia, serif' }}
+                  className="w-full py-5 bg-[#F47521] text-white rounded-full font-bold text-lg shadow-[0_4px_15px_rgba(244,117,33,0.3)] animate-in fade-in zoom-in-95 duration-300 active:scale-95 transition-all"
                 >
-                  Reveal My Cosmic Elements ✨
+                  {language === 'ko' ? '나의 사주 오행 분석하기' : 'Analyze My Five Elements'}
                 </button>
               )}
             </div>
@@ -673,6 +713,84 @@ const NewYearAdEn = () => {
           </div>
         )}
       </div>
+
+      {step === 'input' && (
+        <div className="max-w-lg min-h-screen mx-auto px-6 animate-in slide-in-from-bottom duration-500 my-9">
+          <div className="text-center">
+            <div className="flex justify-center mb-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-100  shadow-sm">
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                </div>
+                <span className="text-[10px] font-bold tracking-wider text-violet-600  uppercase">
+                  AI Intelligence Analysis
+                </span>
+              </div>
+            </div>
+            <h2 className=" text-2xl font-black text-slate-800  mb-4 tracking-tight">
+              {language === 'ko' ? '무엇이든 물어보사자' : 'Clear Solutions for Any Concern'}
+              <br />
+              <span className="relative text-violet-600">
+                {language === 'ko' ? '1:1 맞춤 사주 솔루션' : 'Personalized 1:1 Saju Solution'}
+                <div className="absolute inset-0 bg-violet-200/50 blur-md rounded-full scale-100"></div>
+              </span>
+            </h2>
+            {/* 설명문구 */}
+            <div className="space-y-4 text-slate-600  mb-10 leading-relaxed break-keep">
+              <p className="text-sm">
+                {language === 'ko' ? (
+                  <>
+                    <p>27인의 명리 해석을 학습한 AI가 </p>
+                    <p>어떤 고민도 차분하게 듣고 해결책을 드려요</p>
+                  </>
+                ) : (
+                  <>
+                    <p>AI trained on 27 expert Myeongni interpretations</p>
+                    <p>listens calmly to your concerns and provides solutions.</p>
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 mb-4 text-purple-600">
+            <PencilSquareIcon className="w-5 h-5" />
+            <h3 className="font-bold">
+              {language === 'ko' ? '당신의 고민을 들려주세요' : 'Tell me what is on your mind'}
+            </h3>
+          </div>
+          <textarea
+            value={userQuestion}
+            onChange={(e) => setUserQuestion(e.target.value)}
+            placeholder={
+              language === 'ko'
+                ? '예: 과 동아리 선배 한명이랑 유독 안 맞는데, 제 올해 대인관계 운이 궁금해요!"'
+                : "Ex: I really don't get along with one of the seniors in my college club. I'm curious about my relationship luck for this year!"
+            }
+            className="w-full h-40 p-4 border border-slate-200  rounded-2xl focus:ring-2 focus:ring-purple-400  focus:border-transparent outline-none resize-none text-slate-700  bg-white shadow-inner placeholder:text-slate-400 "
+          />
+
+          <button
+            onClick={() => userQuestion.trim() && handleAskSaza()}
+            disabled={!userQuestion.trim()}
+            className={classNames(
+              'w-full gap-3 py-4 mt-6 rounded-xl font-bold transition-all',
+              userQuestion.trim()
+                ? 'bg-purple-600  text-white shadow-lg shadow-purple-100 '
+                : 'bg-slate-200  text-slate-400  cursor-not-allowed',
+            )}
+          >
+            <div className="flex gap-3 justify-center align-center">
+              <div className="flex justify-center items-center">
+                {language === 'ko' ? '물어보기' : 'Ask Saza'}
+              </div>
+
+              {/* 부모 컨테이너: justify-center 추가 */}
+              <div className="flex justify-center items-center text-center mt-1"></div>
+            </div>
+          </button>
+        </div>
+      )}
       {step === 'result' && (
         <div className="flex flex-col min-h-screen bg-[#FDF5F0] font-sans text-[#4A3428]">
           {/* 1. 상단 네비게이션 로고바 (새로 추가) */}
@@ -682,219 +800,42 @@ const NewYearAdEn = () => {
             </div>
             <span className="text-lg font-bold tracking-tight text-[#333]">Saza Saju</span>
           </nav>
+          <AdMyInfo
+            birthData={birthData}
+            isTimeUnknown={timeUnknown}
+            gender={gender}
+            saju={sajuData?.saju}
+          />
 
           <div className="flex-1 p-6 flex flex-col gap-6">
+            {/* 3. 사용자의 질문 (오른쪽 정렬 말풍선) */}
+            {userQuestion && (
+              <div className="flex justify-end">
+                <div className="max-w-[85%] bg-[#F47521] text-white p-5 rounded-[24px] rounded-tr-none shadow-lg shadow-orange-200/50">
+                  <p className="text-[15px] font-bold leading-relaxed">{userQuestion}</p>
+                </div>
+              </div>
+            )}
+
             {/* 4. AI의 사주 분석 답변 (디자인 개선) */}
             <div className="flex flex-col gap-3 mt-2">
-              <div className="relative mx-auto w-full max-w-[390px] h-[844px] bg-[#1a1a1c] rounded-[60px] p-[12px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-white/10">
-                {/* 1. 내부 액정 화면 (전체 높이 100%) */}
-                <div className="relative w-full h-full bg-[#FCF9F6] rounded-[48px] overflow-hidden flex flex-col">
-                  {/* 2. 상단 고정 영역: 다이내믹 아일랜드 & 프로필 */}
-                  <div className="shrink-0 pt-3 pb-3 bg-gradient-to-b from-[#F2ECE4] via-[#F2ECE4]/90 to-transparent z-[1]">
-                    <div className="w-28 h-7 bg-black rounded-full mx-auto mb-4"></div>{' '}
-                    <div className="flex items-center gap-4 px-8 py-2">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-[0_8px_20px_rgba(244,117,33,0.12)] border border-orange-100/50 text-2xl">
-                          🦁
-                        </div>
-
-                        <div className="absolute -right-1 -bottom-1 w-4 h-4 bg-green-500 border-[3px] border-[#F2ECE4] rounded-full shadow-sm"></div>
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[10px] font-black text-orange-500/80 uppercase tracking-[0.15em] leading-none">
-                          Saza AI Analyst
-                        </span>
-                        {/* 메인 타이틀: 가독성 높은 폰트 두께와 색상 정제 */}
-                        <span className="text-[17px] font-black text-[#4A3428] tracking-tight">
-                          Saza Saju Analysis Team
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. 스크롤 가능 영역 (이 부분이 핵심!) */}
-                  {/* flex-1과 overflow-y-auto가 만나서 이 영역만 스크롤됩니다 */}
-                  <div className="flex-1 overflow-y-auto px-6 py-2 scroll-smooth no-scrollbar">
-                    {/* (A) 채팅 스타일 콘텐츠 */}
-                    <div className="chat-format">
-                      <p>
-                        Based on your Saju for someone born on {birthData.month}/{birthData.day}/
-                        {birthData.year}
-                        {timeUnknown ? (
-                          ''
-                        ) : (
-                          <>
-                            {' '}
-                            at {birthData.hour}:{birthData.time}
-                          </>
-                        )}
-                        , we will reveal what the 2026 Year of the Fire Horse (Byeong-o) holds for
-                        you.
-                      </p>
-                      <b>{data.q1.q}</b>
-                      <p>{data.q1.a}</p>
-                      <b>{data.q2.q}</b>
-                      <p>{data.q2.a}</p>
-                      <b>{data.q3.q}</b>
-                      <p>{data.q3.a}</p>
-                    </div>
-
-                    {/* (B) 구분선 */}
-                    <div className="border-t border-dashed border-[#E8DCCF]" />
-
-                    {/* (C) 유료 채팅 티저 섹션 */}
-                    <div className="relative mt-4 mb-10">
-                      {/* 실제 대화가 이어지는 듯한 구성 */}
-                      <div
-                        className="space-y-6 opacity-60 pointer-events-none select-none"
-                        style={{
-                          maskImage: 'linear-gradient(to bottom, black 20%, transparent 90%)',
-                          WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 90%)',
-                        }}
-                      >
-                        {/* 분석팀의 추가 메시지 1 */}
-                        <div className="flex gap-2">
-                          <div className="w-8 h-8 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-100 text-sm">
-                            🦁
-                          </div>
-                          <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm">
-                            Beyond what we just analyzed, I see one more flow of fortune in the
-                            second half of 2026 that you should be truly careful about.
-                          </div>
-                        </div>
-
-                        {/* 분석팀의 추가 메시지 2 (핵심 키워드 노출) */}
-                        <div className="flex gap-2">
-                          <div className="w-8 h-8 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-100 text-sm">
-                            🦁
-                          </div>
-                          <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm leading-relaxed">
-                            {language === 'en' ? (
-                              <>
-                                Your financial luck could fluctuate significantly between
-                                <span className="font-bold"> May and October</span> due to "one
-                                specific factor"...
-                              </>
-                            ) : (
-                              <>
-                                특히 <span className="font-bold">5월과 10월</span> 사이에는 '이것'
-                                때문에 재물운이 크게 흔들릴 수 있는데...
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* 사용자 리액션 유도 (더 리얼하게) */}
-                        <div className="flex justify-end">
-                          <div className="bg-[#F47521] text-white p-3 px-5 rounded-[20px] rounded-br-none text-[14px] font-bold shadow-md">
-                            {language === 'en' ? (
-                              <>Wait, what is it? Should I be worried? 🥺</>
-                            ) : (
-                              <>그게 뭐예요? 저 조심해야 하나요? 🥺</>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* 분석팀의 마지막 끊긴 메시지 */}
-                        <div className="flex gap-2">
-                          <div className="w-8 h-8 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-100 text-sm">
-                            🦁
-                          </div>
-                          <div className="bg-white p-4 rounded-[20px] rounded-tl-none border border-[#E8DCCF] text-[15px] text-[#4A3428] max-w-[80%] shadow-sm">
-                            그 시기에는 주변 사람 중 'ㅅ' 성씨를 가진 사람과... (내용 더보기)
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* (D) 결제 유도 카드 (그라데이션 위에 띄우기) */}
-                      <CopyUrl2 saju={saju} from="newyearadkr" />
-                    </div>
-                  </div>
-
-                  {/* 4. 하단 홈 인디케이터 (고정) */}
-                  <div className="shrink-0 h-8 flex justify-center items-end pb-2 bg-gradient-to-t from-[#FCF9F6] to-transparent">
-                    <div className="w-32 h-1.5 bg-black/10 rounded-full"></div>
-                  </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm border border-orange-100 text-lg">
+                  🦁
                 </div>
+                <span className="text-sm font-bold text-gray-600">Saza Saju Analysis Team</span>
+              </div>
 
-                {/* 추가 CSS (Global style이나 Tailwind 전용) */}
-                <style>{`
-  /* 1. 전체 컨테이너 설정 */
-  .chat-format {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 20px !important; /* 대화 간격 확보 */
-    width: 100%;
-    padding: 20px 0;
-  }
-
-  /* 2. 질문 (사용자): 오른쪽 정렬 */
-  .chat-format b {
-    display: block !important;
-    width: fit-content !important;
-    margin-left: auto !important;
-    margin-right: 0 !important;
-    background-color: #F47521; 
-    color: white !important;
-    padding: 12px 18px;
-    border-radius: 20px 20px 4px 20px; /* 말풍선 꼬리 */
-    font-size: 0.9rem;
-    max-width: 75%;
-    box-shadow: 0 4px 15px rgba(244, 117, 33, 0.15);
-    font-weight: 700;
-    line-height: 1.5;
-  }
-
-  /* 3. 답변 (사자): 왼쪽 정렬 + 아이콘 추가 */
-  .chat-format p {
-    display: block !important;
-    position: relative !important; /* 아이콘 배치를 위한 기준 */
-    width: fit-content !important;
-    margin-left: 42px !important; /* 아이콘이 들어갈 공간 확보 (핵심) */
-    margin-right: auto !important;
-    margin-top: 10px !important;
-    margin-bottom:10px !important;
-    
-    background-color: white; 
-    color: #4A3428 !important;
-    padding: 14px 18px;
-    border-radius: 0 20px 20px 20px; /* 사자쪽 말풍선 꼬리 */
-    font-size: 0.95rem;
-    line-height: 1.6;
-    max-width: 80%;
-    border: 1px solid #E8DCCF;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  }
-
-  /* 4. 사자 아이콘 (자동 생성) */
-  .chat-format p::before {
-    content: '🦁'; /* 아이콘 삽입 */
-    position: absolute;
-    left: -42px; /* p태그 margin-left만큼 왼쪽으로 보냄 */
-    top: 0;
-    width: 34px;
-    height: 34px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    border: 1px solid #FDF2E9;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  }
-
-  /* 다크모드 대응 */
-  .dark .chat-format p {
-    background-color: #2D3748;
-    color: #E2E8F0 !important;
-    border: 1px solid #4A5568;
-  }
-`}</style>
+              <div className="leading-8 w-full bg-white p-6 rounded-[24px] rounded-tl-none shadow-sm border border-[#E8DCCF]/50">
+                {data.contents?.map((i) => (
+                  <p>{i}</p>
+                ))}
+                <strong>Saza's Advice: {data.saza}</strong>
               </div>
             </div>
+
             {/* 5. 하단 CTA 및 안내 섹션 */}
-            <CopyUrlAd saju={saju} from="newyearaden" />
+            <CopyUrlAd saju={saju} from="sazatalkaden" />
           </div>
         </div>
       )}
@@ -902,4 +843,4 @@ const NewYearAdEn = () => {
   );
 };
 
-export default NewYearAdEn;
+export default SazaTalkAdEn;
