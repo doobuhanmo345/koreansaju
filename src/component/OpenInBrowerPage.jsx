@@ -215,7 +215,7 @@ export default function OpenInBrowserPage() {
 
     // 인앱 브라우저가 아니라면 (즉, 유저가 'Safari로 열기'를 성공했다면)
     if (!isInApp) {
-      window.location.replace('/'); // 히스토리를 남기지 않고 메인으로 이동
+      // 히스토리를 남기지 않고 메인으로 이동
     }
   }, []);
   const handleOpenExternal = () => {

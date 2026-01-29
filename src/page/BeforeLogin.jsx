@@ -139,7 +139,7 @@ const handleFinalLogin = async () => {
   useEffect(() => {
     if (user && userData?.birthDate) {
       // CASE 1: 기존 회원
-      window.location.replace('/');
+     
     }
   }, [user]);
   useEffect(() => {

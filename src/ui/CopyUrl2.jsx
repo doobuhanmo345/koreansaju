@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { db } from '../lib/firebase';
-import { collection, setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { useLanguage } from '../context/useLanguageContext';
+
 const CopyUrl2 = ({ saju, from }) => {
   const [showGuide, setShowGuide] = useState(false);
-  const language = 'ko';
+  const { language } = useLanguage();
   const handleAction = async (saju, from) => {
     // 이동할 최종 목적지 URL
     const targetUrl = window.location.origin;
@@ -138,9 +140,10 @@ const CopyUrl2 = ({ saju, from }) => {
           className="fixed inset-0 z-[9999] bg-black/80 flex flex-col items-end pt-4 pr-6 touch-none"
           onClick={() => setShowGuide(false)}
         >
-          {/* 우측 상단 점세개 유도 아이콘 */}
           <div className="text-white text-right animate-bounce mb-4">
-            <p className="text-lg font-bold mb-2">여기 버튼을 눌러보세요!</p>
+            <p className="text-lg font-bold mb-2">
+              {language === 'en' ? 'Tap here!' : '여기 버튼을 눌러보세요!'}
+            </p>
             <svg
               width="40"
               height="40"
@@ -175,20 +178,34 @@ const CopyUrl2 = ({ saju, from }) => {
                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                 </svg>
               </div>
-              <p className="text-[#3A322F] font-bold text-xl mb-3">주소가 복사되었습니다!</p>
-              <p className="text-[#6D625B] text-sm mb-8 leading-relaxed">
-                인스타그램 환경에서는 사자사주 접속이 어려워요.
-                <br />
-                상단 <b>[더보기]</b> 버튼을 누르고
-                <br />
-                <b>[인터넷 브라우저로 열기]</b>를 선택해 주세요!
-              </p>
-              <button
-                className="w-full py-4 bg-[#3A322F] text-white rounded-2xl font-bold transition-transform active:scale-95"
-                onClick={() => setShowGuide(false)}
-              >
-                알겠습니다
-              </button>
+            <p className="text-[#3A322F] font-bold text-xl mb-3">
+              {language === 'en' ? 'Link Copied!' : '주소가 복사되었습니다!'}
+            </p>
+            <p className="text-[#6D625B] text-sm mb-8 leading-relaxed">
+              {language === 'en' ? (
+                <>
+                  It's hard to access directly via Instagram.
+                  <br />
+                  Please tap the <b>[More]</b> button above
+                  <br />
+                  and select <b>[Open in Browser]</b>!
+                </>
+              ) : (
+                <>
+                  인스타그램 환경에서는 사자사주 접속이 어려워요.
+                  <br />
+                  상단 <b>[더보기]</b> 버튼을 누르고
+                  <br />
+                  <b>[인터넷 브라우저로 열기]</b>를 선택해 주세요!
+                </>
+              )}
+            </p>
+            <button
+              className="w-full py-4 bg-[#3A322F] text-white rounded-2xl font-bold transition-transform active:scale-95"
+              onClick={() => setShowGuide(false)}
+            >
+              {language === 'en' ? 'OK' : '알겠습니다'}
+            </button>
             </div>
           </div>
         </div>
