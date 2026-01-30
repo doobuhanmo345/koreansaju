@@ -410,7 +410,7 @@ export default function SazaTalk() {
               className="w-full h-40 p-4 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 focus:border-transparent outline-none resize-none text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 shadow-inner placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
             <AnalyzeButton
-              onClick={() => userQuestion.trim() && onStart()}
+              onClick={() => userQuestion.trim() && handleSazaTest(onStart)}
               disabled={!userQuestion.trim()}
               loading={loading}
               isDone={false}
