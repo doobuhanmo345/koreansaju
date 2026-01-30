@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Private and System Pages
+Disallow: /admin/
+Disallow: /editprompt/
+Disallow: /editprofile/
+Disallow: /test/
+Disallow: /test2/
+Disallow: /loadingpage/
+Disallow: /open-in-browser/
+Disallow: /api/
+Disallow: /consultant/dashboard/
+Disallow: /apply-saju-consultant/
+Disallow: /sazatalkadkr/
+Disallow: /sazatalkaden/
+Disallow: /newyearadkr/
+Disallow: /newyearaden/
+Disallow: /ad/
+Disallow: /paywall/
+
+Sitemap: https://sazasaju.com/sitemap.xml

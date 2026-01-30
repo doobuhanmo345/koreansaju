@@ -16,6 +16,7 @@ import SazaTalkAdKr from './page/SazaTalkAdKr';
 import NewYearAdKr from './page/NewYearAdKr';
 import NewYearAdEn from './page/NewYearAdEn';
 import SazaTalkAdEn from './page/SazaTalkAdEn';
+import { HelmetProvider } from 'react-helmet-async';
 
 // 🔥 모든 페이지를 lazy loading으로 변경
 const SajuExp = lazy(() => import('./page/SajuExp'));
@@ -204,14 +205,16 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <AppProvider>
-      <AuthContextProvider>
-        <LoadingProvider>
-          <BrowserRouter>
-            <RootComponent />
-          </BrowserRouter>
-        </LoadingProvider>
-      </AuthContextProvider>
-    </AppProvider>
+    <HelmetProvider>
+      <AppProvider>
+        <AuthContextProvider>
+          <LoadingProvider>
+            <BrowserRouter>
+              <RootComponent />
+            </BrowserRouter>
+          </LoadingProvider>
+        </AuthContextProvider>
+      </AppProvider>
+    </HelmetProvider>
   </React.StrictMode>,
 );

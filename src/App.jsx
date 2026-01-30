@@ -16,6 +16,8 @@ import ImageBanner from './component/ImageBanner';
 import BasicAnaBanner from './component/BasicAnaBanner';
 import IconWrapper from './ui/IconWrapper';
 import Footer from './component/Footer';
+import { Helmet } from 'react-helmet-async';
+
 export default function App() {
   // --- Context Hooks ---
   const { user, userData, login, iljuImagePath } = useAuthContext();
@@ -68,6 +70,24 @@ export default function App() {
 
   return (
     <div>
+      <Helmet>
+        <title>
+          {language === 'ko' 
+            ? '사자사주 (SAZA SAJU) - AI 정통 사주와 운세' 
+            : 'SAZA SAJU - AI-Powered Korean Saju & Fortune'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? 'AI 기술로 분석하는 당신의 운명, 사자사주. 오늘의 운세와 사주 리포트를 확인하세요.' 
+            : 'Explore your destiny with AI-powered Saju and Tarot analysis. Get personalized daily fortunes and detailed reports.'} 
+        />
+        <link 
+          rel="manifest" 
+          href={language === 'ko' ? '/site.webmanifest' : '/site-en.webmanifest'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/" />
+      </Helmet>
       {/* sronly처리할 것 */}
 {!!user && <div className="w-full max-w-lg bg-white/70 dark:bg-slate-800/60 rounded-lg border border-indigo-50 dark:border-indigo-500/30 shadow-sm backdrop-blur-md mx-auto mb-2 p-2 px-4 dark:text-white flex items-center justify-between">
         {userData?.birthDate ? (
