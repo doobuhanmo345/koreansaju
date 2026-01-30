@@ -83,14 +83,14 @@ export default function App() {
             : 'Personalized Saju analysis service. Get answers to your questions about love, marriage, career, and wealth.'} 
         />
         <meta property="og:title" content={language === 'ko' ? '사자사주 (SAZA SAJU) - 정통 사주와 운세' : 'SAZA SAJU - Authentic Korean Saju & Fortune'} />
-        <meta property="og:description" content={language === 'ko' ? '한국 정통 사주로 분석하는 당신의 운명, 사자사주. 오늘의 운세와 사주 리포트를 확인하세요.' : 'Personalized Saju analysis service. Get answers to your questions about love, marriage, career, and wealth.'} />
+        <meta property="og:description" content={language === 'ko' ? '개인 맞춤 사주 분석 서비스. 질문하면 바로 답해주는 개인 맞춤 사주 분석으로 연애, 결혼, 직업, 금전운을 알려드립니다.' : 'Personalized Saju analysis service. Get answers to your questions about love, marriage, career, and wealth.'} />
         <meta property="og:image" content="https://sazasaju.com/sazashare.jpg" />
         <meta property="og:url" content="https://sazasaju.com/" />
         <meta property="og:type" content="website" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={language === 'ko' ? '사자사주 (SAZA SAJU) - 정통 사주와 운세' : 'SAZA SAJU - Authentic Korean Saju & Fortune'} />
-        <meta name="twitter:description" content={language === 'ko' ? '한국 정통 사주로 분석하는 당신의 운명, 사자사주. 오늘의 운세와 사주 리포트를 확인하세요.' : 'Personalized Saju analysis service. Get answers to your questions about love, marriage, career, and wealth.'} />
+        <meta name="twitter:description" content={language === 'ko' ? '개인 맞춤 사주 분석 서비스. 질문하면 바로 답해주는 개인 맞춤 사주 분석으로 연애, 결혼, 직업, 금전운을 알려드립니다.' : 'Personalized Saju analysis service. Get answers to your questions about love, marriage, career, and wealth.'} />
         <meta name="twitter:image" content="https://sazasaju.com/sazashare.jpg" />
 
         <link 
