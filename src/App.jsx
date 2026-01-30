@@ -79,8 +79,8 @@ export default function App() {
         <meta 
           name="description" 
           content={language === 'ko' 
-            ? '한국 정통 사주로 분석하는 당신의 운명, 사자사주. 오늘의 운세와 사주 리포트를 확인하세요.' 
-            : 'Explore your destiny with authentic Korean Saju and Tarot analysis. Get personalized daily fortunes and detailed reports.'} 
+            ? '개인 맞춤 사주 분석 서비스. 질문하면 바로 답해주는 개인 맞춤 사주 분석으로 연애, 결혼, 직업, 금전운을 알려드립니다.' 
+            : 'Personalized Saju analysis service. Get answers to your questions about love, marriage, career, and wealth.'} 
         />
         <link 
           rel="manifest" 
