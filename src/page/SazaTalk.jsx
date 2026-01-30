@@ -173,71 +173,111 @@ export default function SazaTalk() {
     }
   }
   const Loading = () => {
+    const [progress, setProgress] = useState(0);
+    const [msgIdx, setMsgIdx] = useState(0);
+
+    const loadingMessages = language === 'ko' ? [
+      "당신의 사주 원국을 분석하고 있어요",
+      "오늘의 천기(天氣)를 읽는 중입니다",
+      "사자와 전문가들이 지혜를 모으고 있어요",
+      "명쾌한 해답을 정리하고 있습니다"
+    ] : [
+      "Analyzing your Saju pillars...",
+      "Reading today's celestial flow...",
+      "Gathering wisdom from Saju masters...",
+      "Drafting a clear solution for you..."
+    ];
+
+    useEffect(() => {
+      const progressTimer = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 98) {
+            clearInterval(progressTimer);
+            return 98;
+          }
+          const step = prev < 80 ? Math.random() * 10 : Math.random() * 2;
+          return Math.min(prev + step, 98);
+        });
+      }, 800);
+
+      const msgTimer = setInterval(() => {
+        setMsgIdx(prev => (prev + 1) % loadingMessages.length);
+      }, 2500);
+
+      return () => {
+        clearInterval(progressTimer);
+        clearInterval(msgTimer);
+      };
+    }, []);
+
     return (
-      // transform-gpu 클래스로 GPU 가속 활성화
-      <div className="flex flex-col items-center justify-center min-h-[350px] overflow-hidden transform-gpu">
-        <div className="relative flex items-center justify-center w-64 h-64">
-          {/* 1. 배경 회전 링 - will-change-transform 추가 */}
-          <div className="absolute w-40 h-40 rounded-full border border-indigo-100 dark:border-indigo-900/30 animate-[spin_3s_linear_infinite] opacity-50 will-change-transform"></div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] overflow-hidden transform-gpu py-12">
+        <div className="relative flex items-center justify-center w-64 h-64 mb-8">
+          {/* 1. 배경 회전 링 */}
+          <div className="absolute w-40 h-40 rounded-full border-2 border-indigo-100/50 dark:border-indigo-900/20 animate-[spin_3s_linear_infinite] will-change-transform"></div>
+          <div className="absolute w-48 h-48 rounded-full border border-dashed border-indigo-200/30 dark:border-indigo-800/20 animate-[spin_10s_linear_infinite_reverse] will-change-transform"></div>
 
-          {/* 2. 공전하는 이모지들 - 각각 will-change-transform과 backface-visibility 적용 */}
-          {/* ✨ 반짝이 */}
-          <div className="absolute w-48 h-48 animate-[spin_3s_linear_infinite] will-change-transform">
-            <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl">✨</span>
+          {/* 2. 공전하는 이모지들 */}
+          <div className="absolute w-48 h-48 animate-[spin_4s_linear_infinite] will-change-transform">
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 text-2xl filter drop-shadow-md">✨</span>
           </div>
-
-          {/* ⭐ 별 */}
-          <div className="absolute w-32 h-32 animate-[spin_5s_linear_infinite_reverse] will-change-transform">
-            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl">⭐</span>
+          <div className="absolute w-32 h-32 animate-[spin_6s_linear_infinite_reverse] will-change-transform">
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xl filter drop-shadow-md">⭐</span>
           </div>
-
-          {/* 🌙 달 */}
-          <div className="absolute w-56 h-56 animate-[spin_7s_linear_infinite] will-change-transform">
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl">🌙</span>
+          <div className="absolute w-56 h-56 animate-[spin_8s_linear_infinite] will-change-transform">
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 text-xl filter drop-shadow-md">🌙</span>
           </div>
 
           {/* 3. 중앙 사자 캐릭터 */}
           <div className="relative flex flex-col items-center z-10">
-            <div className="absolute inset-0 bg-indigo-500/10 blur-2xl rounded-full"></div>
-            <span className="text-7xl select-none drop-shadow-lg">🦁</span>
-            <span className="text-sm font-bold text-indigo-500 mt-2 tracking-tighter animate-pulse">
-              ANALYZING
-            </span>
+            <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+            <span className="text-8xl select-none drop-shadow-2xl animate-bounce">🦁</span>
           </div>
         </div>
 
-        {/* 텍스트 구역 (텍스트 렌더링 부하를 줄이기 위해 레이어 분리) */}
-        <div className="mt-4 text-center px-4 transform-gpu">
-          <h2 className="text-xl font-black text-slate-700 dark:text-white mb-2">
-            {language === 'ko' ? '사자가 분석 중...' : 'Saza is Analyzing...'}
-          </h2>
-          <div className="flex flex-col items-center justify-center gap-1">
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold break-keep">
-              {language === 'ko'
-                ? '사자와 27명의 명리학자가 함께 고민하고 있어요'
-                : 'Saza and 27 Saju masters are analyzing together'}
-            </p>
-            <div className="flex items-center gap-1">
-              <p className="text-xs text-slate-400 font-medium">
-                {language === 'ko' ? '하늘의 흐름을 읽고 있어요' : 'Reading the celestial flow'}
-              </p>
-              <span className="flex text-indigo-500 font-bold">
-                <span className="animate-bounce">.</span>
-                <span className="animate-bounce [animation-delay:0.2s]">.</span>
-                <span className="animate-bounce [animation-delay:0.4s]">.</span>
+        {/* 4. 프로그레스 바 및 텍스트 구역 */}
+        <div className="w-full max-w-xs px-6 flex flex-col items-center">
+          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden mb-3 shadow-inner border border-slate-200/50 dark:border-slate-700/50">
+            <div 
+              className="h-full bg-gradient-to-r from-violet-500 via-indigo-500 to-purple-500 transition-all duration-700 ease-out rounded-full relative"
+              style={{ width: `${progress}%` }}
+            >
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[shimmer_2s_linear_infinite]"></div>
+            </div>
+          </div>
+          <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 mb-6 tracking-[0.2em] uppercase">
+            {language === 'ko' ? '분석 중' : 'Analyzing'} {Math.round(progress)}%
+          </p>
+
+          <div className="text-center min-h-[60px] flex flex-col items-center justify-center">
+            <h2 className="text-xl font-black text-slate-800 dark:text-white mb-2 tracking-tight transition-all duration-500 animate-in fade-in slide-in-from-bottom-2" key={msgIdx}>
+              {loadingMessages[msgIdx]}
+            </h2>
+            <div className="flex items-center gap-1.5 bg-indigo-50/50 dark:bg-indigo-900/20 px-4 py-1.5 rounded-full border border-indigo-100/50 dark:border-indigo-800/30">
+              <span className="text-xs text-indigo-600 dark:text-indigo-400 font-bold">
+                {language === 'ko' ? '하늘의 영감을 기록하고 있어요' : 'Recording celestial inspiration'}
+              </span>
+              <span className="flex gap-0.5">
+                <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></span>
+                <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                <span className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
               </span>
             </div>
           </div>
-          {/* 페이지 이탈 방지 경고 추가 */}
-          <div className="mt-4 animate-pulse flex items-center justify-center gap-1.5 bg-rose-50 dark:bg-rose-900/10 px-4 py-2 rounded-full border border-rose-100 dark:border-rose-900/30">
-            <span className="text-amber-500 text-xs">⚠️</span>
-            <p className="text-[11px] font-black text-rose-500 dark:text-rose-400 tracking-tight">
-              {language === 'ko' 
-                ? '분석 중입니다. 페이지를 나가지 마세요.' 
-                : 'Analysis in progress. Please do not leave this page.'}
-            </p>
+
+          <div className="mt-8 flex items-center justify-center gap-2 text-rose-500 font-black text-[10px] tracking-widest uppercase opacity-60">
+            <span className="animate-pulse">⚠️</span>
+            <span>{language === 'ko' ? '페이지를 나가지 마세요' : 'Do not leave this page'}</span>
           </div>
         </div>
+
+        {/* 커스텀 애니메이션 주입 */}
+        <style>{`
+          @keyframes shimmer {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+          }
+        `}</style>
       </div>
     );
   };
