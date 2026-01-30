@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/useLanguageContext';
 import {
@@ -84,6 +85,18 @@ export default function SajuExplanation() {
   return (
     // 1. 전체 텍스트 톤 다운: text-stone-700 (너무 검지 않게)
     <div className="bg-stone-50 dark:bg-slate-900 text-stone-700 dark:text-stone-300 transition-colors pb-24 font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900">
+      <Helmet>
+        <title>
+          {language === 'ko' ? '사주란 무엇인가? - 사자사주' : 'What is Saju? - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '사주의 기본 원리와 오행, 그리고 인생의 전략으로서의 사주를 설명합니다. 당신의 바코드를 해독하세요.' 
+            : 'Explains the basic principles of Saju, the Five Elements, and Saju as a life strategy. Decode your personal barcode.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/sajuexp" />
+      </Helmet>
       {/* ================= HERO SECTION ================= */}
       <section className="relative pt-24 pb-20 px-6 text-center w-full mx-auto flex flex-col items-center">
         {/* 부드러운 그라데이션 배경 */}

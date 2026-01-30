@@ -73,14 +73,14 @@ export default function App() {
       <Helmet>
         <title>
           {language === 'ko' 
-            ? '사자사주 (SAZA SAJU) - AI 정통 사주와 운세' 
-            : 'SAZA SAJU - AI-Powered Korean Saju & Fortune'}
+            ? '사자사주 (SAZA SAJU) - 정통 사주와 운세' 
+            : 'SAZA SAJU - Authentic Korean Saju & Fortune'}
         </title>
         <meta 
           name="description" 
           content={language === 'ko' 
-            ? 'AI 기술로 분석하는 당신의 운명, 사자사주. 오늘의 운세와 사주 리포트를 확인하세요.' 
-            : 'Explore your destiny with AI-powered Saju and Tarot analysis. Get personalized daily fortunes and detailed reports.'} 
+            ? '한국 정통 사주로 분석하는 당신의 운명, 사자사주. 오늘의 운세와 사주 리포트를 확인하세요.' 
+            : 'Explore your destiny with authentic Korean Saju and Tarot analysis. Get personalized daily fortunes and detailed reports.'} 
         />
         <link 
           rel="manifest" 

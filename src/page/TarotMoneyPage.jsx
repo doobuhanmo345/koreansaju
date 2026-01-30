@@ -16,6 +16,7 @@ import CreditIcon from '../ui/CreditIcon';
 import ViewTarotResult from '../component/ViewTarotResult';
 import { DateService } from '../utils/dateService';
 import StartButton from '../component/StartButton';
+import { Helmet } from 'react-helmet-async';
 export default function TarotMoneyPage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
@@ -290,11 +291,25 @@ export default function TarotMoneyPage() {
   }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
 
   return (
-    <AnalysisStepContainer
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '금전 타로 - 재물운 및 투자운 분석 | 사자사주' : 'Money Tarot - Wealth & Investment | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '당신의 재물 흐름과 부의 기회를 타로 카드로 분석합니다. 사업, 투자, 승진 등 경제적 성공을 위한 정밀 리포트를 확인하세요.' 
+            : 'Analyze your wealth flow and opportunities with Tarot cards. Get precise reports for economic success including business, investment, and promotion.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/tarot/money" />
+      </Helmet>
+      <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<TarotLoading />}
       resultComponent={() => <ResultComponent />}
       loadingTime={0}
     />
+    </>
   );
 }

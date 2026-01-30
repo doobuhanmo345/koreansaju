@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -175,6 +176,18 @@ export default function TodaysLuckPage() {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '오늘의 운세 - 사자사주' : "Today's Fortune - SAZA SAJU"}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '매일매일 달라지는 당신의 기운과 행운의 컬러, 방향을 확인하세요. 사자사주가 제안하는 오늘의 가이드.' 
+            : 'Check your daily changing energy, lucky color, and lucky direction. Today\'s guide suggested by SAZA SAJU.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/todaysluck" />
+      </Helmet>
       <AnalysisStepContainer
         guideContent={sajuGuide}
         loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}

@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
@@ -308,11 +309,27 @@ export default function SelDatePage() {
   );
 
   return (
-    <AnalysisStepContainer
-      guideContent={sajuGuide}
-      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ReportTemplateSelDate}
-      loadingTime={0}
-    />
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '이사/결혼/개업 택일 - 사자사주' : 'Auspicious Day Selection - SAZA SAJU'}
+        </title>
+        <meta
+          name="description"
+          content={
+            language === 'ko'
+              ? '이사, 결혼, 개업 등 중요한 시작을 위한 최고의 날짜를 찾아드립니다. 당신의 행운을 극대화하는 날짜 선택.'
+              : 'Find the best dates for important starts like moving, wedding, or opening. Date selection that maximizes your luck.'
+          }
+        />
+        <link rel="canonical" href="https://sazasaju.com/seldate" />
+      </Helmet>
+      <AnalysisStepContainer
+        guideContent={sajuGuide}
+        loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
+        resultComponent={ReportTemplateSelDate}
+        loadingTime={0}
+      />
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -415,11 +416,27 @@ export default function FirstDatepage() {
   }, [loading]);
 
   return (
-    <AnalysisStepContainer
-      guideContent={sajuGuide}
-      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ReportTemplateDate}
-      loadingTime={0}
-    />
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' 
+            ? '첫 만남 사주 궁합 - 사자사주' 
+            : 'First Date Saju Connection - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '새로운 인연과의 첫 만남, 두 사람의 운명적 조화를 분석합니다. 설레는 첫 만남을 위한 사주 가이드.' 
+            : 'Analyze the fateful harmony of a first meeting with a new connection. A Saju guide for your heart-fluttering first date.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/date" />
+      </Helmet>
+      <AnalysisStepContainer
+        guideContent={sajuGuide}
+        loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
+        resultComponent={ReportTemplateDate}
+        loadingTime={0}
+      />
+    </>
   );
 }

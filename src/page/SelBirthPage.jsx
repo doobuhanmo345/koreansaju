@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import { useAuthContext } from '../context/useAuthContext';
 import { useUsageLimit } from '../context/useUsageLimit';
@@ -327,11 +328,27 @@ export default function SelBirthPage() {
   );
 
   return (
-    <AnalysisStepContainer
-      guideContent={sajuGuide}
-      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ReportTemplateSelBirth}
-      loadingTime={0}
-    />
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' 
+            ? '출산 택일 사주 분석 - 사자사주' 
+            : 'Childbirth Selection Saju - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '소중한 아이가 태어날 최고의 순간을 명리학적으로 분석합니다. 아기의 첫 시작을 위한 특별한 택일 서비스.' 
+            : 'Sajuological analysis for the best moment for your precious child to be born. A special selection service for baby\'s first start.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/selbirth" />
+      </Helmet>
+      <AnalysisStepContainer
+        guideContent={sajuGuide}
+        loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
+        resultComponent={ReportTemplateSelBirth}
+        loadingTime={0}
+      />
+    </>
   );
 }

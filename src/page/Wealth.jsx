@@ -18,6 +18,7 @@ import {
   ArrowRightIcon,
   ArrowDownIcon,
 } from '@heroicons/react/24/outline';
+import { Helmet } from 'react-helmet-async';
 import { LinkIcon, UserIcon, TicketIcon } from '@heroicons/react/24/solid';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 
@@ -382,6 +383,18 @@ export default function Wealth({}) {
   console.log(aiResult)
   return (
     <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '재물운 및 평생 부 분석 | 사자사주' : 'Wealth & Life Fortune Analysis | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '당신의 타고난 재물 복과 부의 흐름을 분석합니다. 언제 큰 돈이 들어오는지, 효과적인 자산 관리 방법은 무엇인지 사주로 확인하세요.' 
+            : 'Analyze your innate wealth luck and the flow of fortune. Check through Saju when big money comes in and effective asset management methods.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/wealth" />
+      </Helmet>
       {/* 상단 단계 표시바 (Stepper) */}
       {step > 0 && (
         <Step
@@ -448,12 +461,11 @@ export default function Wealth({}) {
           <WealthAppeal />
         </div>
       )}
+
       {/* ================================================= */}
-      {/* 🟢 STEP 1: 관계 선택 (Relationship) */}
+      {/* 🟢 STEP 1: 재물운 주제 선택 */}
       {/* ================================================= */}
       {step === 1 && (
-        // const { language } = useLanguage(); // 상단에 선언되어 있어야 함
-
         <div className="w-full max-w-3xl mx-auto px-1 animate-fadeIn">
           <div className="flex flex-col gap-6">
             <div className="text-center mb-6">

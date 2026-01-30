@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Solar } from 'lunar-javascript';
 import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 import {
@@ -1139,7 +1140,20 @@ const BasicAna = ({}) => {
 
   const t = (char) => (language === 'en' ? getEng(char) : char);
   return (
-    <div className="max-w-2xl mx-auto  flex flex-col items-center transition-colors">
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '정통 만세력 분석 - 사자사주' : 'Authentic Saju Analysis - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '당신의 생년월일시로 분석하는 정통 만세력과 오행 조화. 나만의 고유한 기질과 운명의 흐름을 확인하세요.' 
+            : 'Authentic Saju and Five Element harmony analyzed with your birth date and time. Check your unique temperament and the flow of destiny.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/ana" />
+      </Helmet>
+      <div className="max-w-2xl mx-auto  flex flex-col items-center transition-colors">
       <div className="bg-white dark:bg-slate-800 w-full rounded-sm shadow-xl overflow-hidden relative mb-8 transition-colors">
         <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         <div className="w-full overflow-x-auto mt-2">
@@ -1561,6 +1575,7 @@ const BasicAna = ({}) => {
         {language === 'en' ? 'Share My Signature' : '나의 결과 저장하기'}
       </button>
     </div>
+    </>
   );
 };
 

@@ -23,6 +23,7 @@ import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
 import { DateService } from '../utils/dateService';
 import StartButton from '../component/StartButton';
+import { Helmet } from 'react-helmet-async';
 export default function TarotLovePage() {
   const { loading, setLoading, setLoadingType, setAiResult } = useLoading();
   const { userData, user } = useAuthContext();
@@ -322,11 +323,25 @@ export default function TarotLovePage() {
   }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
 
   return (
-    <AnalysisStepContainer
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '연애 타로 - 상대방 속마음 분석 | 사자사주' : 'Love Tarot - Card Reading | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '상대방의 속마음, 새로운 인연, 재회운까지. 타로 카드로 당신의 연애 흐름과 사랑의 해답을 정밀하게 분석해 드립니다.' 
+            : 'Analyze your love flow and find answers to love with Tarot cards. From your opponent’s inner thoughts to new relationships and reunions.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/tarot/love" />
+      </Helmet>
+      <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<TarotLoading />}
       resultComponent={() => <ResultComponent />}
       loadingTime={0}
     />
+    </>
   );
 }

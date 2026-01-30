@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import SajuIntroSection from '../component/SajuIntroSection2';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -413,7 +414,16 @@ const NewYearAdEn = () => {
 
   if (loading) return <Loading />;
   return (
-    <div className="bg-white">
+    <>
+      <Helmet>
+        <title>2026 Free Yearly Fortune - SAZA SAJU</title>
+        <meta 
+          name="description" 
+          content="What's in store for you in 2026? Check out the free yearly fortune and detailed analysis report provided by SAZA SAJU. Get insights to brighten your new year." 
+        />
+        <link rel="canonical" href="https://sazasaju.com/newyearaden" />
+      </Helmet>
+      <div className="bg-white">
       {step !== 0.5 && step !== 'result' && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -899,6 +909,7 @@ const NewYearAdEn = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

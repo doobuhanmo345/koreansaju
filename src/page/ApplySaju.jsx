@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { db } from '../lib/firebase';
 import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { useAuthContext } from '../context/useAuthContext';
@@ -113,6 +114,14 @@ export default function ApplySaju() {
 
   return (
     <div className=" bg-gray-50 dark:bg-slate-950 py-12 px-4 transition-colors duration-300">
+      <Helmet>
+        <title>전문가 신청 - 사자사주 / SAZA SAJU</title>
+        <meta 
+          name="description" 
+          content="사자사주와 함께할 유능한 명리학 전문가를 모십니다. 당신의 전문 지식으로 더 많은 사람들에게 도움을 주세요." 
+        />
+        <link rel="canonical" href="https://sazasaju.com/apply-saju-consultant" />
+      </Helmet>
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-10">
           <button

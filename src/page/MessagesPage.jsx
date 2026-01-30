@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { db } from '../lib/firebase';
 import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { useAuthContext } from '../context/useAuthContext';
@@ -72,6 +73,18 @@ export default function MessagesPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <Helmet>
+        <title>
+          {language === 'ko' ? '메시지함 - 사자사주' : 'Inbox - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '사자사주 전문가와 주고받은 메시지를 확인하고 관리하세요. 나의 상담 내역을 한눈에 볼 수 있습니다.' 
+            : 'Check and manage messages exchanged with SAZA SAJU experts. View your counseling history at a glance.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/messages" />
+      </Helmet>
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">

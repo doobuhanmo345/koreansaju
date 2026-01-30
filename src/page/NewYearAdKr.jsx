@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import SajuIntroSection from '../component/SajuIntroSection2';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -418,7 +419,16 @@ const NewYearAdKr = () => {
 
   if (loading) return <Loading />;
   return (
-    <div className="bg-white">
+    <>
+      <Helmet>
+        <title>2026 무료 신년운세 - 사자사주 / SAZA SAJU</title>
+        <meta 
+          name="description" 
+          content="2026년 당신의 운세는 어떨까요? 사자사주에서 제공하는 무료 신년운세와 정밀 분석 리포트를 확인하세요. 당신의 새해를 밝혀줄 통찰을 얻으세요." 
+        />
+        <link rel="canonical" href="https://sazasaju.com/newyearadkr" />
+      </Helmet>
+      <div className="bg-white">
       {step !== 0.5 && step !== 'result' && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -882,6 +892,7 @@ const NewYearAdKr = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

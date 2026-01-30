@@ -16,6 +16,7 @@ import CreditIcon from '../ui/CreditIcon';
 import TarotLoading from '../component/TarotLoading';
 import { DateService } from '../utils/dateService';
 import StartButton from '../component/StartButton';
+import { Helmet } from 'react-helmet-async';
 
 // [2] 메인 페이지 컴포넌트
 export default function TarotDailyPage() {
@@ -239,11 +240,25 @@ export default function TarotDailyPage() {
   }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
 
   return (
-    <AnalysisStepContainer
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '오늘의 타로 운세 | 사자사주' : 'Daily Tarot Reading | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '오늘 당신의 운 흐름을 타로 카드로 확인해보세요. 나만을 위한 오늘의 에너지가 담긴 특별한 가이드를 제공합니다.' 
+            : 'Check your energy flow for today with Tarot cards. We provide a special guide with today\'s energy just for you.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/tarot/daily" />
+      </Helmet>
+      <AnalysisStepContainer
       guideContent={tarotContent}
       loadingContent={<TarotLoading />}
       resultComponent={() => <ResultComponent />}
       loadingTime={0}
     />
+    </>
   );
 }

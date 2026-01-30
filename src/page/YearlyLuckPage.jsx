@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -181,6 +182,18 @@ export default function YearlyLuckPage() {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '2026 신년운세 토정비결 - 사자사주' : '2026 Yearly Fortune - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '2026년 한 해의 흐름과 월별 운세를 미리 확인하세요. 사자사주가 전하는 2026년 행운의 조언.' 
+            : 'Check your 2026 yearly flow and monthly fortunes in advance. 2026 lucky advice from SAZA SAJU.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/2026luck" />
+      </Helmet>
       <AnalysisStepContainer
         guideContent={sajuGuide}
         loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}

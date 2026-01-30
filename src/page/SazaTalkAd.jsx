@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import SajuIntroSection from '../component/SajuIntroSection2';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -427,7 +428,20 @@ const SazaTalkAd = () => {
   };
   if (loading) return <Loading />;
   return (
-    <div className="bg-white">
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '무엇이든 물어보사자 - 전문가 AI 상담 | 사자사주' : 'Ask Saza - Expert AI Consultation | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '사주 전문가의 지혜를 담은 명쾌한 해답. 연애, 직장, 금전 등 당신의 모든 고민에 대해 사주를 바탕으로 맞춤 솔루션을 제시합니다.' 
+            : 'Clear answers with the wisdom of Saju experts. Get personalized solutions for love, work, money, and all your concerns based on Saju.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/sazatalk" />
+      </Helmet>
+      <div className="bg-white">
       {step !== 0.5 && step !== 'result' && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -804,6 +818,7 @@ const SazaTalkAd = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

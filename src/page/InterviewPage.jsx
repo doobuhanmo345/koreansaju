@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -380,11 +381,27 @@ export default function InterviewPage() {
   );
 
   return (
-    <AnalysisStepContainer
-      guideContent={sajuGuide}
-      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ReportTemplateInterview}
-      loadingTime={0}
-    />
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' 
+            ? '면접 및 시험 합격운 - 사자사주' 
+            : 'Interview & Exam Pass Luck - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '중요한 면접이나 시험 날의 성공 확률과 최적의 전략을 제안합니다. 합격을 부르는 사주 분석.' 
+            : 'Success probability and optimal strategy for important interviews or exams. Saju analysis that calls for success.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/interview" />
+      </Helmet>
+      <AnalysisStepContainer
+        guideContent={sajuGuide}
+        loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
+        resultComponent={ReportTemplateInterview}
+        loadingTime={0}
+      />
+    </>
   );
 }

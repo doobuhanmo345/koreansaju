@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react'; // 1. useMemo 추가
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import AnalyzeButton from '../component/AnalyzeButton';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -181,11 +182,27 @@ export default function BasicAnaPage() {
   const resultComp = useCallback(() => <ReportTemplateBasic />, [aiResult]);
 
   return (
-    <AnalysisStepContainer
-      guideContent={sajuGuide}
-      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={resultComp}
-      loadingTime={0}
-    />
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' 
+            ? '사주 평생운세 & 10년 대운 - 사자사주' 
+            : 'Life Fortune & 10-Year Cycle - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '당신의 타고난 운명과 10년 주기 대운의 흐름을 분석합니다. 정통 명리학으로 풀이하는 인생의 지도.' 
+            : 'Analyze your innate destiny and the flow of the 10-year major luck cycle. A life map interpreted through authentic Sajuology.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/basic" />
+      </Helmet>
+      <AnalysisStepContainer
+        guideContent={sajuGuide}
+        loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
+        resultComponent={resultComp}
+        loadingTime={0}
+      />
+    </>
   );
 }

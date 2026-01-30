@@ -20,6 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 import TarotLoading from '../component/TarotLoading';
 import StartButton from '../component/StartButton';
+import { Helmet } from 'react-helmet-async';
 
 
 export default function TarotCounselingPage() {
@@ -272,11 +273,25 @@ const counselingPrompt = `
   }, [cardPicked]); // cardPicked가 바뀔 때만 참조가 변경됨
 
   return (
-    <AnalysisStepContainer
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '심리 상담 타로 - 당신의 마음을 읽는 시간 | 사자사주' : 'Counseling Tarot - Healing Session | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '말 못 할 고민, 마음의 짐을 타로 카드로 나누어보세요. 전문 상담사의 지혜가 담긴 AI 타로가 당신에게 따뜻한 위로와 해답을 드립니다.' 
+            : 'Share your unspoken concerns and mental burdens with Tarot cards. Experience warm comfort and answers from AI Tarot with the wisdom of professional counselors.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/tarot/counseling" />
+      </Helmet>
+      <AnalysisStepContainer
       guideContent={renderContent}
       loadingContent={<TarotLoading />}
       resultComponent={() => <ResultComponent />}
       loadingTime={0}
     />
+    </>
   );
 }

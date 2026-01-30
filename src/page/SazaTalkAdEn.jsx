@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import SajuIntroSection from '../component/SajuIntroSection2';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -454,7 +455,16 @@ const SazaTalkAdEn = () => {
   };
   if (loading) return <Loading />;
   return (
-    <div className="bg-white">
+    <>
+      <Helmet>
+        <title>Ask Saza - Expert AI Saju Consultation | SAZA SAJU</title>
+        <meta 
+          name="description" 
+          content="Get clear answers with the wisdom of Saju experts. personalized solutions for love, work, money, and all your concerns based on Saju." 
+        />
+        <link rel="canonical" href="https://sazasaju.com/sazatalk" />
+      </Helmet>
+      <div className="bg-white">
       {step !== 0.5 && step !== 'result' && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -840,6 +850,7 @@ const SazaTalkAdEn = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

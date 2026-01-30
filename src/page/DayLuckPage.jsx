@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import AnalysisStepContainer from '../component/AnalysisStepContainer';
 import ViewResult from './ViewResult';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -228,11 +229,27 @@ export default function DayLuckPage() {
   }, [loading]);
 
   return (
-    <AnalysisStepContainer
-      guideContent={sajuGuide}
-      loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
-      resultComponent={ViewResult}
-      loadingTime={0}
-    />
+    <>
+      <Helmet>
+        <title>
+          {language === 'ko' 
+            ? '특별한 하루 사주 분석 - 사자사주' 
+            : 'Special Day Saju Analysis - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '특정 날짜에 당신의 사주가 어떻게 작용하는지 정밀하게 분석합니다. 중요한 날을 위한 운세 가이드.' 
+            : 'Precise analysis of how your Saju energy interacts with a specific date. A fortune guide for your important days.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/dayluck" />
+      </Helmet>
+      <AnalysisStepContainer
+        guideContent={sajuGuide}
+        loadingContent={<LoadingFourPillar saju={saju} isTimeUnknown={isTimeUnknown} />}
+        resultComponent={ViewResult}
+        loadingTime={0}
+      />
+    </>
   );
 }

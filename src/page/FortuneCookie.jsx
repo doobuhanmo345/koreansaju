@@ -1,4 +1,5 @@
 import { useUsageLimit } from '../context/useUsageLimit';
+import { Helmet } from 'react-helmet-async';
 import { useAuthContext } from '../context/useAuthContext';
 import { setDoc, doc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -118,6 +119,18 @@ export default function FortuneCookie({}) {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '오늘의 포춘쿠키 - 사자사주' : 'Daily Fortune Cookie - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '오늘의 격언도 확인하고 보너스 크레딧도 받아가세요. 매일 한 번, 당신을 위한 드리는 행운의 메시지.' 
+            : 'Check today\'s quote and get bonus credits. A daily lucky message just for you from SAZA SAJU.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/fortunecookie" />
+      </Helmet>
       <div className="text-center mb-2 mt-2 animate-fade-in-up">
         <p className="text-xs font-bold text-indigo-400 dark:text-indigo-400 tracking-[0.2em] uppercase mb-2">
           get Extra Credit

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main -->
   <url>
-    <loc>https://sazasaju.com/</loc>
+    <loc>https://sazasaju.com</loc>
     <lastmod>2026-01-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -30,4 +30,10 @@
   <url><loc>https://sazasaju.com/fortunecookie</loc><lastmod>2026-01-30</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
   <url><loc>https://sazasaju.com/wealth</loc><lastmod>2026-01-30</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://sazasaju.com/sajuexp</loc><lastmod>2026-01-30</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- Ad/Landing Pages -->
+  <url><loc>https://sazasaju.com/newyearadkr</loc><lastmod>2026-01-30</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sazasaju.com/newyearaden</loc><lastmod>2026-01-30</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://sazasaju.com/sazatalkadkr</loc><lastmod>2026-01-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://sazasaju.com/sazatalkad</loc><lastmod>2026-01-30</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>

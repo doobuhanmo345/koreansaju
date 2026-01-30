@@ -34,6 +34,7 @@ import { useSajuCalculator } from '../hooks/useSajuCalculator';
 // 6. UI Components
 import Step from '../ui/Step';
 import ModifyBd from '../ui/ModifyBd';
+import { Helmet } from 'react-helmet-async';
 import EnergyBadge from '../ui/EnergyBadge';
 import LoadingBar from '../ui/LoadingBar';
 import { SajuAnalysisService, AnalysisPresets } from '../service/SajuAnalysisService';
@@ -317,6 +318,18 @@ export default function Match({}) {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {language === 'ko' ? '사주 궁합 분석 | 사자사주' : 'Saju Compatibility Analysis | SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '두 사람의 사주 명식으로 분석하는 운명적 궁합과 조화. 연인, 부부, 사업 파트너 등 다양한 관계의 시너지를 확인하세요.' 
+            : 'Explore the destined compatibility and harmony between two people through Saju analysis. Check synergies for lovers, spouses, and business partners.'} 
+        />
+        <link rel="canonical" href="https://sazasaju.com/match" />
+      </Helmet>
       {/* 상단 단계 표시바 (Stepper) */}
       {step > 0 && (
         <Step

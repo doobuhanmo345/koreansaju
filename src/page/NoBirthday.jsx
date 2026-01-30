@@ -1,4 +1,5 @@
 import React, { useState,useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useAuthContext } from '../context/useAuthContext';
 import { useLanguage } from '../context/useLanguageContext';
 import {
@@ -250,6 +251,17 @@ export default function NoBirthday() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-white dark:bg-slate-950 py-12 px-4 flex flex-col items-center justify-center pt-32">
+      <Helmet>
+        <title>
+          {language === 'ko' ? '사주 정보 입력 - 사자사주' : 'Enter Saju Info - SAZA SAJU'}
+        </title>
+        <meta 
+          name="description" 
+          content={language === 'ko' 
+            ? '당신의 운명을 분석하기 위해 생년월일과 태어난 시간, 장소를 입력해주세요. 사자사주가 당신만의 맞춤 리포트를 준비합니다.' 
+            : 'Please enter your birth date, time, and place to analyze your destiny. SAZA SAJU prepares a personalized report for you.'} 
+        />
+      </Helmet>
       
       {/* Progress Header (Always at top) */}
       <div className="fixed top-0 left-0 w-full z-50">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import SajuIntroSection from '../component/SajuIntroSection2';
 import { useLanguage } from '../context/useLanguageContext';
 import { useSajuCalculator } from '../hooks/useSajuCalculator';
@@ -451,7 +452,16 @@ const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
   };
   if (loading) return <Loading />;
   return (
-    <div className="bg-white">
+    <>
+      <Helmet>
+        <title>무엇이든 물어보사자 - 전문가 AI 사주 상담 | 사자사주</title>
+        <meta 
+          name="description" 
+          content="사주 전문가의 지혜를 담은 명쾌한 해답. 연애, 직장, 금전 등 당신의 모든 고민에 대해 사주를 바탕으로 맞춤 솔루션을 제시합니다." 
+        />
+        <link rel="canonical" href="https://sazasaju.com/sazatalk" />
+      </Helmet>
+      <div className="bg-white">
       {step !== 0.5 && step !== 'result' && !isAnalyzing && (
         <button
           onClick={handleBack}
@@ -837,6 +847,7 @@ const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
         </div>
       )}
     </div>
+    </>
   );
 };
 
