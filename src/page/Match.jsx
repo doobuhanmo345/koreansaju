@@ -261,7 +261,11 @@ export default function Match({}) {
 
   const handleMatch = async () => {
     if (!inputDate) {
-      alert(language === 'ko' ? '사주 정보를 먼저 등록해 주세요.' : 'Please register your Saju info first.');
+      alert(
+        language === 'ko'
+          ? '사주 정보를 먼저 등록해 주세요.'
+          : 'Please register your Saju info first.',
+      );
       navigate('/');
       return;
     }
@@ -306,7 +310,6 @@ export default function Match({}) {
   const [data, setData] = useState(null); // 파싱된 데이터를 담을 로컬 상태
   // [수정] 더 강력한 파싱 함수 및 에러 로그 추가
 
-
   useEffect(() => {
     if (aiResult) {
       const parsedData = parseAiResponse(aiResult);
@@ -320,13 +323,17 @@ export default function Match({}) {
     <>
       <Helmet>
         <title>
-          {language === 'ko' ? '사주 궁합 분석 | 사자사주' : 'Saju Compatibility Analysis | SAZA SAJU'}
+          {language === 'ko'
+            ? '사주 궁합 분석 | 사자사주'
+            : 'Saju Compatibility Analysis | SAZA SAJU'}
         </title>
-        <meta 
-          name="description" 
-          content={language === 'ko' 
-            ? '두 사람의 사주 명식으로 분석하는 운명적 궁합과 조화. 연인, 부부, 사업 파트너 등 다양한 관계의 시너지를 확인하세요.' 
-            : 'Explore the destined compatibility and harmony between two people through Saju analysis. Check synergies for lovers, spouses, and business partners.'} 
+        <meta
+          name="description"
+          content={
+            language === 'ko'
+              ? '두 사람의 사주 명식으로 분석하는 운명적 궁합과 조화. 연인, 부부, 사업 파트너 등 다양한 관계의 시너지를 확인하세요.'
+              : 'Explore the destined compatibility and harmony between two people through Saju analysis. Check synergies for lovers, spouses, and business partners.'
+          }
         />
         <link rel="canonical" href="https://sazasaju.com/match" />
       </Helmet>
@@ -391,7 +398,7 @@ export default function Match({}) {
               disabled={loading || (isLocked && !isAnalysisDone)}
               isDone={false}
               label={language === 'ko' ? '궁합 분석 시작하기' : 'Start Match Analysis'}
-              color='rose'
+              color="rose"
             />
             {isLocked && !isAnalysisDone ? (
               <p className="mt-4 text-center text-rose-600 font-black text-sm flex items-center justify-center gap-1 animate-pulse">
@@ -536,11 +543,17 @@ export default function Match({}) {
                 <div className="flex items-center justify-center gap-2 bg-slate-50 dark:bg-slate-700/30 py-3 rounded-xl mb-6 text-sm font-medium text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
                   <CalendarDaysIcon className="w-4 h-4 text-indigo-400" />
                   <span className="font-mono tracking-wide text-slate-700 dark:text-slate-300">
-                    {inputDate 
-                      ? (isTimeUnknown ? inputDate.split('T')[0] : inputDate.replace('T', ' '))
-                      : (isEn ? 'Please register your info' : '정보를 먼저 등록해주세요')}
+                    {inputDate
+                      ? isTimeUnknown
+                        ? inputDate.split('T')[0]
+                        : inputDate.replace('T', ' ')
+                      : language === 'en'
+                        ? 'Please register your info'
+                        : '정보를 먼저 등록해주세요'}
                   </span>
-                  {inputDate && <span className="text-lg ml-1">{gender === 'male' ? '👨' : '👩'}</span>}
+                  {inputDate && (
+                    <span className="text-lg ml-1">{gender === 'male' ? '👨' : '👩'}</span>
+                  )}
                   {inputDate && isTimeUnknown && (
                     <span className="text-[10px] bg-white dark:bg-slate-600 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-500 text-slate-400">
                       {UI_TEXT.unknownTime[language]}
@@ -1033,7 +1046,7 @@ export default function Match({}) {
                 <section className="space-y-6 border-t border-slate-100 dark:border-slate-800 pt-6">
                   <div>
                     <h4 className="font-xs font-black text-slate-800 uppercase tracking-widest mb-2">
-                      {isEn ? 'Synergy' : '관계 시너지'}
+                      {language === 'en' ? 'Synergy' : '관계 시너지'}
                     </h4>
                     <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
                       {data.insights.synergyPros}
@@ -1041,7 +1054,7 @@ export default function Match({}) {
                   </div>
                   <div>
                     <h4 className="font-xs font-black text-slate-800 uppercase tracking-widest mb-2">
-                      {isEn ? 'Points of Friction' : '주의할 지점'}
+                      {language === 'en' ? 'Points of Friction' : '주의할 지점'}
                     </h4>
                     <p className="text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
                       {data.insights.synergyCons}
