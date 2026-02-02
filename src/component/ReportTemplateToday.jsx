@@ -259,13 +259,36 @@ const ReportTemplateToday = ({}) => {
 }
 
 .detail-title {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 800;
   margin-bottom: 8px;
 }
 
+
+  /* 3. 섹션 타이틀 - 형광펜 블루 포인트 */
 .category-title {
-  color: #5856d6;
+  display: inline-block;
+  font-size: 1.15rem;
+  color: #1e293b;
+  margin-top: 50px;
+  margin-bottom: 24px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+  border-left: none; /* 딱딱한 선 제거 */
+  padding-left: 0;
+}
+
+.category-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 2px;
+  width: 110%;
+  height: 10px;
+  background: #dbeafe;
+  z-index: -1;
+  border-radius: 4px;
 }
 
 .detail-body {
