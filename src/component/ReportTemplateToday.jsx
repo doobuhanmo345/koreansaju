@@ -52,7 +52,6 @@ const ReportTemplateToday = ({}) => {
           </div>
         </div>
 
-        <div className="score-star-rating">{data.today.stars}</div>
         <p className="score-summary-quote">"{data.today.summary}"</p>
 
         {/* 행운 요소 */}
@@ -113,7 +112,7 @@ const ReportTemplateToday = ({}) => {
       <style>{`/* --- 2030 Minimal Line Design System --- */
 
 .fortune-container {
-  max-width: 480px;
+  max-width: 570px;
   margin: 0 auto;
   padding: 48px 20px;
   background-color: #ffffff;
